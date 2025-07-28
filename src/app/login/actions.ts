@@ -35,6 +35,13 @@ export async function signup(formData: FormData) {
     password: formData.get("password") as string,
   };
 
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  // Basic validation for password confirmation
+  if (data.password !== confirmPassword) {
+    redirect("/error");
+  }
+
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
