@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { login, signup } from "./actions";
+import { login, signup, signInWithGoogle } from "./actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,11 +15,69 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function AuthPage() {
+function AuthPageContent() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showSignupSuccess, setShowSignupSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check for success parameter from redirect
+    const success = searchParams?.get("success");
+    if (success === "true") {
+      setShowSuccessAlert(true);
+      setTimeout(() => setShowSuccessAlert(false), 5000);
+    }
+  }, [searchParams]);
+
+  const handleFormSubmit = async (formData: FormData) => {
+    setIsLoading(true);
+    setErrorMessage("");
+    setShowSignupSuccess(false);
+    
+    try {
+      if (isLogin) {
+        const result = await login(formData);
+        if (result?.error) {
+          setErrorMessage("Invalid email or password. Please try again.");
+        }
+      } else {
+        const result = await signup(formData);
+        if (result?.error) {
+          setErrorMessage(result.error);
+        } else if (result?.success) {
+          // Show signup success message for email confirmation
+          setShowSignupSuccess(true);
+          setTimeout(() => setShowSignupSuccess(false), 10000); // Show for 10 seconds
+        }
+      }
+    } catch {
+      setErrorMessage("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+    
+    try {
+      const result = await signInWithGoogle();
+      if (result?.error) {
+        setErrorMessage("Google sign-in failed. Please try again.");
+      }
+    } catch {
+      setErrorMessage("Google sign-in failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-2 sm:p-4 lg:p-6">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
@@ -26,89 +85,92 @@ export default function AuthPage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-violet-400/10 to-pink-400/10 rounded-full blur-2xl animate-spin duration-[20s]"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-center min-h-screen">
+      <div className="relative z-10 w-full max-w-none mx-auto grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch min-h-screen">
         
-        {/* Features Card */}
-        <Card className="relative bg-gradient-to-br from-navy-900 via-navy-800 to-blue-900 text-white border-0 shadow-2xl hover:shadow-[0_0_80px_rgba(30,58,138,0.4)] transition-all duration-500 transform hover:scale-[1.03] order-2 lg:order-1 overflow-hidden group" style={{background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e40af 100%)'}}>
-          {/* Card Background Effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-navy-600/10 via-blue-800/10 to-indigo-800/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-xl group-hover:bg-white/10 transition-all duration-500"></div>
-          <div className="absolute -bottom-20 -left-20 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl group-hover:bg-blue-400/20 transition-all duration-500"></div>
+        {/* Features Card - Full Left Side with No Gap */}
+        <Card className="relative bg-gradient-to-br from-navy-900 via-navy-800 to-blue-900 text-white border-0 shadow-2xl order-2 lg:order-1 overflow-hidden min-h-screen lg:min-h-full flex flex-col rounded-none lg:rounded-l-none lg:rounded-r-none" style={{background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e40af 100%)'}}>
+          {/* Static Background Effects */}
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/5 rounded-full blur-xl"></div>
+          <div className="absolute -bottom-20 -left-20 w-32 h-32 bg-blue-400/10 rounded-full blur-2xl"></div>
           
-          <CardHeader className="relative space-y-4 p-4 sm:p-6 lg:p-8">
+          <CardHeader className="relative space-y-4 p-6 lg:p-8 xl:p-12 flex-shrink-0">
             {/* Logo positioned at top left */}
-            <div className="flex justify-start mb-4">
-              <div className="group-hover:scale-110 transition-all duration-500">
+            <div className="flex justify-start mb-6">
+              <div>
                 <Image
                   src="/verfolia-logo.svg"
                   alt="Verfolia Logo"
-                  width={160}
-                  height={48}
+                  width={180}
+                  height={54}
                   className="filter brightness-125 contrast-125 drop-shadow-lg"
                   priority
                 />
               </div>
             </div>
             
-            <div className="space-y-3 text-center">
-              <CardTitle className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight bg-gradient-to-r from-cyan-200 via-blue-200 to-purple-300 bg-clip-text text-transparent drop-shadow-2xl animate-pulse">
+            <div className="space-y-4 text-left">
+              <CardTitle className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight bg-gradient-to-r from-cyan-200 via-blue-200 to-purple-300 bg-clip-text text-transparent drop-shadow-2xl leading-tight">
                 Welcome to Verfolia
               </CardTitle>
-              <CardDescription className="text-blue-100 text-base sm:text-lg font-semibold tracking-wide drop-shadow-md">
+              <CardDescription className="text-blue-100 text-lg sm:text-xl lg:text-2xl font-semibold tracking-wide drop-shadow-md">
                 Your Digital Professional Identity Platform
               </CardDescription>
             </div>
           </CardHeader>
           
-          <CardContent className="relative space-y-6 p-4 sm:p-6 lg:p-8">
-            <div className="space-y-4">
+          <CardContent className="relative space-y-8 p-6 lg:p-8 xl:p-12 flex-1 flex flex-col justify-center">
+            <div className="space-y-6">
               {[
                 "Dynamic Professional Portfolio",
                 "Career Growth Tracking & Analytics", 
                 "Skills Development Insights",
                 "Beyond Traditional Resumes"
               ].map((feature, index) => (
-                <div key={index} className="flex items-center space-x-6 group/item hover:translate-x-4 transition-all duration-500 cursor-pointer">
-                  <div className="w-4 h-4 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full group-hover/item:scale-150 transition-all duration-500 shadow-lg shadow-blue-500/50 group-hover/item:shadow-blue-400/70"></div>
-                  <span className="text-blue-50 text-base sm:text-lg font-semibold tracking-wide group-hover/item:text-white transition-colors duration-300 drop-shadow-sm">
+                <div key={index} className="flex items-center space-x-6">
+                  <div className="w-5 h-5 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full shadow-lg shadow-blue-500/50 flex-shrink-0"></div>
+                  <span className="text-blue-50 text-lg sm:text-xl lg:text-2xl font-semibold tracking-wide drop-shadow-sm">
                     {feature}
                   </span>
                 </div>
               ))}
             </div>
             
-            <div className="border-t border-white/30 pt-6">
-              <blockquote className="text-center space-y-3 relative">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-10 h-1 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full"></div>
-                <p className="text-blue-100 italic text-sm sm:text-base leading-relaxed font-medium drop-shadow-sm">
-                  "Verfolia helped me showcase my professional journey in ways a traditional resume never could. I landed my dream job!"
+            <div className="border-t border-white/30 pt-8">
+              <blockquote className="text-left space-y-4 relative">
+                <div className="w-12 h-1 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mb-6"></div>
+                <p className="text-blue-100 italic text-lg sm:text-xl lg:text-2xl leading-relaxed font-medium drop-shadow-sm">
+                  &ldquo;Verfolia helped me showcase my professional journey in ways a traditional resume never could. I landed my dream job!&rdquo;
                 </p>
-                <footer className="text-white font-bold text-xs tracking-wide drop-shadow-sm">
+                <footer className="text-white font-bold text-base tracking-wide drop-shadow-sm">
                   — Alex Martinez, Software Engineer
                 </footer>
               </blockquote>
             </div>
             
-            <div className="bg-gradient-to-r from-white/10 to-blue-300/10 rounded-2xl p-4 text-center backdrop-blur-sm border border-white/30 hover:bg-gradient-to-r hover:from-white/15 hover:to-blue-300/15 transition-all duration-500 group/cta shadow-lg hover:shadow-xl">
-              <p className="text-xs text-blue-200 mb-2 font-semibold tracking-wide group-hover/cta:text-blue-100 transition-colors duration-300">
+            <div className="bg-gradient-to-r from-white/10 to-blue-300/10 rounded-2xl p-6 lg:p-8 text-left backdrop-blur-sm border border-white/30 shadow-lg">
+              <p className="text-sm text-blue-200 mb-3 font-semibold tracking-wide">
                 Take control of your career
               </p>
-              <p className="text-white font-black text-base tracking-wide group-hover/cta:scale-105 transition-transform duration-300 drop-shadow-md">
+              <p className="text-white font-black text-xl lg:text-2xl tracking-wide drop-shadow-md">
                 Join 10,000+ professionals building their digital identity
               </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Auth Card */}
-        <Card className="relative bg-white/80 backdrop-blur-xl shadow-2xl border border-white/20 hover:shadow-[0_0_80px_rgba(148,163,184,0.3)] transition-all duration-500 transform hover:scale-[1.02] order-1 lg:order-2 overflow-hidden group">
+        {/* Auth Card - Full Right Side with Hover Effects */}
+        <Card className="relative bg-white/90 backdrop-blur-xl shadow-2xl border border-white/20 hover:shadow-[0_0_80px_rgba(148,163,184,0.3)] transition-all duration-500 transform hover:scale-[1.02] order-1 lg:order-2 overflow-hidden group min-h-screen lg:min-h-full flex flex-col rounded-none lg:rounded-l-none lg:rounded-r-none p-4 sm:p-6 lg:p-8">
           {/* Glass effect overlay */}
           <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           
           <CardHeader className="relative text-center space-y-4 p-4 sm:p-6">
             <div className="flex justify-center bg-gradient-to-r from-slate-100 to-blue-50 rounded-2xl p-2 mb-4 shadow-inner">
               <button
-                onClick={() => setIsLogin(true)}
+                onClick={() => {
+                  setIsLogin(true);
+                  setErrorMessage("");
+                  setShowSignupSuccess(false);
+                }}
                 className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-bold transition-all duration-500 tracking-wide relative overflow-hidden ${
                   isLogin
                     ? 'bg-gradient-to-r from-slate-900 to-blue-900 text-white shadow-lg transform scale-105 shadow-slate-900/30'
@@ -119,7 +181,11 @@ export default function AuthPage() {
                 {isLogin && <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 animate-pulse"></div>}
               </button>
               <button
-                onClick={() => setIsLogin(false)}
+                onClick={() => {
+                  setIsLogin(false);
+                  setErrorMessage("");
+                  setShowSignupSuccess(false);
+                }}
                 className={`px-4 sm:px-6 py-2 rounded-lg text-sm font-bold transition-all duration-500 tracking-wide relative overflow-hidden ${
                   !isLogin
                     ? 'bg-gradient-to-r from-slate-900 to-blue-900 text-white shadow-lg transform scale-105 shadow-slate-900/30'
@@ -145,7 +211,42 @@ export default function AuthPage() {
           </CardHeader>
           
           <CardContent className="relative p-4 sm:p-6">
-            <form className="space-y-4">
+            {/* Success Alert */}
+            {showSuccessAlert && (
+              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg animate-pulse">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                  <span className="font-semibold">Success! You are now signed in.</span>
+                </div>
+              </div>
+            )}
+
+            {/* Signup Success Alert - Email Confirmation */}
+            {showSignupSuccess && (
+              <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-800 rounded-lg">
+                <div className="flex items-start">
+                  <div className="w-5 h-5 bg-blue-500 rounded-full mr-3 mt-0.5 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-bold mb-2">Confirm your signup</div>
+                    <div className="text-sm leading-relaxed">
+                      We&apos;ve sent you an email with a confirmation link. Please check your inbox and follow the link to confirm your account and complete the signup process.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Error Alert */}
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
+                  <span className="font-semibold">{errorMessage}</span>
+                </div>
+              </div>
+            )}
+
+            <form action={handleFormSubmit} className="space-y-4">
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-bold text-slate-700 tracking-wide">
                   Email Address
@@ -202,10 +303,13 @@ export default function AuthPage() {
 
               <div className="space-y-3 pt-4">
                 <Button 
-                  formAction={isLogin ? login : signup}
-                  className="w-full h-12 bg-gradient-to-r from-slate-900 to-blue-900 hover:from-slate-800 hover:to-blue-800 text-white font-bold text-base rounded-xl transition-all duration-500 hover:shadow-xl hover:scale-[1.03] tracking-wide relative overflow-hidden group/btn"
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-gradient-to-r from-slate-900 to-blue-900 hover:from-slate-800 hover:to-blue-800 text-white font-bold text-base rounded-xl transition-all duration-500 hover:shadow-xl hover:scale-[1.03] tracking-wide relative overflow-hidden group/btn disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="relative z-10">{isLogin ? 'Sign In' : 'Create Account'}</span>
+                  <span className="relative z-10">
+                    {isLoading ? "Please wait..." : (isLogin ? 'Sign In' : 'Create Account')}
+                  </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
                 </Button>
                 
@@ -221,7 +325,9 @@ export default function AuthPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-12 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-bold text-base rounded-xl transition-all duration-500 hover:shadow-xl hover:scale-[1.03] flex items-center justify-center space-x-3 bg-white/70 backdrop-blur-sm group/google"
+                  onClick={handleGoogleSignIn}
+                  disabled={isLoading}
+                  className="w-full h-12 border-2 border-slate-300 hover:border-slate-400 hover:bg-slate-50 text-slate-700 font-bold text-base rounded-xl transition-all duration-500 hover:shadow-xl hover:scale-[1.03] flex items-center justify-center space-x-3 bg-white/70 backdrop-blur-sm group/google disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <svg className="w-5 h-5 group-hover/google:scale-110 transition-transform duration-300" viewBox="0 0 24 24">
                     <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -229,7 +335,9 @@ export default function AuthPage() {
                     <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
-                  <span className="tracking-wide">Google</span>
+                  <span className="tracking-wide">
+                    {isLoading ? "Signing in..." : "Google"}
+                  </span>
                 </Button>
               </div>
             </form>
@@ -250,5 +358,17 @@ export default function AuthPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-slate-600 text-xl">Loading...</div>
+      </div>
+    }>
+      <AuthPageContent />
+    </Suspense>
   );
 }

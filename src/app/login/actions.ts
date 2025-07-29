@@ -18,11 +18,12 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data);
 
   if (error) {
-    redirect("/error");
+    console.error("Login error:", error.message);
+    return { error: error.message };
   }
 
   revalidatePath("/", "layout");
-  redirect("/account");
+  redirect("/?success=signin");
 }
 
 export async function signup(formData: FormData) {
@@ -39,15 +40,44 @@ export async function signup(formData: FormData) {
 
   // Basic validation for password confirmation
   if (data.password !== confirmPassword) {
-    redirect("/error");
+    console.error("Password confirmation mismatch");
+    return { error: "Passwords do not match" };
+  }
+
+  // Basic password validation
+  if (data.password.length < 6) {
+    console.error("Password too short");
+    return { error: "Password must be at least 6 characters long" };
   }
 
   const { error } = await supabase.auth.signUp(data);
 
   if (error) {
-    redirect("/error");
+    console.error("Signup error:", error.message);
+    return { error: error.message };
   }
 
-  revalidatePath("/", "layout");
-  redirect("/account");
+  // Return success instead of redirecting immediately
+  // User needs to confirm email before being redirected
+  return { success: true };
+}
+
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback?success=google`,
+    },
+  });
+
+  if (error) {
+    console.error("Google OAuth error:", error.message);
+    return { error: error.message };
+  }
+
+  if (data.url) {
+    redirect(data.url);
+  }
 }
