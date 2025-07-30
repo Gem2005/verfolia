@@ -1,7 +1,29 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Upload, User, Loader2 } from "lucide-react";
 import Image from "next/image";
+
+// Helper function to validate if a string is a valid URL
+function isValidUrl(string: string): boolean {
+  try {
+    new URL(string);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Helper function to check if URL is safe for Next.js Image component
+function isSafeImageUrl(url: string): boolean {
+  return (
+    url.startsWith("blob:") ||
+    url.startsWith("data:") ||
+    url.startsWith("/") ||
+    isValidUrl(url)
+  );
+}
 
 export default function Avatar({
   uid,
@@ -32,10 +54,22 @@ export default function Avatar({
         setAvatarUrl(url);
       } catch (error) {
         console.log("Error downloading image: ", error);
+        setAvatarUrl(null);
       }
     }
 
-    if (url) downloadImage(url);
+    if (!url) {
+      setAvatarUrl(null);
+      return;
+    }
+
+    // If it's already a valid URL (blob, data, http, etc.), use it directly
+    if (isSafeImageUrl(url)) {
+      setAvatarUrl(url);
+    } else {
+      // Otherwise, try to download from Supabase storage
+      downloadImage(url);
+    }
   }, [url, supabase]);
 
   const uploadAvatar: React.ChangeEventHandler<HTMLInputElement> = async (
@@ -61,46 +95,74 @@ export default function Avatar({
       }
 
       onUpload(filePath);
-    } catch {
-      alert("Error uploading avatar!");
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div>
-      {avatarUrl ? (
-        <Image
-          width={size}
-          height={size}
-          src={avatarUrl}
-          alt="Avatar"
-          className="avatar image"
-          style={{ height: size, width: size }}
-        />
-      ) : (
+    <div className="flex flex-col items-center space-y-4">
+      <div className="relative group">
         <div
-          className="avatar no-image"
-          style={{ height: size, width: size }}
-        />
-      )}
-      <div style={{ width: size }}>
-        <label className="button primary block" htmlFor="single">
-          {uploading ? "Uploading ..." : "Upload"}
-        </label>
+          className="relative overflow-hidden rounded-full border-4 border-border bg-muted"
+          style={{ width: size, height: size }}
+        >
+          {avatarUrl && isSafeImageUrl(avatarUrl) ? (
+            <Image
+              width={size}
+              height={size}
+              src={avatarUrl}
+              alt="Avatar"
+              className="object-cover w-full h-full"
+              unoptimized={
+                avatarUrl.startsWith("blob:") || avatarUrl.startsWith("data:")
+              }
+              onError={() => setAvatarUrl(null)}
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full bg-muted">
+              <User className="w-1/3 h-1/3 text-muted-foreground" />
+            </div>
+          )}
+
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Upload className="w-6 h-6 text-white" />
+          </div>
+        </div>
+
+        {/* Hidden file input */}
         <input
-          style={{
-            visibility: "hidden",
-            position: "absolute",
-          }}
           type="file"
-          id="single"
+          id="avatar-upload"
           accept="image/*"
           onChange={uploadAvatar}
           disabled={uploading}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
       </div>
+
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={uploading}
+        className="text-sm"
+        onClick={() => document.getElementById("avatar-upload")?.click()}
+      >
+        {uploading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Uploading...
+          </>
+        ) : (
+          <>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Avatar
+          </>
+        )}
+      </Button>
     </div>
   );
 }
