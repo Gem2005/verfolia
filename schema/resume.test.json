@@ -1,0 +1,75 @@
+{
+  "idx": 0,
+  "id": "53488185-773c-4fd4-b567-b8eb6c5086aa",
+  "user_id": "16e33e92-0916-41c2-a423-ac10f80d05af",
+  "title": "sertetre",
+  "slug": "sertetre-1753195357-568a4595-7156-16e33e92",
+  "template_id": "default",
+  "is_public": true,
+  "personal_info": {
+    "email": "tejasnasre.dev@gmail.com",
+    "phone": "43434344",
+    "github": "",
+    "summary": "wwwwwwwwwwwwwwwddddddd",
+    "website": "https://tejasnasre.is-a.dev/",
+    "linkedin": "https://www.linkedin.com/in/tejasnasre",
+    "location": "Nagpur",
+    "full_name": "Tejas Nasre"
+  },
+  "experience": [
+    {
+      "id": "1753195297547-t61p0m0oj",
+      "company": "dddd",
+      "current": false,
+      "end_date": "2025-06",
+      "location": "dddd",
+      "position": "ddd",
+      "start_date": "2025-08",
+      "description": "ddddd"
+    }
+  ],
+  "education": [
+    {
+      "id": "1753195310539-v44g9mvne",
+      "gpa": "4",
+      "field": "ghhg",
+      "degree": "ddd",
+      "end_date": "2026-12",
+      "start_date": "2025-12",
+      "description": "",
+      "institution": "ddd"
+    }
+  ],
+  "skills": [
+    {
+      "id": "1753195332643-t9wc9j32z",
+      "name": "dddd",
+      "level": "Advanced",
+      "category": "Communication"
+    },
+    {
+      "id": "1753195338531-75g766jle",
+      "name": "ddd",
+      "level": "Advanced",
+      "category": "Communication"
+    }
+  ],
+  "projects": [
+    {
+      "id": "1753195344843-5cfhmuj44",
+      "url": "ddd",
+      "name": "ddddd",
+      "github": "ddd",
+      "end_date": "",
+      "start_date": "",
+      "description": "ddd",
+      "technologies": ["dddd"]
+    }
+  ],
+  "certifications": [],
+  "languages": [],
+  "custom_sections": [],
+  "theme_config": {},
+  "created_at": "2025-07-22 14:42:37.006917+00",
+  "updated_at": "2025-07-22 14:42:37.006917+00"
+}
