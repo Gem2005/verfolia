@@ -1,20 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { useState, useEffect } from "react";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
-import Image from "next/image";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -26,6 +15,18 @@ const navigationLinks = [
 
 export default function Navbar() {
   const { isAuthenticated, loading, user, signOut } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -36,127 +37,247 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center justify-between px-4">
-        {/* Left side */}
-        <div className="flex items-center gap-6">
-          {/* Mobile menu trigger */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                className="group size-8 md:hidden"
-                variant="ghost"
-                size="icon"
+    <>
+      {/* Main Navbar */}
+      <nav className="fixed top-6 left-0 right-0 z-50 w-full">
+        <div className="mx-auto max-w-fit px-6">
+          <div
+            className="flex items-center justify-between px-6 py-3 rounded-3xl"
+            style={{
+              backdropFilter: "blur(20px)",
+              backgroundColor: "rgba(0, 0, 0, 0.02)",
+            }}
+          >
+            {/* Logo Section */}
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center space-x-3">
+                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">V</span>
+                </div>
+                <span className="text-white text-2xl font-bold tracking-tight">
+                  Verfolia
+                </span>
+              </Link>
+            </div>
+
+            {/* Navigation Links - Desktop */}
+            <div className="hidden md:flex items-center space-x-2 mx-8">
+              {navigationLinks.map((link, index) => (
+                <Link
+                  key={index}
+                  href={link.href}
+                  className="px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
+                  style={{
+                    backgroundColor: "rgba(244, 247, 249, 0)",
+                    border: "1px solid rgba(221, 229, 237, 0)",
+                  }}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-3">
+              {loading ? (
+                // Show loading state
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-16 animate-pulse rounded-2xl bg-white/10"></div>
+                  <div className="h-9 w-24 animate-pulse rounded-2xl bg-white/10"></div>
+                </div>
+              ) : isAuthenticated ? (
+                // Show authenticated user options
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-400 hidden sm:block mr-2">
+                    {user?.email}
+                  </span>
+                  <Link
+                    href="/account"
+                    className="hidden md:block px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
+                    style={{
+                      backgroundColor: "rgba(244, 247, 249, 0)",
+                      border: "1px solid rgba(221, 229, 237, 0)",
+                    }}
+                  >
+                    Account
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="hidden md:block px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium border border-white/10"
+                    style={{
+                      backgroundColor: "rgba(244, 247, 249, 0)",
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                // Show non-authenticated user options
+                <div className="flex items-center space-x-2">
+                  <Link
+                    href="/login"
+                    className="hidden md:block px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
+                    style={{
+                      backgroundColor: "rgba(244, 247, 249, 0)",
+                      border: "1px solid rgba(221, 229, 237, 0)",
+                    }}
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="hidden md:block px-4 py-2 rounded-2xl bg-white text-black hover:bg-gray-100 transition-colors duration-200 text-sm font-medium"
+                  >
+                    Sign up for free
+                  </Link>
+                </div>
+              )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="md:hidden size-9 flex items-center justify-center text-white hover:text-gray-300 transition-colors ml-2"
               >
                 <svg
-                  className="pointer-events-none"
-                  width={16}
-                  height={16}
+                  width={20}
+                  height={20}
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path
-                    d="M4 12L20 12"
-                    className="origin-center -translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[315deg]"
-                  />
-                  <path
-                    d="M4 12H20"
-                    className="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-aria-expanded:rotate-45"
-                  />
-                  <path
-                    d="M4 12H20"
-                    className="origin-center translate-y-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[135deg]"
-                  />
+                  <path d="M4 6h16" />
+                  <path d="M4 12h16" />
+                  <path d="M4 18h16" />
                 </svg>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-36 p-1 md:hidden">
-              <NavigationMenu className="max-w-none *:w-full">
-                <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
-                  {navigationLinks.map((link, index) => (
-                    <NavigationMenuItem key={index} className="w-full">
-                      <NavigationMenuLink
-                        href={link.href}
-                        className="py-1.5"
-                        active={link.active}
-                      >
-                        {link.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </PopoverContent>
-          </Popover>
-          {/* Main nav */}
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center space-x-2">
-              <Image
-                src="/verfolia-logo.svg"
-                alt="Verfolia"
-                width={120}
-                height={32}
-                priority
-                className="h-8 w-auto"
-              />
-            </Link>
-            {/* Navigation menu */}
-            <NavigationMenu className="max-md:hidden">
-              <NavigationMenuList className="gap-2">
-                {navigationLinks.map((link, index) => (
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink
-                      active={link.active}
-                      href={link.href}
-                      className="text-muted-foreground hover:text-primary py-1.5 font-medium"
-                    >
-                      {link.label}
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
+              </button>
+
+              {/* Theme Toggle - At the end */}
+              <ThemeToggle />
+            </div>
           </div>
         </div>
-        {/* Right side */}
-        <div className="flex items-center gap-4">
-          {loading ? (
-            // Show loading state
-            <div className="flex items-center gap-2">
-              <div className="h-8 w-16 animate-pulse rounded bg-muted"></div>
-              <div className="h-8 w-20 animate-pulse rounded bg-muted"></div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Menu Content */}
+          <div className="relative h-full flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6">
+              <Link href="/" className="flex items-center space-x-3">
+                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">V</span>
+                </div>
+                <span className="text-white text-2xl font-bold tracking-tight">
+                  Verfolia
+                </span>
+              </Link>
+
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="size-10 flex items-center justify-center text-white hover:text-gray-300 transition-colors"
+              >
+                <svg
+                  width={24}
+                  height={24}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6L6 18" />
+                  <path d="M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          ) : isAuthenticated ? (
-            // Show authenticated user options
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground hidden sm:block">
-                {user?.email}
-              </span>
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/account">Account</Link>
-              </Button>
-              <Button onClick={handleSignOut} variant="outline" size="sm">
-                Sign Out
-              </Button>
+
+            {/* Navigation Links */}
+            <div className="flex-1 flex flex-col justify-center px-6">
+              <nav className="space-y-8">
+                {navigationLinks.map((link, index) => (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+
+                {/* Additional mobile links */}
+                <Link
+                  href="#blogs"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                >
+                  Blogs
+                </Link>
+
+                <Link
+                  href="#solutions"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                >
+                  Solutions
+                </Link>
+
+                <Link
+                  href="#documentation"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                >
+                  Documentation
+                </Link>
+              </nav>
             </div>
-          ) : (
-            // Show non-authenticated user options
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Sign In</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/login">Get Started</Link>
-              </Button>
+
+            {/* Bottom Action */}
+            <div className="p-6">
+              {isAuthenticated ? (
+                <div className="space-y-4">
+                  <Link
+                    href="/account"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full py-4 text-center bg-white text-black rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors"
+                  >
+                    Account
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block w-full py-4 text-center border border-white/20 text-white rounded-full text-lg font-semibold hover:bg-white/10 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block w-full py-4 text-center bg-white text-black rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors"
+                >
+                  Sign up for free
+                </Link>
+              )}
             </div>
-          )}
+          </div>
         </div>
-      </div>
-    </header>
+      )}
+    </>
   );
 }

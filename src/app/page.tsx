@@ -11,8 +11,8 @@ export default function HomePage() {
   return (
     <AppLayout>
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-secondary/10">
-        <div className="container relative z-10 mx-auto px-4 py-16 sm:py-24 lg:py-32">
+      <div className="h-screen relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+        <div className="h-screen mt-44">
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
