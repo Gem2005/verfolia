@@ -19,7 +19,7 @@ export function AppLayout({
   return (
     <div className="min-h-screen flex flex-col">
       {showNavbar && <Navbar />}
-      <main className={`flex-1 ${showNavbar ? "" : ""} ${className}`}>
+      <main className={`flex-1  ${showNavbar ? "" : ""} ${className}`}>
         {children}
       </main>
       {showFooter && <Footer />}

@@ -1,4 +1,6 @@
+"use client";
 import React from "react";
+import { Spinner } from "@/components/ui/kibo-ui/spinner";
 
 function Loading() {
   return (
@@ -6,8 +8,8 @@ function Loading() {
       <div className="flex flex-col items-center space-y-8">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-xl animate-pulse"></div>
-          <div className="relative w-16 h-16 bg-gradient-to-r from-primary to-secondary rounded-full flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div className="relative flex items-center justify-center">
+            <Spinner />
           </div>
         </div>
         <div className="text-center space-y-2">

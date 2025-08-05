@@ -8,6 +8,7 @@ import {
   useAuthLoading,
   useAuthInitialized,
 } from "@/stores/auth-store";
+import { Spinner } from "../ui/kibo-ui/spinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -56,21 +57,21 @@ export function ProtectedRoute({
     return (
       loadingComponent || (
         <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10 flex items-center justify-center">
-          <div className="flex flex-col items-center space-y-6">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-lg animate-pulse"></div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                Verfolia
-              </span>
+          <div className="flex flex-col items-center space-y-8">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-xl animate-pulse"></div>
+              <div className="relative flex items-center justify-center">
+                <Spinner />
+              </div>
             </div>
-            <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-              <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-semibold text-foreground">
+                Loading Verfolia
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                Please wait while we set things up
+              </p>
             </div>
-            <p className="text-muted-foreground text-sm">
-              Preparing your workspace...
-            </p>
           </div>
         </div>
       )

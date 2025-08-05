@@ -92,14 +92,14 @@ export default function Navbar() {
                     {user?.email}
                   </span>
                   <Link
-                    href="/account"
+                    href="/dashboard"
                     className="hidden md:block px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
                     style={{
                       backgroundColor: "rgba(244, 247, 249, 0)",
                       border: "1px solid rgba(221, 229, 237, 0)",
                     }}
                   >
-                    Account
+                    Dashboard
                   </Link>
                   <button
                     onClick={handleSignOut}
@@ -249,11 +249,11 @@ export default function Navbar() {
               {isAuthenticated ? (
                 <div className="space-y-4">
                   <Link
-                    href="/account"
+                    href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
                     className="block w-full py-4 text-center bg-white text-black rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors"
                   >
-                    Account
+                    Dashboard
                   </Link>
                   <button
                     onClick={() => {
