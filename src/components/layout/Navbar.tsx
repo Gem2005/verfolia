@@ -42,10 +42,11 @@ export default function Navbar() {
       <nav className="fixed top-6 left-0 right-0 z-50 w-full">
         <div className="mx-auto max-w-fit px-6">
           <div
-            className="flex items-center justify-between px-6 py-3 rounded-3xl"
+            className={`flex items-center justify-between px-6 py-3 rounded-3xl transition-all duration-300 ${
+              scrolled ? 'bg-white/80 dark:bg-gray-900/80' : 'bg-white/60 dark:bg-gray-900/60'
+            }`}
             style={{
               backdropFilter: "blur(20px)",
-              backgroundColor: "rgba(0, 0, 0, 0.02)",
             }}
           >
             {/* Logo Section */}

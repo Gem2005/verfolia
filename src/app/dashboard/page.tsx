@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   Plus,
-  Eye,
   Edit,
   Trash2,
   Download,
@@ -25,50 +24,37 @@ import {
   Lock,
 } from "lucide-react";
 import Link from "next/link";
-
-// Mock data - replace with actual API calls
-const mockResumes = [
-  {
-    id: "53488185-773c-4fd4-b567-b8eb6c5086aa",
-    title: "Software Engineer Resume",
-    slug: "software-engineer-resume-1753195357-568a4595",
-    template_id: "modern",
-    is_public: true,
-    created_at: "2025-07-22T14:42:37.006917Z",
-    updated_at: "2025-07-22T14:42:37.006917Z",
-  },
-  {
-    id: "53488185-773c-4fd4-b567-b8eb6c5086ab",
-    title: "Frontend Developer CV",
-    slug: "frontend-developer-cv-1753195357-568a4595",
-    template_id: "classic",
-    is_public: false,
-    created_at: "2025-07-20T10:30:15.006917Z",
-    updated_at: "2025-07-21T16:45:22.006917Z",
-  },
-];
-
-interface Resume {
-  id: string;
-  title: string;
-  slug: string;
-  template_id: string;
-  is_public: boolean;
-  created_at: string;
-  updated_at: string;
-}
+import { useAuth } from '@/hooks/use-auth';
+import { resumeService, type Resume as ResumeType } from '@/services/resume-service';
+import { toast } from 'sonner';
 
 export default function Dashboard() {
-  const [resumes, setResumes] = useState<Resume[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const [resumes, setResumes] = useState<ResumeType[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setResumes(mockResumes);
+  const loadResumes = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      setLoading(true);
+      const userResumes = await resumeService.getUserResumes(user.id);
+      setResumes(userResumes);
+    } catch (error) {
+      console.error('Error loading resumes:', error);
+      toast.error('Failed to load resumes');
+      // For now, set empty array if service fails
+      setResumes([]);
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, []);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      loadResumes();
+    }
+  }, [user, authLoading, loadResumes]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -78,9 +64,18 @@ export default function Dashboard() {
     });
   };
 
-  const handleDeleteResume = (id: string) => {
-    if (confirm("Are you sure you want to delete this resume?")) {
-      setResumes(resumes.filter((resume) => resume.id !== id));
+  const handleDeleteResume = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this resume?")) {
+      return;
+    }
+
+    try {
+      await resumeService.deleteResume(id);
+      toast.success('Resume deleted successfully');
+      loadResumes(); // Reload the list
+    } catch (error) {
+      console.error('Error deleting resume:', error);
+      toast.error('Failed to delete resume');
     }
   };
 
@@ -126,7 +121,7 @@ export default function Dashboard() {
               </p>
             </div>
             <Button asChild className="flex items-center gap-2">
-              <Link href="/resume/new">
+              <Link href="/create-resume">
                 <Plus className="h-4 w-4" />
                 Create New Resume
               </Link>
@@ -206,7 +201,7 @@ export default function Dashboard() {
                   Get started by creating your first professional resume
                 </p>
                 <Button asChild>
-                  <Link href="/resume/new">
+                  <Link href="/create-resume">
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Resume
                   </Link>
@@ -259,14 +254,7 @@ export default function Dashboard() {
 
                       <div className="flex flex-wrap gap-2">
                         <Button asChild size="sm" variant="outline">
-                          <Link href={`/resume/${resume.slug}`}>
-                            <Eye className="h-3 w-3 mr-1" />
-                            View
-                          </Link>
-                        </Button>
-
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={`/resume/${resume.slug}/edit`}>
+                          <Link href={`/create-resume?edit=${resume.id}`}>
                             <Edit className="h-3 w-3 mr-1" />
                             Edit
                           </Link>
