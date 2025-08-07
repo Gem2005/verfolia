@@ -11,10 +11,10 @@ export default function HomePage() {
   return (
     <AppLayout>
       {/* Hero Section */}
-      <div className="h-screen relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+      <div className="h-screen relative overflow-hidden bg-background">
         <div className="h-screen mt-44">
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl font-sans">
               <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                 Transform Your
               </span>
@@ -24,7 +24,7 @@ export default function HomePage() {
               </span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl">
+            <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-muted-foreground sm:text-xl font-sans">
               Create dynamic portfolios, track your career growth, and showcase
               your skills with Verfolia&apos;s cutting-edge platform.
             </p>
@@ -63,7 +63,7 @@ export default function HomePage() {
 
             {user && (
               <div className="mt-8">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground font-sans">
                   Welcome back, {user.email}
                 </p>
               </div>
@@ -73,19 +73,20 @@ export default function HomePage() {
 
         {/* Background decoration */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute -top-40 -right-32 h-80 w-80 rounded-full bg-primary/20 blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-32 h-80 w-80 rounded-full bg-secondary/20 blur-3xl"></div>
+          <div className="absolute -top-40 -right-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-32 h-80 w-80 rounded-full bg-accent/10 blur-3xl"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-primary/5 blur-3xl"></div>
         </div>
       </div>
 
       {/* Features Section */}
-      <section id="features" className="py-16 sm:py-24">
+      <section id="features" className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-sans text-foreground">
               Everything you need to succeed
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-lg text-muted-foreground font-sans">
               Professional tools to build your perfect portfolio
             </p>
           </div>
@@ -107,8 +108,10 @@ export default function HomePage() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-lg font-semibold">Resume Builder</h3>
-              <p className="mt-2 text-muted-foreground">
+              <h3 className="mt-4 text-lg font-semibold font-sans">
+                Resume Builder
+              </h3>
+              <p className="mt-2 text-muted-foreground font-sans">
                 Create professional resumes with our intuitive builder
               </p>
             </div>
@@ -129,10 +132,10 @@ export default function HomePage() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-lg font-semibold">
+              <h3 className="mt-4 text-lg font-semibold font-sans text-foreground">
                 Professional Profile
               </h3>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 text-muted-foreground font-sans">
                 Showcase your skills and experience beautifully
               </p>
             </div>
@@ -153,8 +156,10 @@ export default function HomePage() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-lg font-semibold">Career Analytics</h3>
-              <p className="mt-2 text-muted-foreground">
+              <h3 className="mt-4 text-lg font-semibold font-sans text-foreground">
+                Career Analytics
+              </h3>
+              <p className="mt-2 text-muted-foreground font-sans">
                 Track your career growth with detailed insights
               </p>
             </div>
@@ -163,24 +168,28 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 sm:py-24 bg-muted/30">
+      <section id="pricing" className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-sans text-foreground">
               Choose Your Plan
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">
+            <p className="mt-4 text-lg text-muted-foreground font-sans">
               Start free and upgrade as you grow
             </p>
           </div>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {/* Free Plan */}
-            <div className="rounded-lg border bg-card p-6 text-center">
-              <h3 className="text-xl font-semibold">Free</h3>
-              <div className="mt-4 text-3xl font-bold">$0</div>
-              <p className="text-sm text-muted-foreground">Forever</p>
-              <ul className="mt-6 space-y-3 text-sm">
+            <div className="rounded-lg bg-card border border-border p-6 text-center">
+              <h3 className="text-xl font-semibold font-sans text-foreground">
+                Free
+              </h3>
+              <div className="mt-4 text-3xl font-bold font-sans text-foreground">
+                $0
+              </div>
+              <p className="text-sm text-muted-foreground font-sans">Forever</p>
+              <ul className="mt-6 space-y-3 text-sm text-muted-foreground font-sans">
                 <li>Basic resume builder</li>
                 <li>3 resume templates</li>
                 <li>PDF downloads</li>
@@ -192,16 +201,22 @@ export default function HomePage() {
             </div>
 
             {/* Pro Plan */}
-            <div className="rounded-lg border bg-card p-6 text-center relative">
+            <div className="rounded-lg bg-card border border-border p-6 text-center relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium rounded-full">
+                <span className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium rounded-full font-sans">
                   Most Popular
                 </span>
               </div>
-              <h3 className="text-xl font-semibold">Pro</h3>
-              <div className="mt-4 text-3xl font-bold">$19</div>
-              <p className="text-sm text-muted-foreground">Per month</p>
-              <ul className="mt-6 space-y-3 text-sm">
+              <h3 className="text-xl font-semibold font-sans text-foreground">
+                Pro
+              </h3>
+              <div className="mt-4 text-3xl font-bold font-sans text-foreground">
+                $19
+              </div>
+              <p className="text-sm text-muted-foreground font-sans">
+                Per month
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-muted-foreground font-sans">
                 <li>Advanced resume builder</li>
                 <li>50+ premium templates</li>
                 <li>Unlimited downloads</li>
@@ -215,11 +230,17 @@ export default function HomePage() {
             </div>
 
             {/* Enterprise Plan */}
-            <div className="rounded-lg border bg-card p-6 text-center">
-              <h3 className="text-xl font-semibold">Enterprise</h3>
-              <div className="mt-4 text-3xl font-bold">Custom</div>
-              <p className="text-sm text-muted-foreground">Contact us</p>
-              <ul className="mt-6 space-y-3 text-sm">
+            <div className="rounded-lg bg-card border border-border p-6 text-center">
+              <h3 className="text-xl font-semibold font-sans text-foreground">
+                Enterprise
+              </h3>
+              <div className="mt-4 text-3xl font-bold font-sans text-foreground">
+                Custom
+              </div>
+              <p className="text-sm text-muted-foreground font-sans">
+                Contact us
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-muted-foreground font-sans">
                 <li>Everything in Pro</li>
                 <li>Team collaboration</li>
                 <li>White-label options</li>

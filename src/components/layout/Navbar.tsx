@@ -43,7 +43,9 @@ export default function Navbar() {
         <div className="mx-auto max-w-fit px-6">
           <div
             className={`flex items-center justify-between px-6 py-3 rounded-3xl transition-all duration-300 ${
-              scrolled ? 'bg-white/80 dark:bg-gray-900/80' : 'bg-white/60 dark:bg-gray-900/60'
+              scrolled
+                ? "bg-card/90 border border-border/50"
+                : "bg-card/60 border border-border/30"
             }`}
             style={{
               backdropFilter: "blur(20px)",
@@ -52,10 +54,12 @@ export default function Navbar() {
             {/* Logo Section */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-black font-bold text-lg">V</span>
+                <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-lg">
+                    V
+                  </span>
                 </div>
-                <span className="text-white text-2xl font-bold tracking-tight">
+                <span className="text-foreground text-2xl font-bold tracking-tight">
                   Verfolia
                 </span>
               </Link>
@@ -67,11 +71,7 @@ export default function Navbar() {
                 <Link
                   key={index}
                   href={link.href}
-                  className="px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
-                  style={{
-                    backgroundColor: "rgba(244, 247, 249, 0)",
-                    border: "1px solid rgba(221, 229, 237, 0)",
-                  }}
+                  className="px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
                 >
                   {link.label}
                 </Link>
@@ -83,31 +83,24 @@ export default function Navbar() {
               {loading ? (
                 // Show loading state
                 <div className="flex items-center gap-2">
-                  <div className="h-9 w-16 animate-pulse rounded-2xl bg-white/10"></div>
-                  <div className="h-9 w-24 animate-pulse rounded-2xl bg-white/10"></div>
+                  <div className="h-9 w-16 animate-pulse rounded-2xl bg-muted"></div>
+                  <div className="h-9 w-24 animate-pulse rounded-2xl bg-muted"></div>
                 </div>
               ) : isAuthenticated ? (
                 // Show authenticated user options
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400 hidden sm:block mr-2">
+                  <span className="text-sm text-muted-foreground hidden sm:block mr-2">
                     {user?.email}
                   </span>
                   <Link
                     href="/dashboard"
-                    className="hidden md:block px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
-                    style={{
-                      backgroundColor: "rgba(244, 247, 249, 0)",
-                      border: "1px solid rgba(221, 229, 237, 0)",
-                    }}
+                    className="hidden md:block px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
                   >
                     Dashboard
                   </Link>
                   <button
                     onClick={handleSignOut}
-                    className="hidden md:block px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium border border-white/10"
-                    style={{
-                      backgroundColor: "rgba(244, 247, 249, 0)",
-                    }}
+                    className="hidden md:block px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium border border-border"
                   >
                     Sign Out
                   </button>
@@ -117,17 +110,13 @@ export default function Navbar() {
                 <div className="flex items-center space-x-2">
                   <Link
                     href="/login"
-                    className="hidden md:block px-4 py-2 rounded-2xl text-gray-400 hover:text-white transition-colors duration-200 text-sm font-medium"
-                    style={{
-                      backgroundColor: "rgba(244, 247, 249, 0)",
-                      border: "1px solid rgba(221, 229, 237, 0)",
-                    }}
+                    className="hidden md:block px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/login"
-                    className="hidden md:block px-4 py-2 rounded-2xl bg-white text-black hover:bg-gray-100 transition-colors duration-200 text-sm font-medium"
+                    className="hidden md:block px-4 py-2 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
                   >
                     Sign up for free
                   </Link>
@@ -137,7 +126,7 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden size-9 flex items-center justify-center text-white hover:text-gray-300 transition-colors ml-2"
+                className="md:hidden size-9 flex items-center justify-center text-foreground hover:text-muted-foreground transition-colors ml-2"
               >
                 <svg
                   width={20}
@@ -167,7 +156,7 @@ export default function Navbar() {
         <div className="fixed inset-0 z-[60] md:hidden">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            className="absolute inset-0 bg-background/95 backdrop-blur-md"
             onClick={() => setMobileMenuOpen(false)}
           />
 
@@ -176,17 +165,19 @@ export default function Navbar() {
             {/* Header */}
             <div className="flex items-center justify-between p-6">
               <Link href="/" className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-white rounded-lg flex items-center justify-center">
-                  <span className="text-black font-bold text-lg">V</span>
+                <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-lg">
+                    V
+                  </span>
                 </div>
-                <span className="text-white text-2xl font-bold tracking-tight">
+                <span className="text-foreground text-2xl font-bold tracking-tight">
                   Verfolia
                 </span>
               </Link>
 
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="size-10 flex items-center justify-center text-white hover:text-gray-300 transition-colors"
+                className="size-10 flex items-center justify-center text-foreground hover:text-muted-foreground transition-colors"
               >
                 <svg
                   width={24}
@@ -212,7 +203,7 @@ export default function Navbar() {
                     key={index}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                    className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
                   >
                     {link.label}
                   </Link>
@@ -222,7 +213,7 @@ export default function Navbar() {
                 <Link
                   href="#blogs"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                  className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
                 >
                   Blogs
                 </Link>
@@ -230,7 +221,7 @@ export default function Navbar() {
                 <Link
                   href="#solutions"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                  className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
                 >
                   Solutions
                 </Link>
@@ -238,7 +229,7 @@ export default function Navbar() {
                 <Link
                   href="#documentation"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-3xl font-semibold text-white hover:text-gray-300 transition-colors duration-200"
+                  className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
                 >
                   Documentation
                 </Link>
@@ -252,7 +243,7 @@ export default function Navbar() {
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full py-4 text-center bg-white text-black rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors"
+                    className="block w-full py-4 text-center bg-primary text-primary-foreground rounded-full text-lg font-semibold hover:bg-primary/90 transition-colors font-sans"
                   >
                     Dashboard
                   </Link>
@@ -261,7 +252,7 @@ export default function Navbar() {
                       handleSignOut();
                       setMobileMenuOpen(false);
                     }}
-                    className="block w-full py-4 text-center border border-white/20 text-white rounded-full text-lg font-semibold hover:bg-white/10 transition-colors"
+                    className="block w-full py-4 text-center border border-border text-foreground rounded-full text-lg font-semibold hover:bg-muted transition-colors font-sans"
                   >
                     Sign Out
                   </button>
@@ -270,7 +261,7 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full py-4 text-center bg-white text-black rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors"
+                  className="block w-full py-4 text-center bg-primary text-primary-foreground rounded-full text-lg font-semibold hover:bg-primary/90 transition-colors font-sans"
                 >
                   Sign up for free
                 </Link>

@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
-import { Arimo } from "next/font/google";
-
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
-
-const arimo = Arimo({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Verfolia",
@@ -20,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className={`${arimo.className}`}>
+      <body className="font-sans">
         <AuthProvider>
           <ThemeProvider
             attribute="class"
