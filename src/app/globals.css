@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 
+ * Font Hierarchy:
+ * - font-serif (Lora): Main headings, logo, elegant display text
+ * - font-sans (Plus Jakarta Sans): Body text, UI elements, navigation (DEFAULT)
+ * - font-mono (Roboto Mono): Code, numbers, data display, technical content
+ */
+
 :root {
   --background: #e7e5e4;
   --foreground: #1e293b;
@@ -160,4 +167,34 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
+}
+
+/* Global font improvements */
+* {
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+/* Font loading optimization */
+body {
+  font-display: swap;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure proper font inheritance */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif), serif;
+}
+
+code,
+pre,
+.font-mono {
+  font-variant-numeric: tabular-nums;
 }

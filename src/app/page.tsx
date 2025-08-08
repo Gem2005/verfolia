@@ -14,7 +14,7 @@ export default function HomePage() {
       <div className="h-screen relative overflow-hidden bg-background">
         <div className="h-screen mt-44">
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl font-sans">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl font-serif">
               <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                 Transform Your
               </span>
@@ -83,7 +83,7 @@ export default function HomePage() {
       <section id="features" className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-sans text-foreground">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-serif text-foreground">
               Everything you need to succeed
             </h2>
             <p className="mt-4 text-lg text-muted-foreground font-sans">
@@ -108,7 +108,7 @@ export default function HomePage() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-lg font-semibold font-sans">
+              <h3 className="mt-4 text-lg font-semibold font-serif">
                 Resume Builder
               </h3>
               <p className="mt-2 text-muted-foreground font-sans">
@@ -132,7 +132,7 @@ export default function HomePage() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-lg font-semibold font-sans text-foreground">
+              <h3 className="mt-4 text-lg font-semibold font-serif text-foreground">
                 Professional Profile
               </h3>
               <p className="mt-2 text-muted-foreground font-sans">
@@ -156,7 +156,7 @@ export default function HomePage() {
                   />
                 </svg>
               </div>
-              <h3 className="mt-4 text-lg font-semibold font-sans text-foreground">
+              <h3 className="mt-4 text-lg font-semibold font-serif text-foreground">
                 Career Analytics
               </h3>
               <p className="mt-2 text-muted-foreground font-sans">
@@ -171,7 +171,7 @@ export default function HomePage() {
       <section id="pricing" className="py-16 sm:py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-sans text-foreground">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-serif text-foreground">
               Choose Your Plan
             </h2>
             <p className="mt-4 text-lg text-muted-foreground font-sans">
@@ -182,10 +182,10 @@ export default function HomePage() {
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {/* Free Plan */}
             <div className="rounded-lg bg-card border border-border p-6 text-center">
-              <h3 className="text-xl font-semibold font-sans text-foreground">
+              <h3 className="text-xl font-semibold font-serif text-foreground">
                 Free
               </h3>
-              <div className="mt-4 text-3xl font-bold font-sans text-foreground">
+              <div className="mt-4 text-3xl font-bold font-mono text-foreground">
                 $0
               </div>
               <p className="text-sm text-muted-foreground font-sans">Forever</p>
@@ -207,10 +207,10 @@ export default function HomePage() {
                   Most Popular
                 </span>
               </div>
-              <h3 className="text-xl font-semibold font-sans text-foreground">
+              <h3 className="text-xl font-semibold font-serif text-foreground">
                 Pro
               </h3>
-              <div className="mt-4 text-3xl font-bold font-sans text-foreground">
+              <div className="mt-4 text-3xl font-bold font-mono text-foreground">
                 $19
               </div>
               <p className="text-sm text-muted-foreground font-sans">
@@ -231,10 +231,10 @@ export default function HomePage() {
 
             {/* Enterprise Plan */}
             <div className="rounded-lg bg-card border border-border p-6 text-center">
-              <h3 className="text-xl font-semibold font-sans text-foreground">
+              <h3 className="text-xl font-semibold font-serif text-foreground">
                 Enterprise
               </h3>
-              <div className="mt-4 text-3xl font-bold font-sans text-foreground">
+              <div className="mt-4 text-3xl font-bold font-mono text-foreground">
                 Custom
               </div>
               <p className="text-sm text-muted-foreground font-sans">

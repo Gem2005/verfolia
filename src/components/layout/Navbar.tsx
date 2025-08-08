@@ -55,11 +55,11 @@ export default function Navbar() {
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3">
                 <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">
+                  <span className="text-primary-foreground font-bold text-lg font-serif">
                     V
                   </span>
                 </div>
-                <span className="text-foreground text-2xl font-bold tracking-tight">
+                <span className="text-foreground text-2xl font-bold tracking-tight font-serif">
                   Verfolia
                 </span>
               </Link>

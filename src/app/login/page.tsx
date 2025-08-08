@@ -194,10 +194,10 @@ export default function LoginPage() {
         <div className="text-center space-y-2">
           <Link
             href="/"
-            className="inline-flex items-center justify-center space-x-2 text-2xl font-bold mb-2"
+            className="inline-flex items-center justify-center space-x-2 text-2xl font-bold mb-2 font-serif"
           >
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">V</span>
+              <span className="text-white font-bold text-sm font-serif">V</span>
             </div>
             <span className="text-foreground">Verfolia</span>
           </Link>
@@ -214,7 +214,7 @@ export default function LoginPage() {
         <div className="space-y-6">
           {/* Dynamic Header */}
           <div className="text-center">
-            <h1 className="text-2xl font-semibold text-foreground mb-2">
+            <h1 className="text-2xl font-semibold text-foreground mb-2 font-serif">
               {showForgotPassword
                 ? "Reset Password"
                 : activeTab === "login"

@@ -246,7 +246,9 @@ export default function CreateResumePage() {
       <div className="space-y-5">
         {/* Header */}
         <div className="text-center border-b border-gray-300 pb-5">
-          <h1 className={`text-3xl font-bold ${themeStyles.headerText} mb-3`}>
+          <h1
+            className={`text-3xl font-bold ${themeStyles.headerText} mb-3 font-serif`}
+          >
             {resumeData.personalInfo.firstName}{" "}
             {resumeData.personalInfo.lastName}
           </h1>
@@ -511,7 +513,9 @@ export default function CreateResumePage() {
               )}
             </div>
             <div>
-              <h1 className={`text-xl font-bold ${themeStyles.headerText}`}>
+              <h1
+                className={`text-xl font-bold ${themeStyles.headerText} font-serif`}
+              >
                 {resumeData.personalInfo.firstName}{" "}
                 {resumeData.personalInfo.lastName}
               </h1>
@@ -1065,7 +1069,9 @@ export default function CreateResumePage() {
     <div className="bg-white p-6 shadow-lg min-h-[700px] w-full max-w-none mx-auto">
       <div className="space-y-6">
         <div className="text-left">
-          <h1 className={`text-2xl font-light ${themeStyles.headerText} mb-1`}>
+          <h1
+            className={`text-2xl font-light ${themeStyles.headerText} mb-1 font-serif`}
+          >
             {resumeData.personalInfo.firstName}{" "}
             {resumeData.personalInfo.lastName}
           </h1>
@@ -1876,7 +1882,7 @@ export default function CreateResumePage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-foreground font-serif">
               Create Resume
             </h1>
             <p className="text-muted-foreground">

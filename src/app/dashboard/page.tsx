@@ -168,7 +168,7 @@ export default function Dashboard() {
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-foreground">
+              <h1 className="text-3xl font-bold text-foreground font-serif">
                 Resume Dashboard
               </h1>
               <p className="text-muted-foreground">
@@ -193,7 +193,7 @@ export default function Dashboard() {
                 <FileText className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground">
+                <div className="text-3xl font-bold text-foreground font-mono">
                   {resumes.length}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -211,7 +211,7 @@ export default function Dashboard() {
                 <Globe className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground">
+                <div className="text-3xl font-bold text-foreground font-mono">
                   {resumes.filter((r) => r.is_public).length}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -228,7 +228,7 @@ export default function Dashboard() {
                 <Calendar className="h-4 w-4 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground">
+                <div className="text-3xl font-bold text-foreground font-mono">
                   {resumes.length > 0
                     ? formatDate(
                         resumes.sort(
@@ -254,7 +254,7 @@ export default function Dashboard() {
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FileText className="h-8 w-8 text-primary" />
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                  <h3 className="text-xl font-semibold text-foreground mb-2 font-serif">
                     No resumes yet
                   </h3>
                   <p className="text-muted-foreground mb-6">
