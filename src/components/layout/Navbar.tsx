@@ -1,275 +1,177 @@
+// src/components/layout/Navbar.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { useAuth } from "@/hooks/use-auth";
+import React, { useState, forwardRef, ElementRef, ComponentPropsWithoutRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, ChevronDown, Zap, BarChart3, Bot } from "lucide-react";
+import { cn } from "@/lib/utils";
+import AuthDialog from "../AuthDialog"; // Correctly import the AuthDialog
 
-// Navigation links array to be used in both desktop and mobile menus
-const navigationLinks = [
-  { href: "/", label: "Home", active: true },
-  { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#about", label: "About" },
-];
+const LOGO_PATH = "/logo.png";
+
+const ListItem = forwardRef<
+  ElementRef<"a">,
+  ComponentPropsWithoutRef<"a">
+>(({ className, title, children, ...props }, ref) => {
+  return (
+    <li>
+      <DropdownMenuItem asChild>
+        <Link
+          href={props.href || "#"}
+          ref={ref}
+          className={cn(
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent focus:bg-accent w-full",
+            className
+          )}
+          {...props}
+        >
+          <div className="flex items-start gap-3">
+            {children}
+            <div>
+              <div className="text-sm font-medium leading-none">{title}</div>
+              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                The description for {title} goes here.
+              </p>
+            </div>
+          </div>
+        </Link>
+      </DropdownMenuItem>
+    </li>
+  );
+});
+ListItem.displayName = "ListItem";
 
 export default function Navbar() {
-  const { isAuthenticated, loading, user, signOut } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      setScrolled(isScrolled);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, loading, signOut } = useAuth();
 
   const handleSignOut = async () => {
-    try {
-      await signOut();
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+    await signOut();
+    setIsMenuOpen(false);
   };
 
-  return (
+  const navLinks = (
     <>
-      {/* Main Navbar */}
-      <nav className="fixed top-6 left-0 right-0 z-50 w-full">
-        <div className="mx-auto max-w-fit px-6">
-          <div
-            className={`flex items-center justify-between px-6 py-3 rounded-3xl transition-all duration-300 ${
-              scrolled
-                ? "bg-card/90 border border-border/50"
-                : "bg-card/60 border border-border/30"
-            }`}
-            style={{
-              backdropFilter: "blur(20px)",
-            }}
-          >
-            {/* Logo Section */}
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg font-serif">
-                    V
-                  </span>
-                </div>
-                <span className="text-foreground text-2xl font-bold tracking-tight font-serif">
-                  Verfolia
-                </span>
-              </Link>
-            </div>
-
-            {/* Navigation Links - Desktop */}
-            <div className="hidden md:flex items-center space-x-2 mx-8">
-              {navigationLinks.map((link, index) => (
-                <Link
-                  key={index}
-                  href={link.href}
-                  className="px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
-                >
-                  {link.label}
+      <Link href="/" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors" onClick={() => setIsMenuOpen(false)}>
+        Home
+      </Link>
+      <Link href="/#about" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors" onClick={() => setIsMenuOpen(false)}>
+        About
+      </Link>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="flex items-center space-x-1 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
+            <span>Features</span>
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-72 p-2">
+            <DropdownMenuItem asChild>
+                <Link href="/#features" className="flex items-start gap-3 p-2">
+                    <Zap className="h-5 w-5 mt-1 text-primary flex-shrink-0"/>
+                    <div>
+                        <div className="font-medium">Dynamic Templates</div>
+                        <p className="text-xs text-muted-foreground">Adaptable layouts for your story.</p>
+                    </div>
                 </Link>
-              ))}
-            </div>
-
-            {/* Right Side Actions */}
-            <div className="flex items-center space-x-3">
-              {loading ? (
-                // Show loading state
-                <div className="flex items-center gap-2">
-                  <div className="h-9 w-16 animate-pulse rounded-2xl bg-muted"></div>
-                  <div className="h-9 w-24 animate-pulse rounded-2xl bg-muted"></div>
-                </div>
-              ) : isAuthenticated ? (
-                // Show authenticated user options
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground hidden sm:block mr-2">
-                    {user?.email}
-                  </span>
-                  <Link
-                    href="/dashboard"
-                    className="hidden md:block px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
-                  >
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="hidden md:block px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium border border-border"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                // Show non-authenticated user options
-                <div className="flex items-center space-x-2">
-                  <Link
-                    href="/login"
-                    className="hidden md:block px-4 py-2 rounded-2xl text-muted-foreground hover:text-foreground transition-colors duration-200 text-sm font-medium"
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/login"
-                    className="hidden md:block px-4 py-2 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors duration-200 text-sm font-medium"
-                  >
-                    Sign up for free
-                  </Link>
-                </div>
-              )}
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="md:hidden size-9 flex items-center justify-center text-foreground hover:text-muted-foreground transition-colors ml-2"
-              >
-                <svg
-                  width={20}
-                  height={20}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 6h16" />
-                  <path d="M4 12h16" />
-                  <path d="M4 18h16" />
-                </svg>
-              </button>
-
-              {/* Theme Toggle - At the end */}
-              <ThemeToggle />
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobile Menu Overlay */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[60] md:hidden">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-background/95 backdrop-blur-md"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-
-          {/* Menu Content */}
-          <div className="relative h-full flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6">
-              <Link href="/" className="flex items-center space-x-3">
-                <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">
-                    V
-                  </span>
-                </div>
-                <span className="text-foreground text-2xl font-bold tracking-tight">
-                  Verfolia
-                </span>
-              </Link>
-
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="size-10 flex items-center justify-center text-foreground hover:text-muted-foreground transition-colors"
-              >
-                <svg
-                  width={24}
-                  height={24}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M18 6L6 18" />
-                  <path d="M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Navigation Links */}
-            <div className="flex-1 flex flex-col justify-center px-6">
-              <nav className="space-y-8">
-                {navigationLinks.map((link, index) => (
-                  <Link
-                    key={index}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-
-                {/* Additional mobile links */}
-                <Link
-                  href="#blogs"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
-                >
-                  Blogs
+            </DropdownMenuItem>
+             <DropdownMenuItem asChild>
+                <Link href="/#analytics" className="flex items-start gap-3 p-2">
+                    <BarChart3 className="h-5 w-5 mt-1 text-primary flex-shrink-0"/>
+                    <div>
+                        <div className="font-medium">Real-time Analytics</div>
+                        <p className="text-xs text-muted-foreground">Track views and engagement.</p>
+                    </div>
                 </Link>
-
-                <Link
-                  href="#solutions"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
-                >
-                  Solutions
+            </DropdownMenuItem>
+             <DropdownMenuItem asChild>
+                <Link href="/#ai-builder" className="flex items-start gap-3 p-2">
+                    <Bot className="h-5 w-5 mt-1 text-primary flex-shrink-0"/>
+                    <div>
+                        <div className="font-medium">AI-Powered Builder</div>
+                        <p className="text-xs text-muted-foreground">Craft summaries with AI assistance.</p>
+                    </div>
                 </Link>
-
-                <Link
-                  href="#documentation"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-3xl font-semibold text-foreground hover:text-muted-foreground transition-colors duration-200 font-sans"
-                >
-                  Documentation
-                </Link>
-              </nav>
-            </div>
-
-            {/* Bottom Action */}
-            <div className="p-6">
-              {isAuthenticated ? (
-                <div className="space-y-4">
-                  <Link
-                    href="/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block w-full py-4 text-center bg-primary text-primary-foreground rounded-full text-lg font-semibold hover:bg-primary/90 transition-colors font-sans"
-                  >
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleSignOut();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="block w-full py-4 text-center border border-border text-foreground rounded-full text-lg font-semibold hover:bg-muted transition-colors font-sans"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full py-4 text-center bg-primary text-primary-foreground rounded-full text-lg font-semibold hover:bg-primary/90 transition-colors font-sans"
-                >
-                  Sign up for free
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+            </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <a href="https://www.notion.so/Verfolia-Documentation-24722774e30a80e48922d21361630f9f?source=copy_link" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
+        Docs
+      </a>
     </>
   );
-}
+
+  return (
+    <header className="fixed top-4 left-0 right-0 z-50 flex justify-center">
+      <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 px-6 bg-card/80 backdrop-blur-lg border border-border/50 rounded-full shadow-lg">
+          <Link href="/" className="flex items-center space-x-2">
+            <Image src={LOGO_PATH} alt="Verfolia Logo" width={32} height={32} className="rounded-lg" />
+            <span className="text-xl font-bold verfolia-text-gradient">
+              Verfolia
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center space-x-8">
+            {navLinks}
+          </nav>
+
+          <div className="flex items-center space-x-2">
+             <div className="hidden md:flex items-center space-x-2">
+                 <ThemeToggle />
+                 {loading ? (
+                     <div className="h-9 w-24 animate-pulse rounded-full bg-muted"></div>
+                 ) : isAuthenticated ? (
+                    <>
+                        <Button variant="ghost" asChild className="rounded-full">
+                            <Link href="/dashboard">Dashboard</Link>
+                        </Button>
+                        <Button onClick={handleSignOut} className="rounded-full">Sign Out</Button>
+                    </>
+                 ) : (
+                    // Replaced separate buttons with a single "Get Started" button
+                    <AuthDialog buttonText="Get Started" />
+                 )}
+             </div>
+            <button
+              className="md:hidden p-2"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+
+        {isMenuOpen && (
+          <div className="md:hidden mt-2 bg-card/95 backdrop-blur-lg border border-border/50 rounded-2xl p-4 verfolia-animate-fade-in">
+            <nav className="flex flex-col space-y-4">
+              {navLinks}
+              <div className="flex flex-col space-y-2 pt-4 border-t border-border">
+                {isAuthenticated ? (
+                    <>
+                        <Button asChild className="w-full justify-start"><Link href="/dashboard">Dashboard</Link></Button>
+                        <Button variant="outline" onClick={handleSignOut} className="w-full justify-start">Sign Out</Button>
+                    </>
+                ) : (
+                    
+                    <AuthDialog buttonText="Get Started" />
+                )}
+                 <div className="pt-2"><ThemeToggle /></div>
+              </div>
+            </nav>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+};

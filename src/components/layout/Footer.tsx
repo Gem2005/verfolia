@@ -237,7 +237,7 @@ function Footer() {
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               <Link href="/" className="flex items-center">
                 <Image
-                  src="/verfolia-logo.svg"
+                  src="/logo.png"
                   alt="Verfolia"
                   width={120}
                   height={32}

@@ -1,27 +1,9 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
-import { Plus_Jakarta_Sans, Lora, Roboto_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "sonner";
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const lora = Lora({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const robotoMono = Roboto_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: "swap",
-});
+import { ThemeProvider } from "@/components/theme-provider"; // Make sure this path is correct
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Verfolia",
@@ -34,14 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body
-        className={`${jakarta.variable} ${lora.variable} ${robotoMono.variable} font-sans antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="dark" // Set dark as the default theme
             enableSystem
             disableTransitionOnChange
           >
