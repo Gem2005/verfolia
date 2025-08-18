@@ -1,9 +1,35 @@
+import { Plus_Jakarta_Sans, Lora, Roboto_Mono } from "next/font/google";
+
+/**
+ * Google Fonts configuration using Next.js optimization
+ */
+export const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+export const lora = Lora({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+export const robotoMono = Roboto_Mono({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
 /**
  * Font utility classes for consistent typography across the application
  *
  * Hierarchy:
- * - font-serif: Used for main headings, logo, and key display text (Plus Jakarta Sans)
- * - font-sans: Used for body text, UI elements, navigation, and general content (Lora)
+ * - font-serif: Used for main headings, logo, and key display text (Lora)
+ * - font-sans: Used for body text, UI elements, navigation, and general content (Plus Jakarta Sans)
  * - font-mono: Used for code, numbers, data display, and technical content (Roboto Mono)
  */
 

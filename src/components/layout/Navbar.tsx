@@ -1,177 +1,251 @@
-// src/components/layout/Navbar.tsx
 "use client";
 
-import React, { useState, forwardRef, ElementRef, ComponentPropsWithoutRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useAuth } from "@/hooks/use-auth";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Menu, X, ChevronDown, Zap, BarChart3, Bot } from "lucide-react";
-import { cn } from "@/lib/utils";
-import AuthDialog from "../AuthDialog"; // Correctly import the AuthDialog
+import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Menu, X, Sparkles } from "lucide-react";
 
-const LOGO_PATH = "/logo.png";
-
-const ListItem = forwardRef<
-  ElementRef<"a">,
-  ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <DropdownMenuItem asChild>
-        <Link
-          href={props.href || "#"}
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent focus:bg-accent w-full",
-            className
-          )}
-          {...props}
-        >
-          <div className="flex items-start gap-3">
-            {children}
-            <div>
-              <div className="text-sm font-medium leading-none">{title}</div>
-              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                The description for {title} goes here.
-              </p>
-            </div>
-          </div>
-        </Link>
-      </DropdownMenuItem>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
+// Navigation links array to be used in both desktop and mobile menus
+const navigationLinks = [
+  { href: "/", label: "Home", active: true },
+  { href: "#features", label: "Features" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "#about", label: "About" },
+];
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, loading, signOut } = useAuth();
+  const { isAuthenticated, loading, user, signOut } = useAuth();
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      setScrolled(isScrolled);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleSignOut = async () => {
-    await signOut();
-    setIsMenuOpen(false);
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
-  const navLinks = (
-    <>
-      <Link href="/" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors" onClick={() => setIsMenuOpen(false)}>
-        Home
-      </Link>
-      <Link href="/#about" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors" onClick={() => setIsMenuOpen(false)}>
-        About
-      </Link>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="flex items-center space-x-1 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
-            <span>Features</span>
-            <ChevronDown className="w-4 h-4" />
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-72 p-2">
-            <DropdownMenuItem asChild>
-                <Link href="/#features" className="flex items-start gap-3 p-2">
-                    <Zap className="h-5 w-5 mt-1 text-primary flex-shrink-0"/>
-                    <div>
-                        <div className="font-medium">Dynamic Templates</div>
-                        <p className="text-xs text-muted-foreground">Adaptable layouts for your story.</p>
-                    </div>
-                </Link>
-            </DropdownMenuItem>
-             <DropdownMenuItem asChild>
-                <Link href="/#analytics" className="flex items-start gap-3 p-2">
-                    <BarChart3 className="h-5 w-5 mt-1 text-primary flex-shrink-0"/>
-                    <div>
-                        <div className="font-medium">Real-time Analytics</div>
-                        <p className="text-xs text-muted-foreground">Track views and engagement.</p>
-                    </div>
-                </Link>
-            </DropdownMenuItem>
-             <DropdownMenuItem asChild>
-                <Link href="/#ai-builder" className="flex items-start gap-3 p-2">
-                    <Bot className="h-5 w-5 mt-1 text-primary flex-shrink-0"/>
-                    <div>
-                        <div className="font-medium">AI-Powered Builder</div>
-                        <p className="text-xs text-muted-foreground">Craft summaries with AI assistance.</p>
-                    </div>
-                </Link>
-            </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <a href="https://www.notion.so/Verfolia-Documentation-24722774e30a80e48922d21361630f9f?source=copy_link" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
-        Docs
-      </a>
-    </>
-  );
+  const handleLinkClick = (href: string) => {
+    if (href.startsWith("#")) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    setMobileMenuOpen(false);
+  };
 
   return (
-    <header className="fixed top-4 left-0 right-0 z-50 flex justify-center">
-      <div className="max-w-7xl w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 px-6 bg-card/80 backdrop-blur-lg border border-border/50 rounded-full shadow-lg">
-          <Link href="/" className="flex items-center space-x-2">
-            <Image src={LOGO_PATH} alt="Verfolia Logo" width={32} height={32} className="rounded-lg" />
-            <span className="text-xl font-bold verfolia-text-gradient">
-              Verfolia
-            </span>
-          </Link>
+    <>
+      {/* Main Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 w-full py-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div
+            className={`flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-300 glass-effect ${
+              scrolled
+                ? "shadow-soft backdrop-blur-xl bg-background/80 border-border/50"
+                : "shadow-subtle backdrop-blur-md bg-background/60 border-border/20"
+            }`}
+          >
+            {/* Logo Section */}
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center space-x-3 group">
+                <div className="relative w-10 h-10 flex items-center justify-center gradient-primary rounded-xl shadow-glow group-hover:scale-105 transition-transform duration-200">
+                  <Sparkles className="w-5 h-5 text-white" />
+                  <div className="absolute inset-0 gradient-primary rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-200" />
+                </div>
+                <span className="text-foreground text-2xl font-bold tracking-tight font-jakarta">
+                  Verfolia
+                </span>
+              </Link>
+            </div>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            {navLinks}
-          </nav>
+            {/* Navigation Links - Desktop */}
+            <div className="hidden lg:flex items-center space-x-1 mx-8">
+              {navigationLinks.map((link, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleLinkClick(link.href)}
+                  className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
+                >
+                  {link.label}
+                </button>
+              ))}
+            </div>
 
-          <div className="flex items-center space-x-2">
-             <div className="hidden md:flex items-center space-x-2">
-                 <ThemeToggle />
-                 {loading ? (
-                     <div className="h-9 w-24 animate-pulse rounded-full bg-muted"></div>
-                 ) : isAuthenticated ? (
-                    <>
-                        <Button variant="ghost" asChild className="rounded-full">
-                            <Link href="/dashboard">Dashboard</Link>
-                        </Button>
-                        <Button onClick={handleSignOut} className="rounded-full">Sign Out</Button>
-                    </>
-                 ) : (
-                    // Replaced separate buttons with a single "Get Started" button
-                    <AuthDialog buttonText="Get Started" />
-                 )}
-             </div>
-            <button
-              className="md:hidden p-2"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-3">
+              <ThemeToggle />
+
+              {loading ? (
+                // Show loading state
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-20 animate-pulse rounded-xl bg-muted/30"></div>
+                  <div className="h-10 w-24 animate-pulse rounded-xl bg-muted/30"></div>
+                </div>
+              ) : isAuthenticated ? (
+                // Show authenticated user options
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground hidden md:block font-jakarta">
+                    {user?.email}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="hidden sm:flex rounded-xl"
+                  >
+                    <Link href="/dashboard">Dashboard</Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="rounded-xl"
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                // Show non-authenticated user options
+                <div className="flex items-center space-x-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    asChild
+                    className="hidden sm:flex rounded-xl"
+                  >
+                    <Link href="/login">Sign in</Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    asChild
+                    className="rounded-xl bg-gradient-primary hover:opacity-90 text-white shadow-glow"
+                  >
+                    <Link href="/login">Get Started</Link>
+                  </Button>
+                </div>
+              )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
+              >
+                {mobileMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
+      </nav>
 
-        {isMenuOpen && (
-          <div className="md:hidden mt-2 bg-card/95 backdrop-blur-lg border border-border/50 rounded-2xl p-4 verfolia-animate-fade-in">
-            <nav className="flex flex-col space-y-4">
-              {navLinks}
-              <div className="flex flex-col space-y-2 pt-4 border-t border-border">
-                {isAuthenticated ? (
-                    <>
-                        <Button asChild className="w-full justify-start"><Link href="/dashboard">Dashboard</Link></Button>
-                        <Button variant="outline" onClick={handleSignOut} className="w-full justify-start">Sign Out</Button>
-                    </>
-                ) : (
-                    
-                    <AuthDialog buttonText="Get Started" />
-                )}
-                 <div className="pt-2"><ThemeToggle /></div>
-              </div>
-            </nav>
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-background/95 backdrop-blur-md"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Menu Content */}
+          <div className="relative h-full flex flex-col bg-background/95 backdrop-blur-xl">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-border/50">
+              <Link href="/" className="flex items-center space-x-3">
+                <div className="relative w-10 h-10 flex items-center justify-center gradient-primary rounded-xl">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-foreground text-2xl font-bold tracking-tight font-jakarta">
+                  Verfolia
+                </span>
+              </Link>
+
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-lg hover:bg-muted/50 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Navigation Links */}
+            <div className="flex-1 flex flex-col justify-center px-6">
+              <nav className="space-y-8">
+                {navigationLinks.map((link, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleLinkClick(link.href)}
+                    className="block text-2xl font-semibold text-foreground hover:text-primary transition-colors duration-200 font-jakarta text-left"
+                  >
+                    {link.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            {/* Bottom Action */}
+            <div className="p-6 border-t border-border/50">
+              {isAuthenticated ? (
+                <div className="space-y-3">
+                  <Button
+                    asChild
+                    className="w-full rounded-xl bg-gradient-primary text-white shadow-glow"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Link href="/dashboard">Dashboard</Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-xl"
+                    onClick={() => {
+                      handleSignOut();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Button
+                    asChild
+                    className="w-full rounded-xl bg-gradient-primary text-white shadow-glow"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Link href="/login">Get Started</Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    asChild
+                    className="w-full rounded-xl"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Link href="/login">Sign In</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      )}
+    </>
   );
-};
+}

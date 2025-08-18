@@ -14,14 +14,11 @@ export function AppLayout({
   children,
   showNavbar = true,
   showFooter = true,
-  className = "",
 }: AppLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {showNavbar && <Navbar />}
-      <main className={`flex-1  ${showNavbar ? "" : ""} ${className}`}>
-        {children}
-      </main>
+      <main className={`flex-1`}>{children}</main>
       {showFooter && <Footer />}
     </div>
   );
