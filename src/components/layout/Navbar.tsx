@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Sparkles } from "lucide-react";
 
@@ -11,8 +12,14 @@ import { Menu, X, Sparkles } from "lucide-react";
 const navigationLinks = [
   { href: "/", label: "Home", active: true },
   { href: "#features", label: "Features" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#about", label: "About" },
+  {
+    href: "https://www.notion.so/Plans-and-Pricing-24722774e30a81db942af223d2d000b6",
+    label: "Pricing",
+  },
+  {
+    href: "https://www.notion.so/Verfolia-Documentation-24722774e30a80e48922d21361630f9f",
+    label: "Docs",
+  },
 ];
 
 export default function Navbar() {
@@ -63,8 +70,14 @@ export default function Navbar() {
             {/* Logo Section */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 group">
-                <div className="relative w-10 h-10 flex items-center justify-center gradient-primary rounded-xl shadow-glow group-hover:scale-105 transition-transform duration-200">
-                  <Sparkles className="w-5 h-5 text-white" />
+                <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl shadow-glow group-hover:scale-105 transition-transform duration-200">
+                  <Image
+                    src="/Logo.png"
+                    alt="Verfolia Logo"
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
                   <div className="absolute inset-0 gradient-primary rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-200" />
                 </div>
                 <span className="text-foreground text-2xl font-bold tracking-tight font-jakarta">
@@ -75,15 +88,26 @@ export default function Navbar() {
 
             {/* Navigation Links - Desktop */}
             <div className="hidden lg:flex items-center space-x-1 mx-8">
-              {navigationLinks.map((link, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleLinkClick(link.href)}
-                  className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
-                >
-                  {link.label}
-                </button>
-              ))}
+              {navigationLinks.map((link, index) =>
+                link.href.startsWith("#") ? (
+                  <button
+                    key={index}
+                    onClick={() => handleLinkClick(link.href)}
+                    className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
+                  >
+                    {link.label}
+                  </button>
+                ) : (
+                  <Link
+                    key={index}
+                    href={link.href}
+                    className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              )}
             </div>
 
             {/* Right Side Actions */}
@@ -170,8 +194,14 @@ export default function Navbar() {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-border/50">
               <Link href="/" className="flex items-center space-x-3">
-                <div className="relative w-10 h-10 flex items-center justify-center gradient-primary rounded-xl">
-                  <Sparkles className="w-5 h-5 text-white" />
+                <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl">
+                  <Image
+                    src="/Logo.png"
+                    alt="Verfolia Logo"
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
                 </div>
                 <span className="text-foreground text-2xl font-bold tracking-tight font-jakarta">
                   Verfolia
@@ -189,15 +219,26 @@ export default function Navbar() {
             {/* Navigation Links */}
             <div className="flex-1 flex flex-col justify-center px-6">
               <nav className="space-y-8">
-                {navigationLinks.map((link, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleLinkClick(link.href)}
-                    className="block text-2xl font-semibold text-foreground hover:text-primary transition-colors duration-200 font-jakarta text-left"
-                  >
-                    {link.label}
-                  </button>
-                ))}
+                {navigationLinks.map((link, index) =>
+                  link.href.startsWith("#") ? (
+                    <button
+                      key={index}
+                      onClick={() => handleLinkClick(link.href)}
+                      className="block text-2xl font-semibold text-foreground hover:text-primary transition-colors duration-200 font-jakarta text-left"
+                    >
+                      {link.label}
+                    </button>
+                  ) : (
+                    <Link
+                      key={index}
+                      href={link.href}
+                      className="block text-2xl font-semibold text-foreground hover:text-primary transition-colors duration-200 font-jakarta text-left"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  )
+                )}
               </nav>
             </div>
 

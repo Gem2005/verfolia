@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useId } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService, type Resume } from "@/services/resume-service";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AnalyticsSkeletonLoading } from "@/components/analytics/SkeletonLoading";
 
 import {
   Card,
@@ -49,6 +50,11 @@ import {
   ExternalLink,
   Eye,
   MousePointerClick,
+  BarChart3,
+  LineChart as LineChartIcon,
+  Globe,
+  Activity,
+  MousePointer,
 } from "lucide-react";
 
 import {
@@ -108,35 +114,7 @@ const calculateGrowthRate = (
   return Math.round(((recentSum - previousSum) / previousSum) * 100);
 };
 
-const calculateEngagementRate = (analyticsData: AnalyticsData | null) => {
-  if (!analyticsData || analyticsData.summary.totalViews === 0) return 0;
-  return Math.round(
-    (analyticsData.summary.totalInteractions /
-      analyticsData.summary.totalViews) *
-      100
-  );
-};
-
-const calculateConversionRate = (analyticsData: AnalyticsData | null) => {
-  if (!analyticsData || analyticsData.summary.totalViews === 0) return 0;
-  const uniqueInteractors = new Set(analyticsData.interactions.map((i) => i.id))
-    .size;
-  return Math.round(
-    (uniqueInteractors / analyticsData.summary.totalViews) * 100
-  );
-};
-
-const calculateAverageSessionValue = (analyticsData: AnalyticsData | null) => {
-  if (!analyticsData || analyticsData.views.length === 0) return 0;
-  const totalDuration = analyticsData.views.reduce(
-    (sum, view) => sum + (view.view_duration || 0),
-    0
-  );
-  const totalInteractions = analyticsData.summary.totalInteractions;
-  return totalDuration > 0
-    ? Math.round(totalInteractions / (totalDuration / 60))
-    : 0; // Interactions per minute
-};
+// Helper functions for engagement, conversion, and session value have been removed
 
 const calculateStandardDeviation = (values: number[]) => {
   if (values.length === 0) return 0;
@@ -530,8 +508,8 @@ export default function AnalyticsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 md:py-8">
+        <AnalyticsSkeletonLoading />
       </div>
     );
   }
@@ -540,11 +518,11 @@ export default function AnalyticsPage() {
     <div className="mx-auto w-full max-w-7xl px-4 py-6 md:py-8">
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight font-serif">
-            Resume Analytics
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Profile Analytics
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Insights for the selected resume over the last{" "}
+            Insights for the selected profile over the last{" "}
             {timeframe === "1" ? "24 hours" : `${timeframe} days`}
           </p>
         </div>
@@ -591,9 +569,9 @@ export default function AnalyticsPage() {
                         No Analytics Data Available
                       </h3>
                       <p className="text-muted-foreground max-w-md">
-                        This resume hasn&apos;t received any views or
+                        This profile hasn&apos;t received any views or
                         interactions in the selected time period. Share your
-                        resume with others to start collecting analytics.
+                        profile with others to start collecting analytics.
                       </p>
                       <Button
                         variant="outline"
@@ -605,11 +583,11 @@ export default function AnalyticsPage() {
                           if (currentResume) {
                             const resumeUrl = `${window.location.origin}/resume/${currentResume.slug}`;
                             navigator.clipboard.writeText(resumeUrl);
-                            alert("Resume URL copied to clipboard!");
+                            alert("Profile URL copied to clipboard!");
                           }
                         }}
                       >
-                        Copy Resume Link
+                        Copy Profile Link
                       </Button>
                     </div>
                   </CardContent>
@@ -627,7 +605,7 @@ export default function AnalyticsPage() {
                         x: d.date,
                         y: d.views,
                       }))}
-                      color="var(--color-chart-1)"
+                      color="var(--chart-1)"
                     />
                     <MetricCard
                       icon={<MousePointerClick className="h-5 w-5" />}
@@ -641,11 +619,11 @@ export default function AnalyticsPage() {
                         x: d.date,
                         y: d.interactions,
                       }))}
-                      color="var(--color-chart-2)"
+                      color="var(--chart-1)"
                     />
                     <MetricCard
                       icon={<Clock className="h-5 w-5" />}
-                      title="Avg. View Duration"
+                      title="Avg.View Duration"
                       value={
                         (analyticsData?.summary?.avgViewDuration || 0) + "s"
                       }
@@ -657,26 +635,8 @@ export default function AnalyticsPage() {
                         x: d.date,
                         y: d.avgDuration,
                       }))}
-                      color="var(--color-chart-3)"
+                      color="var(--chart-1)"
                     />
-                    <MetricCard
-                      icon={<MousePointerClick className="h-5 w-5" />}
-                      title="Engagement Rate"
-                      value={calculateEngagementRate(analyticsData) + "%"}
-                      change={0}
-                      data={(combinedSeries || []).map((d) => ({
-                        x: d.date,
-                        y:
-                          d.views > 0
-                            ? Math.round((d.interactions / d.views) * 100)
-                            : 0,
-                      }))}
-                      color="var(--color-chart-4)"
-                    />
-                  </div>
-
-                  {/* Advanced Metrics Section */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <MetricCard
                       icon={<Calendar className="h-5 w-5" />}
                       title={
@@ -691,53 +651,7 @@ export default function AnalyticsPage() {
                         x: d.date,
                         y: d.views,
                       }))}
-                      color="var(--color-chart-5)"
-                    />
-                    <MetricCard
-                      icon={<MousePointerClick className="h-5 w-5" />}
-                      title="Conversion Rate"
-                      value={calculateConversionRate(analyticsData) + "%"}
-                      change={0}
-                      data={(combinedSeries || []).map((d) => ({
-                        x: d.date,
-                        y:
-                          d.views > 0
-                            ? Math.round((d.interactions / d.views) * 100)
-                            : 0,
-                      }))}
-                      color="var(--color-primary)"
-                    />
-                    <MetricCard
-                      icon={<Clock className="h-5 w-5" />}
-                      title="Session Value"
-                      value={calculateAverageSessionValue(analyticsData)}
-                      change={0}
-                      data={(combinedSeries || []).map((d) => ({
-                        x: d.date,
-                        y: d.avgDuration,
-                      }))}
-                      color="var(--color-secondary)"
-                    />
-                    <MetricCard
-                      icon={<Eye className="h-5 w-5" />}
-                      title="Bounce Rate"
-                      value={
-                        Math.round(
-                          100 - calculateEngagementRate(analyticsData)
-                        ) + "%"
-                      }
-                      change={0}
-                      data={(combinedSeries || []).map((d) => ({
-                        x: d.date,
-                        y: Math.max(
-                          0,
-                          100 -
-                            (d.views > 0
-                              ? Math.round((d.interactions / d.views) * 100)
-                              : 0)
-                        ),
-                      }))}
-                      color="var(--color-accent)"
+                      color="var(--chart-1)"
                     />
                   </div>
 
@@ -752,7 +666,7 @@ export default function AnalyticsPage() {
                           Statistical Insights
                         </CardTitle>
                         <CardDescription>
-                          Mathematical analysis of your resume performance
+                          Mathematical analysis of your profile performance
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
@@ -831,17 +745,17 @@ export default function AnalyticsPage() {
                             </div>
                             <div className="text-2xl font-bold text-foreground font-mono">
                               {Math.round(
-                                calculateEngagementRate(analyticsData) * 0.4 +
-                                  ((analyticsData?.summary?.avgViewDuration ||
-                                    0) /
-                                    60) *
-                                    0.3 +
+                                // Removed Engagement Rate dependency, adjusted weights
+                                ((analyticsData?.summary?.avgViewDuration ||
+                                  0) /
+                                  60) *
+                                  0.5 +
                                   Math.min(
                                     (analyticsData?.summary?.totalViews || 0) /
                                       100,
                                     1
                                   ) *
-                                    30
+                                    50
                               )}
                               %
                             </div>
@@ -860,7 +774,7 @@ export default function AnalyticsPage() {
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-card-foreground">
                           <div className="p-1 rounded-md bg-secondary/10">
-                            <Eye className="h-5 w-5 text-secondary" />
+                            <Activity className="h-5 w-5 " />
                           </div>
                           Performance Analytics
                         </CardTitle>
@@ -947,7 +861,7 @@ export default function AnalyticsPage() {
                     <Card className="col-span-1 lg:col-span-2 border-none shadow-sm">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <Calendar className="h-5 w-5" />
+                          <Calendar className="h-5 w-5 text-primary" />
                           Traffic Overview
                         </CardTitle>
                         <CardDescription>
@@ -959,15 +873,15 @@ export default function AnalyticsPage() {
                           config={{
                             views: {
                               label: "Views",
-                              color: "var(--color-chart-1)",
+                              color: "var(--chart-1)",
                             },
                             interactions: {
                               label: "Interactions",
-                              color: "var(--color-chart-2)",
+                              color: "var(--chart-2)",
                             },
                             avgDuration: {
                               label: "Avg Duration (s)",
-                              color: "var(--color-chart-3)",
+                              color: "var(--chart-3)",
                             },
                           }}
                           className="h-full w-full"
@@ -988,7 +902,7 @@ export default function AnalyticsPage() {
                                 yAxisId="left"
                                 dataKey="views"
                                 name="Views"
-                                fill="var(--color-views)"
+                                fill="var(--chart-1)"
                                 radius={[6, 6, 0, 0]}
                               />
                               <Line
@@ -996,7 +910,7 @@ export default function AnalyticsPage() {
                                 type="monotone"
                                 dataKey="interactions"
                                 name="Interactions"
-                                stroke="var(--color-interactions)"
+                                stroke="var(--chart-1)"
                                 strokeWidth={2}
                                 dot={false}
                               />
@@ -1005,8 +919,8 @@ export default function AnalyticsPage() {
                                 type="monotone"
                                 dataKey="avgDuration"
                                 name="Avg Duration (s)"
-                                stroke="var(--color-avgDuration)"
-                                fill="var(--color-avgDuration)"
+                                stroke="var(--chart-1)"
+                                fill="var(--chart-1)"
                                 fillOpacity={0.15}
                               />
                             </ComposedChart>
@@ -1019,7 +933,7 @@ export default function AnalyticsPage() {
                     <Card className="border-none shadow-sm">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <MousePointerClick className="h-5 w-5" />
+                          <MousePointerClick className="h-5 w-5 text-primary" />
                           Interactions by Type
                         </CardTitle>
                         <CardDescription>
@@ -1031,7 +945,7 @@ export default function AnalyticsPage() {
                           config={{
                             count: {
                               label: "Count",
-                              color: "var(--color-chart-4)",
+                              color: "var(--chart-1)",
                             },
                           }}
                           className="h-full w-full"
@@ -1052,11 +966,11 @@ export default function AnalyticsPage() {
                               <Radar
                                 name="Interactions"
                                 dataKey="count"
-                                stroke="var(--color-count)"
-                                fill="var(--color-count)"
+                                stroke="var(--chart-1)"
+                                fill="var(--chart-1)"
                                 fillOpacity={0.25}
                               />
-                              <RechartsTooltip />
+                              <ChartTooltip content={<ChartTooltipContent />} />
                             </RadarChart>
                           </ResponsiveContainer>
                         </ChartContainer>
@@ -1068,7 +982,12 @@ export default function AnalyticsPage() {
                     {/* LineChartAxisInterval */}
                     <Card className="border-none shadow-sm">
                       <CardHeader>
-                        <CardTitle>Views Over Time</CardTitle>
+                        <CardTitle>
+                          <div className="flex items-center gap-2">
+                            <LineChartIcon className="h-5 w-5 text-primary" />
+                            Views Over Time
+                          </div>
+                        </CardTitle>
                         <CardDescription>With axis interval</CardDescription>
                       </CardHeader>
                       <CardContent className="h-[320px]">
@@ -1076,7 +995,7 @@ export default function AnalyticsPage() {
                           config={{
                             views: {
                               label: "Views",
-                              color: "var(--color-chart-1)",
+                              color: "var(--chart-1)",
                             },
                           }}
                           className="h-full w-full"
@@ -1093,7 +1012,7 @@ export default function AnalyticsPage() {
                               <Line
                                 type="monotone"
                                 dataKey="views"
-                                stroke="var(--color-views)"
+                                stroke="var(--chart-1)"
                                 strokeWidth={2}
                                 dot={false}
                               />
@@ -1106,7 +1025,12 @@ export default function AnalyticsPage() {
                     {/* StackedAreaChart (Top countries) */}
                     <Card className="border-none shadow-sm">
                       <CardHeader>
-                        <CardTitle>Top Countries Over Time</CardTitle>
+                        <CardTitle>
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-5 w-5 text-primary" />
+                            Top Countries Over Time
+                          </div>
+                        </CardTitle>
                         <CardDescription>Stacked area</CardDescription>
                       </CardHeader>
                       <CardContent className="h-[320px]">
@@ -1114,19 +1038,19 @@ export default function AnalyticsPage() {
                           config={{
                             a: {
                               label: "Series A",
-                              color: "var(--color-chart-1)",
+                              color: "var(--chart-1)",
                             },
                             b: {
                               label: "Series B",
-                              color: "var(--color-chart-2)",
+                              color: "var(--chart-2)",
                             },
                             c: {
                               label: "Series C",
-                              color: "var(--color-chart-3)",
+                              color: "var(--chart-3)",
                             },
                             d: {
                               label: "Series D",
-                              color: "var(--color-chart-4)",
+                              color: "var(--chart-4)",
                             },
                           }}
                           className="h-full w-full"
@@ -1150,8 +1074,8 @@ export default function AnalyticsPage() {
                                         dataKey={key}
                                         name={key}
                                         stackId="1"
-                                        stroke={`var(--color-${varKey})`}
-                                        fill={`var(--color-${varKey})`}
+                                        stroke={`var(--chart-${idx + 1})`}
+                                        fill={`var(--chart-${idx + 1})`}
                                         fillOpacity={0.18 + idx * 0.08}
                                       />
                                     );
@@ -1166,7 +1090,7 @@ export default function AnalyticsPage() {
                     <Card className="border-none shadow-sm">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <ExternalLink className="h-5 w-5" />
+                          <ExternalLink className="h-5 w-5 text-primary" />
                           Traffic Sources
                         </CardTitle>
                         <CardDescription>Top referrers</CardDescription>
@@ -1177,7 +1101,7 @@ export default function AnalyticsPage() {
                             config={{
                               count: {
                                 label: "Visitors",
-                                color: "var(--color-chart-2)",
+                                color: "var(--chart-1)",
                               },
                             }}
                             className="h-full w-full"
@@ -1204,7 +1128,7 @@ export default function AnalyticsPage() {
                                 />
                                 <Bar
                                   dataKey="count"
-                                  fill="var(--color-count)"
+                                  fill="var(--chart-1)"
                                   radius={6}
                                 />
                               </BarChart>
@@ -1223,7 +1147,7 @@ export default function AnalyticsPage() {
 
                   {/* Recent Views Table */}
                   <Card className="mt-6 border-none shadow-sm bg-gradient-to-br from-background to-muted/20">
-                    <CardHeader className="border-b border-border/40 bg-gradient-to-r from-var(--color-primary)/5 to-var(--color-chart-1)/5">
+                    <CardHeader className="border-b border-border/40 bg-gradient-to-r from-var(--primary)/5 to-var(--chart-1)/5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Button
@@ -1239,7 +1163,8 @@ export default function AnalyticsPage() {
                             )}
                           </Button>
                           <div>
-                            <CardTitle className="text-xl font-semibold text-foreground">
+                            <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+                              <Eye className="h-5 w-5 text-primary" />
                               Recent Views
                             </CardTitle>
                             <CardDescription className="text-muted-foreground">
@@ -1408,7 +1333,7 @@ export default function AnalyticsPage() {
 
                   {/* Recent Interactions Table */}
                   <Card className="mt-6 border-none shadow-sm bg-gradient-to-br from-background to-muted/20">
-                    <CardHeader className="border-b border-border/40 bg-gradient-to-r from-var(--color-chart-2)/5 to-var(--color-chart-3)/5">
+                    <CardHeader className="border-b border-border/40 bg-gradient-to-r from-var(--chart-2)/5 to-var(--chart-3)/5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Button
@@ -1426,7 +1351,8 @@ export default function AnalyticsPage() {
                             )}
                           </Button>
                           <div>
-                            <CardTitle className="text-xl font-semibold text-foreground">
+                            <CardTitle className="text-xl font-semibold text-foreground flex items-center gap-2">
+                              <MousePointer className="h-5 w-5 text-primary" />
                               Recent Interactions
                             </CardTitle>
                             <CardDescription className="text-muted-foreground">
@@ -1573,7 +1499,7 @@ export default function AnalyticsPage() {
             <Card className="border-none shadow-sm">
               <CardContent className="flex items-center justify-center p-8">
                 <p className="text-muted-foreground">
-                  {loading ? "Loading analytics..." : "No resume selected"}
+                  {loading ? "Loading analytics..." : "No profile selected"}
                 </p>
               </CardContent>
             </Card>
@@ -1603,36 +1529,35 @@ function MetricCard({
   const isNegative = (change || 0) < 0;
 
   return (
-    <Card className="border-none shadow-sm bg-card">
+    <Card className="border-none shadow-sm bg-card h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center justify-between text-lg font-medium">
-          <div className="flex items-center gap-2 text-card-foreground">
-            <div
-              className="p-1 rounded-md"
-              style={{ backgroundColor: color, opacity: 0.1 }}
-            >
-              <div style={{ color }}>{icon}</div>
+        <div className="flex flex-col gap-2">
+          <CardTitle className="flex items-start justify-between text-lg font-medium">
+            <div className="flex items-center gap-2 text-card-foreground">
+              <div className="p-1 rounded-md flex-shrink-0">
+                <div style={{ color }}>{icon}</div>
+              </div>
+              <span className="truncate">{title}</span>
             </div>
-            {title}
-          </div>
-          {typeof change === "number" && change !== 0 && (
-            <div
-              className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
-                isPositive
-                  ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
-                  : isNegative
-                  ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {isPositive ? "↗" : isNegative ? "↘" : "→"}
-              {Math.abs(change)}%
-            </div>
-          )}
-        </CardTitle>
-        <CardDescription className="text-3xl font-bold text-foreground">
-          {value}
-        </CardDescription>
+            {typeof change === "number" && change !== 0 && (
+              <div
+                className={`flex-shrink-0 flex items-center gap-1 text-xs px-2 py-1 rounded-full ml-2 ${
+                  isPositive
+                    ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                    : isNegative
+                    ? "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {isPositive ? "↗" : isNegative ? "↘" : "→"}
+                {Math.abs(change)}%
+              </div>
+            )}
+          </CardTitle>
+          <CardDescription className="text-3xl font-bold text-foreground">
+            {value}
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="h-[64px]">
         {/* TinyLineChart */}
@@ -1760,7 +1685,7 @@ function PaginationControls({
 }
 
 function Flag({ code, label }: { code?: string; label: string }) {
-  // Render a basic emoji flag if we have a code, else a placeholder dot.
+  // If we have a valid country code
   if (code && code.length === 2) {
     // Convert alpha-2 to Regional Indicator Symbols for emoji flags
     const A = 0x1f1e6;
@@ -1770,22 +1695,35 @@ function Flag({ code, label }: { code?: string; label: string }) {
       .split("")
       .map((c) => String.fromCodePoint(A + (c.charCodeAt(0) - base)))
       .join("");
+
     return (
-      <span
-        role="img"
-        aria-label={label}
-        title={label}
-        className="text-lg leading-none"
-      >
-        {chars}
-      </span>
+      <div className="flex items-center justify-center w-full h-full overflow-visible">
+        <span
+          role="img"
+          aria-label={label}
+          title={label}
+          className="text-sm leading-none"
+          style={{
+            fontSize: "16px",
+            lineHeight: 1,
+            display: "block",
+            textAlign: "center",
+          }}
+        >
+          {chars}
+        </span>
+      </div>
     );
   }
+
+  // Fallback for unknown country
   return (
-    <span
-      aria-hidden
-      className="inline-block h-2 w-2 rounded-full bg-muted-foreground/40"
-      title={label}
-    />
+    <div className="flex items-center justify-center w-full h-full bg-muted/40">
+      <span
+        aria-hidden
+        className="inline-block h-2 w-2 rounded-full bg-muted-foreground"
+        title={label}
+      />
+    </div>
   );
 }

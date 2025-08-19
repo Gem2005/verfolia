@@ -34,15 +34,21 @@ import { toast } from "sonner";
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const [resumes, setResumes] = useState<ResumeType[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   const loadResumes = useCallback(async () => {
     if (!user) return;
 
     try {
-      setLoading(true);
+      // Only show loading on first load
+      if (!initialLoadComplete) {
+        setLoading(true);
+      }
+
       const userResumes = await resumeService.getUserResumes(user.id);
       setResumes(userResumes);
+      setInitialLoadComplete(true);
     } catch (error) {
       console.error("Error loading resumes:", error);
       toast.error("Failed to load resumes");
@@ -51,13 +57,13 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, initialLoadComplete]);
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && user && !initialLoadComplete) {
       loadResumes();
     }
-  }, [authLoading, user, loadResumes]);
+  }, [authLoading, user, loadResumes, initialLoadComplete]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -125,7 +131,7 @@ export default function Dashboard() {
               {/* Stats Cards Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-6 border rounded-lg">
+                  <div key={i} className="p-6 rounded-lg">
                     <div className="space-y-3">
                       <div className="h-4 bg-muted rounded w-24"></div>
                       <div className="h-8 bg-muted rounded w-16"></div>
@@ -138,7 +144,7 @@ export default function Dashboard() {
               {/* Resume Cards Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="p-6 border rounded-lg space-y-4">
+                  <div key={i} className="p-6 rounded-lg space-y-4">
                     <div className="space-y-2">
                       <div className="h-6 bg-muted rounded w-3/4"></div>
                       <div className="h-4 bg-muted rounded w-1/2"></div>
@@ -164,28 +170,80 @@ export default function Dashboard() {
   return (
     <ProtectedRoute>
       <AppLayout>
-        <div className="container mx-auto px-4 py-8 mt-16">
+        <div className="container mx-auto px-8 pt-28 pb-32">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-foreground font-serif">
+              <h1 className="text-3xl font-bold text-foreground">
                 Resume Dashboard
               </h1>
               <p className="text-muted-foreground">
                 Manage and organize all your resumes in one place
               </p>
             </div>
-            <Button asChild className="flex items-center gap-2 shadow-sm">
-              <Link href="/create-resume">
-                <Plus className="h-4 w-4" />
-                Create New Resume
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={loadResumes}
+                disabled={loading}
+                className="shadow-sm"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Refreshing...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                    Refresh
+                  </span>
+                )}
+              </Button>
+              <Button asChild className="flex items-center gap-2 shadow-sm">
+                <Link href="/create-resume">
+                  <Plus className="h-4 w-4" />
+                  Create New Resume
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="border-0 shadow-sm">
+            <Card className="shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total Resumes
@@ -203,7 +261,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-sm">
+            <Card className="shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Public Resumes
@@ -220,7 +278,7 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="border-0 shadow-sm">
+            <Card className=" shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Recently Updated
@@ -248,7 +306,7 @@ export default function Dashboard() {
 
           {/* Resume Grid */}
           {resumes.length === 0 ? (
-            <Card className="border-0 shadow-sm text-center py-16">
+            <Card className="shadow-sm text-center py-16">
               <CardContent>
                 <div className="max-w-md mx-auto">
                   <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -275,7 +333,7 @@ export default function Dashboard() {
               {resumes.map((resume) => (
                 <Card
                   key={resume.id}
-                  className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:scale-[1.02]"
+                  className="group hover:shadow-lg transition-all duration-200 shadow-sm hover:scale-[1.02]"
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
@@ -360,7 +418,7 @@ export default function Dashboard() {
                         </Button>
                       </div>
 
-                      <div className="flex justify-between items-center pt-3 border-t">
+                      <div className="flex justify-between items-center pt-3">
                         <Button
                           size="sm"
                           variant="ghost"
