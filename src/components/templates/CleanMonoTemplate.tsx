@@ -12,177 +12,216 @@ import { Button } from "@/components/ui/button";
 export function CleanMonoTemplate({
   data,
   preview = false,
-}: PortfolioTemplateProps) {
-  // Mock data for preview
-  const portfolioData: PortfolioData = preview
-    ? {
-        personalInfo: {
-          firstName: "John",
-          lastName: "Doe",
-          title: "Full Stack Developer",
-          email: "john.doe@example.com",
-          phone: "+1 234-567-8901",
-          location: "San Francisco, CA, USA",
-          about:
-            "Passionate developer who loves building clean, accessible and performant web apps. Enjoys hackathons, open-source, and learning new stacks.",
-          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
-          social: {
-            github: "https://github.com/johndoe",
-            twitter: "https://twitter.com/johndoe",
-            linkedin: "https://linkedin.com/in/johndoe",
-            portfolio: "https://johndoe.dev",
+  theme = "black",
+}: PortfolioTemplateProps & { theme?: string }) {
+  // Use provided data or fallback to mock data only if no data is provided
+  const portfolioData: PortfolioData =
+    data && data.personalInfo && data.personalInfo.firstName
+      ? data
+      : {
+          personalInfo: {
+            firstName: "John",
+            lastName: "Doe",
+            title: "Full Stack Developer",
+            email: "john.doe@example.com",
+            phone: "+1 234-567-8901",
+            location: "San Francisco, CA, USA",
+            about:
+              "Passionate developer who loves building clean, accessible and performant web apps. Enjoys hackathons, open-source, and learning new stacks.",
+            photo:
+              "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
+            social: {
+              github: "https://github.com/johndoe",
+              twitter: "https://twitter.com/johndoe",
+              linkedin: "https://linkedin.com/in/johndoe",
+              portfolio: "https://johndoe.dev",
+            },
           },
-        },
-        experience: [
-          {
-            id: "exp1",
-            position: "Blockchain and Software Developer",
-            company: "Neural Labs",
-            startDate: "August 2023",
-            isPresent: true,
-            description:
-              "Working on blockchain solutions, building smart contracts, and integrating decentralized applications with front-end frameworks.",
-          },
-          {
-            id: "exp2",
-            position: "Social Media and Relations",
-            company: "Crypto Union",
-            startDate: "July 2022",
-            endDate: "January 2023",
-            description:
-              "Managed social media presence, boosted community engagement by 30%, and organized 5+ crypto-related webinars and AMA sessions.",
-          },
-          {
-            id: "exp3",
-            position: "Solana Development Intern",
-            company: "TerraFirm",
-            startDate: "July 2022",
-            endDate: "August 2022",
-            description:
-              "Developed Solana smart contracts, deployed NFT collections, and optimized gas usage for decentralized apps.",
-          },
-        ],
-        skills: [
-          "React",
-          "TypeScript",
-          "Next.js",
-          "Node.js",
-          "Solidity",
-          "Rust",
-          "Solana",
-          "Ethers.js",
-          "Web3",
-          "Tailwind CSS",
-          "Git",
-          "Docker",
-        ],
-        education: [
-          {
-            id: "edu1",
-            institution: "Himalayan Institute of Technology",
-            degree: "Bachelor's in Computer Science and Engineering",
-            startYear: "2019",
-            endYear: "2023",
-            cgpa: "8.7 / 10",
-          },
-        ],
-        certifications: [
-          {
-            id: "cert1",
-            title: "Ethereum Developer Bootcamp",
-            issuer: "Consensys Academy",
-            date: "June 2023",
-            url: "#",
-          },
-          {
-            id: "cert2",
-            title: "Rust Programming Language",
-            issuer: "Udemy",
-            date: "March 2023",
-            url: "#",
-          },
-        ],
-        projects: [
-          {
-            id: "proj1",
-            name: "Where Art Thou?",
-            description:
-              "A museum NFT marketplace, with verified artist accounts and secure transactions.",
-            techStack: ["Solidity", "Next.js", "TypeScript"],
-            sourceUrl: "https://github.com/johndoe/where-art-thou",
-            demoUrl: "https://where-art-thou.vercel.app",
-          },
-          {
-            id: "proj2",
-            name: "Ethereal",
-            description:
-              "A decentralized NFT marketplace, with gasless listings and secure transactions of ERC-721 NFTs.",
-            techStack: ["Solidity", "React.js", "TypeScript"],
-            sourceUrl: "https://github.com/johndoe/ethereal",
-            demoUrl: "https://ethereal-nft.vercel.app",
-          },
-          {
-            id: "proj3",
-            name: "Swiftlip",
-            description:
-              "A minimalistic and developer-friendly package to build command-line applications.",
-            techStack: ["Node.js", "TypeScript", "JavaScript"],
-            sourceUrl: "https://github.com/johndoe/swiftlip",
-            demoUrl: "https://www.npmjs.com/package/swiftlip",
-          },
-          {
-            id: "proj4",
-            name: "ChainVote",
-            description:
-              "A secure, blockchain-based voting system ensuring transparency and immutability.",
-            techStack: ["Solidity", "React", "IPFS"],
-            sourceUrl: "https://github.com/johndoe/chainvote",
-            demoUrl: "#",
-          },
-        ],
-        blogs: [
-          {
-            id: "blog1",
-            title: "Understanding PDAs, Seeds and Bumps in Solana",
-            summary:
-              "PDAs (Program Derived Addresses) are fundamental for beginners. Learn everything about PDAs and program ownership.",
-            publishDate: "Feb 2023",
-            url: "#",
-          },
-          {
-            id: "blog2",
-            title: "Learning Memory Management, Structs and Enums in Rust",
-            summary:
-              "Understanding Rust's memory management and data structures.",
-            publishDate: "Jan 2023",
-            url: "#",
-          },
-          {
-            id: "blog3",
-            title: "Custom Transactions and Instructions in Solana",
-            summary:
-              "Learn about custom transactions and instructions in Solana.",
-            publishDate: "Dec 2022",
-            url: "#",
-          },
-          {
-            id: "blog4",
-            title: "Next.js Performance Optimization Tips",
-            summary:
-              "Practical strategies to optimize performance in Next.js apps.",
-            publishDate: "Nov 2022",
-            url: "#",
-          },
-        ],
-        interests: [
-          "Hackathons",
-          "Open Source",
-          "Blockchain",
-          "AI & ML",
-          "Gaming",
-        ],
-      }
-    : data;
+          experience: [
+            {
+              id: "exp1",
+              position: "Blockchain and Software Developer",
+              company: "Neural Labs",
+              startDate: "August 2023",
+              isPresent: true,
+              description:
+                "Working on blockchain solutions, building smart contracts, and integrating decentralized applications with front-end frameworks.",
+            },
+            {
+              id: "exp2",
+              position: "Social Media and Relations",
+              company: "Crypto Union",
+              startDate: "July 2022",
+              endDate: "January 2023",
+              description:
+                "Managed social media presence, boosted community engagement by 30%, and organized 5+ crypto-related webinars and AMA sessions.",
+            },
+            {
+              id: "exp3",
+              position: "Solana Development Intern",
+              company: "TerraFirm",
+              startDate: "July 2022",
+              endDate: "August 2022",
+              description:
+                "Developed Solana smart contracts, deployed NFT collections, and optimized gas usage for decentralized apps.",
+            },
+          ],
+          skills: [
+            "React",
+            "TypeScript",
+            "Next.js",
+            "Node.js",
+            "Solidity",
+            "Rust",
+            "Solana",
+            "Ethers.js",
+            "Web3",
+            "Tailwind CSS",
+            "Git",
+            "Docker",
+          ],
+          education: [
+            {
+              id: "edu1",
+              institution: "Himalayan Institute of Technology",
+              degree: "Bachelor's in Computer Science and Engineering",
+              startYear: "2019",
+              endYear: "2023",
+              cgpa: "8.7 / 10",
+            },
+          ],
+          certifications: [
+            {
+              id: "cert1",
+              title: "Ethereum Developer Bootcamp",
+              issuer: "Consensys Academy",
+              date: "June 2023",
+              url: "#",
+            },
+            {
+              id: "cert2",
+              title: "Rust Programming Language",
+              issuer: "Udemy",
+              date: "March 2023",
+              url: "#",
+            },
+          ],
+          projects: [
+            {
+              id: "proj1",
+              name: "Where Art Thou?",
+              description:
+                "A museum NFT marketplace, with verified artist accounts and secure transactions.",
+              techStack: ["Solidity", "Next.js", "TypeScript"],
+              sourceUrl: "https://github.com/johndoe/where-art-thou",
+              demoUrl: "https://where-art-thou.vercel.app",
+            },
+            {
+              id: "proj2",
+              name: "Ethereal",
+              description:
+                "A decentralized NFT marketplace, with gasless listings and secure transactions of ERC-721 NFTs.",
+              techStack: ["Solidity", "React.js", "TypeScript"],
+              sourceUrl: "https://github.com/johndoe/ethereal",
+              demoUrl: "https://ethereal-nft.vercel.app",
+            },
+            {
+              id: "proj3",
+              name: "Swiftlip",
+              description:
+                "A minimalistic and developer-friendly package to build command-line applications.",
+              techStack: ["Node.js", "TypeScript", "JavaScript"],
+              sourceUrl: "https://github.com/johndoe/swiftlip",
+              demoUrl: "https://www.npmjs.com/package/swiftlip",
+            },
+            {
+              id: "proj4",
+              name: "ChainVote",
+              description:
+                "A secure, blockchain-based voting system ensuring transparency and immutability.",
+              techStack: ["Solidity", "React", "IPFS"],
+              sourceUrl: "https://github.com/johndoe/chainvote",
+              demoUrl: "#",
+            },
+          ],
+          blogs: [
+            {
+              id: "blog1",
+              title: "Understanding PDAs, Seeds and Bumps in Solana",
+              summary:
+                "PDAs (Program Derived Addresses) are fundamental for beginners. Learn everything about PDAs and program ownership.",
+              publishDate: "Feb 2023",
+              url: "#",
+            },
+            {
+              id: "blog2",
+              title: "Learning Memory Management, Structs and Enums in Rust",
+              summary:
+                "Understanding Rust's memory management and data structures.",
+              publishDate: "Jan 2023",
+              url: "#",
+            },
+            {
+              id: "blog3",
+              title: "Custom Transactions and Instructions in Solana",
+              summary:
+                "Learn about custom transactions and instructions in Solana.",
+              publishDate: "Dec 2022",
+              url: "#",
+            },
+            {
+              id: "blog4",
+              title: "Next.js Performance Optimization Tips",
+              summary:
+                "Practical strategies to optimize performance in Next.js apps.",
+              publishDate: "Nov 2022",
+              url: "#",
+            },
+          ],
+          interests: [
+            "Hackathons",
+            "Open Source",
+            "Blockchain",
+            "AI & ML",
+            "Gaming",
+          ],
+        };
+
+  // Theme configuration
+  const getThemeClasses = () => {
+    switch (theme) {
+      case "dark-gray":
+        return {
+          bg: "bg-gray-800",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-600",
+        };
+      case "navy-blue":
+        return {
+          bg: "bg-blue-900",
+          text: "text-blue-100",
+          accent: "text-blue-300",
+          border: "border-blue-600",
+        };
+      case "professional":
+        return {
+          bg: "bg-gray-700",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-500",
+        };
+      default: // black
+        return {
+          bg: "bg-gray-50",
+          text: "text-gray-900",
+          accent: "text-gray-600",
+          border: "border-gray-300",
+        };
+    }
+  };
+
+  const themeClasses = getThemeClasses();
 
   const handleViewMore = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -198,7 +237,9 @@ export function CleanMonoTemplate({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-mono">
+    <div
+      className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} font-mono`}
+    >
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         {/* Header */}
         <header className="mb-16">
@@ -210,23 +251,27 @@ export function CleanMonoTemplate({
                   <img
                     src={portfolioData.personalInfo.photo || "/placeholder.svg"}
                     alt={`${portfolioData.personalInfo.firstName} ${portfolioData.personalInfo.lastName}`}
-                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-gray-300 shadow-sm"
+                    className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 ${themeClasses.border} shadow-sm`}
                   />
                 </div>
               )}
               <div>
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                <h1
+                  className={`text-2xl sm:text-3xl lg:text-4xl font-bold ${themeClasses.text} mb-2`}
+                >
                   {portfolioData.personalInfo.firstName}{" "}
                   {portfolioData.personalInfo.lastName}
                   <span className="inline-block ml-3 px-3 py-1 text-sm font-medium bg-green-600 text-white rounded-full shadow-sm">
                     Available for Hire
                   </span>
                 </h1>
-                <p className="text-lg sm:text-xl text-gray-700 font-medium">
+                <p
+                  className={`text-lg sm:text-xl ${themeClasses.accent} font-medium`}
+                >
                   {portfolioData.personalInfo.title}
                 </p>
                 {portfolioData.personalInfo.location && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className={`text-sm ${themeClasses.accent} mt-1`}>
                     📍 {portfolioData.personalInfo.location}
                   </p>
                 )}

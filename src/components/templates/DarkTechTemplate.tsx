@@ -19,124 +19,165 @@ import { Button } from "@/components/ui/button";
 export function DarkTechTemplate({
   data,
   preview = false,
-}: PortfolioTemplateProps) {
-  // Mock data for preview
-  const portfolioData: PortfolioData = preview
-    ? {
-        personalInfo: {
-          firstName: "John",
-          lastName: "Doe",
-          title: "Software Engineer",
-          email: "john.doe@example.com",
-          phone: "+1234567890",
-          location: "Remote",
-          about:
-            "I enjoy building modern web applications and exploring new technologies.",
-          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
-          social: {
-            github: "https://github.com/johndoe",
-            twitter: "https://twitter.com/johndoe",
-            linkedin: "https://linkedin.com/in/johndoe",
-            portfolio: "https://johndoe.dev",
+  theme = "black",
+}: PortfolioTemplateProps & { theme?: string }) {
+  // Use provided data or fallback to mock data only if no data is provided
+  const portfolioData: PortfolioData =
+    data && data.personalInfo && data.personalInfo.firstName
+      ? data
+      : {
+          personalInfo: {
+            firstName: "John",
+            lastName: "Doe",
+            title: "Software Engineer",
+            email: "john.doe@example.com",
+            phone: "+1234567890",
+            location: "Remote",
+            about:
+              "I enjoy building modern web applications and exploring new technologies.",
+            photo:
+              "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
+            social: {
+              github: "https://github.com/johndoe",
+              twitter: "https://twitter.com/johndoe",
+              linkedin: "https://linkedin.com/in/johndoe",
+              portfolio: "https://johndoe.dev",
+            },
           },
-        },
-        experience: [
-          {
-            id: "exp1",
-            position: "Senior Full Stack Developer",
-            company: "TechFusion",
-            startDate: "Jan 2022",
-            isPresent: true,
-            description:
-              "Building modern web applications using React, Next.js and Node.js",
-          },
-          {
-            id: "exp2",
-            position: "Frontend Developer",
-            company: "WebCraft Solutions",
-            startDate: "Mar 2020",
-            endDate: "Dec 2021",
-            description:
-              "Developed responsive user interfaces for enterprise clients",
-          },
-        ],
-        skills: [
-          "React.js",
-          "Next.js",
-          "Node.js",
-          "TypeScript",
-          "MongoDB",
-          "JavaScript",
-          "Go",
-          "T-SQL",
-        ],
-        education: [
-          {
-            id: "edu1",
-            institution: "Trident Academy of Technology",
-            degree: "B.Tech in Computer Science and Information Technology",
-            startYear: "2020",
-            endYear: "2024",
-            cgpa: "8.5",
-          },
-          {
-            id: "edu2",
-            institution: "Netaji Subhas Memorial City College",
-            degree: "Higher Secondary",
-            startYear: "2019",
-            endYear: "2021",
-            cgpa: "85%",
-          },
-        ],
-        projects: [
-          {
-            id: "proj1",
-            name: "CleanType",
-            description:
-              "A super minimalist code experience, type with 100% accuracy, built with a fresh Webassembly app, with a clean UI and no ads, and a writing experience.",
-            techStack: ["React", "Vite", "TypeScript", "CSS", "WebAssembly"],
-            sourceUrl: "https://github.com/prasenjit/cleantype",
-            demoUrl: "https://cleantype.dev",
-          },
-          {
-            id: "proj2",
-            name: "Wallpaperz",
-            description:
-              "A modern wallpaper discovery platform where people can browse curated wallpapers and generate images with AI.",
-            techStack: [
-              "TypeScript",
-              "MongoDB",
-              "shadcn/ui",
-              "Prisma",
-              "Unsplash API",
-            ],
-            sourceUrl: "https://github.com/prasenjit/wallpaperz",
-            demoUrl: "https://wallpaperz.art",
-          },
-        ],
-        blogs: [
-          {
-            id: "blog1",
-            title: "Is Computer Science Saturated?",
-            summary: "Examining the state of the CS field in 2024",
-            publishDate: "2024-06-18",
-            url: "#",
-          },
-          {
-            id: "blog2",
-            title: "How to use Cursor AI IDE Pro for Free?",
-            summary: "Tips and tricks for maximizing the free tier",
-            publishDate: "2023-04-05",
-            url: "#",
-          },
-        ],
-        certifications: [],
-        interests: ["Open Source", "Web Development", "AI/ML"],
-      }
-    : data;
+          experience: [
+            {
+              id: "exp1",
+              position: "Senior Full Stack Developer",
+              company: "TechFusion",
+              startDate: "Jan 2022",
+              isPresent: true,
+              description:
+                "Building modern web applications using React, Next.js and Node.js",
+            },
+            {
+              id: "exp2",
+              position: "Frontend Developer",
+              company: "WebCraft Solutions",
+              startDate: "Mar 2020",
+              endDate: "Dec 2021",
+              description:
+                "Developed responsive user interfaces for enterprise clients",
+            },
+          ],
+          skills: [
+            "React.js",
+            "Next.js",
+            "Node.js",
+            "TypeScript",
+            "MongoDB",
+            "JavaScript",
+            "Go",
+            "T-SQL",
+          ],
+          education: [
+            {
+              id: "edu1",
+              institution: "Trident Academy of Technology",
+              degree: "B.Tech in Computer Science and Information Technology",
+              startYear: "2020",
+              endYear: "2024",
+              cgpa: "8.5",
+            },
+            {
+              id: "edu2",
+              institution: "Netaji Subhas Memorial City College",
+              degree: "Higher Secondary",
+              startYear: "2019",
+              endYear: "2021",
+              cgpa: "85%",
+            },
+          ],
+          projects: [
+            {
+              id: "proj1",
+              name: "CleanType",
+              description:
+                "A super minimalist code experience, type with 100% accuracy, built with a fresh Webassembly app, with a clean UI and no ads, and a writing experience.",
+              techStack: ["React", "Vite", "TypeScript", "CSS", "WebAssembly"],
+              sourceUrl: "https://github.com/prasenjit/cleantype",
+              demoUrl: "https://cleantype.dev",
+            },
+            {
+              id: "proj2",
+              name: "Wallpaperz",
+              description:
+                "A modern wallpaper discovery platform where people can browse curated wallpapers and generate images with AI.",
+              techStack: [
+                "TypeScript",
+                "MongoDB",
+                "shadcn/ui",
+                "Prisma",
+                "Unsplash API",
+              ],
+              sourceUrl: "https://github.com/prasenjit/wallpaperz",
+              demoUrl: "https://wallpaperz.art",
+            },
+          ],
+          blogs: [
+            {
+              id: "blog1",
+              title: "Is Computer Science Saturated?",
+              summary: "Examining the state of the CS field in 2024",
+              publishDate: "2024-06-18",
+              url: "#",
+            },
+            {
+              id: "blog2",
+              title: "How to use Cursor AI IDE Pro for Free?",
+              summary: "Tips and tricks for maximizing the free tier",
+              publishDate: "2023-04-05",
+              url: "#",
+            },
+          ],
+          certifications: [],
+          interests: ["Open Source", "Web Development", "AI/ML"],
+        };
+
+  // Theme configuration
+  const getThemeClasses = () => {
+    switch (theme) {
+      case "dark-gray":
+        return {
+          bg: "bg-gray-800",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-600",
+        };
+      case "navy-blue":
+        return {
+          bg: "bg-blue-900",
+          text: "text-blue-100",
+          accent: "text-blue-300",
+          border: "border-blue-600",
+        };
+      case "professional":
+        return {
+          bg: "bg-gray-700",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-500",
+        };
+      default: // black
+        return {
+          bg: "bg-black",
+          text: "text-white",
+          accent: "text-gray-300",
+          border: "border-gray-700",
+        };
+    }
+  };
+
+  const themeClasses = getThemeClasses();
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
+    <div
+      className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} font-sans`}
+    >
       <div
         className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(120,119,198,0.3)_0,transparent_600px),radial-gradient(circle_at_0%_60%,rgba(71,118,230,0.3)_0,transparent_400px)]"
         style={{ zIndex: 0 }}

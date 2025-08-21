@@ -160,6 +160,7 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     const templateProps = {
       preview: false,
       data: getPortfolioData(resume),
+      theme: resume.theme_id,
     };
 
     switch (resume.template_id) {

@@ -12,184 +12,224 @@ import { Card, CardContent } from "@/components/ui/card";
 export function ModernAIFocusedTemplate({
   data,
   preview = false,
-}: PortfolioTemplateProps) {
-  // Mock data for preview
-  const portfolioData: PortfolioData = preview
-    ? {
-        personalInfo: {
-          firstName: "John",
-          lastName: "Doe",
-          title: "Full Stack Developer (AI-leaning)",
-          email: "john.doe@example.com",
-          phone: "+1 (555) 123-4567",
-          location: "San Francisco, CA",
-          about:
-            "Experienced developer building intelligent, scalable solutions across web and cloud.",
-          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
-          social: {
-            github: "https://github.com/johndoe",
-            linkedin: "https://linkedin.com/in/johndoe",
-            twitter: "https://twitter.com/johndoe",
-            portfolio: "https://johndoe.dev",
+  theme = "black",
+}: PortfolioTemplateProps & { theme?: string }) {
+  // Use provided data or fallback to mock data only if no data is provided
+  const portfolioData: PortfolioData =
+    data && data.personalInfo && data.personalInfo.firstName
+      ? data
+      : {
+          personalInfo: {
+            firstName: "John",
+            lastName: "Doe",
+            title: "Full Stack Developer (AI-leaning)",
+            email: "john.doe@example.com",
+            phone: "+1 (555) 123-4567",
+            location: "San Francisco, CA",
+            about:
+              "Experienced developer building intelligent, scalable solutions across web and cloud.",
+            photo:
+              "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
+            social: {
+              github: "https://github.com/johndoe",
+              linkedin: "https://linkedin.com/in/johndoe",
+              twitter: "https://twitter.com/johndoe",
+              portfolio: "https://johndoe.dev",
+            },
           },
-        },
-        experience: [
-          {
-            id: "exp1",
-            position: "Full Stack Developer | Team Lead",
-            company: "HealthCode Services - IT Technology",
-            startDate: "Feb 2023",
-            isPresent: true,
-            description:
-              "Leading development of AI-driven healthcare solutions.",
-          },
-          {
-            id: "exp2",
-            position: "Assistant Systems Engineer",
-            company: "Tata Consultancy Services",
-            startDate: "Feb 2021",
-            endDate: "Nov 2022",
-            description: "Developed healthcare data integration systems.",
-          },
-          {
-            id: "exp3",
-            position: "Trainee",
-            company: "Tata Consultancy Services",
-            startDate: "Feb 2020",
-            endDate: "Feb 2021",
-            description: "Trained in full stack development and healthcare IT.",
-          },
-        ],
-        skills: [
-          "React",
-          "Next.js",
-          "Node.js",
-          "MongoDB",
-          "Python",
-          "TypeScript",
-          "PostgreSQL",
-          "AWS",
-          "Azure",
-        ],
-        education: [
-          {
-            id: "edu1",
-            institution: "Trivandhan Bhulania College",
-            degree: "Bachelor of Computer Science",
-            field: "Computer Science",
-            startYear: "2016",
-            endYear: "2019",
-            cgpa: "8.5",
-          },
-          {
-            id: "edu2",
-            institution: "Orissa High School",
-            degree: "Higher Secondary (XI-XII-CS - Science)",
-            field: "Science",
-            startYear: "2014",
-            endYear: "2016",
-            cgpa: "85%",
-          },
-          {
-            id: "edu3",
-            institution: "Dakshinkhanda High School",
-            degree: "Secondary (X.R.B.S.E)",
-            field: "General",
-            startYear: "2012",
-            endYear: "2014",
-            cgpa: "82%",
-          },
-        ],
-        projects: [
-          {
-            id: "proj1",
-            name: "Hirelytics - AI Interview Platform",
-            description:
-              "End-to-end AI-driven hiring platform with psychometric profiling, real-time voice interviews, auto evaluation, and attention monitoring.",
-            techStack: ["React", "Node.js", "OpenAI", "TensorFlow"],
-            sourceUrl: "https://github.com/johndoe/hirelytics",
-            demoUrl: "https://hirelytics.ai",
-          },
-          {
-            id: "proj2",
-            name: "Talkthru - Mental Health AI Chatbot",
-            description:
-              "AI mental health chatbot with RAG, GPT-4, semantic memory, CBT support, journaling, and crisis workflows.",
-            techStack: ["Next.js", "Python", "OpenAI", "Vector DB"],
-            sourceUrl: "https://github.com/johndoe/talkthru",
-            demoUrl: "https://talkthru.ai",
-          },
-          {
-            id: "proj3",
-            name: "Healthyio - Telehealth Platform",
-            description:
-              "Comprehensive telehealth platform with appointment scheduling, EHR workflow, video calls, dynamic questionnaires, and payment integration.",
-            techStack: [
-              "React",
-              "MongoDB",
-              "Agora",
-              "Google Calendar",
-              "Stripe",
-            ],
-            sourceUrl: "https://github.com/johndoe/healthyio",
-            demoUrl: "https://healthyio.com",
-          },
-          {
-            id: "proj4",
-            name: "Python CLI AI Coder",
-            description:
-              "CLI tool for AI-assisted code generation, folder structure scaffolding, and iterative full-stack development with Jina.",
-            techStack: ["Python", "CLI", "OpenAI", "TypeScript"],
-            sourceUrl: "https://github.com/sumanta/python-ai-coder",
-            demoUrl: "https://github.com/sumanta/python-ai-coder",
-          },
-        ],
-        blogs: [
-          {
-            id: "blog1",
-            title: "Building AI-Powered Applications with React",
-            summary:
-              "A comprehensive guide to integrating AI capabilities into modern React applications.",
-            publishDate: "2024-01-15",
-            url: "https://johndoe.dev/blog/ai-powered-react-apps",
-          },
-          {
-            id: "blog2",
-            title: "The Future of Healthcare Technology",
-            summary:
-              "Exploring how AI and machine learning are transforming healthcare delivery.",
-            publishDate: "2023-12-10",
-            url: "https://johndoe.dev/blog/healthcare-tech-future",
-          },
-        ],
-        certifications: [
-          {
-            id: "cert1",
-            title: "AWS Certified Solutions Architect",
-            issuer: "Amazon Web Services",
-            date: "2023-08-15",
-            url: "https://aws.amazon.com/certification/",
-          },
-          {
-            id: "cert2",
-            title: "Google Cloud Professional Developer",
-            issuer: "Google Cloud",
-            date: "2023-06-20",
-            url: "https://cloud.google.com/certification/",
-          },
-        ],
-        interests: [
-          "AI/ML",
-          "Healthcare Technology",
-          "Open Source",
-          "Photography",
-          "Hiking",
-        ],
-      }
-    : data;
+          experience: [
+            {
+              id: "exp1",
+              position: "Full Stack Developer | Team Lead",
+              company: "HealthCode Services - IT Technology",
+              startDate: "Feb 2023",
+              isPresent: true,
+              description:
+                "Leading development of AI-driven healthcare solutions.",
+            },
+            {
+              id: "exp2",
+              position: "Assistant Systems Engineer",
+              company: "Tata Consultancy Services",
+              startDate: "Feb 2021",
+              endDate: "Nov 2022",
+              description: "Developed healthcare data integration systems.",
+            },
+            {
+              id: "exp3",
+              position: "Trainee",
+              company: "Tata Consultancy Services",
+              startDate: "Feb 2020",
+              endDate: "Feb 2021",
+              description:
+                "Trained in full stack development and healthcare IT.",
+            },
+          ],
+          skills: [
+            "React",
+            "Next.js",
+            "Node.js",
+            "MongoDB",
+            "Python",
+            "TypeScript",
+            "PostgreSQL",
+            "AWS",
+            "Azure",
+          ],
+          education: [
+            {
+              id: "edu1",
+              institution: "Trivandhan Bhulania College",
+              degree: "Bachelor of Computer Science",
+              field: "Computer Science",
+              startYear: "2016",
+              endYear: "2019",
+              cgpa: "8.5",
+            },
+            {
+              id: "edu2",
+              institution: "Orissa High School",
+              degree: "Higher Secondary (XI-XII-CS - Science)",
+              field: "Science",
+              startYear: "2014",
+              endYear: "2016",
+              cgpa: "85%",
+            },
+            {
+              id: "edu3",
+              institution: "Dakshinkhanda High School",
+              degree: "Secondary (X.R.B.S.E)",
+              field: "General",
+              startYear: "2012",
+              endYear: "2014",
+              cgpa: "82%",
+            },
+          ],
+          projects: [
+            {
+              id: "proj1",
+              name: "Hirelytics - AI Interview Platform",
+              description:
+                "End-to-end AI-driven hiring platform with psychometric profiling, real-time voice interviews, auto evaluation, and attention monitoring.",
+              techStack: ["React", "Node.js", "OpenAI", "TensorFlow"],
+              sourceUrl: "https://github.com/johndoe/hirelytics",
+              demoUrl: "https://hirelytics.ai",
+            },
+            {
+              id: "proj2",
+              name: "Talkthru - Mental Health AI Chatbot",
+              description:
+                "AI mental health chatbot with RAG, GPT-4, semantic memory, CBT support, journaling, and crisis workflows.",
+              techStack: ["Next.js", "Python", "OpenAI", "Vector DB"],
+              sourceUrl: "https://github.com/johndoe/talkthru",
+              demoUrl: "https://talkthru.ai",
+            },
+            {
+              id: "proj3",
+              name: "Healthyio - Telehealth Platform",
+              description:
+                "Comprehensive telehealth platform with appointment scheduling, EHR workflow, video calls, dynamic questionnaires, and payment integration.",
+              techStack: [
+                "React",
+                "MongoDB",
+                "Agora",
+                "Google Calendar",
+                "Stripe",
+              ],
+              sourceUrl: "https://github.com/johndoe/healthyio",
+              demoUrl: "https://healthyio.com",
+            },
+            {
+              id: "proj4",
+              name: "Python CLI AI Coder",
+              description:
+                "CLI tool for AI-assisted code generation, folder structure scaffolding, and iterative full-stack development with Jina.",
+              techStack: ["Python", "CLI", "OpenAI", "TypeScript"],
+              sourceUrl: "https://github.com/sumanta/python-ai-coder",
+              demoUrl: "https://github.com/sumanta/python-ai-coder",
+            },
+          ],
+          blogs: [
+            {
+              id: "blog1",
+              title: "Building AI-Powered Applications with React",
+              summary:
+                "A comprehensive guide to integrating AI capabilities into modern React applications.",
+              publishDate: "2024-01-15",
+              url: "https://johndoe.dev/blog/ai-powered-react-apps",
+            },
+            {
+              id: "blog2",
+              title: "The Future of Healthcare Technology",
+              summary:
+                "Exploring how AI and machine learning are transforming healthcare delivery.",
+              publishDate: "2023-12-10",
+              url: "https://johndoe.dev/blog/healthcare-tech-future",
+            },
+          ],
+          certifications: [
+            {
+              id: "cert1",
+              title: "AWS Certified Solutions Architect",
+              issuer: "Amazon Web Services",
+              date: "2023-08-15",
+              url: "https://aws.amazon.com/certification/",
+            },
+            {
+              id: "cert2",
+              title: "Google Cloud Professional Developer",
+              issuer: "Google Cloud",
+              date: "2023-06-20",
+              url: "https://cloud.google.com/certification/",
+            },
+          ],
+          interests: [
+            "AI/ML",
+            "Healthcare Technology",
+            "Open Source",
+            "Photography",
+            "Hiking",
+          ],
+        };
+
+  // Theme configuration
+  const getThemeClasses = () => {
+    switch (theme) {
+      case "dark-gray":
+        return {
+          bg: "bg-gray-800",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-600",
+        };
+      case "navy-blue":
+        return {
+          bg: "bg-blue-900",
+          text: "text-blue-100",
+          accent: "text-blue-300",
+          border: "border-blue-600",
+        };
+      case "professional":
+        return {
+          bg: "bg-gray-700",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-500",
+        };
+      default: // black
+        return {
+          bg: "bg-white",
+          text: "text-gray-900",
+          accent: "text-gray-600",
+          border: "border-gray-300",
+        };
+    }
+  };
+
+  const themeClasses = getThemeClasses();
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className={`min-h-screen ${themeClasses.bg} font-sans`}>
       <div className="container mx-auto px-4 py-8 sm:py-10 md:py-12 max-w-5xl">
         {/* Hero Section */}
         <section className="flex flex-col lg:flex-row justify-between items-center mb-12 md:mb-16">

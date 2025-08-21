@@ -62,4 +62,5 @@ export interface PortfolioData {
 export interface PortfolioTemplateProps {
   data: PortfolioData;
   preview?: boolean;
+  theme?: string;
 }

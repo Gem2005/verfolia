@@ -10,199 +10,240 @@ import { Badge } from "@/components/ui/badge";
 export function DarkMinimalistTemplate({
   data,
   preview = false,
-}: PortfolioTemplateProps) {
-  // Mock data for preview
-  const portfolioData: PortfolioData = preview
-    ? {
-        personalInfo: {
-          firstName: "Alex",
-          lastName: "Chen",
-          title: "Senior Full Stack Developer & Blockchain Engineer",
-          email: "alex.chen@example.com",
-          phone: "+1 (555) 123-4567", // Added missing required field
-          location: "San Francisco, CA", // Added missing required field
-          about:
-            "Passionate developer focused on building scalable web applications and decentralized solutions. I specialize in modern JavaScript frameworks, blockchain technology, and creating seamless user experiences.",
-          photo: "https://api.dicebear.com/7.x/adventurer/svg?seed=Alex%20Chen",
-          social: {
-            github: "https://github.com/alexchen",
-            twitter: "https://twitter.com/alexchen_dev",
-            linkedin: "https://linkedin.com/in/alexchen-dev",
-            portfolio: "https://alexchen.dev", // Added missing required field
+  theme = "black",
+}: PortfolioTemplateProps & { theme?: string }) {
+  // Use provided data or fallback to mock data only if no data is provided
+  const portfolioData: PortfolioData =
+    data && data.personalInfo && data.personalInfo.firstName
+      ? data
+      : {
+          personalInfo: {
+            firstName: "Alex",
+            lastName: "Chen",
+            title: "Senior Full Stack Developer & Blockchain Engineer",
+            email: "alex.chen@example.com",
+            phone: "+1 (555) 123-4567", // Added missing required field
+            location: "San Francisco, CA", // Added missing required field
+            about:
+              "Passionate developer focused on building scalable web applications and decentralized solutions. I specialize in modern JavaScript frameworks, blockchain technology, and creating seamless user experiences.",
+            photo:
+              "https://api.dicebear.com/7.x/adventurer/svg?seed=Alex%20Chen",
+            social: {
+              github: "https://github.com/alexchen",
+              twitter: "https://twitter.com/alexchen_dev",
+              linkedin: "https://linkedin.com/in/alexchen-dev",
+              portfolio: "https://alexchen.dev", // Added missing required field
+            },
           },
-        },
-        experience: [
-          {
-            id: "exp1",
-            position: "Senior Full Stack Developer",
-            company: "TechFlow Solutions",
-            startDate: "Jan 2024",
-            isPresent: true,
-            description:
-              "Leading development of enterprise-grade financial applications using React, Node.js, and blockchain technologies. Architected microservices handling $10M+ in daily transactions.",
-          },
-          {
-            id: "exp2",
-            position: "Frontend Developer",
-            company: "InnovateLab Inc.",
-            startDate: "Jun 2022",
-            endDate: "Dec 2023",
-            description:
-              "Built responsive web applications using React, TypeScript, and modern CSS frameworks. Improved application performance by 40% through code optimization.",
-          },
-          {
-            id: "exp3",
-            position: "Blockchain Developer",
-            company: "CryptoVentures",
-            startDate: "Mar 2021",
-            endDate: "May 2022",
-            description:
-              "Developed smart contracts and DeFi protocols on Ethereum and Solana. Created automated trading bots and yield farming strategies.",
-          },
-        ],
-        skills: [
-          "TypeScript",
-          "React",
-          "Node.js",
-          "Python",
-          "Rust",
-          "Solana",
-          "Ethereum",
-          "DeFi",
-          "Smart Contracts",
-          "PostgreSQL",
-          "MongoDB",
-          "AWS",
-          "Docker",
-          "GraphQL",
-        ],
-        education: [
-          {
-            id: "edu1",
-            institution: "Stanford University",
-            degree: "Master of Science",
-            field: "Computer Science", // Keeping this field for display purposes
-            startYear: "2019",
-            endYear: "2021",
-            cgpa: "3.9", // Added missing required field
-          },
-          {
-            id: "edu2",
-            institution: "UC Berkeley",
-            degree: "Bachelor of Science",
-            field: "Computer Engineering", // Keeping this field for display purposes
-            startYear: "2015",
-            endYear: "2019",
-            cgpa: "3.8", // Added missing required field
-          },
-        ],
-        projects: [
-          {
-            id: "proj1",
-            name: "DeFiTracker Pro",
-            description:
-              "A comprehensive DeFi portfolio tracker with real-time analytics, yield farming optimization, and automated rebalancing features.",
-            techStack: [
-              "React",
-              "TypeScript",
-              "Solana",
-              "Web3.js",
-              "TailwindCSS",
-            ],
-            sourceUrl: "https://github.com/alexchen/defitracker-pro",
-            demoUrl: "https://defitracker-pro.vercel.app",
-          },
-          {
-            id: "proj2",
-            name: "DevTools CLI",
-            description:
-              "A powerful command-line tool for developers to streamline project setup, code generation, and deployment workflows.",
-            techStack: ["Rust", "CLI", "Git", "Docker"],
-            sourceUrl: "https://github.com/alexchen/devtools-cli",
-            demoUrl: "", // Added empty string for required field
-          },
-          {
-            id: "proj3",
-            name: "Smart Contract Auditor",
-            description:
-              "Automated security analysis tool for Ethereum smart contracts with vulnerability detection and gas optimization suggestions.",
-            techStack: ["Python", "Solidity", "Machine Learning", "Web3"],
-            sourceUrl: "https://github.com/alexchen/contract-auditor",
-            demoUrl: "https://contract-auditor.app",
-          },
-          {
-            id: "proj4",
-            name: "Real-time Chat Platform",
-            description:
-              "Scalable chat application with end-to-end encryption, file sharing, and video calling capabilities.",
-            techStack: ["Next.js", "Socket.io", "PostgreSQL", "Redis"],
-            sourceUrl: "https://github.com/alexchen/secure-chat",
-            demoUrl: "https://secure-chat-demo.vercel.app",
-          },
-        ],
-        blogs: [
-          {
-            id: "blog1",
-            title: "Building Scalable DeFi Applications",
-            summary:
-              "A comprehensive guide to architecting decentralized finance applications that can handle millions of users and transactions.",
-            publishDate: "15 Dec 2024",
-            url: "https://blog.alexchen.dev/scalable-defi-apps",
-          },
-          {
-            id: "blog2",
-            title: "The Future of Web3 Development",
-            summary:
-              "Exploring emerging trends in blockchain technology and how they're shaping the next generation of web applications.",
-            publishDate: "28 Nov 2024",
-            url: "https://blog.alexchen.dev/future-web3-development",
-          },
-          {
-            id: "blog3",
-            title: "Optimizing React Performance at Scale",
-            summary:
-              "Advanced techniques for building high-performance React applications that remain fast as they grow in complexity.",
-            publishDate: "10 Nov 2024",
-            url: "https://blog.alexchen.dev/react-performance-optimization",
-          },
-          {
-            id: "blog4",
-            title: "Smart Contract Security Best Practices",
-            summary:
-              "Essential security patterns and common vulnerabilities to avoid when developing smart contracts for production.",
-            publishDate: "22 Oct 2024",
-            url: "https://blog.alexchen.dev/smart-contract-security",
-          },
-        ],
-        // Added missing required properties
-        certifications: [
-          {
-            id: "cert1",
-            title: "AWS Certified Solutions Architect",
-            issuer: "Amazon Web Services",
-            date: "Feb 2023",
-            url: "https://aws.amazon.com/certification/",
-          },
-          {
-            id: "cert2",
-            title: "Certified Blockchain Developer",
-            issuer: "Blockchain Council",
-            date: "Oct 2022",
-            url: "https://www.blockchain-council.org/",
-          },
-        ],
-        interests: [
-          "Blockchain Technology",
-          "Open Source",
-          "Machine Learning",
-          "Japanese Language",
-          "Formula 1",
-        ],
-      }
-    : data;
+          experience: [
+            {
+              id: "exp1",
+              position: "Senior Full Stack Developer",
+              company: "TechFlow Solutions",
+              startDate: "Jan 2024",
+              isPresent: true,
+              description:
+                "Leading development of enterprise-grade financial applications using React, Node.js, and blockchain technologies. Architected microservices handling $10M+ in daily transactions.",
+            },
+            {
+              id: "exp2",
+              position: "Frontend Developer",
+              company: "InnovateLab Inc.",
+              startDate: "Jun 2022",
+              endDate: "Dec 2023",
+              description:
+                "Built responsive web applications using React, TypeScript, and modern CSS frameworks. Improved application performance by 40% through code optimization.",
+            },
+            {
+              id: "exp3",
+              position: "Blockchain Developer",
+              company: "CryptoVentures",
+              startDate: "Mar 2021",
+              endDate: "May 2022",
+              description:
+                "Developed smart contracts and DeFi protocols on Ethereum and Solana. Created automated trading bots and yield farming strategies.",
+            },
+          ],
+          skills: [
+            "TypeScript",
+            "React",
+            "Node.js",
+            "Python",
+            "Rust",
+            "Solana",
+            "Ethereum",
+            "DeFi",
+            "Smart Contracts",
+            "PostgreSQL",
+            "MongoDB",
+            "AWS",
+            "Docker",
+            "GraphQL",
+          ],
+          education: [
+            {
+              id: "edu1",
+              institution: "Stanford University",
+              degree: "Master of Science",
+              field: "Computer Science", // Keeping this field for display purposes
+              startYear: "2019",
+              endYear: "2021",
+              cgpa: "3.9", // Added missing required field
+            },
+            {
+              id: "edu2",
+              institution: "UC Berkeley",
+              degree: "Bachelor of Science",
+              field: "Computer Engineering", // Keeping this field for display purposes
+              startYear: "2015",
+              endYear: "2019",
+              cgpa: "3.8", // Added missing required field
+            },
+          ],
+          projects: [
+            {
+              id: "proj1",
+              name: "DeFiTracker Pro",
+              description:
+                "A comprehensive DeFi portfolio tracker with real-time analytics, yield farming optimization, and automated rebalancing features.",
+              techStack: [
+                "React",
+                "TypeScript",
+                "Solana",
+                "Web3.js",
+                "TailwindCSS",
+              ],
+              sourceUrl: "https://github.com/alexchen/defitracker-pro",
+              demoUrl: "https://defitracker-pro.vercel.app",
+            },
+            {
+              id: "proj2",
+              name: "DevTools CLI",
+              description:
+                "A powerful command-line tool for developers to streamline project setup, code generation, and deployment workflows.",
+              techStack: ["Rust", "CLI", "Git", "Docker"],
+              sourceUrl: "https://github.com/alexchen/devtools-cli",
+              demoUrl: "", // Added empty string for required field
+            },
+            {
+              id: "proj3",
+              name: "Smart Contract Auditor",
+              description:
+                "Automated security analysis tool for Ethereum smart contracts with vulnerability detection and gas optimization suggestions.",
+              techStack: ["Python", "Solidity", "Machine Learning", "Web3"],
+              sourceUrl: "https://github.com/alexchen/contract-auditor",
+              demoUrl: "https://contract-auditor.app",
+            },
+            {
+              id: "proj4",
+              name: "Real-time Chat Platform",
+              description:
+                "Scalable chat application with end-to-end encryption, file sharing, and video calling capabilities.",
+              techStack: ["Next.js", "Socket.io", "PostgreSQL", "Redis"],
+              sourceUrl: "https://github.com/alexchen/secure-chat",
+              demoUrl: "https://secure-chat-demo.vercel.app",
+            },
+          ],
+          blogs: [
+            {
+              id: "blog1",
+              title: "Building Scalable DeFi Applications",
+              summary:
+                "A comprehensive guide to architecting decentralized finance applications that can handle millions of users and transactions.",
+              publishDate: "15 Dec 2024",
+              url: "https://blog.alexchen.dev/scalable-defi-apps",
+            },
+            {
+              id: "blog2",
+              title: "The Future of Web3 Development",
+              summary:
+                "Exploring emerging trends in blockchain technology and how they're shaping the next generation of web applications.",
+              publishDate: "28 Nov 2024",
+              url: "https://blog.alexchen.dev/future-web3-development",
+            },
+            {
+              id: "blog3",
+              title: "Optimizing React Performance at Scale",
+              summary:
+                "Advanced techniques for building high-performance React applications that remain fast as they grow in complexity.",
+              publishDate: "10 Nov 2024",
+              url: "https://blog.alexchen.dev/react-performance-optimization",
+            },
+            {
+              id: "blog4",
+              title: "Smart Contract Security Best Practices",
+              summary:
+                "Essential security patterns and common vulnerabilities to avoid when developing smart contracts for production.",
+              publishDate: "22 Oct 2024",
+              url: "https://blog.alexchen.dev/smart-contract-security",
+            },
+          ],
+          // Added missing required properties
+          certifications: [
+            {
+              id: "cert1",
+              title: "AWS Certified Solutions Architect",
+              issuer: "Amazon Web Services",
+              date: "Feb 2023",
+              url: "https://aws.amazon.com/certification/",
+            },
+            {
+              id: "cert2",
+              title: "Certified Blockchain Developer",
+              issuer: "Blockchain Council",
+              date: "Oct 2022",
+              url: "https://www.blockchain-council.org/",
+            },
+          ],
+          interests: [
+            "Blockchain Technology",
+            "Open Source",
+            "Machine Learning",
+            "Japanese Language",
+            "Formula 1",
+          ],
+        };
+
+  // Theme configuration
+  const getThemeClasses = () => {
+    switch (theme) {
+      case "dark-gray":
+        return {
+          bg: "bg-gray-800",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-600",
+        };
+      case "navy-blue":
+        return {
+          bg: "bg-blue-900",
+          text: "text-blue-100",
+          accent: "text-blue-300",
+          border: "border-blue-600",
+        };
+      case "professional":
+        return {
+          bg: "bg-gray-700",
+          text: "text-gray-100",
+          accent: "text-gray-300",
+          border: "border-gray-500",
+        };
+      default: // black
+        return {
+          bg: "bg-gray-950",
+          text: "text-white",
+          accent: "text-gray-300",
+          border: "border-gray-700",
+        };
+    }
+  };
+
+  const themeClasses = getThemeClasses();
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white font-sans">
+    <div
+      className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} font-sans`}
+    >
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12 max-w-5xl">
         {/* Header */}
         <header className="mb-12 sm:mb-14 md:mb-16 mt-6 sm:mt-8">

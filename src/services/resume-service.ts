@@ -158,40 +158,38 @@ class ResumeService {
     >
   ): Promise<Resume> {
     // Process profile photo if it exists
-    let photoUrl = null;
-    if (
-      resumeData.personal_info?.photo &&
-      resumeData.personal_info.photo.startsWith("data:image")
-    ) {
-      try {
-        // Remove the data URL prefix and convert to binary
-        const base64Data = resumeData.personal_info.photo.split(",")[1];
-        const fileName = `${resumeData.user_id}_${Date.now()}.jpg`;
+    if (resumeData.personal_info?.photo) {
+      if (resumeData.personal_info.photo.startsWith("data:image")) {
+        // Handle base64 data (legacy support)
+        try {
+          // Remove the data URL prefix and convert to binary
+          const base64Data = resumeData.personal_info.photo.split(",")[1];
+          const fileName = `${resumeData.user_id}_${Date.now()}.jpg`;
 
-        // Upload to Supabase storage
-        const { error: uploadError } = await this.supabase.storage
-          .from("profileimg")
-          .upload(fileName, decode(base64Data), {
-            contentType: "image/jpeg",
-            upsert: true,
-          });
+          // Upload to Supabase storage
+          const { error: uploadError } = await this.supabase.storage
+            .from("profileimg")
+            .upload(fileName, decode(base64Data), {
+              contentType: "image/jpeg",
+              upsert: true,
+            });
 
-        if (uploadError) throw uploadError;
+          if (uploadError) throw uploadError;
 
-        // Get public URL
-        const { data: urlData } = this.supabase.storage
-          .from("profileimg")
-          .getPublicUrl(fileName);
+          // Get public URL
+          const { data: urlData } = this.supabase.storage
+            .from("profileimg")
+            .getPublicUrl(fileName);
 
-        photoUrl = urlData.publicUrl;
-
-        // Update personal_info with the URL instead of base64
-        resumeData.personal_info.photo = photoUrl;
-      } catch (error) {
-        console.error("Error uploading profile image:", error);
-        // Remove the photo data if upload fails to prevent large data in database
-        delete resumeData.personal_info.photo;
+          // Update personal_info with the URL instead of base64
+          resumeData.personal_info.photo = urlData.publicUrl;
+        } catch (error) {
+          console.error("Error uploading profile image:", error);
+          // Remove the photo data if upload fails to prevent large data in database
+          delete resumeData.personal_info.photo;
+        }
       }
+      // If it's already a URL (from Supabase upload), keep it as is
     }
 
     // Generate unique slug
