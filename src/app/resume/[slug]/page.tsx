@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import { resumeService, type Resume } from "@/services/resume-service";
-import { Button } from "@/components/ui/button";
-import { Share2, Download, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+
 import { ViewTracker } from "@/components/analytics";
 import {
   CleanMonoTemplate,
@@ -14,15 +12,16 @@ import {
   ModernAIFocusedTemplate,
 } from "@/components/templates";
 import type { PortfolioData } from "@/types/PortfolioTypes";
+import "./print.css";
 
 interface PublicResumePageProps {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
 }
 
 export default function PublicResumePage({ params }: PublicResumePageProps) {
-  const { slug } = use(params);
+  const { slug } = params;
   const [resume, setResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,125 +63,151 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     };
   }, [resume]);
 
-  const trackInteraction = (
-    interactionType: string,
-    targetValue?: string,
-    sectionName?: string
-  ) => {
-    if (!resume?.id) return;
-    resumeService.trackResumeInteraction(
-      resume.id,
-      interactionType,
-      targetValue,
-      sectionName
-    );
-  };
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: `${resume?.personal_info.firstName} ${resume?.personal_info.lastName}'s Resume`,
-          url: window.location.href,
-        })
-        .then(() => {
-          trackInteraction("share", "navigator.share", "resume");
-        })
-        .catch((err) => {
-          console.error("Error sharing resume:", err);
-        });
-    } else {
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        alert("Resume URL copied to clipboard!");
-        trackInteraction("share", "clipboard_copy", "resume");
-      });
-    }
-  };
-
-  const handleDownload = () => {
-    trackInteraction("download", "pdf", "resume");
-    alert("PDF download functionality will be implemented soon!");
-  };
-
   // Convert resume data to portfolio data format
-  const getPortfolioData = (resume: Resume): PortfolioData => ({
-    personalInfo: {
-      firstName: resume.personal_info.firstName,
-      lastName: resume.personal_info.lastName,
-      title: resume.personal_info.summary || "Professional",
-      email: resume.personal_info.email,
-      phone: resume.personal_info.phone,
-      location: resume.personal_info.location,
-      about: resume.personal_info.summary,
-      photo: resume.personal_info.photo || "/professional-headshot.png",
-      social: {
-        github: resume.personal_info.githubUrl || "",
-        twitter: "",
-        linkedin: resume.personal_info.linkedinUrl || "",
-        portfolio: "",
+  const getPortfolioData = (resume: Resume): PortfolioData => {
+    // Validate and provide fallbacks for required data
+    const personalInfo = resume.personal_info || {};
+    const experience = Array.isArray(resume.experience)
+      ? resume.experience
+      : [];
+    const education = Array.isArray(resume.education) ? resume.education : [];
+    const skills = Array.isArray(resume.skills) ? resume.skills : [];
+    const projects = Array.isArray(resume.projects) ? resume.projects : [];
+    const certifications = Array.isArray(resume.certifications)
+      ? resume.certifications
+      : [];
+    const customSections = Array.isArray(resume.custom_sections)
+      ? resume.custom_sections
+      : [];
+    const languages = Array.isArray(resume.languages) ? resume.languages : [];
+
+    return {
+      personalInfo: {
+        firstName: personalInfo.firstName || "John",
+        lastName: personalInfo.lastName || "Doe",
+        title: personalInfo.summary || "Professional",
+        email: personalInfo.email || "contact@example.com",
+        phone: personalInfo.phone || "+1 (555) 123-4567",
+        location: personalInfo.location || "Location",
+        about: personalInfo.summary || "Professional summary",
+        photo: personalInfo.photo || "/professional-headshot.png",
+        social: {
+          github: personalInfo.githubUrl || "",
+          twitter: "",
+          linkedin: personalInfo.linkedinUrl || "",
+          portfolio: "",
+        },
       },
-    },
-    experience: resume.experience.map((exp) => ({
-      ...exp,
-      startDate: exp.startDate || "",
-      endDate: exp.endDate || "",
-    })),
-    skills: resume.skills,
-    education: resume.education.map((edu) => ({
-      id: edu.id,
-      institution: edu.institution,
-      degree: edu.degree,
-      field: edu.field,
-      startYear: edu.startDate,
-      endYear: edu.endDate,
-      cgpa: edu.gpa || "",
-    })),
-    projects: resume.projects.map((proj) => ({
-      id: proj.id,
-      name: proj.name,
-      description: proj.description,
-      techStack: proj.techStack,
-      sourceUrl: (proj as any).sourceUrl || "",
-      demoUrl: (proj as any).demoUrl || "",
-    })),
-    blogs: [],
-    certifications: resume.certifications.map((cert) => ({
-      id: cert.id,
-      title: cert.name,
-      issuer: cert.issuer,
-      date: cert.date || "",
-      url: cert.url || "",
-    })),
-    interests: [],
-  });
+      experience: experience.map((exp) => ({
+        id: exp.id || Math.random().toString(),
+        position: exp.position || "Position",
+        company: exp.company || "Company",
+        startDate: exp.startDate || "",
+        endDate: exp.endDate || "",
+        isPresent: !exp.endDate || exp.endDate === "",
+        description: exp.description || "Job description",
+      })),
+      skills: skills.filter((skill) => skill && skill.trim()),
+      education: education.map((edu) => ({
+        id: edu.id || Math.random().toString(),
+        institution: edu.institution || "Institution",
+        degree: edu.degree || "Degree",
+        field: edu.field || "",
+        startYear: edu.startDate || "",
+        endYear: edu.endDate || "",
+        cgpa: edu.gpa || "",
+      })),
+      projects: projects.map((proj) => ({
+        id: proj.id || Math.random().toString(),
+        name: proj.name || "Project",
+        description: proj.description || "Project description",
+        techStack: Array.isArray(proj.techStack) ? proj.techStack : [],
+        sourceUrl: (proj as any).sourceUrl || (proj as any).github || "",
+        demoUrl: (proj as any).demoUrl || (proj as any).url || "",
+      })),
+      blogs: [],
+      certifications: certifications.map((cert) => ({
+        id: cert.id || Math.random().toString(),
+        title: cert.name || "Certification",
+        issuer: cert.issuer || "Issuer",
+        date: cert.date || "",
+        url: cert.url || "",
+      })),
+      interests: [
+        ...customSections
+          .map((section) => section.title)
+          .filter((title) => title && title.trim()),
+        ...languages
+          .map((lang) => `${lang.name} (${lang.proficiency || "Proficient"})`)
+          .filter((lang) => lang && lang.trim()),
+      ],
+    };
+  };
 
   const renderResumeTemplate = (resume: Resume) => {
+    const portfolioData = getPortfolioData(resume);
     const templateProps = {
       preview: false,
-      data: getPortfolioData(resume),
-      theme: resume.theme_id,
+      data: portfolioData,
+      theme: resume.theme_id || "black",
     };
 
-    switch (resume.template_id) {
-      case "clean-mono":
-        return <CleanMonoTemplate {...templateProps} />;
-      case "dark-minimalist":
-        return <DarkMinimalistTemplate {...templateProps} />;
-      case "dark-tech":
-        return <DarkTechTemplate {...templateProps} />;
-      case "modern-ai-focused":
-        return <ModernAIFocusedTemplate {...templateProps} />;
-      default:
-        return <CleanMonoTemplate {...templateProps} />;
+    // Log for debugging
+    console.log(
+      "Rendering template:",
+      resume.template_id,
+      "with theme:",
+      resume.theme_id
+    );
+    console.log("Portfolio data:", portfolioData);
+
+    try {
+      switch (resume.template_id) {
+        case "clean-mono":
+          return <CleanMonoTemplate {...templateProps} />;
+        case "dark-minimalist":
+          return <DarkMinimalistTemplate {...templateProps} />;
+        case "dark-tech":
+          return <DarkTechTemplate {...templateProps} />;
+        case "modern-ai-focused":
+          return <ModernAIFocusedTemplate {...templateProps} />;
+        default:
+          console.warn(
+            `Unknown template: ${resume.template_id}, falling back to clean-mono`
+          );
+          return <CleanMonoTemplate {...templateProps} />;
+      }
+    } catch (error) {
+      console.error("Error rendering template:", error);
+      // Fallback to clean mono template with error handling
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Resume Display Error
+            </h2>
+            <p className="text-gray-600 mb-4">
+              There was an issue displaying this resume.
+            </p>
+            <CleanMonoTemplate {...templateProps} />
+          </div>
+        </div>
+      );
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-muted rounded w-64"></div>
-          <div className="h-4 bg-muted rounded w-48"></div>
+        <div className="animate-pulse space-y-4 text-center">
+          <div className="h-8 bg-muted rounded w-64 mx-auto"></div>
+          <div className="h-4 bg-muted rounded w-48 mx-auto"></div>
+          <div className="h-4 bg-muted rounded w-32 mx-auto"></div>
+          <div className="mt-8 space-y-2">
+            <div className="h-32 bg-muted rounded w-80 mx-auto"></div>
+            <div className="h-4 bg-muted rounded w-64 mx-auto"></div>
+            <div className="h-4 bg-muted rounded w-56 mx-auto"></div>
+          </div>
         </div>
       </div>
     );
@@ -193,54 +218,9 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {resume && <ViewTracker resumeId={resume.id} />}
-
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link
-                  href="/create-resume"
-                  onClick={() =>
-                    resume &&
-                    trackInteraction("navigation", "create-resume", "nav")
-                  }
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Create New Resume
-                </Link>
-              </Button>
-              <div>
-                <h1 className="text-xl font-semibold">
-                  {resume.personal_info.firstName}{" "}
-                  {resume.personal_info.lastName}&lsquo;s Resume
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Public Resume • {resume.view_count} views
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-              <Button size="sm" onClick={handleDownload}>
-                <Download className="h-4 w-4 mr-2" />
-                Download PDF
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Resume Content */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">{renderResumeTemplate(resume)}</div>
-      </div>
+      {renderResumeTemplate(resume)}
     </div>
   );
 }

@@ -6,6 +6,7 @@ export interface ResumeData {
     phone: string;
     location: string;
     summary: string;
+    title: string;
     photo?: string;
     linkedinUrl?: string;
     githubUrl?: string;
@@ -55,7 +56,6 @@ export interface ResumeData {
     description: string;
   }>;
 }
-
 export interface Step {
   id: number;
   title: string;

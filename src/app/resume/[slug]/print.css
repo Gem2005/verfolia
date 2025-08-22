@@ -1,0 +1,48 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .resume-content,
+  .resume-content * {
+    visibility: visible;
+  }
+  
+  .resume-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .bg-white {
+    background: white !important;
+  }
+  
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+  
+  .rounded-lg {
+    border-radius: 0 !important;
+  }
+  
+  .container {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  
+  .mx-auto {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .px-4,
+  .py-8 {
+    padding: 0 !important;
+  }
+}

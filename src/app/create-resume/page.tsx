@@ -1,16 +1,16 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-
+import { ImageUpload } from "@/components/ui/image-upload";
 import {
   Plus,
   X,
@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService } from "@/services/resume-service";
-import { ImageUpload } from "@/components/ui/image-upload";
 import {
   CleanMonoTemplate,
   DarkMinimalistTemplate,
@@ -30,66 +29,18 @@ import {
   ModernAIFocusedTemplate,
 } from "@/components/templates";
 import type { PortfolioData } from "@/types/PortfolioTypes";
-import { DatePicker } from "@/components/ui/date-picker";
-
-interface ResumeData {
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    location: string;
-    summary: string;
-    title: string;
-    photo?: string;
-    linkedinUrl?: string;
-    githubUrl?: string;
-  };
-  experience: Array<{
-    id: string;
-    position: string;
-    company: string;
-    startDate: string;
-    endDate?: string;
-    isPresent?: boolean;
-    description: string;
-  }>;
-  education: Array<{
-    id: string;
-    institution: string;
-    degree: string;
-    field?: string;
-    startDate: string;
-    endDate: string;
-    gpa?: string;
-  }>;
-  skills: string[];
-  projects: Array<{
-    id: string;
-    name: string;
-    description: string;
-    techStack: string[];
-    sourceUrl?: string;
-    demoUrl?: string;
-  }>;
-  certifications: Array<{
-    id: string;
-    name: string;
-    issuer: string;
-    date?: string;
-    url?: string;
-  }>;
-  languages: Array<{
-    id: string;
-    name: string;
-    proficiency?: string;
-  }>;
-  customSections: Array<{
-    id: string;
-    title: string;
-    description: string;
-  }>;
-}
+import { SimpleDateInput } from "@/components/ui/simple-date-input";
+import { ResumeData } from "@/types/ResumeData";
+import {
+  validateEmail,
+  validatePhone,
+  validateUrl,
+  validateWordCount,
+  validateGPA,
+  validateDateRange,
+  validateSkill,
+  validateProficiency,
+} from "./func/validation";
 
 const steps = [
   { id: 0, title: "Template", description: "Choose a template" },
@@ -103,6 +54,45 @@ const steps = [
   { id: 4, title: "Skills", description: "Technical skills (optional)" },
   { id: 5, title: "Projects", description: "Project details (optional)" },
   { id: 6, title: "Additional", description: "Extra sections (optional)" },
+];
+
+const templates = [
+  {
+    id: "clean-mono",
+    name: "Clean Mono",
+    hasPhoto: true,
+    description: "Elegant mono resume with clarity",
+    layout: "clean-mono",
+  },
+  {
+    id: "dark-minimalist",
+    name: "Dark Minimalist",
+    hasPhoto: true,
+    description: "Dark, focused, minimal resume",
+    layout: "dark-minimalist",
+  },
+  {
+    id: "dark-tech",
+    name: "Dark Tech",
+    hasPhoto: true,
+    description: "Techy dark theme with emphasis",
+    layout: "dark-tech",
+  },
+  {
+    id: "modern-ai-focused",
+    name: "Modern AI Focused",
+    hasPhoto: true,
+    description: "Modern AI-oriented presentation",
+    layout: "modern-ai-focused",
+  },
+];
+
+const themes = [
+  { id: "black", name: "Black", color: "bg-black" },
+  { id: "dark-gray", name: "Dark Gray", color: "bg-gray-800" },
+  { id: "navy-blue", name: "Navy Blue", color: "bg-blue-900" },
+  { id: "professional", name: "Professional", color: "bg-gray-700" },
+  { id: "white", name: "White", color: "bg-white" },
 ];
 
 export default function CreateResumePage() {
@@ -145,38 +135,6 @@ export default function CreateResumePage() {
     languages: [],
     customSections: [],
   });
-
-  // Validation functions
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ""));
-  };
-
-  const validateUrl = (url: string): boolean => {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.protocol === "https:";
-    } catch {
-      return false;
-    }
-  };
-
-  const validateWordCount = (
-    text: string,
-    min: number,
-    max: number
-  ): boolean => {
-    const wordCount = text
-      .trim()
-      .split(/\s+/)
-      .filter((word) => word.length > 0).length;
-    return wordCount >= min && wordCount <= max;
-  };
 
   const validatePersonalInfo = useCallback(() => {
     const errors: { [key: string]: string } = {};
@@ -262,12 +220,8 @@ export default function CreateResumePage() {
   const validateExperience = useCallback(() => {
     const errors: { [key: string]: string } = {};
 
-    if (resumeData.experience.length === 0) {
-      errors.experience = "At least one work experience is required";
-      return { errors, isValid: false };
-    }
-
-    resumeData.experience.forEach((exp, index) => {
+    // Experience is now optional - only validate if entries exist
+    resumeData.experience.forEach((exp) => {
       const prefix = `experience_${exp.id}`;
 
       // Position validation
@@ -311,44 +265,179 @@ export default function CreateResumePage() {
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.experience]);
 
-  const templates = [
-    {
-      id: "clean-mono",
-      name: "Clean Mono",
-      hasPhoto: true,
-      description: "Elegant mono resume with clarity",
-      layout: "clean-mono",
-    },
-    {
-      id: "dark-minimalist",
-      name: "Dark Minimalist",
-      hasPhoto: true,
-      description: "Dark, focused, minimal resume",
-      layout: "dark-minimalist",
-    },
-    {
-      id: "dark-tech",
-      name: "Dark Tech",
-      hasPhoto: true,
-      description: "Techy dark theme with emphasis",
-      layout: "dark-tech",
-    },
-    {
-      id: "modern-ai-focused",
-      name: "Modern AI Focused",
-      hasPhoto: true,
-      description: "Modern AI-oriented presentation",
-      layout: "modern-ai-focused",
-    },
-  ];
+  const validateEducation = useCallback(() => {
+    const errors: { [key: string]: string } = {};
 
-  const themes = [
-    { id: "black", name: "Black", color: "bg-black" },
-    { id: "dark-gray", name: "Dark Gray", color: "bg-gray-800" },
-    { id: "navy-blue", name: "Navy Blue", color: "bg-blue-900" },
-    { id: "professional", name: "Professional", color: "bg-gray-700" },
-    { id: "white", name: "White", color: "bg-white" },
-  ];
+    resumeData.education.forEach((edu) => {
+      const prefix = `education_${edu.id}`;
+
+      // Institution validation
+      if (!edu.institution.trim()) {
+        errors[`${prefix}_institution`] = "Institution name is required";
+      }
+
+      // Degree validation
+      if (!edu.degree.trim()) {
+        errors[`${prefix}_degree`] = "Degree is required";
+      }
+
+      // Field validation (optional)
+      if (edu.field && edu.field.trim() && edu.field.trim().length < 2) {
+        errors[`${prefix}_field`] =
+          "Field of study must be at least 2 characters";
+      }
+
+      // Start date validation
+      if (!edu.startDate.trim()) {
+        errors[`${prefix}_startDate`] = "Start date is required";
+      }
+
+      // End date validation
+      if (!edu.endDate.trim()) {
+        errors[`${prefix}_endDate`] = "End date is required";
+      }
+
+      // Date range validation
+      if (edu.startDate && edu.endDate) {
+        if (!validateDateRange(edu.startDate, edu.endDate)) {
+          errors[`${prefix}_endDate`] = "End date must be after start date";
+        }
+      }
+
+      // GPA validation (optional)
+      if (edu.gpa && !validateGPA(edu.gpa)) {
+        errors[`${prefix}_gpa`] = "GPA must be between 0.0 and 4.0";
+      }
+    });
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeData.education]);
+
+  const validateProjects = useCallback(() => {
+    const errors: { [key: string]: string } = {};
+
+    resumeData.projects.forEach((proj) => {
+      const prefix = `project_${proj.id}`;
+
+      // Project name validation
+      if (!proj.name.trim()) {
+        errors[`${prefix}_name`] = "Project name is required";
+      }
+
+      // Description validation (20-100 words)
+      if (!proj.description.trim()) {
+        errors[`${prefix}_description`] = "Project description is required";
+      } else if (!validateWordCount(proj.description, 20, 100)) {
+        errors[`${prefix}_description`] =
+          "Description should be between 20 and 100 words";
+      }
+
+      // Tech stack validation (at least one technology)
+      if (!proj.techStack || proj.techStack.length === 0) {
+        errors[`${prefix}_techStack`] = "At least one technology is required";
+      }
+
+      // Source URL validation (optional but must be valid if provided)
+      if (proj.sourceUrl && proj.sourceUrl.trim()) {
+        if (!validateUrl(proj.sourceUrl)) {
+          errors[`${prefix}_sourceUrl`] = "Source URL must start with https://";
+        }
+      }
+
+      // Demo URL validation (optional but must be valid if provided)
+      if (proj.demoUrl && proj.demoUrl.trim()) {
+        if (!validateUrl(proj.demoUrl)) {
+          errors[`${prefix}_demoUrl`] = "Demo URL must start with https://";
+        }
+      }
+    });
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeData.projects]);
+
+  const validateSkills = useCallback(() => {
+    const errors: { [key: string]: string } = {};
+
+    // Skills validation - each skill should be meaningful
+    resumeData.skills.forEach((skill, index) => {
+      if (!validateSkill(skill)) {
+        errors[`skill_${index}`] = "Skill must be between 2 and 50 characters";
+      }
+    });
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeData.skills]);
+
+  const validateCertifications = useCallback(() => {
+    const errors: { [key: string]: string } = {};
+
+    resumeData.certifications.forEach((cert) => {
+      const prefix = `certification_${cert.id}`;
+
+      // Certification name validation
+      if (!cert.name.trim()) {
+        errors[`${prefix}_name`] = "Certification name is required";
+      }
+
+      // Issuer validation
+      if (!cert.issuer.trim()) {
+        errors[`${prefix}_issuer`] = "Issuer is required";
+      }
+
+      // Date validation
+      if (!cert.date || !cert.date.trim()) {
+        errors[`${prefix}_date`] = "Date is required";
+      }
+    });
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeData.certifications]);
+
+  const validateLanguages = useCallback(() => {
+    const errors: { [key: string]: string } = {};
+
+    resumeData.languages.forEach((lang) => {
+      const prefix = `language_${lang.id}`;
+
+      // Language name validation
+      if (!lang.name.trim()) {
+        errors[`${prefix}_name`] = "Language name is required";
+      }
+
+      // Proficiency validation
+      if (!lang.proficiency || !lang.proficiency.trim()) {
+        errors[`${prefix}_proficiency`] = "Proficiency level is required";
+      } else if (!validateProficiency(lang.proficiency)) {
+        errors[`${prefix}_proficiency`] =
+          "Please select a valid proficiency level";
+      }
+    });
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeData.languages]);
+
+  const validateCustomSections = useCallback(() => {
+    const errors: { [key: string]: string } = {};
+
+    resumeData.customSections.forEach((section) => {
+      const prefix = `customSection_${section.id}`;
+
+      // Title validation
+      if (!section.title.trim()) {
+        errors[`${prefix}_title`] = "Section title is required";
+      }
+
+      // Description validation (20-100 words)
+      if (!section.description.trim()) {
+        errors[`${prefix}_description`] = "Section description is required";
+      } else if (!validateWordCount(section.description, 20, 100)) {
+        errors[`${prefix}_description`] =
+          "Description should be between 20 and 100 words";
+      }
+    });
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeData.customSections]);
 
   // Get current template
   const currentTemplate =
@@ -374,16 +463,49 @@ export default function CreateResumePage() {
         const experienceValidation = validateExperience();
         setValidationErrors(experienceValidation.errors);
         return experienceValidation.isValid;
-      case 3: // Education - Optional
-        return true;
-      case 4: // Skills - Optional
-        return true;
-      case 5: // Projects - Optional
-        return true;
+      case 3: // Education
+        const educationValidation = validateEducation();
+        setValidationErrors(educationValidation.errors);
+        return educationValidation.isValid;
+      case 4: // Skills
+        const skillsValidation = validateSkills();
+        setValidationErrors(skillsValidation.errors);
+        return skillsValidation.isValid;
+      case 5: // Projects
+        const projectsValidation = validateProjects();
+        setValidationErrors(projectsValidation.errors);
+        return projectsValidation.isValid;
+      case 6: // Additional sections (Certifications, Languages, Custom)
+        const certificationsValidation = validateCertifications();
+        const languagesValidation = validateLanguages();
+        const customSectionsValidation = validateCustomSections();
+
+        const allErrors = {
+          ...certificationsValidation.errors,
+          ...languagesValidation.errors,
+          ...customSectionsValidation.errors,
+        };
+
+        setValidationErrors(allErrors);
+        return (
+          certificationsValidation.isValid &&
+          languagesValidation.isValid &&
+          customSectionsValidation.isValid
+        );
       default:
         return true;
     }
-  }, [currentStep, validatePersonalInfo, validateExperience]);
+  }, [
+    currentStep,
+    validatePersonalInfo,
+    validateExperience,
+    validateEducation,
+    validateSkills,
+    validateProjects,
+    validateCertifications,
+    validateLanguages,
+    validateCustomSections,
+  ]);
 
   const canProceedToNext = useMemo(
     () => validateCurrentStep(),
@@ -1450,9 +1572,9 @@ export default function CreateResumePage() {
                       <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                       Start Date
                     </Label>
-                    <DatePicker
+                    <SimpleDateInput
                       value={exp.startDate}
-                      onChange={(value) =>
+                      onChange={(value: string) =>
                         updateExperience(exp.id, "startDate", value)
                       }
                       placeholder="Select start date"
@@ -1480,9 +1602,9 @@ export default function CreateResumePage() {
                           className="h-11 flex-1 text-muted-foreground bg-muted/50"
                         />
                       ) : (
-                        <DatePicker
+                        <SimpleDateInput
                           value={exp.endDate || ""}
-                          onChange={(value) =>
+                          onChange={(value: string) =>
                             updateExperience(exp.id, "endDate", value)
                           }
                           placeholder="Select end date"
@@ -1616,64 +1738,132 @@ export default function CreateResumePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Institution</Label>
+                    <Label className="text-sm font-medium">
+                      Institution <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={edu.institution}
                       onChange={(e) =>
                         updateEducation(edu.id, "institution", e.target.value)
                       }
                       placeholder="e.g., Stanford University"
+                      className={
+                        validationErrors[`education_${edu.id}_institution`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
+                    {validationErrors[`education_${edu.id}_institution`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`education_${edu.id}_institution`]}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>Degree</Label>
+                    <Label className="text-sm font-medium">
+                      Degree <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={edu.degree}
                       onChange={(e) =>
                         updateEducation(edu.id, "degree", e.target.value)
                       }
                       placeholder="e.g., Bachelor of Science"
+                      className={
+                        validationErrors[`education_${edu.id}_degree`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
+                    {validationErrors[`education_${edu.id}_degree`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`education_${edu.id}_degree`]}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>Field of Study</Label>
+                    <Label className="text-sm font-medium">
+                      Field of Study
+                    </Label>
                     <Input
                       value={edu.field || ""}
                       onChange={(e) =>
                         updateEducation(edu.id, "field", e.target.value)
                       }
                       placeholder="e.g., Computer Science"
+                      className={
+                        validationErrors[`education_${edu.id}_field`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
+                    {validationErrors[`education_${edu.id}_field`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`education_${edu.id}_field`]}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>GPA</Label>
+                    <Label className="text-sm font-medium">
+                      GPA (optional)
+                    </Label>
                     <Input
                       value={edu.gpa || ""}
                       onChange={(e) =>
                         updateEducation(edu.id, "gpa", e.target.value)
                       }
                       placeholder="e.g., 3.8"
-                    />
-                  </div>
-                  <div>
-                    <Label>Start Date</Label>
-                    <Input
-                      type="month"
-                      value={edu.startDate}
-                      onChange={(e) =>
-                        updateEducation(edu.id, "startDate", e.target.value)
+                      className={
+                        validationErrors[`education_${edu.id}_gpa`]
+                          ? "border-red-500"
+                          : ""
                       }
                     />
+                    {validationErrors[`education_${edu.id}_gpa`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`education_${edu.id}_gpa`]}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>End Date (or expected)</Label>
-                    <Input
-                      type="month"
-                      value={edu.endDate}
-                      onChange={(e) =>
-                        updateEducation(edu.id, "endDate", e.target.value)
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      Start Date <span className="text-red-500">*</span>
+                    </Label>
+                    <SimpleDateInput
+                      value={edu.startDate || ""}
+                      onChange={(value: string) =>
+                        updateEducation(edu.id, "startDate", value)
+                      }
+                      placeholder="Select start date"
+                      error={
+                        !!validationErrors[`education_${edu.id}_startDate`]
                       }
                     />
+                    {validationErrors[`education_${edu.id}_startDate`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`education_${edu.id}_startDate`]}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      End Date <span className="text-red-500">*</span>
+                    </Label>
+                    <SimpleDateInput
+                      value={edu.endDate || ""}
+                      onChange={(value: string) =>
+                        updateEducation(edu.id, "endDate", value)
+                      }
+                      placeholder="Select end date"
+                      error={!!validationErrors[`education_${edu.id}_endDate`]}
+                    />
+                    {validationErrors[`education_${edu.id}_endDate`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`education_${edu.id}_endDate`]}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1772,17 +1962,31 @@ export default function CreateResumePage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label>Project Name</Label>
+                      <Label className="text-sm font-medium">
+                        Project Name <span className="text-red-500">*</span>
+                      </Label>
                       <Input
                         value={proj.name}
                         onChange={(e) =>
                           updateProject(proj.id, "name", e.target.value)
                         }
                         placeholder="e.g., E-commerce Platform"
+                        className={
+                          validationErrors[`project_${proj.id}_name`]
+                            ? "border-red-500"
+                            : ""
+                        }
                       />
+                      {validationErrors[`project_${proj.id}_name`] && (
+                        <p className="text-xs text-red-500">
+                          {validationErrors[`project_${proj.id}_name`]}
+                        </p>
+                      )}
                     </div>
                     <div className="md:col-span-2">
-                      <Label>Description</Label>
+                      <Label className="text-sm font-medium">
+                        Description <span className="text-red-500">*</span>
+                      </Label>
                       <Textarea
                         value={proj.description}
                         onChange={(e) =>
@@ -1790,30 +1994,83 @@ export default function CreateResumePage() {
                         }
                         placeholder="Describe the project, your role, and key achievements"
                         rows={3}
+                        className={
+                          validationErrors[`project_${proj.id}_description`]
+                            ? "border-red-500"
+                            : ""
+                        }
                       />
+                      {validationErrors[`project_${proj.id}_description`] && (
+                        <p className="text-xs text-red-500">
+                          {validationErrors[`project_${proj.id}_description`]}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {proj.description.trim()
+                          ? `${
+                              proj.description
+                                .trim()
+                                .split(/\s+/)
+                                .filter((word) => word.length > 0).length
+                            } words`
+                          : "0 words"}{" "}
+                        (20-100 words required)
+                      </p>
                     </div>
                     <div>
-                      <Label>Source Code URL (optional)</Label>
+                      <Label className="text-sm font-medium">
+                        Source Code URL (optional)
+                      </Label>
                       <Input
                         value={proj.sourceUrl || ""}
                         onChange={(e) =>
                           updateProject(proj.id, "sourceUrl", e.target.value)
                         }
                         placeholder="https://github.com/username/project"
+                        className={
+                          validationErrors[`project_${proj.id}_sourceUrl`]
+                            ? "border-red-500"
+                            : ""
+                        }
                       />
+                      {validationErrors[`project_${proj.id}_sourceUrl`] && (
+                        <p className="text-xs text-red-500">
+                          {validationErrors[`project_${proj.id}_sourceUrl`]}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <Label>Live Demo URL (optional)</Label>
+                      <Label className="text-sm font-medium">
+                        Live Demo URL (optional)
+                      </Label>
                       <Input
                         value={proj.demoUrl || ""}
                         onChange={(e) =>
                           updateProject(proj.id, "demoUrl", e.target.value)
                         }
                         placeholder="https://project-demo.com"
+                        className={
+                          validationErrors[`project_${proj.id}_demoUrl`]
+                            ? "border-red-500"
+                            : ""
+                        }
                       />
+                      {validationErrors[`project_${proj.id}_demoUrl`] && (
+                        <p className="text-xs text-red-500">
+                          {validationErrors[`project_${proj.id}_demoUrl`]}
+                        </p>
+                      )}
                     </div>
                     <div className="md:col-span-2">
-                      <Label>Technologies Used</Label>
+                      <Label className="text-sm font-medium">
+                        Technologies Used{" "}
+                        <span className="text-red-500">*</span>
+                      </Label>
+                      {validationErrors[`project_${proj.id}_techStack`] && (
+                        <p className="text-xs text-red-500 mb-2">
+                          {validationErrors[`project_${proj.id}_techStack`]}
+                        </p>
+                      )}
                       <div className="flex flex-wrap gap-2 mb-2">
                         {proj.techStack.map((tech) => (
                           <Badge
@@ -1894,7 +2151,7 @@ export default function CreateResumePage() {
 
   const addCertification = () => {
     const newCert = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       name: "",
       issuer: "",
       date: "",
@@ -1947,34 +2204,70 @@ export default function CreateResumePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Certification Name</Label>
+                    <Label className="text-sm font-medium">
+                      Certification Name <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={cert.name}
                       onChange={(e) =>
                         updateCertification(cert.id, "name", e.target.value)
                       }
                       placeholder="e.g., AWS Certified Solutions Architect"
+                      className={
+                        validationErrors[`certification_${cert.id}_name`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
+                    {validationErrors[`certification_${cert.id}_name`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`certification_${cert.id}_name`]}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>Issuing Organization</Label>
+                    <Label className="text-sm font-medium">
+                      Issuing Organization{" "}
+                      <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={cert.issuer}
                       onChange={(e) =>
                         updateCertification(cert.id, "issuer", e.target.value)
                       }
                       placeholder="e.g., Amazon Web Services"
-                    />
-                  </div>
-                  <div>
-                    <Label>Date Earned</Label>
-                    <Input
-                      type="month"
-                      value={cert.date || ""}
-                      onChange={(e) =>
-                        updateCertification(cert.id, "date", e.target.value)
+                      className={
+                        validationErrors[`certification_${cert.id}_issuer`]
+                          ? "border-red-500"
+                          : ""
                       }
                     />
+                    {validationErrors[`certification_${cert.id}_issuer`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`certification_${cert.id}_issuer`]}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      Date Earned <span className="text-red-500">*</span>
+                    </Label>
+                    <SimpleDateInput
+                      value={cert.date || ""}
+                      onChange={(value: string) =>
+                        updateCertification(cert.id, "date", value)
+                      }
+                      placeholder="Select date earned"
+                      error={
+                        !!validationErrors[`certification_${cert.id}_date`]
+                      }
+                    />
+                    {validationErrors[`certification_${cert.id}_date`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`certification_${cert.id}_date`]}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Label>Credential URL (optional)</Label>
@@ -2013,7 +2306,7 @@ export default function CreateResumePage() {
 
   const addLanguage = () => {
     const newLang = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       name: "",
       proficiency: "",
     };
@@ -2062,31 +2355,54 @@ export default function CreateResumePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Language</Label>
+                    <Label className="text-sm font-medium">
+                      Language <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={lang.name}
                       onChange={(e) =>
                         updateLanguage(lang.id, "name", e.target.value)
                       }
                       placeholder="e.g., Spanish"
+                      className={
+                        validationErrors[`language_${lang.id}_name`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
+                    {validationErrors[`language_${lang.id}_name`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`language_${lang.id}_name`]}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>Proficiency Level</Label>
+                    <Label className="text-sm font-medium">
+                      Proficiency Level <span className="text-red-500">*</span>
+                    </Label>
                     <select
                       value={lang.proficiency || ""}
                       onChange={(e) =>
                         updateLanguage(lang.id, "proficiency", e.target.value)
                       }
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                        validationErrors[`language_${lang.id}_proficiency`]
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     >
                       <option value="">Select proficiency</option>
                       <option value="Native">Native</option>
                       <option value="Fluent">Fluent</option>
                       <option value="Advanced">Advanced</option>
                       <option value="Intermediate">Intermediate</option>
-                      <option value="Basic">Basic</option>
+                      <option value="Beginner">Beginner</option>
                     </select>
+                    {validationErrors[`language_${lang.id}_proficiency`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`language_${lang.id}_proficiency`]}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2115,7 +2431,7 @@ export default function CreateResumePage() {
 
   const addCustomSection = () => {
     const newSection = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substring(2, 11),
       title: "",
       description: "",
     };
@@ -2166,17 +2482,31 @@ export default function CreateResumePage() {
                 </div>
                 <div className="space-y-4">
                   <div>
-                    <Label>Section Title</Label>
+                    <Label className="text-sm font-medium">
+                      Section Title <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       value={section.title}
                       onChange={(e) =>
                         updateCustomSection(section.id, "title", e.target.value)
                       }
                       placeholder="e.g., Volunteer Work, Publications, Awards"
+                      className={
+                        validationErrors[`customSection_${section.id}_title`]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
+                    {validationErrors[`customSection_${section.id}_title`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`customSection_${section.id}_title`]}
+                      </p>
+                    )}
                   </div>
                   <div>
-                    <Label>Content</Label>
+                    <Label className="text-sm font-medium">
+                      Content <span className="text-red-500">*</span>
+                    </Label>
                     <Textarea
                       value={section.description}
                       onChange={(e) =>
@@ -2188,7 +2518,36 @@ export default function CreateResumePage() {
                       }
                       placeholder="Enter the content for this section. You can use bullet points or paragraphs."
                       rows={4}
+                      className={
+                        validationErrors[
+                          `customSection_${section.id}_description`
+                        ]
+                          ? "border-red-500"
+                          : ""
+                      }
                     />
+                    {validationErrors[
+                      `customSection_${section.id}_description`
+                    ] && (
+                      <p className="text-xs text-red-500">
+                        {
+                          validationErrors[
+                            `customSection_${section.id}_description`
+                          ]
+                        }
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      {section.description.trim()
+                        ? `${
+                            section.description
+                              .trim()
+                              .split(/\s+/)
+                              .filter((word) => word.length > 0).length
+                          } words`
+                        : "0 words"}{" "}
+                      (20-100 words required)
+                    </p>
                   </div>
                 </div>
               </div>
