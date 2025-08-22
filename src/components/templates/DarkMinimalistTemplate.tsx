@@ -213,6 +213,11 @@ export function DarkMinimalistTemplate({
           text: "text-gray-100",
           accent: "text-gray-300",
           border: "border-gray-600",
+          cardBg: "bg-gray-700",
+          cardBorder: "border-gray-600",
+          sectionBorder: "border-gray-600",
+          buttonHover: "hover:bg-gray-600",
+          badgeHover: "hover:bg-gray-600",
         };
       case "navy-blue":
         return {
@@ -220,6 +225,11 @@ export function DarkMinimalistTemplate({
           text: "text-blue-100",
           accent: "text-blue-300",
           border: "border-blue-600",
+          cardBg: "bg-blue-800",
+          cardBorder: "border-blue-600",
+          sectionBorder: "border-blue-600",
+          buttonHover: "hover:bg-blue-700",
+          badgeHover: "hover:bg-blue-700",
         };
       case "professional":
         return {
@@ -227,13 +237,47 @@ export function DarkMinimalistTemplate({
           text: "text-gray-100",
           accent: "text-gray-300",
           border: "border-gray-500",
+          cardBg: "bg-gray-600",
+          cardBorder: "border-gray-500",
+          sectionBorder: "border-gray-500",
+          buttonHover: "hover:bg-gray-500",
+          badgeHover: "hover:bg-gray-500",
         };
-      default: // black
+      case "black":
+        return {
+          bg: "bg-black",
+          text: "text-white",
+          accent: "text-gray-300",
+          border: "border-gray-700",
+          cardBg: "bg-gray-900",
+          cardBorder: "border-gray-700",
+          sectionBorder: "border-gray-700",
+          buttonHover: "hover:bg-gray-800",
+          badgeHover: "hover:bg-gray-800",
+        };
+      case "white":
+        return {
+          bg: "bg-white",
+          text: "text-gray-900",
+          accent: "text-gray-600",
+          border: "border-gray-300",
+          cardBg: "bg-gray-50",
+          cardBorder: "border-gray-200",
+          sectionBorder: "border-gray-300",
+          buttonHover: "hover:bg-gray-100",
+          badgeHover: "hover:bg-gray-100",
+        };
+      default: // dark minimalist default
         return {
           bg: "bg-gray-950",
           text: "text-white",
           accent: "text-gray-300",
           border: "border-gray-700",
+          cardBg: "bg-gray-900",
+          cardBorder: "border-gray-700",
+          sectionBorder: "border-gray-700",
+          buttonHover: "hover:bg-gray-800",
+          badgeHover: "hover:bg-gray-800",
         };
     }
   };
@@ -251,18 +295,24 @@ export function DarkMinimalistTemplate({
             <div className="flex-1">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 {portfolioData.personalInfo.firstName}{" "}
-                <span className="text-gray-400 text-2xl sm:text-3xl md:text-4xl">
+                <span
+                  className={`${themeClasses.accent} text-2xl sm:text-3xl md:text-4xl`}
+                >
                   ({portfolioData.personalInfo.firstName.toLowerCase()}dev)
                 </span>
               </h1>
-              <h2 className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-6 font-medium">
+              <h2
+                className={`text-lg sm:text-xl md:text-2xl ${themeClasses.text} mb-6 font-medium`}
+              >
                 {portfolioData.personalInfo.title}
               </h2>
-              <p className="text-gray-300 max-w-2xl text-base sm:text-lg leading-relaxed">
+              <p
+                className={`${themeClasses.text} max-w-2xl text-base sm:text-lg leading-relaxed`}
+              >
                 {portfolioData.personalInfo.about}
               </p>
               {portfolioData.personalInfo.email && (
-                <p className="mt-6 text-gray-400 text-base">
+                <p className={`mt-6 ${themeClasses.accent} text-base`}>
                   I love writing & reading occasionally; also 日本語 and F1 are
                   my interests. Always excited to discuss technology and
                   innovation.
@@ -276,7 +326,7 @@ export function DarkMinimalistTemplate({
                 <img
                   src={portfolioData.personalInfo.photo || "/placeholder.svg"}
                   alt={`${portfolioData.personalInfo.firstName} ${portfolioData.personalInfo.lastName}`}
-                  className="rounded-2xl w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 object-cover border-2 border-gray-700 shadow-2xl hover:border-gray-500 transition-colors duration-300"
+                  className={`rounded-2xl w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 object-cover border-2 ${themeClasses.border} shadow-2xl ${themeClasses.buttonHover} transition-colors duration-300`}
                 />
               </div>
             )}
@@ -287,8 +337,12 @@ export function DarkMinimalistTemplate({
         {portfolioData.blogs && portfolioData.blogs.length > 0 && (
           <section className="mb-16">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold text-white">Recent Writings</h2>
-              <button className="px-4 py-2 text-sm bg-gray-800 text-gray-200 hover:bg-gray-700 hover:text-white transition-all duration-200 rounded-lg border border-gray-700 hover:border-gray-600">
+              <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
+                Recent Writings
+              </h2>
+              <button
+                className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+              >
                 Explore all →
               </button>
             </div>
@@ -296,19 +350,25 @@ export function DarkMinimalistTemplate({
             <div className="space-y-6">
               {portfolioData.blogs.map((blog) => (
                 <div key={blog.id} className="group">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-6 rounded-xl bg-gray-900/50 hover:bg-gray-900/80 transition-all duration-300 border border-gray-800 hover:border-gray-700">
+                  <div
+                    className={`flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
+                  >
                     <Link
                       href={blog.url || "#"}
                       className="flex-1 group-hover:text-blue-400 transition-colors duration-200"
                     >
-                      <h3 className="text-xl font-semibold mb-2 text-white group-hover:text-blue-400">
+                      <h3
+                        className={`text-xl font-semibold mb-2 ${themeClasses.text} group-hover:text-blue-400`}
+                      >
                         {blog.title}
                       </h3>
-                      <p className="text-gray-400 leading-relaxed">
+                      <p className={`${themeClasses.accent} leading-relaxed`}>
                         {blog.summary}
                       </p>
                     </Link>
-                    <span className="text-gray-500 text-sm whitespace-nowrap font-medium">
+                    <span
+                      className={`${themeClasses.accent} text-sm whitespace-nowrap font-medium`}
+                    >
                       {blog.publishDate}
                     </span>
                   </div>
@@ -321,8 +381,12 @@ export function DarkMinimalistTemplate({
         {/* Projects Section */}
         <section className="mb-16">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-white">Projects</h2>
-            <button className="px-4 py-2 text-sm bg-gray-800 text-gray-200 hover:bg-gray-700 hover:text-white transition-all duration-200 rounded-lg border border-gray-700 hover:border-gray-600">
+            <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
+              Projects
+            </h2>
+            <button
+              className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+            >
               View all →
             </button>
           </div>
@@ -330,11 +394,17 @@ export function DarkMinimalistTemplate({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {portfolioData.projects.map((project) => (
               <div key={project.id} className="group">
-                <div className="bg-gray-900/70 hover:bg-gray-900 rounded-xl p-6 border border-gray-800 hover:border-gray-700 transition-all duration-300 h-full flex flex-col">
-                  <h3 className="font-bold text-xl mb-3 text-white group-hover:text-blue-400 transition-colors">
+                <div
+                  className={`${themeClasses.cardBg}/70 ${themeClasses.buttonHover} rounded-xl p-6 border ${themeClasses.cardBorder} hover:border-gray-700 transition-all duration-300 h-full flex flex-col`}
+                >
+                  <h3
+                    className={`font-bold text-xl mb-3 ${themeClasses.text} group-hover:text-blue-400 transition-colors`}
+                  >
                     {project.name}
                   </h3>
-                  <p className="text-gray-300 mb-4 leading-relaxed flex-1">
+                  <p
+                    className={`${themeClasses.text} mb-4 leading-relaxed flex-1`}
+                  >
                     {project.description}
                   </p>
                   <div className="mb-4">
@@ -342,7 +412,7 @@ export function DarkMinimalistTemplate({
                       <Badge
                         key={tech}
                         variant="outline"
-                        className="mr-2 mb-2 bg-gray-800/80 text-gray-200 border-gray-700 hover:bg-gray-700 hover:text-white transition-colors"
+                        className={`mr-2 mb-2 ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white transition-colors`}
                       >
                         {tech}
                       </Badge>
@@ -351,7 +421,7 @@ export function DarkMinimalistTemplate({
                   <div className="flex space-x-4 pt-2">
                     <Link
                       href={project.sourceUrl || "#"}
-                      className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+                      className={`flex items-center gap-2 ${themeClasses.accent} hover:text-white transition-colors text-sm font-medium`}
                     >
                       <Github className="w-4 h-4" />
                       Source
@@ -359,7 +429,7 @@ export function DarkMinimalistTemplate({
                     {project.demoUrl && (
                       <Link
                         href={project.demoUrl}
-                        className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors text-sm font-medium"
+                        className={`flex items-center gap-2 ${themeClasses.accent} hover:text-blue-400 transition-colors text-sm font-medium`}
                       >
                         <ExternalLink className="w-4 h-4" />
                         Live Demo
@@ -374,21 +444,25 @@ export function DarkMinimalistTemplate({
 
         {/* Experience Section */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-white">Experience</h2>
+          <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+            Experience
+          </h2>
 
           <div className="space-y-8">
             {portfolioData.experience.map((exp) => (
               <div key={exp.id} className="group">
-                <div className="p-6 rounded-xl bg-gray-900/50 hover:bg-gray-900/80 transition-all duration-300 border border-gray-800 hover:border-gray-700">
-                  <h3 className="font-bold text-xl text-white mb-2">
+                <div
+                  className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
+                >
+                  <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
                     {exp.position}
                   </h3>
                   <h4 className="text-lg text-blue-400 mb-2">{exp.company}</h4>
-                  <p className="text-gray-400 mb-3 font-medium">
+                  <p className={`${themeClasses.accent} mb-3 font-medium`}>
                     {exp.startDate} - {exp.isPresent ? "Present" : exp.endDate}
                   </p>
                   {exp.description && (
-                    <p className="text-gray-300 leading-relaxed">
+                    <p className={`${themeClasses.text} leading-relaxed`}>
                       {exp.description}
                     </p>
                   )}
@@ -401,7 +475,7 @@ export function DarkMinimalistTemplate({
         {/* Skills Section */}
         {portfolioData.skills && portfolioData.skills.length > 0 && (
           <section className="mb-16">
-            <h2 className="text-3xl font-bold mb-8 text-white">
+            <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
               Skills & Technologies
             </h2>
             <div className="flex flex-wrap gap-3">
@@ -409,7 +483,7 @@ export function DarkMinimalistTemplate({
                 <Badge
                   key={skill}
                   variant="outline"
-                  className="px-4 py-2 text-base bg-gray-800/80 text-gray-200 border-gray-700 hover:bg-gray-700 hover:text-white hover:border-gray-600 transition-all duration-200"
+                  className={`px-4 py-2 text-base ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white hover:border-gray-600 transition-all duration-200`}
                 >
                   {skill}
                 </Badge>
@@ -420,8 +494,12 @@ export function DarkMinimalistTemplate({
 
         {/* Contact Section */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold mb-6 text-white">Let's Connect</h2>
-          <p className="text-gray-300 mb-8 text-lg leading-relaxed max-w-2xl">
+          <h2 className={`text-3xl font-bold mb-6 ${themeClasses.text}`}>
+            Let's Connect
+          </h2>
+          <p
+            className={`${themeClasses.text} mb-8 text-lg leading-relaxed max-w-2xl`}
+          >
             Feel free to drop me an email or connect on social media. I'm always
             open to interesting conversations, collaboration opportunities, and
             discussing the latest in technology and development.
@@ -431,7 +509,7 @@ export function DarkMinimalistTemplate({
             {portfolioData.personalInfo.social.github && (
               <Link
                 href={portfolioData.personalInfo.social.github}
-                className="flex items-center gap-3 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white transition-all duration-200 rounded-lg border border-gray-700 hover:border-gray-600"
+                className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
               >
                 <Github className="w-5 h-5" />
                 <span className="font-medium">GitHub</span>
@@ -451,7 +529,7 @@ export function DarkMinimalistTemplate({
             {portfolioData.personalInfo.social.twitter && (
               <Link
                 href={portfolioData.personalInfo.social.twitter}
-                className="flex items-center gap-3 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white transition-all duration-200 rounded-lg border border-gray-700 hover:border-gray-600"
+                className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
               >
                 <Twitter className="w-5 h-5" />
                 <span className="font-medium">Twitter</span>
@@ -461,7 +539,7 @@ export function DarkMinimalistTemplate({
             {portfolioData.personalInfo.social.linkedin && (
               <Link
                 href={portfolioData.personalInfo.social.linkedin}
-                className="flex items-center gap-3 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white transition-all duration-200 rounded-lg border border-gray-700 hover:border-gray-600"
+                className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
               >
                 <Linkedin className="w-5 h-5" />
                 <span className="font-medium">LinkedIn</span>

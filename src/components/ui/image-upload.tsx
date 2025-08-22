@@ -71,12 +71,37 @@ export function ImageUpload({
             onChange(uploadResult.url);
           } catch (uploadError) {
             console.error("Supabase upload error:", uploadError);
-            setError(
-              uploadError instanceof Error
-                ? uploadError.message
-                : "Failed to upload to cloud storage"
-            );
+
+            // Provide specific error messages based on error type
+            let errorMessage = "Failed to upload to cloud storage";
+
+            if (uploadError instanceof Error) {
+              if (uploadError.message.includes("row-level security")) {
+                errorMessage =
+                  "Authentication required. Please log in and try again.";
+              } else if (uploadError.message.includes("storage")) {
+                errorMessage =
+                  "Storage service unavailable. Please try again later.";
+              } else if (uploadError.message.includes("size")) {
+                errorMessage = "File too large. Please use an image under 5MB.";
+              } else if (uploadError.message.includes("format")) {
+                errorMessage =
+                  "Invalid file format. Please use JPEG, PNG, or WebP.";
+              } else {
+                errorMessage = uploadError.message;
+              }
+            }
+
+            setError(errorMessage);
+
+            // Fallback to base64 storage if cloud upload fails
+            console.log("Falling back to base64 storage");
+            onChange(result);
           }
+        } else if (uploadToSupabase && !user) {
+          setError("Please log in to upload images to cloud storage");
+          // Store as base64 for now
+          onChange(result);
         } else {
           // Just store base64 data
           onChange(result);

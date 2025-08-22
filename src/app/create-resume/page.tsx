@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X, ArrowLeft, ArrowRight, Eye, Check } from "lucide-react";
+
+import {
+  Plus,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Eye,
+  Check,
+  Calendar as CalendarIcon,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService } from "@/services/resume-service";
-// import { ImageUpload } from "@/components/ui/image-upload";
+import { ImageUpload } from "@/components/ui/image-upload";
 import {
   CleanMonoTemplate,
   DarkMinimalistTemplate,
@@ -21,6 +30,7 @@ import {
   ModernAIFocusedTemplate,
 } from "@/components/templates";
 import type { PortfolioData } from "@/types/PortfolioTypes";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface ResumeData {
   personalInfo: {
@@ -30,6 +40,7 @@ interface ResumeData {
     phone: string;
     location: string;
     summary: string;
+    title: string;
     photo?: string;
     linkedinUrl?: string;
     githubUrl?: string;
@@ -83,11 +94,15 @@ interface ResumeData {
 const steps = [
   { id: 0, title: "Template", description: "Choose a template" },
   { id: 1, title: "Personal Info", description: "Basic information" },
-  { id: 2, title: "Experience", description: "Work experience" },
-  { id: 3, title: "Education", description: "Educational background" },
-  { id: 4, title: "Skills", description: "Technical skills" },
-  { id: 5, title: "Projects", description: "Project details" },
-  { id: 6, title: "Additional", description: "Extra sections" },
+  { id: 2, title: "Experience", description: "Work experience (required)" },
+  {
+    id: 3,
+    title: "Education",
+    description: "Educational background (optional)",
+  },
+  { id: 4, title: "Skills", description: "Technical skills (optional)" },
+  { id: 5, title: "Projects", description: "Project details (optional)" },
+  { id: 6, title: "Additional", description: "Extra sections (optional)" },
 ];
 
 export default function CreateResumePage() {
@@ -103,6 +118,198 @@ export default function CreateResumePage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [newSkill, setNewSkill] = useState(""); // Moved useState to top level
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
+
+  // Validation state
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
+
+  const [resumeData, setResumeData] = useState<ResumeData>({
+    personalInfo: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      location: "",
+      summary: "",
+      title: "",
+      photo: "",
+      linkedinUrl: "",
+      githubUrl: "",
+    },
+    experience: [],
+    education: [],
+    skills: [],
+    projects: [],
+    certifications: [],
+    languages: [],
+    customSections: [],
+  });
+
+  // Validation functions
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ""));
+  };
+
+  const validateUrl = (url: string): boolean => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const validateWordCount = (
+    text: string,
+    min: number,
+    max: number
+  ): boolean => {
+    const wordCount = text
+      .trim()
+      .split(/\s+/)
+      .filter((word) => word.length > 0).length;
+    return wordCount >= min && wordCount <= max;
+  };
+
+  const validatePersonalInfo = useCallback(() => {
+    const errors: { [key: string]: string } = {};
+
+    // Resume Title validation
+    if (!resumeTitle.trim()) {
+      errors.resumeTitle = "Resume title is required";
+    }
+
+    // First Name validation
+    if (!resumeData.personalInfo.firstName.trim()) {
+      errors.firstName = "First name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(resumeData.personalInfo.firstName)) {
+      errors.firstName = "First name should only contain letters";
+    }
+
+    // Last Name validation
+    if (!resumeData.personalInfo.lastName.trim()) {
+      errors.lastName = "Last name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(resumeData.personalInfo.lastName)) {
+      errors.lastName = "Last name should only contain letters";
+    }
+
+    // Email validation
+    if (!resumeData.personalInfo.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!validateEmail(resumeData.personalInfo.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    // Phone validation (optional but must be valid if provided)
+    if (
+      resumeData.personalInfo.phone.trim() &&
+      !validatePhone(resumeData.personalInfo.phone)
+    ) {
+      errors.phone = "Please enter a valid phone number";
+    }
+
+    // Location validation (optional but must be string if provided)
+    if (
+      resumeData.personalInfo.location.trim() &&
+      !/^[a-zA-Z\s,.-]+$/.test(resumeData.personalInfo.location)
+    ) {
+      errors.location =
+        "Location should only contain letters, spaces, commas, periods, and hyphens";
+    }
+
+    // Current designation validation
+    if (!resumeData.personalInfo.title.trim()) {
+      errors.title = "Current designation is required";
+    }
+
+    // Summary validation
+    if (resumeData.personalInfo.summary.trim()) {
+      if (!validateWordCount(resumeData.personalInfo.summary, 20, 100)) {
+        errors.summary = "Summary should be between 20 and 100 words";
+      }
+    }
+
+    // LinkedIn URL validation (optional but must be valid if provided)
+    if (
+      resumeData.personalInfo.linkedinUrl &&
+      resumeData.personalInfo.linkedinUrl.trim()
+    ) {
+      if (!validateUrl(resumeData.personalInfo.linkedinUrl)) {
+        errors.linkedinUrl = "LinkedIn URL must start with https://";
+      }
+    }
+
+    // GitHub URL validation (optional but must be valid if provided)
+    if (
+      resumeData.personalInfo.githubUrl &&
+      resumeData.personalInfo.githubUrl.trim()
+    ) {
+      if (!validateUrl(resumeData.personalInfo.githubUrl)) {
+        errors.githubUrl = "GitHub URL must start with https://";
+      }
+    }
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeTitle, resumeData.personalInfo]);
+
+  const validateExperience = useCallback(() => {
+    const errors: { [key: string]: string } = {};
+
+    if (resumeData.experience.length === 0) {
+      errors.experience = "At least one work experience is required";
+      return { errors, isValid: false };
+    }
+
+    resumeData.experience.forEach((exp, index) => {
+      const prefix = `experience_${exp.id}`;
+
+      // Position validation
+      if (!exp.position.trim()) {
+        errors[`${prefix}_position`] = "Job title is required";
+      }
+
+      // Company validation
+      if (!exp.company.trim()) {
+        errors[`${prefix}_company`] = "Company name is required";
+      }
+
+      // Start date validation
+      if (!exp.startDate.trim()) {
+        errors[`${prefix}_startDate`] = "Start date is required";
+      }
+
+      // End date validation (only if not present)
+      if (!exp.isPresent && !exp.endDate?.trim()) {
+        errors[`${prefix}_endDate`] = "End date is required";
+      }
+
+      // Date logic validation
+      if (exp.startDate && exp.endDate && !exp.isPresent) {
+        const startDate = new Date(exp.startDate);
+        const endDate = new Date(exp.endDate);
+        if (startDate >= endDate) {
+          errors[`${prefix}_endDate`] = "End date must be after start date";
+        }
+      }
+
+      // Description validation (20-100 words)
+      if (!exp.description.trim()) {
+        errors[`${prefix}_description`] = "Job description is required";
+      } else if (!validateWordCount(exp.description, 20, 100)) {
+        errors[`${prefix}_description`] =
+          "Description should be between 20 and 100 words";
+      }
+    });
+
+    return { errors, isValid: Object.keys(errors).length === 0 };
+  }, [resumeData.experience]);
 
   const templates = [
     {
@@ -140,28 +347,8 @@ export default function CreateResumePage() {
     { id: "dark-gray", name: "Dark Gray", color: "bg-gray-800" },
     { id: "navy-blue", name: "Navy Blue", color: "bg-blue-900" },
     { id: "professional", name: "Professional", color: "bg-gray-700" },
+    { id: "white", name: "White", color: "bg-white" },
   ];
-
-  const [resumeData, setResumeData] = useState<ResumeData>({
-    personalInfo: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      location: "",
-      summary: "",
-      photo: "",
-      linkedinUrl: "",
-      githubUrl: "",
-    },
-    experience: [],
-    education: [],
-    skills: [],
-    projects: [],
-    certifications: [],
-    languages: [],
-    customSections: [],
-  });
 
   // Get current template
   const currentTemplate =
@@ -177,69 +364,47 @@ export default function CreateResumePage() {
   };
 
   // Validation for current step
-  const validateCurrentStep = () => {
+  const validateCurrentStep = useCallback(() => {
     switch (currentStep) {
       case 1: // Personal Info
-        return (
-          resumeData.personalInfo.firstName.trim() &&
-          resumeData.personalInfo.lastName.trim() &&
-          resumeData.personalInfo.email.trim()
-        );
+        const personalInfoValidation = validatePersonalInfo();
+        setValidationErrors(personalInfoValidation.errors);
+        return personalInfoValidation.isValid;
       case 2: // Experience
-        return resumeData.experience.length > 0;
-      case 3: // Education
-        return resumeData.education.length > 0;
-      case 4: // Skills
-        return resumeData.skills.length > 0;
+        const experienceValidation = validateExperience();
+        setValidationErrors(experienceValidation.errors);
+        return experienceValidation.isValid;
+      case 3: // Education - Optional
+        return true;
+      case 4: // Skills - Optional
+        return true;
+      case 5: // Projects - Optional
+        return true;
       default:
         return true;
     }
-  };
+  }, [currentStep, validatePersonalInfo, validateExperience]);
 
-  const canProceedToNext = validateCurrentStep();
-
-  // Calculate completion percentage
-  const getCompletionPercentage = () => {
-    let completed = 0;
-    const total = 5; // Total steps
-
-    // Template selection (always completed if we're past step 0)
-    if (currentStep > 0) completed++;
-
-    // Personal info
-    if (
-      resumeData.personalInfo.firstName &&
-      resumeData.personalInfo.lastName &&
-      resumeData.personalInfo.email
-    ) {
-      completed++;
-    }
-
-    // Experience
-    if (resumeData.experience.length > 0) completed++;
-
-    // Education
-    if (resumeData.education.length > 0) completed++;
-
-    // Skills
-    if (resumeData.skills.length > 0) completed++;
-
-    return Math.round((completed / total) * 100);
-  };
+  const canProceedToNext = useMemo(
+    () => validateCurrentStep(),
+    [validateCurrentStep]
+  );
 
   // Convert resume data to portfolio data format for templates
   const getPortfolioData = (): PortfolioData => ({
     personalInfo: {
       firstName: resumeData.personalInfo.firstName || "John",
       lastName: resumeData.personalInfo.lastName || "Doe",
-      title: resumeData.personalInfo.summary || "Software Developer",
+      title: resumeData.personalInfo.title || "Software Developer",
       email: resumeData.personalInfo.email || "john@example.com",
       phone: resumeData.personalInfo.phone || "+1 (555) 123-4567",
       location: resumeData.personalInfo.location || "San Francisco, CA",
       about:
         resumeData.personalInfo.summary ||
-        "Passionate developer focused on building scalable applications.",
-      photo: resumeData.personalInfo.photo || "/professional-headshot.png",
+        "Experienced professional with a proven track record of delivering high-quality solutions and driving innovation. Passionate about leveraging technology to solve complex problems and create meaningful impact. Strong collaborative skills with expertise in modern development practices and a commitment to continuous learning and growth.",
+      photo:
+        resumeData.personalInfo.photo ||
+        "https://cdn-icons-png.flaticon.com/512/1999/1999625.png",
       social: {
         github:
           resumeData.personalInfo.githubUrl || "https://github.com/johndoe",
@@ -250,42 +415,162 @@ export default function CreateResumePage() {
         portfolio: "https://johndoe.dev",
       },
     },
-    experience: resumeData.experience.map((exp) => ({
-      id: exp.id,
-      position: exp.position,
-      company: exp.company,
-      startDate: exp.startDate,
-      endDate: exp.endDate,
-      isPresent: exp.isPresent,
-      description: exp.description,
-    })),
-    skills: resumeData.skills,
-    education: resumeData.education.map((edu) => ({
-      id: edu.id,
-      institution: edu.institution,
-      degree: edu.degree,
-      field: edu.field,
-      startYear: edu.startDate,
-      endYear: edu.endDate,
-      cgpa: edu.gpa || "3.8",
-    })),
-    projects: resumeData.projects.map((proj) => ({
-      id: proj.id,
-      name: proj.name,
-      description: proj.description,
-      techStack: proj.techStack,
-      sourceUrl: proj.sourceUrl || "",
-      demoUrl: proj.demoUrl || "",
-    })),
+    experience:
+      resumeData.experience.length > 0
+        ? resumeData.experience.map((exp) => ({
+            id: exp.id,
+            position: exp.position,
+            company: exp.company,
+            startDate: exp.startDate,
+            endDate: exp.endDate,
+            isPresent: exp.isPresent,
+            description: exp.description,
+          }))
+        : [
+            {
+              id: "exp-1",
+              position: "Senior Software Engineer",
+              company: "Tech Solutions Inc.",
+              startDate: "2022-01",
+              endDate: "",
+              isPresent: true,
+              description:
+                "Led development of scalable web applications using modern technologies. Collaborated with cross-functional teams to deliver high-quality software solutions. Mentored junior developers and implemented best practices for code quality and performance optimization.",
+            },
+            {
+              id: "exp-2",
+              position: "Software Developer",
+              company: "Digital Innovations Ltd.",
+              startDate: "2020-06",
+              endDate: "2021-12",
+              isPresent: false,
+              description:
+                "Developed and maintained full-stack applications using React, Node.js, and PostgreSQL. Participated in agile development processes and contributed to system architecture decisions. Improved application performance by 40% through code optimization.",
+            },
+          ],
+    skills:
+      resumeData.skills.length > 0
+        ? resumeData.skills
+        : [
+            "JavaScript",
+            "TypeScript",
+            "React",
+            "Node.js",
+            "Python",
+            "PostgreSQL",
+            "MongoDB",
+            "AWS",
+            "Docker",
+            "Git",
+            "REST APIs",
+            "GraphQL",
+            "Agile/Scrum",
+            "Problem Solving",
+            "Team Leadership",
+          ],
+    education:
+      resumeData.education.length > 0
+        ? resumeData.education.map((edu) => ({
+            id: edu.id,
+            institution: edu.institution,
+            degree: edu.degree,
+            field: edu.field,
+            startYear: edu.startDate,
+            endYear: edu.endDate,
+            cgpa: edu.gpa || "3.8",
+          }))
+        : [
+            {
+              id: "edu-1",
+              institution: "University of Technology",
+              degree: "Bachelor of Science",
+              field: "Computer Science",
+              startYear: "2016",
+              endYear: "2020",
+              cgpa: "3.8",
+            },
+          ],
+    projects:
+      resumeData.projects.length > 0
+        ? resumeData.projects.map((proj) => ({
+            id: proj.id,
+            name: proj.name,
+            description: proj.description,
+            techStack: proj.techStack,
+            sourceUrl: proj.sourceUrl || "",
+            demoUrl: proj.demoUrl || "",
+          }))
+        : [
+            {
+              id: "proj-1",
+              name: "E-Commerce Platform",
+              description:
+                "Full-stack e-commerce solution with real-time inventory management, payment processing, and admin dashboard. Features include user authentication, product catalog, shopping cart, and order tracking.",
+              techStack: [
+                "React",
+                "Node.js",
+                "PostgreSQL",
+                "Stripe API",
+                "AWS",
+              ],
+              sourceUrl: "https://github.com/johndoe/ecommerce-platform",
+              demoUrl: "https://ecommerce-demo.johndoe.dev",
+            },
+            {
+              id: "proj-2",
+              name: "Task Management App",
+              description:
+                "Collaborative project management tool with real-time updates, team collaboration features, and advanced reporting. Supports multiple project views including Kanban boards and Gantt charts.",
+              techStack: [
+                "Vue.js",
+                "Express.js",
+                "MongoDB",
+                "Socket.io",
+                "Docker",
+              ],
+              sourceUrl: "https://github.com/johndoe/task-manager",
+              demoUrl: "https://tasks.johndoe.dev",
+            },
+          ],
     blogs: [], // Not used in resume context
-    certifications: resumeData.certifications.map((cert) => ({
-      id: cert.id,
-      title: cert.name,
-      issuer: cert.issuer,
-      date: cert.date || "",
-      url: cert.url || "",
-    })),
-    interests: [], // Could be derived from custom sections
+    certifications:
+      resumeData.certifications.length > 0
+        ? resumeData.certifications.map((cert) => ({
+            id: cert.id,
+            title: cert.name,
+            issuer: cert.issuer,
+            date: cert.date || "",
+            url: cert.url || "",
+          }))
+        : [
+            {
+              id: "cert-1",
+              title: "AWS Certified Solutions Architect",
+              issuer: "Amazon Web Services",
+              date: "2023-08",
+              url: "https://aws.amazon.com/certification/",
+            },
+            {
+              id: "cert-2",
+              title: "Professional Scrum Master I",
+              issuer: "Scrum.org",
+              date: "2022-11",
+              url: "https://scrum.org/professional-scrum-certifications",
+            },
+          ],
+    interests:
+      resumeData.customSections.length > 0
+        ? resumeData.customSections.map((section) => section.title)
+        : [
+            "Open Source Contributions",
+            "Machine Learning",
+            "Cloud Architecture",
+            "Mobile Development",
+            "DevOps",
+            "Tech Blogging",
+            "Mentoring",
+            "Innovation",
+          ],
   });
 
   // Render different template layouts
@@ -436,6 +721,24 @@ export default function CreateResumePage() {
     }: {
       template: (typeof templates)[0];
     }) => {
+      // Get preview image based on template
+      const getPreviewImage = () => {
+        const baseUrl = "/preview-images";
+
+        // Map template IDs to their corresponding image names
+        const templateImageMap: { [key: string]: string } = {
+          "clean-mono": "Clean Mono.png",
+          "dark-minimalist": "Dark Minimalist.png",
+          "dark-tech": "Dark Tech.png",
+          "modern-ai-focused": "Modern AI Focused.png",
+        };
+
+        const imageName = templateImageMap[template.id];
+        return imageName
+          ? `${baseUrl}/${imageName}`
+          : `${baseUrl}/Clean Mono.png`;
+      };
+
       const getTemplateComponent = () => {
         const templateProps = {
           preview: true as const,
@@ -480,9 +783,61 @@ export default function CreateResumePage() {
           }`}
           onClick={() => setSelectedTemplate(template.id)}
         >
-          <div className="aspect-[4/5] bg-muted/20 flex items-start justify-start p-2">
-            <div className="w-full h-full overflow-hidden rounded-lg bg-background shadow-sm">
-              {getTemplateComponent()}
+          <div className="aspect-[4/5] bg-muted/20 flex items-center justify-center p-2">
+            <div className="w-full h-full overflow-hidden rounded-lg bg-background shadow-sm relative">
+              {/* Preview Image */}
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                <img
+                  src={getPreviewImage()}
+                  alt={`${template.name} preview`}
+                  className="w-full h-full object-cover object-top transition-opacity duration-200"
+                  onLoad={(e) => {
+                    // Hide loading state when image loads
+                    const target = e.target as HTMLImageElement;
+                    const loadingDiv = target.parentElement?.querySelector(
+                      ".loading-placeholder"
+                    ) as HTMLElement;
+                    if (loadingDiv) {
+                      loadingDiv.style.display = "none";
+                    }
+                  }}
+                  onError={(e) => {
+                    // Fallback to live component preview if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                    const fallbackDiv =
+                      target.nextElementSibling as HTMLElement;
+                    if (fallbackDiv) {
+                      fallbackDiv.style.display = "block";
+                    }
+                  }}
+                />
+
+                {/* Loading placeholder */}
+                <div className="loading-placeholder absolute inset-0 flex items-center justify-center bg-gray-100">
+                  <div className="text-gray-400 text-sm">
+                    Loading preview...
+                  </div>
+                </div>
+
+                {/* Fallback to live component preview */}
+                <div className="w-full h-full" style={{ display: "none" }}>
+                  {getTemplateComponent()}
+                </div>
+              </div>
+
+              {/* Theme indicator overlay */}
+              <div className="absolute top-2 right-2 px-2 py-1 bg-black/80 text-white text-xs rounded-md backdrop-blur-sm">
+                {themes.find((t) => t.id === selectedTheme)?.name ||
+                  selectedTheme}
+              </div>
+
+              {/* Template layout indicator */}
+              <div className="absolute bottom-2 left-2 flex gap-1">
+                <div className="px-2 py-1 bg-white/90 text-gray-700 text-xs rounded-md backdrop-blur-sm">
+                  {template.layout}
+                </div>
+              </div>
             </div>
           </div>
           <div className="p-4 border-t bg-card">
@@ -613,14 +968,47 @@ export default function CreateResumePage() {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Profile Photo Upload */}
-          {/* TODO: Add ImageUpload component back after fixing syntax */}
+          {/* Resume Title - First Field */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Profile Photo</label>
+            <Label htmlFor="resumeTitle" className="text-sm font-medium">
+              Resume Title <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="resumeTitle"
+              value={resumeTitle}
+              onChange={(e) => setResumeTitle(e.target.value)}
+              className={`h-11 ${
+                validationErrors.resumeTitle ? "border-red-500" : ""
+              }`}
+              placeholder="e.g., John Doe - Senior Software Engineer"
+            />
+            {validationErrors.resumeTitle && (
+              <p className="text-xs text-red-500">
+                {validationErrors.resumeTitle}
+              </p>
+            )}
             <p className="text-xs text-muted-foreground">
-              Image upload functionality will be added here
+              This will be the title of your resume
             </p>
           </div>
+
+          {/* Profile Photo Upload */}
+          <ImageUpload
+            value={resumeData.personalInfo.photo}
+            onChange={(value) =>
+              setResumeData((prev) => ({
+                ...prev,
+                personalInfo: {
+                  ...prev.personalInfo,
+                  photo: value,
+                },
+              }))
+            }
+            label="Profile Photo"
+            description="Upload a professional headshot for your resume"
+            maxSizeInMB={5}
+            uploadToSupabase={true}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -639,9 +1027,16 @@ export default function CreateResumePage() {
                     },
                   }))
                 }
-                className="h-11"
+                className={`h-11 ${
+                  validationErrors.firstName ? "border-red-500" : ""
+                }`}
                 placeholder="Enter your first name"
               />
+              {validationErrors.firstName && (
+                <p className="text-xs text-red-500">
+                  {validationErrors.firstName}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastName" className="text-sm font-medium">
@@ -659,9 +1054,16 @@ export default function CreateResumePage() {
                     },
                   }))
                 }
-                className="h-11"
+                className={`h-11 ${
+                  validationErrors.lastName ? "border-red-500" : ""
+                }`}
                 placeholder="Enter your last name"
               />
+              {validationErrors.lastName && (
+                <p className="text-xs text-red-500">
+                  {validationErrors.lastName}
+                </p>
+              )}
             </div>
           </div>
 
@@ -683,9 +1085,14 @@ export default function CreateResumePage() {
                     },
                   }))
                 }
-                className="h-11"
+                className={`h-11 ${
+                  validationErrors.email ? "border-red-500" : ""
+                }`}
                 placeholder="your.email@example.com"
               />
+              {validationErrors.email && (
+                <p className="text-xs text-red-500">{validationErrors.email}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone" className="text-sm font-medium">
@@ -703,10 +1110,45 @@ export default function CreateResumePage() {
                     },
                   }))
                 }
-                className="h-11"
+                className={`h-11 ${
+                  validationErrors.phone ? "border-red-500" : ""
+                }`}
                 placeholder="Enter your phone number"
               />
+              {validationErrors.phone && (
+                <p className="text-xs text-red-500">{validationErrors.phone}</p>
+              )}
             </div>
+          </div>
+
+          {/* Current Designation */}
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-sm font-medium">
+              Current Designation <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="title"
+              value={resumeData.personalInfo.title}
+              onChange={(e) =>
+                setResumeData((prev) => ({
+                  ...prev,
+                  personalInfo: {
+                    ...prev.personalInfo,
+                    title: e.target.value,
+                  },
+                }))
+              }
+              className={`h-11 ${
+                validationErrors.title ? "border-red-500" : ""
+              }`}
+              placeholder="e.g., Senior Software Engineer, Marketing Manager"
+            />
+            {validationErrors.title && (
+              <p className="text-xs text-red-500">{validationErrors.title}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              Your current job title or professional designation
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -725,9 +1167,16 @@ export default function CreateResumePage() {
                   },
                 }))
               }
-              className="h-11"
+              className={`h-11 ${
+                validationErrors.location ? "border-red-500" : ""
+              }`}
               placeholder="Enter your location"
             />
+            {validationErrors.location && (
+              <p className="text-xs text-red-500">
+                {validationErrors.location}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -747,25 +1196,24 @@ export default function CreateResumePage() {
                   },
                 }))
               }
-              className="resize-none"
-              placeholder="Write a brief summary of your professional experience and goals"
+              className={`resize-none ${
+                validationErrors.summary ? "border-red-500" : ""
+              }`}
+              placeholder="Write a brief summary of your professional experience and goals (20-100 words)"
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="resumeTitle" className="text-sm font-medium">
-              Resume Title{" "}
-              <span className="text-muted-foreground">(Optional)</span>
-            </Label>
-            <Input
-              id="resumeTitle"
-              value={resumeTitle}
-              onChange={(e) => setResumeTitle(e.target.value)}
-              className="h-11"
-              placeholder="e.g., John Doe - Senior Software Engineer"
-            />
+            {validationErrors.summary && (
+              <p className="text-xs text-red-500">{validationErrors.summary}</p>
+            )}
             <p className="text-xs text-muted-foreground">
-              Leave blank to auto-generate from your name
+              {resumeData.personalInfo.summary.trim()
+                ? `${
+                    resumeData.personalInfo.summary
+                      .trim()
+                      .split(/\s+/)
+                      .filter((word) => word.length > 0).length
+                  } words`
+                : "0 words"}{" "}
+              (20-100 words recommended)
             </p>
           </div>
 
@@ -786,9 +1234,16 @@ export default function CreateResumePage() {
                     },
                   }))
                 }
-                className="h-11"
-                placeholder="Enter your LinkedIn URL"
+                className={`h-11 ${
+                  validationErrors.linkedinUrl ? "border-red-500" : ""
+                }`}
+                placeholder="https://linkedin.com/in/yourprofile"
               />
+              {validationErrors.linkedinUrl && (
+                <p className="text-xs text-red-500">
+                  {validationErrors.linkedinUrl}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="github" className="text-sm font-medium">
@@ -806,9 +1261,16 @@ export default function CreateResumePage() {
                     },
                   }))
                 }
-                className="h-11"
-                placeholder="Enter your GitHub URL"
+                className={`h-11 ${
+                  validationErrors.githubUrl ? "border-red-500" : ""
+                }`}
+                placeholder="https://github.com/yourusername"
               />
+              {validationErrors.githubUrl && (
+                <p className="text-xs text-red-500">
+                  {validationErrors.githubUrl}
+                </p>
+              )}
             </div>
           </div>
         </CardContent>
@@ -819,9 +1281,9 @@ export default function CreateResumePage() {
   const renderSkillsStep = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Skills</CardTitle>
+        <CardTitle>Skills (Optional)</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Add your technical and professional skills
+          Add your technical and professional skills - this section is optional
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -878,25 +1340,34 @@ export default function CreateResumePage() {
   const renderExperienceStep = () => (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Work Experience</CardTitle>
+        <CardTitle className="text-xl">Work Experience (Required)</CardTitle>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          List your work experience in reverse chronological order
+          List your work experience in reverse chronological order - at least
+          one experience is required
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
+        {validationErrors.experience && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-500">
+              {validationErrors.experience}
+            </p>
+          </div>
+        )}
         {resumeData.experience.length === 0 ? (
           <div className="text-center py-12 border-2 border-dashed border-muted-foreground/20 rounded-xl bg-muted/10">
             <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
               <Plus className="h-6 w-6 text-muted-foreground" />
             </div>
-            <p className="text-muted-foreground mb-4 font-medium">
+            <p className="text-muted-foreground mb-4 font-medium text-lg">
               No experience added yet
             </p>
             <p className="text-sm text-muted-foreground mb-6">
-              Add your work experience to strengthen your resume
+              Add your work experience to strengthen your resume. You'll be able
+              to select dates using our calendar picker.
             </p>
-            <Button onClick={addExperience} className="h-11 px-6">
-              <Plus className="h-4 w-4 mr-2" /> Add Experience
+            <Button onClick={addExperience} className="h-11 px-6 text-base">
+              <Plus className="h-4 w-4 mr-2" /> Add Your First Experience
             </Button>
           </div>
         ) : (
@@ -942,8 +1413,17 @@ export default function CreateResumePage() {
                         updateExperience(exp.id, "position", e.target.value)
                       }
                       placeholder="e.g., Senior Software Engineer"
-                      className="h-11"
+                      className={`h-11 ${
+                        validationErrors[`experience_${exp.id}_position`]
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     />
+                    {validationErrors[`experience_${exp.id}_position`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`experience_${exp.id}_position`]}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Company</Label>
@@ -953,36 +1433,65 @@ export default function CreateResumePage() {
                         updateExperience(exp.id, "company", e.target.value)
                       }
                       placeholder="e.g., Google"
-                      className="h-11"
+                      className={`h-11 ${
+                        validationErrors[`experience_${exp.id}_company`]
+                          ? "border-red-500"
+                          : ""
+                      }`}
                     />
+                    {validationErrors[`experience_${exp.id}_company`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`experience_${exp.id}_company`]}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">Start Date</Label>
-                    <Input
-                      type="month"
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      Start Date
+                    </Label>
+                    <DatePicker
                       value={exp.startDate}
-                      onChange={(e) =>
-                        updateExperience(exp.id, "startDate", e.target.value)
+                      onChange={(value) =>
+                        updateExperience(exp.id, "startDate", value)
                       }
-                      className="h-11"
+                      placeholder="Select start date"
+                      error={
+                        !!validationErrors[`experience_${exp.id}_startDate`]
+                      }
                     />
+                    {validationErrors[`experience_${exp.id}_startDate`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`experience_${exp.id}_startDate`]}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium">End Date</Label>
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      End Date
+                    </Label>
                     <div className="flex items-center gap-3">
-                      <Input
-                        type={exp.isPresent ? "text" : "month"}
-                        value={exp.isPresent ? "Present" : exp.endDate || ""}
-                        onChange={(e) =>
-                          updateExperience(exp.id, "endDate", e.target.value)
-                        }
-                        disabled={exp.isPresent}
-                        className={`h-11 flex-1 ${
-                          exp.isPresent
-                            ? "text-muted-foreground bg-muted/50"
-                            : ""
-                        }`}
-                      />
+                      {exp.isPresent ? (
+                        <Input
+                          type="text"
+                          value="Present"
+                          disabled
+                          className="h-11 flex-1 text-muted-foreground bg-muted/50"
+                        />
+                      ) : (
+                        <DatePicker
+                          value={exp.endDate || ""}
+                          onChange={(value) =>
+                            updateExperience(exp.id, "endDate", value)
+                          }
+                          placeholder="Select end date"
+                          error={
+                            !!validationErrors[`experience_${exp.id}_endDate`]
+                          }
+                          className="flex-1"
+                        />
+                      )}
                       <div className="flex items-center space-x-2 bg-muted/30 px-3 py-2 rounded-lg">
                         <input
                           type="checkbox"
@@ -1005,6 +1514,11 @@ export default function CreateResumePage() {
                         </Label>
                       </div>
                     </div>
+                    {validationErrors[`experience_${exp.id}_endDate`] && (
+                      <p className="text-xs text-red-500">
+                        {validationErrors[`experience_${exp.id}_endDate`]}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -1014,10 +1528,30 @@ export default function CreateResumePage() {
                     onChange={(e) =>
                       updateExperience(exp.id, "description", e.target.value)
                     }
-                    placeholder="Describe your responsibilities and achievements"
+                    placeholder="Describe your responsibilities and achievements (20-100 words)"
                     rows={4}
-                    className="resize-none"
+                    className={`resize-none ${
+                      validationErrors[`experience_${exp.id}_description`]
+                        ? "border-red-500"
+                        : ""
+                    }`}
                   />
+                  {validationErrors[`experience_${exp.id}_description`] && (
+                    <p className="text-xs text-red-500">
+                      {validationErrors[`experience_${exp.id}_description`]}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {exp.description.trim()
+                      ? `${
+                          exp.description
+                            .trim()
+                            .split(/\s+/)
+                            .filter((word) => word.length > 0).length
+                        } words`
+                      : "0 words"}{" "}
+                    (20-100 words required)
+                  </p>
                 </div>
               </div>
             ))}
@@ -1046,9 +1580,9 @@ export default function CreateResumePage() {
   const renderEducationStep = () => (
     <Card>
       <CardHeader>
-        <CardTitle>Education</CardTitle>
+        <CardTitle>Education (Optional)</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Add your educational background
+          Add your educational background - this section is optional
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -1200,9 +1734,9 @@ export default function CreateResumePage() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Projects</CardTitle>
+          <CardTitle>Projects (Optional)</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Showcase your best projects
+            Showcase your best projects - this section is optional
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -1681,10 +2215,19 @@ export default function CreateResumePage() {
           resumeData.personalInfo.lastName &&
           resumeData.personalInfo.email,
       },
-      { name: "Experience", completed: resumeData.experience.length > 0 },
-      { name: "Education", completed: resumeData.education.length > 0 },
-      { name: "Skills", completed: resumeData.skills.length > 0 },
-      { name: "Projects", completed: resumeData.projects.length > 0 },
+      {
+        name: "Experience (Required)",
+        completed: resumeData.experience.length > 0,
+      },
+      {
+        name: "Education (Optional)",
+        completed: resumeData.education.length > 0,
+      },
+      { name: "Skills (Optional)", completed: resumeData.skills.length > 0 },
+      {
+        name: "Projects (Optional)",
+        completed: resumeData.projects.length > 0,
+      },
       {
         name: "Certifications",
         completed: resumeData.certifications.length > 0,
@@ -1751,210 +2294,217 @@ export default function CreateResumePage() {
     );
   };
 
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 0:
-        return renderTemplateStep();
-      case 1:
-        return renderPersonalInfoStep();
-      case 2:
-        return renderExperienceStep();
-      case 3:
-        return renderEducationStep();
-      case 4:
-        return renderSkillsStep();
-      case 5:
-        return renderProjectsStep();
-      case 6:
-        return (
-          <div className="space-y-6">
-            {renderProgressSummary()}
-            {renderCertificationsSection()}
-            {renderLanguagesSection()}
-            {renderCustomSections()}
-          </div>
-        );
-      default:
-        return renderTemplateStep();
-    }
-  };
-
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
-    return <div>Please log in to create a resume.</div>;
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="flex gap-8">
-          {/* Left Panel - Form */}
-          <div className="flex-1 max-w-3xl">
-            {/* Progress Steps */}
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    Create Resume
-                  </h1>
-                  <p className="text-muted-foreground mt-1">
-                    Build your professional resume step by step
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary transition-all duration-500 ease-out"
-                        style={{ width: `${getCompletionPercentage()}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground font-medium">
-                      {getCompletionPercentage()}% complete
-                    </span>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowFullPreview(!showFullPreview)}
-                  className="h-11 px-6"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  {showFullPreview ? "Hide" : "Show"} Preview
-                </Button>
-              </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-foreground">
+              Create Resume
+            </h1>
+            <p className="text-muted-foreground">
+              Build your professional resume with real-time preview
+            </p>
+          </div>
 
-              <div className="bg-card rounded-xl p-4 shadow-sm border">
-                <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {steps.map((step, index) => (
-                    <div
-                      key={step.id}
-                      className={`flex items-center space-x-3 whitespace-nowrap px-3 py-2 rounded-lg transition-all ${
-                        index <= currentStep
-                          ? "text-primary bg-primary/10"
-                          : "text-muted-foreground hover:bg-muted/50"
-                      }`}
-                    >
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
-                          index === currentStep
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : index < currentStep
-                            ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {index < currentStep ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          index + 1
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-semibold text-sm">
-                          {step.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground truncate">
-                          {step.description}
-                        </div>
-                      </div>
-                      {index < steps.length - 1 && (
-                        <ArrowRight className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+          {/* Quick actions in header */}
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex flex-col">
+              <span className="text-sm mb-1 font-medium">Template</span>
+              <select
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value)}
+                className="h-9 w-48 px-3 py-1 text-sm border border-border rounded-md bg-background"
+              >
+                {templates.map((tpl) => (
+                  <option key={tpl.id} value={tpl.id}>
+                    {tpl.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Current Step Content */}
+            <div className="w-full lg:w-auto flex justify-end">
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="self-stretch sm:self-end w-full sm:w-auto shrink-0"
+              >
+                {saving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Save Resume
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Steps */}
+        <div className="mb-8">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+            {steps.map((step, index) => (
+              <div
+                key={step.id}
+                className={`flex items-center ${
+                  index < steps.length - 1 ? "flex-1" : ""
+                }`}
+              >
+                <button
+                  onClick={() => goToStep(step.id)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    currentStep === step.id
+                      ? "bg-primary text-primary-foreground"
+                      : currentStep > step.id
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  <span className="w-6 h-6 rounded-full bg-current/20 flex items-center justify-center text-xs">
+                    {step.id + 1}
+                  </span>
+                  <span className="hidden sm:inline">{step.title}</span>
+                </button>
+                {index < steps.length - 1 && (
+                  <div className="hidden sm:block flex-1 h-px bg-border mx-2" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Form Section */}
+          <div className="space-y-6">
             <div
-              className={`mb-8 transition-all duration-300 ${
-                isTransitioning
-                  ? "opacity-50 scale-95"
-                  : "opacity-100 scale-100"
+              className={`transition-opacity duration-150 ${
+                isTransitioning ? "opacity-0" : "opacity-100"
               }`}
             >
-              {renderCurrentStep()}
+              {currentStep === 0 && renderTemplateStep()}
+              {currentStep === 1 && renderPersonalInfoStep()}
+              {currentStep === 2 && renderExperienceStep()}
+              {currentStep === 3 && renderEducationStep()}
+              {currentStep === 4 && renderSkillsStep()}
+              {currentStep === 5 && renderProjectsStep()}
+              {currentStep === 6 && (
+                <div className="space-y-6">
+                  {renderProgressSummary()}
+                  {renderCertificationsSection()}
+                  {renderLanguagesSection()}
+                  {renderCustomSections()}
+                </div>
+              )}
             </div>
 
-            {/* Navigation */}
-            <div className="flex justify-between items-center p-6 bg-card rounded-xl shadow-sm border">
+            {/* Navigation Buttons */}
+            <div className="flex justify-between">
               <Button
+                onClick={() => goToStep(currentStep - 1)}
+                disabled={currentStep === 0}
                 variant="outline"
-                onClick={() => goToStep(Math.max(0, currentStep - 1))}
-                disabled={currentStep === 0 || isTransitioning}
-                className="h-11 px-6"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
+                <ArrowLeft className="w-4 h-4 mr-2" />
                 Previous
               </Button>
 
-              <div className="flex gap-3">
-                {currentStep === steps.length - 1 ? (
-                  <Button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="h-11 px-8"
-                  >
-                    {saving ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Resume"
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() =>
-                      goToStep(Math.min(steps.length - 1, currentStep + 1))
-                    }
-                    disabled={isTransitioning || !canProceedToNext}
-                    className="h-11 px-6"
-                    title={
-                      !canProceedToNext ? "Please fill in required fields" : ""
-                    }
-                  >
-                    Next
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                )}
-              </div>
+              {currentStep < steps.length - 1 ? (
+                <Button
+                  onClick={() => goToStep(currentStep + 1)}
+                  disabled={!canProceedToNext}
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || !canProceedToNext}
+                >
+                  {saving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Save Resume
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </div>
 
-          {/* Right Panel - Preview */}
-          {!showFullPreview && (
-            <div className="w-80 sticky top-8 h-fit">
-              <Card className="shadow-lg border-0">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-primary" />
-                    Live Preview
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">
-                    See your resume as you build it
-                  </p>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="aspect-[3/4] bg-gradient-to-br from-muted/30 to-muted/10 rounded-lg overflow-hidden border shadow-inner">
-                    <div className="scale-[0.35] origin-top-left w-[285%] h-[285%] bg-white">
-                      {renderResumePreview()}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Preview Section */}
+          <div className="sticky top-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Preview</h2>
+              <Button
+                onClick={() => setShowFullPreview(true)}
+                variant="outline"
+                size="sm"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Full Screen
+              </Button>
             </div>
-          )}
+
+            <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+              <div className="bg-white p-4">
+                <div
+                  className="relative overflow-hidden"
+                  style={{
+                    width: "100%",
+                    height: "0",
+                    paddingBottom: "141.4%", // A4 aspect ratio (1:1.414)
+                  }}
+                >
+                  <div
+                    className="absolute top-0 left-0"
+                    style={{
+                      width: "250%",
+                      height: "250%",
+                      transform: "scale(0.4)",
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    {renderResumePreview()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Full Preview Modal */}
         {showFullPreview && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-background rounded-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
+            <div className="bg-background rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
               <div className="p-6 border-b flex justify-between items-center bg-card">
                 <div>
                   <h2 className="text-xl font-semibold">Resume Preview</h2>
@@ -1970,7 +2520,7 @@ export default function CreateResumePage() {
                   <X className="h-5 w-5" />
                 </Button>
               </div>
-              <div className="p-6 overflow-auto max-h-[calc(95vh-100px)] bg-muted/20">
+              <div className="p-6 overflow-auto max-h-[calc(95vh-120px)] bg-muted/20">
                 <div className="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
                   {renderResumePreview()}
                 </div>

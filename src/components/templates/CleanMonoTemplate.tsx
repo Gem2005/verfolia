@@ -196,6 +196,11 @@ export function CleanMonoTemplate({
           text: "text-gray-100",
           accent: "text-gray-300",
           border: "border-gray-600",
+          cardBg: "bg-gray-700",
+          cardBorder: "border-gray-600",
+          sectionBorder: "border-gray-600",
+          buttonHover: "hover:bg-gray-600",
+          badgeHover: "hover:bg-gray-600",
         };
       case "navy-blue":
         return {
@@ -203,6 +208,11 @@ export function CleanMonoTemplate({
           text: "text-blue-100",
           accent: "text-blue-300",
           border: "border-blue-600",
+          cardBg: "bg-blue-800",
+          cardBorder: "border-blue-600",
+          sectionBorder: "border-blue-600",
+          buttonHover: "hover:bg-blue-700",
+          badgeHover: "hover:bg-blue-700",
         };
       case "professional":
         return {
@@ -210,13 +220,47 @@ export function CleanMonoTemplate({
           text: "text-gray-100",
           accent: "text-gray-300",
           border: "border-gray-500",
+          cardBg: "bg-gray-600",
+          cardBorder: "border-gray-500",
+          sectionBorder: "border-gray-500",
+          buttonHover: "hover:bg-gray-500",
+          badgeHover: "hover:bg-gray-500",
         };
-      default: // black
+      case "black":
+        return {
+          bg: "bg-black",
+          text: "text-white",
+          accent: "text-gray-300",
+          border: "border-gray-700",
+          cardBg: "bg-gray-900",
+          cardBorder: "border-gray-700",
+          sectionBorder: "border-gray-700",
+          buttonHover: "hover:bg-gray-800",
+          badgeHover: "hover:bg-gray-800",
+        };
+      case "white":
+        return {
+          bg: "bg-white",
+          text: "text-gray-900",
+          accent: "text-gray-600",
+          border: "border-gray-300",
+          cardBg: "bg-gray-50",
+          cardBorder: "border-gray-200",
+          sectionBorder: "border-gray-300",
+          buttonHover: "hover:bg-gray-100",
+          badgeHover: "hover:bg-gray-100",
+        };
+      default: // light theme fallback
         return {
           bg: "bg-gray-50",
           text: "text-gray-900",
           accent: "text-gray-600",
           border: "border-gray-300",
+          cardBg: "bg-white",
+          cardBorder: "border-gray-200",
+          sectionBorder: "border-gray-300",
+          buttonHover: "hover:bg-gray-100",
+          badgeHover: "hover:bg-gray-100",
         };
     }
   };
@@ -289,7 +333,7 @@ export function CleanMonoTemplate({
                   <Button
                     variant="outline"
                     size="default"
-                    className="rounded-lg border-2 hover:bg-gray-900 hover:text-white transition-all duration-200 bg-transparent"
+                    className={`rounded-lg border-2 ${themeClasses.buttonHover} hover:text-white transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
                   >
                     <Github className="w-4 h-4 mr-2" />
                     GitHub
@@ -307,7 +351,7 @@ export function CleanMonoTemplate({
                   <Button
                     variant="outline"
                     size="default"
-                    className="rounded-lg border-2 hover:bg-blue-500 hover:text-white transition-all duration-200 bg-transparent"
+                    className="rounded-lg border-2 hover:bg-blue-500 hover:text-white transition-all duration-200 bg-transparent border-blue-500 text-blue-500"
                   >
                     <Twitter className="w-4 h-4 mr-2" />
                     Twitter
@@ -323,7 +367,7 @@ export function CleanMonoTemplate({
                   <Button
                     variant="outline"
                     size="default"
-                    className="rounded-lg border-2 hover:bg-red-500 hover:text-white transition-all duration-200 bg-transparent"
+                    className="rounded-lg border-2 hover:bg-red-500 hover:text-white transition-all duration-200 bg-transparent border-red-500 text-red-500"
                   >
                     <Mail className="w-4 h-4 mr-2" />
                     Contact
@@ -334,8 +378,10 @@ export function CleanMonoTemplate({
           </div>
 
           {portfolioData.personalInfo.about && (
-            <div className="mt-8 p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-              <p className="text-gray-700 leading-relaxed text-base">
+            <div
+              className={`mt-8 p-6 ${themeClasses.cardBg} rounded-xl shadow-sm border ${themeClasses.cardBorder}`}
+            >
+              <p className={`${themeClasses.text} leading-relaxed text-base`}>
                 {portfolioData.personalInfo.about}
               </p>
             </div>
@@ -344,7 +390,9 @@ export function CleanMonoTemplate({
 
         {/* Work Experience Section */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-gray-900 border-b-2 border-gray-900 pb-3">
+          <h2
+            className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+          >
             Work Experience
           </h2>
 
@@ -352,7 +400,7 @@ export function CleanMonoTemplate({
             {portfolioData.experience.map((exp) => (
               <div
                 key={exp.id}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
+                className={`${themeClasses.cardBg} p-6 rounded-xl shadow-sm border ${themeClasses.cardBorder} hover:shadow-md transition-shadow duration-200`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                   <div className="flex-shrink-0">
@@ -363,18 +411,22 @@ export function CleanMonoTemplate({
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">
+                    <h3
+                      className={`font-bold text-lg ${themeClasses.text} mb-1`}
+                    >
                       {exp.position}
                     </h3>
-                    <p className="text-base text-gray-700 font-medium mb-1">
+                    <p
+                      className={`text-base ${themeClasses.accent} font-medium mb-1`}
+                    >
                       {exp.company}
                     </p>
-                    <p className="text-sm text-gray-600 mb-3">
+                    <p className={`text-sm ${themeClasses.accent} mb-3`}>
                       {exp.startDate} -{" "}
                       {exp.isPresent ? "Present" : exp.endDate}
                     </p>
                     {exp.description && (
-                      <p className="text-gray-700 leading-relaxed">
+                      <p className={`${themeClasses.text} leading-relaxed`}>
                         {exp.description}
                       </p>
                     )}
@@ -387,7 +439,9 @@ export function CleanMonoTemplate({
 
         {/* Education Section */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-gray-900 border-b-2 border-gray-900 pb-3">
+          <h2
+            className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+          >
             Education
           </h2>
 
@@ -395,7 +449,7 @@ export function CleanMonoTemplate({
             {portfolioData.education.map((edu) => (
               <div
                 key={edu.id}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"
+                className={`${themeClasses.cardBg} p-6 rounded-xl shadow-sm border ${themeClasses.cardBorder}`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                   <div className="flex-shrink-0">
@@ -406,17 +460,21 @@ export function CleanMonoTemplate({
                     </div>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 mb-1">
+                    <h3
+                      className={`font-bold text-lg ${themeClasses.text} mb-1`}
+                    >
                       {edu.degree}
                     </h3>
-                    <p className="text-base text-gray-700 font-medium mb-1">
+                    <p
+                      className={`text-base ${themeClasses.accent} font-medium mb-1`}
+                    >
                       {edu.institution}
                     </p>
-                    <p className="text-sm text-gray-600 mb-2">
+                    <p className={`text-sm ${themeClasses.accent} mb-2`}>
                       {edu.startYear} - {edu.endYear}
                     </p>
                     {edu.cgpa && (
-                      <p className="text-sm text-gray-700 font-medium">
+                      <p className={`text-sm ${themeClasses.text} font-medium`}>
                         CGPA: {edu.cgpa}
                       </p>
                     )}
@@ -429,17 +487,21 @@ export function CleanMonoTemplate({
 
         {/* Skills Section */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-gray-900 border-b-2 border-gray-900 pb-3">
+          <h2
+            className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+          >
             Skills & Technologies
           </h2>
 
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <div
+            className={`${themeClasses.cardBg} p-6 rounded-xl shadow-sm border ${themeClasses.cardBorder}`}
+          >
             <div className="flex flex-wrap gap-3">
               {portfolioData.skills.map((skill) => (
                 <Badge
                   key={skill}
                   variant="outline"
-                  className="text-sm px-4 py-2 bg-gray-100 hover:bg-gray-900 hover:text-white transition-all duration-200 border-2 font-medium"
+                  className={`text-sm px-4 py-2 ${themeClasses.cardBg} ${themeClasses.badgeHover} hover:text-white transition-all duration-200 border-2 font-medium ${themeClasses.border} ${themeClasses.text}`}
                 >
                   {skill}
                 </Badge>
@@ -450,10 +512,14 @@ export function CleanMonoTemplate({
 
         {/* Projects Section */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-4 text-gray-900 border-b-2 border-gray-900 pb-3">
+          <h2
+            className={`text-2xl font-bold mb-4 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+          >
             Featured Projects
           </h2>
-          <p className="text-gray-600 mb-8 text-base leading-relaxed">
+          <p
+            className={`${themeClasses.accent} mb-8 text-base leading-relaxed`}
+          >
             I've worked on a variety of projects, from simple websites to
             complex web applications. Here are a few of my favorites.
           </p>
@@ -462,13 +528,13 @@ export function CleanMonoTemplate({
             {portfolioData.projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1`}
               >
                 <div className="p-6">
-                  <h3 className="font-bold text-xl mb-3 text-gray-900">
+                  <h3 className={`font-bold text-xl mb-3 ${themeClasses.text}`}>
                     {project.name}
                   </h3>
-                  <p className="text-gray-700 mb-4 leading-relaxed">
+                  <p className={`${themeClasses.text} mb-4 leading-relaxed`}>
                     {project.description}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-6">
@@ -476,7 +542,7 @@ export function CleanMonoTemplate({
                       <Badge
                         key={tech}
                         variant="secondary"
-                        className="text-xs px-3 py-1 bg-gray-100 text-gray-800 font-medium"
+                        className={`text-xs px-3 py-1 ${themeClasses.cardBg} ${themeClasses.text} font-medium border ${themeClasses.border}`}
                       >
                         {tech}
                       </Badge>
@@ -493,7 +559,7 @@ export function CleanMonoTemplate({
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-2 hover:bg-gray-900 hover:text-white transition-all duration-200 bg-transparent"
+                          className={`border-2 ${themeClasses.buttonHover} hover:text-white transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
                         >
                           <Github className="w-4 h-4 mr-2" /> Source Code
                         </Button>
@@ -523,7 +589,7 @@ export function CleanMonoTemplate({
             <Button
               variant="default"
               onClick={handleViewMore}
-              className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 text-base transition-all duration-200"
+              className={`${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} px-8 py-3 text-base transition-all duration-200 border ${themeClasses.border}`}
             >
               View All Projects
             </Button>
@@ -533,7 +599,9 @@ export function CleanMonoTemplate({
         {/* Blogs Section */}
         {portfolioData.blogs && portfolioData.blogs.length > 0 && (
           <section className="mb-16">
-            <h2 className="text-2xl font-bold mb-8 text-gray-900 border-b-2 border-gray-900 pb-3">
+            <h2
+              className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+            >
               Latest Blog Posts
             </h2>
 
@@ -541,7 +609,7 @@ export function CleanMonoTemplate({
               {portfolioData.blogs.map((blog) => (
                 <div
                   key={blog.id}
-                  className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-200 hover:border-gray-300"
+                  className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl p-6 hover:shadow-md transition-all duration-200 ${themeClasses.buttonHover}`}
                 >
                   <a
                     href={blog.url || "#"}
@@ -549,14 +617,16 @@ export function CleanMonoTemplate({
                     rel="noopener noreferrer"
                     className="block group"
                   >
-                    <h3 className="font-bold text-xl text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-200">
+                    <h3
+                      className={`font-bold text-xl ${themeClasses.text} mb-2 group-hover:text-blue-600 transition-colors duration-200`}
+                    >
                       {blog.title}
                     </h3>
-                    <p className="text-gray-700 mb-3 leading-relaxed">
+                    <p className={`${themeClasses.text} mb-3 leading-relaxed`}>
                       {blog.summary}
                     </p>
                     <div className="flex items-center gap-4 text-sm">
-                      <span className="text-gray-600 font-medium">
+                      <span className={`${themeClasses.accent} font-medium`}>
                         {blog.publishDate}
                       </span>
                       <span className="text-blue-600 group-hover:text-blue-700 font-medium">
@@ -571,7 +641,7 @@ export function CleanMonoTemplate({
               <Button
                 variant="outline"
                 onClick={handleReadMore}
-                className="border-2 hover:bg-gray-900 hover:text-white px-8 py-3 text-base transition-all duration-200 bg-transparent"
+                className={`border-2 ${themeClasses.buttonHover} hover:text-white px-8 py-3 text-base transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
               >
                 View All Blog Posts
               </Button>
@@ -581,11 +651,15 @@ export function CleanMonoTemplate({
 
         {/* Contact Section */}
         <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-8 text-gray-900 border-b-2 border-gray-900 pb-3">
+          <h2
+            className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+          >
             Let's Work Together
           </h2>
-          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+          <div
+            className={`${themeClasses.cardBg} p-8 rounded-xl shadow-sm border ${themeClasses.cardBorder}`}
+          >
+            <p className={`${themeClasses.text} mb-6 text-lg leading-relaxed`}>
               Want to chat? Just shoot me a message with your project details or
               questions. I'm always excited to discuss new opportunities and
               collaborations.
@@ -614,7 +688,7 @@ export function CleanMonoTemplate({
                   <Button
                     variant="outline"
                     size="lg"
-                    className="border-2 hover:bg-gray-900 hover:text-white transition-all duration-200 bg-transparent"
+                    className={`border-2 ${themeClasses.buttonHover} hover:text-white transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
                   >
                     📞 {portfolioData.personalInfo.phone}
                   </Button>
@@ -625,7 +699,9 @@ export function CleanMonoTemplate({
         </section>
 
         {/* Footer */}
-        <footer className="text-center border-t-2 border-gray-200 pt-8">
+        <footer
+          className={`text-center border-t-2 ${themeClasses.sectionBorder} pt-8`}
+        >
           <div className="flex justify-center space-x-6 mb-6">
             {portfolioData.personalInfo.social.github && (
               <a
@@ -633,9 +709,11 @@ export function CleanMonoTemplate({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                className={`p-2 rounded-lg ${themeClasses.buttonHover} transition-colors duration-200`}
               >
-                <Github className="w-6 h-6 text-gray-600 hover:text-gray-900 transition-colors" />
+                <Github
+                  className={`w-6 h-6 ${themeClasses.accent} hover:text-gray-900 transition-colors`}
+                />
               </a>
             )}
 
@@ -645,9 +723,11 @@ export function CleanMonoTemplate({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter"
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                className={`p-2 rounded-lg ${themeClasses.buttonHover} transition-colors duration-200`}
               >
-                <Twitter className="w-6 h-6 text-gray-600 hover:text-blue-500 transition-colors" />
+                <Twitter
+                  className={`w-6 h-6 ${themeClasses.accent} hover:text-blue-500 transition-colors`}
+                />
               </a>
             )}
 
@@ -657,9 +737,11 @@ export function CleanMonoTemplate({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                className={`p-2 rounded-lg ${themeClasses.buttonHover} transition-colors duration-200`}
               >
-                <Linkedin className="w-6 h-6 text-gray-600 hover:text-blue-600 transition-colors" />
+                <Linkedin
+                  className={`w-6 h-6 ${themeClasses.accent} hover:text-blue-600 transition-colors`}
+                />
               </a>
             )}
 
@@ -667,13 +749,15 @@ export function CleanMonoTemplate({
               <a
                 href={`mailto:${portfolioData.personalInfo.email}`}
                 aria-label="Email"
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                className={`p-2 rounded-lg ${themeClasses.buttonHover} transition-colors duration-200`}
               >
-                <Mail className="w-6 h-6 text-gray-600 hover:text-red-500 transition-colors" />
+                <Mail
+                  className={`w-6 h-6 ${themeClasses.accent} hover:text-red-500 transition-colors`}
+                />
               </a>
             )}
           </div>
-          <p className="text-gray-600 text-base">
+          <p className={`${themeClasses.accent} text-base`}>
             © {new Date().getFullYear()} {portfolioData.personalInfo.firstName}{" "}
             {portfolioData.personalInfo.lastName}. All rights reserved.
           </p>

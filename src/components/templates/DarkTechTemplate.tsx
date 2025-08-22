@@ -147,6 +147,11 @@ export function DarkTechTemplate({
           text: "text-gray-100",
           accent: "text-gray-300",
           border: "border-gray-600",
+          cardBg: "bg-gray-700",
+          cardBorder: "border-gray-600",
+          sectionBorder: "border-gray-600",
+          buttonHover: "hover:bg-gray-600",
+          badgeHover: "hover:bg-gray-600",
         };
       case "navy-blue":
         return {
@@ -154,6 +159,11 @@ export function DarkTechTemplate({
           text: "text-blue-100",
           accent: "text-blue-300",
           border: "border-blue-600",
+          cardBg: "bg-blue-800",
+          cardBorder: "border-blue-600",
+          sectionBorder: "border-blue-600",
+          buttonHover: "hover:bg-blue-700",
+          badgeHover: "hover:bg-blue-700",
         };
       case "professional":
         return {
@@ -161,13 +171,47 @@ export function DarkTechTemplate({
           text: "text-gray-100",
           accent: "text-gray-300",
           border: "border-gray-500",
+          cardBg: "bg-gray-600",
+          cardBorder: "border-gray-500",
+          sectionBorder: "border-gray-500",
+          buttonHover: "hover:bg-gray-500",
+          badgeHover: "hover:bg-gray-500",
         };
-      default: // black
+      case "black":
         return {
           bg: "bg-black",
           text: "text-white",
           accent: "text-gray-300",
           border: "border-gray-700",
+          cardBg: "bg-gray-900",
+          cardBorder: "border-gray-700",
+          sectionBorder: "border-gray-700",
+          buttonHover: "hover:bg-gray-800",
+          badgeHover: "hover:bg-gray-800",
+        };
+      case "white":
+        return {
+          bg: "bg-white",
+          text: "text-gray-900",
+          accent: "text-gray-600",
+          border: "border-gray-300",
+          cardBg: "bg-gray-50",
+          cardBorder: "border-gray-200",
+          sectionBorder: "border-gray-300",
+          buttonHover: "hover:bg-gray-100",
+          badgeHover: "hover:bg-gray-100",
+        };
+      default: // dark tech default
+        return {
+          bg: "bg-black",
+          text: "text-white",
+          accent: "text-gray-300",
+          border: "border-gray-700",
+          cardBg: "bg-gray-900",
+          cardBorder: "border-gray-700",
+          sectionBorder: "border-gray-700",
+          buttonHover: "hover:bg-gray-800",
+          badgeHover: "hover:bg-gray-800",
         };
     }
   };
@@ -190,7 +234,7 @@ export function DarkTechTemplate({
             <Link
               href={portfolioData.personalInfo.social.github}
               target="_blank"
-              className="hover:text-primary transition-colors"
+              className={`${themeClasses.accent} hover:text-primary transition-colors`}
             >
               <Github className="w-6 h-6" />
             </Link>
@@ -200,7 +244,7 @@ export function DarkTechTemplate({
             <Link
               href={portfolioData.personalInfo.social.linkedin}
               target="_blank"
-              className="hover:text-primary transition-colors"
+              className={`${themeClasses.accent} hover:text-primary transition-colors`}
             >
               <Linkedin className="w-6 h-6" />
             </Link>
@@ -210,7 +254,7 @@ export function DarkTechTemplate({
             <Link
               href={portfolioData.personalInfo.social.twitter}
               target="_blank"
-              className="hover:text-primary transition-colors"
+              className={`${themeClasses.accent} hover:text-primary transition-colors`}
             >
               <Twitter className="w-6 h-6" />
             </Link>
@@ -219,7 +263,7 @@ export function DarkTechTemplate({
           {portfolioData.personalInfo.email && (
             <Link
               href={`mailto:${portfolioData.personalInfo.email}`}
-              className="hover:text-primary transition-colors"
+              className={`${themeClasses.accent} hover:text-primary transition-colors`}
             >
               <Mail className="w-6 h-6" />
             </Link>
@@ -229,14 +273,16 @@ export function DarkTechTemplate({
         {/* Hero Section */}
         <section className="flex flex-col-reverse md:flex-row justify-between items-center gap-8 md:gap-10 mb-16 md:mb-24">
           <div className="max-w-2xl">
-            <h1 className="text-3xl md:text-5xl font-bold mb-6">
+            <h1
+              className={`text-3xl md:text-5xl font-bold mb-6 ${themeClasses.text}`}
+            >
               Hi, I&apos;m {portfolioData.personalInfo.firstName}
               <span className="inline-block ml-2 text-4xl">👋</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-300 mb-6">
+            <p className={`text-lg md:text-xl ${themeClasses.accent} mb-6`}>
               {portfolioData.personalInfo.title}
             </p>
-            <div className="text-gray-400 mb-8">
+            <div className={`${themeClasses.accent} mb-8`}>
               <p>{portfolioData.personalInfo.about}</p>
               <p className="mt-4">
                 I&apos;m actively working on{" "}
@@ -244,7 +290,9 @@ export function DarkTechTemplate({
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center text-sm text-gray-400 gap-6 mt-8">
+            <div
+              className={`flex flex-wrap items-center text-sm ${themeClasses.accent} gap-6 mt-8`}
+            >
               <p className="flex items-center">
                 <span className="inline-flex justify-center items-center w-6 h-6 rounded-full bg-blue-900/30 mr-2">
                   <Code className="w-3 h-3" />
@@ -261,7 +309,7 @@ export function DarkTechTemplate({
               <img
                 src={portfolioData.personalInfo.photo || "/placeholder.svg"}
                 alt={`${portfolioData.personalInfo.firstName} ${portfolioData.personalInfo.lastName}`}
-                className="w-40 h-40 sm:w-48 sm:h-48 object-cover rounded-full border-2 border-white/10 shadow-2xl relative z-10"
+                className={`w-40 h-40 sm:w-48 sm:h-48 object-cover rounded-full border-2 ${themeClasses.border} shadow-2xl relative z-10`}
               />
             </div>
           )}
@@ -269,13 +317,15 @@ export function DarkTechTemplate({
 
         {/* Skills Section */}
         <section className="mb-24">
-          <h2 className="text-2xl font-bold mb-8">Skills</h2>
+          <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>
+            Skills
+          </h2>
 
           <div className="flex flex-wrap gap-3">
             {portfolioData.skills.map((skill) => (
               <Badge
                 key={skill}
-                className="px-4 py-2 rounded-md bg-white/5 hover:bg-white/10 text-white border border-white/10"
+                className={`px-4 py-2 rounded-md ${themeClasses.cardBg}/50 ${themeClasses.badgeHover}/10 ${themeClasses.text} border ${themeClasses.border}`}
               >
                 {skill}
               </Badge>
