@@ -51,7 +51,9 @@ export async function POST(request: NextRequest) {
       projects,
       certifications,
       languages,
-      custom_sections: customSections
+      custom_sections: customSections,
+      slug: title.toLowerCase().replace(/[^\w-]+/g, '-'), // Convert title to URL-friendly slug
+      view_count: 0 // Initialize view count to 0
     };
 
     const resume = await resumeService.createResume(resumeData);

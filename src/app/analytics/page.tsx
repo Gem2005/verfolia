@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback, useMemo, useId } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { resumeService, type Resume } from "@/services/resume-service";
+import { resumeService } from "@/services/resume-service";
+import type { Resume } from "@/services/resume-service";
+import type { AnalyticsData } from "@/types/analytics";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnalyticsSkeletonLoading } from "@/components/analytics/SkeletonLoading";
 
@@ -72,7 +74,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { AnalyticsData } from "@/types/analytics";
 import {
   ChevronLeft,
   ChevronRight,
@@ -193,6 +194,10 @@ export default function AnalyticsPage() {
       try {
         setLoading(true);
         const userResumes = await resumeService.getUserResumes(user.id);
+        if (!userResumes || userResumes.length === 0) {
+          setLoading(false);
+          return;
+        }
         setResumes(userResumes);
 
         // If resumeId query param exists and it's in the user's resumes, select it
@@ -237,11 +242,21 @@ export default function AnalyticsPage() {
       const queryDays = parseInt(days);
       const data = await resumeService.getResumeAnalytics(resumeId, queryDays);
 
-      // Type cast the data to ensure count properties are numbers
-      const typedData: AnalyticsData = {
+      // Ensure data has all required fields
+      if (!data || !data.summary) {
+        throw new Error("Invalid analytics data received");
+      }
+
+      // Process and validate the data
+      const processedData: AnalyticsData = {
         ...data,
+        views: data.views || [],
+        interactions: data.interactions || [],
         summary: {
           ...data.summary,
+          totalViews: data.summary.totalViews || 0,
+          totalInteractions: data.summary.totalInteractions || 0,
+          avgViewDuration: data.summary.avgViewDuration || 0,
           viewsByDate: data.summary.viewsByDate.map((item) => ({
             date: item.date,
             count: Number(item.count),
@@ -260,7 +275,8 @@ export default function AnalyticsPage() {
           })),
         },
       };
-      setAnalyticsData(typedData);
+
+      setAnalyticsData(processedData);
     } catch (error) {
       console.error("Error loading analytics:", error);
       // Still set analytics data to a default empty state
@@ -1726,4 +1742,16 @@ function Flag({ code, label }: { code?: string; label: string }) {
       />
     </div>
   );
+}
+
+class ResumeService {
+  // ... existing code ...
+
+  async getUserResumes(userId: string): Promise<Resume[]> {
+    // Implement your logic to fetch user resumes here
+    // For example:
+    const response = await fetch(`/api/users/${userId}/resumes`);
+    const resumes = await response.json();
+    return resumes;
+  }
 }

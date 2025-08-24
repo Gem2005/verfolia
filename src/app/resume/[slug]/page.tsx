@@ -2,7 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
-import { resumeService, type Resume } from "@/services/resume-service";
+import {
+  resumeService,
+  type Resume,
+  type Experience,
+  type Education,
+  type Project,
+  type Certification,
+  type CustomSection,
+  type Language,
+} from "../../../services/resume-service";
 
 import { ViewTracker } from "@/components/analytics";
 import {
@@ -29,7 +38,7 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     const loadResume = async () => {
       try {
         setLoading(true);
-        const resumeData = await resumeService.getPublicResume(slug);
+        const resumeData = await resumeService.getResumeBySlug(slug);
         setResume(resumeData);
       } catch (error) {
         console.error("Error loading resume:", error);
@@ -85,20 +94,20 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       personalInfo: {
         firstName: personalInfo.firstName || "John",
         lastName: personalInfo.lastName || "Doe",
-        title: personalInfo.summary || "Professional",
+        title: "Professional", // Hardcoded since it's not in PersonalInfo
         email: personalInfo.email || "contact@example.com",
         phone: personalInfo.phone || "+1 (555) 123-4567",
         location: personalInfo.location || "Location",
-        about: personalInfo.summary || "Professional summary",
-        photo: personalInfo.photo || "/professional-headshot.png",
+        about: "Professional", // Hardcoded since summary is not in PersonalInfo
+        photo: "/professional-headshot.png", // Hardcoded since it's not in PersonalInfo
         social: {
-          github: personalInfo.githubUrl || "",
+          github: personalInfo.website || "", // Using website as a fallback
           twitter: "",
-          linkedin: personalInfo.linkedinUrl || "",
-          portfolio: "",
+          linkedin: personalInfo.website || "", // Using website as a fallback
+          portfolio: personalInfo.website || "",
         },
       },
-      experience: experience.map((exp) => ({
+      experience: experience.map((exp: Experience) => ({
         id: exp.id || Math.random().toString(),
         position: exp.position || "Position",
         company: exp.company || "Company",
@@ -107,39 +116,42 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
         isPresent: !exp.endDate || exp.endDate === "",
         description: exp.description || "Job description",
       })),
-      skills: skills.filter((skill) => skill && skill.trim()),
-      education: education.map((edu) => ({
+      skills: skills.filter((skill: string) => skill && skill.trim()),
+      education: education.map((edu: Education) => ({
         id: edu.id || Math.random().toString(),
-        institution: edu.institution || "Institution",
+        institution: edu.school || "Institution", // Changed to match Education type
         degree: edu.degree || "Degree",
         field: edu.field || "",
         startYear: edu.startDate || "",
         endYear: edu.endDate || "",
-        cgpa: edu.gpa || "",
+        cgpa: "", // Education type doesn't have gpa field
       })),
-      projects: projects.map((proj) => ({
+      projects: projects.map((proj: Project) => ({
         id: proj.id || Math.random().toString(),
         name: proj.name || "Project",
         description: proj.description || "Project description",
-        techStack: Array.isArray(proj.techStack) ? proj.techStack : [],
-        sourceUrl: (proj as any).sourceUrl || (proj as any).github || "",
-        demoUrl: (proj as any).demoUrl || (proj as any).url || "",
+        techStack: proj.technologies || [],
+        sourceUrl: proj.repoUrl || "", // Using repoUrl from Project type
+        demoUrl: proj.liveUrl || "", // Using liveUrl from Project type
       })),
       blogs: [],
-      certifications: certifications.map((cert) => ({
+      certifications: certifications.map((cert: Certification) => ({
         id: cert.id || Math.random().toString(),
         title: cert.name || "Certification",
         issuer: cert.issuer || "Issuer",
-        date: cert.date || "",
-        url: cert.url || "",
+        date: cert.issueDate || "",
+        url: cert.credentialUrl || "",
       })),
       interests: [
         ...customSections
-          .map((section) => section.title)
-          .filter((title) => title && title.trim()),
+          .map((section: CustomSection) => section.title)
+          .filter((title: string) => title && title.trim()),
         ...languages
-          .map((lang) => `${lang.name} (${lang.proficiency || "Proficient"})`)
-          .filter((lang) => lang && lang.trim()),
+          .map(
+            (lang: Language) =>
+              `${lang.name} (${lang.proficiency || "Proficient"})`
+          )
+          .filter((lang: string) => lang && lang.trim()),
       ],
     };
   };

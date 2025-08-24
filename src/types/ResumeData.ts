@@ -1,4 +1,11 @@
 export interface ResumeData {
+  user_id: string;
+  title: string;
+  template_id: number;
+  theme_id: number;
+  is_public: boolean;
+  slug: string;
+  view_count: number;
   personalInfo: {
     firstName: string;
     lastName: string;

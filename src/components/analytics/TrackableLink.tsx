@@ -1,4 +1,4 @@
-import { resumeService } from "@/services/resume-service";
+import { analyticsService } from "@/services/analytics-service";
 import Link from "next/link";
 import React from "react";
 
@@ -32,16 +32,19 @@ export const TrackableLink: React.FC<TrackableLinkProps> = ({
         sectionName,
       });
 
-      resumeService
+      analyticsService
         .trackResumeInteraction(resumeId, interactionType, href, sectionName)
         .then(() => {
           console.log("✅ Link interaction tracked successfully");
         })
-        .catch((error) => {
-          console.error("❌ Failed to track link interaction:", error);
+        .catch((err: Error) => {
+          console.error("❌ Failed to track link interaction:", err);
         });
-    } catch (error) {
-      console.error("❌ Error tracking interaction:", error);
+    } catch (err: unknown) {
+      console.error(
+        "❌ Error tracking interaction:",
+        err instanceof Error ? err.message : err
+      );
     }
   };
 

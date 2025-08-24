@@ -115,6 +115,13 @@ export default function CreateResumePage() {
   }>({});
 
   const [resumeData, setResumeData] = useState<ResumeData>({
+    user_id: user?.id || "",
+    title: resumeTitle,
+    template_id: 1,
+    theme_id: 1,
+    is_public: false,
+    slug: "",
+    view_count: 0,
     personalInfo: {
       firstName: "",
       lastName: "",
@@ -721,50 +728,80 @@ export default function CreateResumePage() {
     setSaving(true);
     try {
       const resume = await resumeService.createResume({
-        user_id: user.id, // Add user_id
+        user_id: user.id,
         title: (() => {
           if (resumeTitle.trim()) {
             return resumeTitle.trim();
           }
-
           const firstName = resumeData.personalInfo.firstName?.trim() || "";
           const lastName = resumeData.personalInfo.lastName?.trim() || "";
           const fullName = `${firstName} ${lastName}`.trim();
-
-          if (fullName) {
-            return `${fullName} - Resume`;
-          } else if (firstName) {
-            return `${firstName} - Resume`;
-          } else {
-            return "My Resume";
-          }
+          return fullName ? `${fullName} - Resume` : "My Resume";
         })(),
-        is_public: false, // Or true, depending on your logic
+        is_public: false,
         template_id: selectedTemplate,
         theme_id: selectedTheme,
-        personal_info: {
-          ...resumeData.personalInfo,
-          linkedinUrl: resumeData.personalInfo.linkedinUrl || "",
-          githubUrl: resumeData.personalInfo.githubUrl || "",
-        },
-        experience: resumeData.experience,
+        slug: "",
+        view_count: 0,
+        personal_info: resumeData.personalInfo,
+        experience: resumeData.experience.map((exp) => ({
+          id: exp.id,
+          company: exp.company,
+          position: exp.position,
+          startDate: exp.startDate,
+          endDate: exp.endDate,
+          current: exp.isPresent || false,
+          description: exp.description,
+          technologies: [],
+        })),
         education: resumeData.education.map((edu) => ({
-          ...edu,
+          id: edu.id,
+          school: edu.institution,
+          degree: edu.degree,
           field: edu.field || "",
-          gpa: edu.gpa || "",
+          startDate: edu.startDate,
+          endDate: edu.endDate,
+          current: false,
+          description: "",
         })),
         skills: resumeData.skills,
         projects: resumeData.projects.map((proj) => ({
-          ...proj,
-          startDate: new Date().toISOString().split("T")[0], // Add required startDate
-          endDate: new Date().toISOString().split("T")[0], // Add required endDate
+          id: proj.id,
+          name: proj.name,
+          description: proj.description,
+          technologies: proj.techStack,
+          liveUrl: proj.demoUrl,
+          repoUrl: proj.sourceUrl,
         })),
-        certifications: resumeData.certifications,
-        languages: resumeData.languages,
-        custom_sections: resumeData.customSections,
+        certifications: resumeData.certifications.map((cert) => ({
+          id: cert.id,
+          name: cert.name,
+          issuer: cert.issuer,
+          issueDate: cert.date || new Date().toISOString().split("T")[0],
+          credentialUrl: cert.url,
+        })),
+        languages: resumeData.languages.map((lang) => ({
+          name: lang.name,
+          proficiency: lang.proficiency || "Beginner",
+        })),
+        custom_sections: resumeData.customSections.map((section) => ({
+          id: section.id,
+          title: section.title,
+          items: [
+            {
+              id: section.id,
+              title: section.title,
+              description: section.description,
+            },
+          ],
+        })),
       });
 
-      router.push(`/resume/${resume.slug}`);
+      if (resume?.slug) {
+        router.push(`/resume/${resume.slug}`);
+      } else {
+        console.error("Failed to create resume or get slug");
+      }
     } catch (error) {
       console.error("Error saving resume:", error);
     } finally {

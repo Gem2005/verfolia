@@ -40,7 +40,7 @@ const HomePage = () => {
               <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-2 mb-8">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium text-primary">
-                  AI-Powered Professional Identity Platform
+                  Beta Version
                 </span>
               </div>
 
@@ -55,31 +55,21 @@ const HomePage = () => {
 
               {/* Subtitle */}
               <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-10 leading-relaxed max-w-3xl mx-auto">
-                Verfolia transforms how professionals create, share, and track
-                their career journey. From AI-generated resumes to real-time
-                analytics, we give you the tools to stand out and insights to
-                grow.
+                Verfolia is on a mission to bring transparency to your career.
+                Build your profile, share your link, and track who's engaging
+                with your story. It's time to stop feeling invisible and start
+                knowing you've been seen.
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
                 <Button
-                  size="lg"
-                  className="text-lg px-8 py-4 h-auto bg-gradient-primary text-white shadow-glow hover:shadow-large hover:scale-105 transition-all duration-200"
-                  asChild
-                >
-                  <Link href="/create-resume">
-                    <Rocket className="w-5 h-5 mr-2" />
-                    Get Started Free
-                  </Link>
-                </Button>
-                <Button
                   variant="outline"
                   size="lg"
                   className="text-lg px-8 py-4 h-auto glass-effect hover:bg-muted/50 transition-all duration-200"
                 >
-                  <Play className="w-5 h-5 mr-2" />
-                  Watch Demo
+                  <Rocket className="w-5 h-5 mr-2" />
+                  <Link href="/create-resume">Get Started Free</Link>
                 </Button>
               </div>
 
@@ -89,10 +79,7 @@ const HomePage = () => {
                   <CheckCircle className="w-4 h-4 text-primary" />
                   <span>Free forever plan</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-primary" />
-                  <span>GDPR compliant</span>
-                </div>
+
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-primary" />
                   <span>10,000+ professionals</span>
@@ -138,13 +125,13 @@ const HomePage = () => {
                     <FileText className="w-6 h-6 text-white" />
                   </div>
                   <CardTitle className="text-xl font-semibold">
-                    AI Resume Builder
+                    Profile Builder
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Create professional resumes with AI assistance, multiple
-                    templates, and smart content suggestions.
+                    Go beyond the old way. Build a modern identity with content
+                    assistance and beautiful, intuitive design.
                   </p>
                 </CardContent>
               </Card>
@@ -160,7 +147,7 @@ const HomePage = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Track who views your resume, when they visit, and gain
+                    Track who views your profile, when they visit, and gain
                     insights into your application performance.
                   </p>
                 </CardContent>
@@ -172,7 +159,10 @@ const HomePage = () => {
                     <Brain className="w-6 h-6 text-white" />
                   </div>
                   <CardTitle className="text-xl font-semibold">
-                    AI Cover Letters
+                    AI Cover Letters{" "}
+                    <Badge className="mb-4 bg-green-500 text-white">
+                      Comming Soon..
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -194,8 +184,7 @@ const HomePage = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Share your professional profile with a simple link, QR code,
-                    or direct integration with job platforms.
+                    Share your professional profile with a simple link.
                   </p>
                 </CardContent>
               </Card>
@@ -211,8 +200,9 @@ const HomePage = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">
-                    Complete control over your data with advanced privacy
-                    settings and GDPR compliance built-in.
+                    Your data is encrypted and secure. We’ve built Verfolia beta
+                    with advanced privacy controls so you can manage your
+                    information and share your profile with confidence.
                   </p>
                 </CardContent>
               </Card>
@@ -223,7 +213,10 @@ const HomePage = () => {
                     <Target className="w-6 h-6 text-white" />
                   </div>
                   <CardTitle className="text-xl font-semibold">
-                    Career Insights
+                    Career Insights{" "}
+                    <Badge className="mb-4 bg-green-500 text-white">
+                      Comming Soon..
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -243,26 +236,26 @@ const HomePage = () => {
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="order-2 lg:order-1">
                 <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">
-                  Resume Builder
+                  Profile Builder
                 </Badge>
                 <h2 className="text-3xl sm:text-5xl font-bold mb-6 text-balance">
-                  Create stunning resumes in{" "}
-                  <span className="gradient-text">minutes</span>
+                  Craft your professional story in minutes
                 </h2>
                 <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                  Our AI-powered resume builder combines beautiful design with
-                  intelligent content suggestions to help you create resumes
-                  that get noticed by employers and ATS systems.
+                  Our intuitive identity builder allows you to import your
+                  existing documents or start from scratch. We help you create a
+                  clean, modern profile that's optimized to show your unique
+                  value and gets noticed for all the right reasons.
                 </p>
 
                 <div className="space-y-4 mb-8">
                   {[
-                    "AI-powered content suggestions",
-                    "20+ professional templates",
-                    "ATS-friendly formatting",
-                    "One-click PDF export",
-                    "Real-time collaboration",
-                    "Custom branding options",
+                    "Stunning, Dynamic Profiles",
+                    "4+ professional templates",
+                    "A Profile Optimized for Humans",
+                    "The PDF is not a dead end",
+
+                    "The Future is a Shared Experience.",
                   ].map((feature, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">
@@ -275,21 +268,15 @@ const HomePage = () => {
                   ))}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-primary text-white shadow-glow hover:shadow-large transition-all duration-200"
-                    asChild
+                <Button variant="outline" size="lg" className="glass-effect">
+                  <Link
+                    href="/login"
+                    className="flex flex-row justify-center items-center"
                   >
-                    <Link href="/create-resume">
-                      Start Building
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Link>
-                  </Button>
-                  <Button variant="outline" size="lg" className="glass-effect">
-                    View Templates
-                  </Button>
-                </div>
+                    Start Building
+                    <ArrowRight className="w-5 h-5 ml-2" />
+                  </Link>
+                </Button>
               </div>
 
               <div className="order-1 lg:order-2">
@@ -356,23 +343,21 @@ const HomePage = () => {
                   Analytics & Insights
                 </Badge>
                 <h2 className="text-3xl sm:text-5xl font-bold mb-6 text-balance">
-                  Know exactly who's{" "}
-                  <span className="gradient-text">viewing</span> your resume
+                  Know you’ve been seen, every single time.
                 </h2>
                 <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                  Get real-time insights into your resume performance with
-                  detailed analytics that show you which companies are
-                  interested and how to optimize your applications.
+                  Verfolia ends the guesswork. Our real-time analytics turn your
+                  profile into a data-powered asset, giving you the clarity and
+                  confidence to know that your professional story is getting
+                  noticed.
                 </p>
 
                 <div className="space-y-4 mb-8">
                   {[
-                    "Real-time view tracking",
-                    "Company and recruiter insights",
-                    "Geographic analytics",
+                    "Live engagement tracking",
+                    "Geographic analytics.",
                     "Time-based engagement data",
-                    "Application success metrics",
-                    "Performance recommendations",
+                    "Behavioral heatmaps",
                   ].map((feature, index) => (
                     <div key={index} className="flex items-center space-x-3">
                       <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center">

@@ -4,9 +4,9 @@ import { resumeService } from "@/services/resume-service";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
 
   try {
     const supabase = await createClient();
@@ -14,19 +14,26 @@ export async function GET(
       data: { user },
     } = await supabase.auth.getUser();
 
-    const resume = await resumeService.getResume(id);
-
-    // Check if user has access to this resume
-    if (!resume.is_public && (!user || user.id !== resume.user_id)) {
+    const resume = await resumeService.getResumeById(id);
+    
+    if (!resume) {
       return NextResponse.json(
-        { error: "Resume not found or access denied" },
+        { error: "Resume not found" },
         { status: 404 }
       );
     }
 
-    // Increment view count if it's a public resume and not the owner viewing
+    // Check if user has access to this resume
+    if (!resume.is_public && (!user || user.id !== resume.user_id)) {
+      return NextResponse.json(
+        { error: "Access denied" },
+        { status: 403 }
+      );
+    }
+
+    // Track view if it's a public resume and not the owner viewing
     if (resume.is_public && (!user || user.id !== resume.user_id)) {
-      await resumeService.incrementViewCount(id);
+      await resumeService.trackResumeView(id);
     }
 
     return NextResponse.json(resume);
@@ -38,9 +45,9 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
 
   try {
     const supabase = await createClient();
@@ -55,7 +62,10 @@ export async function PUT(
     const body = await request.json();
 
     // Verify user owns this resume
-    const existingResume = await resumeService.getResume(id);
+    const existingResume = await resumeService.getResumeById(id);
+    if (!existingResume) {
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+    }
     if (existingResume.user_id !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -74,9 +84,9 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params;
+  const { id } = params;
 
   try {
     const supabase = await createClient();
@@ -89,12 +99,21 @@ export async function DELETE(
     }
 
     // Verify user owns this resume
-    const existingResume = await resumeService.getResume(id);
+    const existingResume = await resumeService.getResumeById(id);
+    if (!existingResume) {
+      return NextResponse.json({ error: "Resume not found" }, { status: 404 });
+    }
     if (existingResume.user_id !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    await resumeService.deleteResume(id);
+    const success = await resumeService.deleteResume(id);
+    if (!success) {
+      return NextResponse.json(
+        { error: "Failed to delete resume" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
