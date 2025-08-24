@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { formatDescription } from "@/utils/formatDescription";
 import { Button } from "@/components/ui/button";
 
 export function DarkTechTemplate({
@@ -38,10 +39,10 @@ export function DarkTechTemplate({
             photo:
               "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
             social: {
-              github: "https://github.com/johndoe",
-              twitter: "https://twitter.com/johndoe",
-              linkedin: "https://linkedin.com/in/johndoe",
-              portfolio: "https://johndoe.dev",
+              github: "",
+              twitter: "",
+              linkedin: "",
+              portfolio: "",
             },
           },
           experience: [
@@ -92,32 +93,7 @@ export function DarkTechTemplate({
               cgpa: "85%",
             },
           ],
-          projects: [
-            {
-              id: "proj1",
-              name: "CleanType",
-              description:
-                "A super minimalist code experience, type with 100% accuracy, built with a fresh Webassembly app, with a clean UI and no ads, and a writing experience.",
-              techStack: ["React", "Vite", "TypeScript", "CSS", "WebAssembly"],
-              sourceUrl: "https://github.com/prasenjit/cleantype",
-              demoUrl: "https://cleantype.dev",
-            },
-            {
-              id: "proj2",
-              name: "Wallpaperz",
-              description:
-                "A modern wallpaper discovery platform where people can browse curated wallpapers and generate images with AI.",
-              techStack: [
-                "TypeScript",
-                "MongoDB",
-                "shadcn/ui",
-                "Prisma",
-                "Unsplash API",
-              ],
-              sourceUrl: "https://github.com/prasenjit/wallpaperz",
-              demoUrl: "https://wallpaperz.art",
-            },
-          ],
+          projects: [],
           blogs: [
             {
               id: "blog1",
@@ -333,82 +309,120 @@ export function DarkTechTemplate({
           </div>
         </section>
 
-        {/* Featured Projects Section */}
-        <section className="mb-24">
-          <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
+        {/* Work Experience Section */}
+        {portfolioData.experience && portfolioData.experience.length > 0 && (
+          <section className="mb-24">
+            <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>
+              Work Experience
+            </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {portfolioData.projects.map((project) => (
-              <div
-                key={project.id}
-                className="group relative bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden hover:border-blue-500/50 transition-all"
-              >
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-xl">{project.name}</h3>
+            <div className="space-y-8">
+              {portfolioData.experience.map((exp) => (
+                <div key={exp.id} className="flex">
+                  <div className="mr-4 flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center">
+                      <Code className="w-6 h-6 text-blue-400" />
+                    </div>
                   </div>
-                  <p className="text-gray-400 text-sm mb-4">
-                    {project.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mb-5">
-                    {project.techStack.map((tech) => (
-                      <Badge
-                        key={tech}
-                        className="bg-gray-800 text-xs text-gray-300 border-gray-700"
-                      >
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-start space-x-4">
-                    {project.demoUrl && (
-                      <Link
-                        href={project.demoUrl}
-                        target="_blank"
-                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs px-2 py-1 h-auto"
-                        >
-                          Website
-                        </Button>
-                      </Link>
-                    )}
-
-                    {project.sourceUrl && (
-                      <Link
-                        href={project.sourceUrl}
-                        target="_blank"
-                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs px-2 py-1 h-auto"
-                        >
-                          Source
-                        </Button>
-                      </Link>
+                  <div>
+                    <h3 className="font-bold text-lg hover:text-blue-400 transition-colors">
+                      {exp.position}
+                    </h3>
+                    <p className="text-gray-300 mb-1">{exp.company}</p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      {exp.startDate} -{" "}
+                      {exp.isPresent ? "Present" : exp.endDate}
+                    </p>
+                    {exp.description && (
+                      <p className="text-gray-400 text-sm leading-relaxed">
+                        {exp.description}
+                      </p>
                     )}
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </section>
+        )}
 
-          <div className="flex justify-center mt-8">
-            <Button
-              variant="outline"
-              className="border-gray-700 hover:bg-gray-800 bg-transparent"
-            >
-              VIEW ALL PROJECTS <ChevronRight className="ml-2 w-4 h-4" />
-            </Button>
-          </div>
-        </section>
+        {/* Featured Projects Section */}
+        {portfolioData.projects && portfolioData.projects.length > 0 && (
+          <section className="mb-24">
+            <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {portfolioData.projects.map((project) => (
+                <div
+                  key={project.id}
+                  className="group relative bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden hover:border-blue-500/50 transition-all"
+                >
+                  <div className="p-5">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-xl">{project.name}</h3>
+                    </div>
+                    <p className="text-gray-400 text-sm mb-4">
+                      {project.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {project.techStack.map((tech) => (
+                        <Badge
+                          key={tech}
+                          className="bg-gray-800 text-xs text-gray-300 border-gray-700"
+                        >
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-start space-x-4">
+                      {project.demoUrl && (
+                        <Link
+                          href={project.demoUrl}
+                          target="_blank"
+                          className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs px-2 py-1 h-auto"
+                          >
+                            Website
+                          </Button>
+                        </Link>
+                      )}
+
+                      {project.sourceUrl && (
+                        <Link
+                          href={project.sourceUrl}
+                          target="_blank"
+                          className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-xs px-2 py-1 h-auto"
+                          >
+                            Source
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-8">
+              <Button
+                variant="outline"
+                className="border-gray-700 hover:bg-gray-800 bg-transparent"
+              >
+                VIEW ALL PROJECTS <ChevronRight className="ml-2 w-4 h-4" />
+              </Button>
+            </div>
+          </section>
+        )}
 
         {/* Education Section */}
         <section className="mb-24">

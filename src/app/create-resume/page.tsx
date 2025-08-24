@@ -61,14 +61,14 @@ const templates = [
     id: "clean-mono",
     name: "Clean Mono",
     hasPhoto: true,
-    description: "Elegant mono resume with clarity",
+    description: "Elegant mono profile with clarity",
     layout: "clean-mono",
   },
   {
     id: "dark-minimalist",
     name: "Dark Minimalist",
     hasPhoto: true,
-    description: "Dark, focused, minimal resume",
+    description: "Dark, focused, minimal profile",
     layout: "dark-minimalist",
   },
   {
@@ -306,7 +306,8 @@ export default function CreateResumePage() {
 
       // GPA validation (optional)
       if (edu.gpa && !validateGPA(edu.gpa)) {
-        errors[`${prefix}_gpa`] = "GPA must be between 0.0 and 4.0";
+        errors[`${prefix}_gpa`] =
+          "GPA must be a valid format (e.g., 3.8, 8.7/10, 85%)";
       }
     });
 
@@ -528,13 +529,10 @@ export default function CreateResumePage() {
         resumeData.personalInfo.photo ||
         "https://cdn-icons-png.flaticon.com/512/1999/1999625.png",
       social: {
-        github:
-          resumeData.personalInfo.githubUrl || "https://github.com/johndoe",
-        twitter: "https://twitter.com/johndoe",
-        linkedin:
-          resumeData.personalInfo.linkedinUrl ||
-          "https://linkedin.com/in/johndoe",
-        portfolio: "https://johndoe.dev",
+        github: resumeData.personalInfo.githubUrl || "",
+        twitter: "",
+        linkedin: resumeData.personalInfo.linkedinUrl || "",
+        portfolio: "",
       },
     },
     experience:
@@ -1812,7 +1810,7 @@ export default function CreateResumePage() {
                       onChange={(e) =>
                         updateEducation(edu.id, "gpa", e.target.value)
                       }
-                      placeholder="e.g., 3.8"
+                      placeholder="e.g., 8.5 (out of 10)"
                       className={
                         validationErrors[`education_${edu.id}_gpa`]
                           ? "border-red-500"

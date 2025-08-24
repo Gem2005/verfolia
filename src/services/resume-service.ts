@@ -520,7 +520,117 @@ class ResumeService {
       // Generate a session ID if one doesn't exist
       const sessionId = this.getOrCreateSessionId();
 
-      // Track view using the Edge Function
+      // For now, track view directly in the database
+      // TODO: Switch back to edge function once deployed
+      const { error } = await this.supabase
+        .from('resume_views')
+        .insert({
+          resume_id: resumeId,
+          session_id: sessionId,
+          user_agent: typeof window !== "undefined" ? window.navigator.userAgent : null,
+          referrer: typeof document !== "undefined" ? document.referrer : null,
+          viewed_at: new Date().toISOString(),
+        });
+
+      if (error) {
+        console.error('Error tracking view:', error);
+        // Fallback to edge function if direct insert fails
+        await this.trackViewViaEdgeFunction(resumeId, sessionId);
+      } else {
+        // Update resume view count
+        await this.supabase.rpc('increment_resume_view_count', {
+          resume_id_param: resumeId
+        });
+      }
+    } catch (error) {
+      console.error("Failed to track resume view:", error);
+      // Don't throw, as this is not critical to application function
+    }
+  }
+
+  // Track resume interaction
+  async trackResumeInteraction(
+    resumeId: string,
+    interactionType: string,
+    targetValue?: string,
+    sectionName?: string
+  ): Promise<void> {
+    try {
+      // Generate a session ID if one doesn't exist
+      const sessionId = this.getSessionId();
+      if (!sessionId) return;
+
+      // For now, track interaction directly in the database
+      // TODO: Switch back to edge function once deployed
+      
+      // First, get the latest view for this session and resume
+      const { data: views, error: viewError } = await this.supabase
+        .from('resume_views')
+        .select('id')
+        .eq('resume_id', resumeId)
+        .eq('session_id', sessionId)
+        .order('viewed_at', { ascending: false })
+        .limit(1);
+
+      if (viewError || !views || views.length === 0) {
+        console.error('No view found for interaction, falling back to edge function');
+        await this.trackInteractionViaEdgeFunction(resumeId, sessionId, interactionType, targetValue, sectionName);
+        return;
+      }
+
+      const viewId = views[0].id;
+
+      // Insert interaction record
+      const { error: interactionError } = await this.supabase
+        .from('resume_interactions')
+        .insert({
+          resume_id: resumeId,
+          view_id: viewId,
+          interaction_type: interactionType,
+          target_value: targetValue,
+          section_name: sectionName,
+          clicked_at: new Date().toISOString(),
+        });
+
+      if (interactionError) {
+        console.error('Error tracking interaction:', interactionError);
+        // Fallback to edge function
+        await this.trackInteractionViaEdgeFunction(resumeId, sessionId, interactionType, targetValue, sectionName);
+      }
+    } catch (error) {
+      console.error("Failed to track resume interaction:", error);
+      // Don't throw, as this is not critical to application function
+    }
+  }
+
+  // Update view duration
+  async updateViewDuration(resumeId: string, duration: number): Promise<void> {
+    try {
+      const sessionId = this.getSessionId();
+      if (!sessionId) return;
+
+      // Update the latest view for this session and resume
+      const { error } = await this.supabase
+        .from('resume_views')
+        .update({ view_duration: duration })
+        .eq('resume_id', resumeId)
+        .eq('session_id', sessionId)
+        .order('viewed_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error updating view duration:', error);
+        // Fallback to edge function
+        await this.trackViewDurationViaEdgeFunction(resumeId, sessionId, duration);
+      }
+    } catch (error) {
+      console.error("Failed to update view duration:", error);
+    }
+  }
+
+  // Fallback methods for edge function (when deployed)
+  private async trackViewViaEdgeFunction(resumeId: string, sessionId: string): Promise<void> {
+    try {
       await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/track-analytics`,
         {
@@ -541,23 +651,18 @@ class ResumeService {
         }
       );
     } catch (error) {
-      console.error("Failed to track resume view:", error);
-      // Don't throw, as this is not critical to application function
+      console.error("Edge function fallback failed:", error);
     }
   }
 
-  // Track resume interaction
-  async trackResumeInteraction(
+  private async trackInteractionViaEdgeFunction(
     resumeId: string,
+    sessionId: string,
     interactionType: string,
     targetValue?: string,
     sectionName?: string
   ): Promise<void> {
     try {
-      // Generate a session ID if one doesn't exist
-      const sessionId = this.getOrCreateSessionId();
-
-      // Track interaction using the Edge Function
       await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/track-analytics`,
         {
@@ -577,17 +682,16 @@ class ResumeService {
         }
       );
     } catch (error) {
-      console.error("Failed to track resume interaction:", error);
-      // Don't throw, as this is not critical to application function
+      console.error("Edge function fallback failed:", error);
     }
   }
 
-  // Update view duration
-  async updateViewDuration(resumeId: string, duration: number): Promise<void> {
+  private async trackViewDurationViaEdgeFunction(
+    resumeId: string,
+    sessionId: string,
+    duration: number
+  ): Promise<void> {
     try {
-      const sessionId = this.getSessionId();
-      if (!sessionId) return;
-
       await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/track-analytics`,
         {
@@ -605,7 +709,7 @@ class ResumeService {
         }
       );
     } catch (error) {
-      console.error("Failed to update view duration:", error);
+      console.error("Edge function fallback failed:", error);
     }
   }
 

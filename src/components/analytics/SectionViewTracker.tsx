@@ -26,14 +26,26 @@ export const SectionViewTracker: React.FC<SectionViewTrackerProps> = ({
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasBeenViewed) {
             // Section is now visible, track the interaction
-            resumeService.trackResumeInteraction(
-              resumeId,
-              "section_view",
-              "visible",
-              sectionName
-            );
-            setHasBeenViewed(true);
-            observer.disconnect(); // Only track once
+            console.log("👁️ Section became visible:", sectionName);
+
+            resumeService
+              .trackResumeInteraction(
+                resumeId,
+                "section_view",
+                "visible",
+                sectionName
+              )
+              .then(() => {
+                console.log(
+                  "✅ Section view tracked successfully:",
+                  sectionName
+                );
+                setHasBeenViewed(true);
+                observer.disconnect(); // Only track once
+              })
+              .catch((error) => {
+                console.error("❌ Failed to track section view:", error);
+              });
           }
         });
       },
@@ -48,7 +60,13 @@ export const SectionViewTracker: React.FC<SectionViewTrackerProps> = ({
   }, [resumeId, sectionName, hasBeenViewed]);
 
   return (
-    <div ref={sectionRef} className={className}>
+    <div
+      ref={sectionRef}
+      className={className}
+      data-analytics="section-tracker"
+      data-resume-id={resumeId}
+      data-section-name={sectionName}
+    >
       {children}
     </div>
   );

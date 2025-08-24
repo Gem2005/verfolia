@@ -150,6 +150,7 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       preview: false,
       data: portfolioData,
       theme: resume.theme_id || "black",
+      resumeId: resume.id, // Add resumeId for tracking
     };
 
     // Log for debugging
@@ -179,7 +180,7 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       }
     } catch (error) {
       console.error("Error rendering template:", error);
-      // Fallback to clean mono template with error handling
+      // Fallback to interactive clean mono template with error handling
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">

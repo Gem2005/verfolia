@@ -25,14 +25,23 @@ export const TrackableLink: React.FC<TrackableLinkProps> = ({
 }) => {
   const handleClick = () => {
     try {
-      resumeService.trackResumeInteraction(
+      console.log("🔗 Tracking link click:", {
         resumeId,
         interactionType,
-        href,
-        sectionName
-      );
+        targetValue: href,
+        sectionName,
+      });
+
+      resumeService
+        .trackResumeInteraction(resumeId, interactionType, href, sectionName)
+        .then(() => {
+          console.log("✅ Link interaction tracked successfully");
+        })
+        .catch((error) => {
+          console.error("❌ Failed to track link interaction:", error);
+        });
     } catch (error) {
-      console.error("Error tracking interaction:", error);
+      console.error("❌ Error tracking interaction:", error);
     }
   };
 
@@ -43,6 +52,10 @@ export const TrackableLink: React.FC<TrackableLinkProps> = ({
       onClick={handleClick}
       target={target}
       rel={rel}
+      data-analytics="trackable-link"
+      data-resume-id={resumeId}
+      data-interaction-type={interactionType}
+      data-section-name={sectionName}
     >
       {children}
     </Link>

@@ -6,6 +6,7 @@ import type {
 import { ExternalLink, Github, Linkedin, Mail, Twitter } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { formatDescription } from "@/utils/formatDescription";
 
 export function DarkMinimalistTemplate({
   data,
@@ -29,10 +30,10 @@ export function DarkMinimalistTemplate({
             photo:
               "https://api.dicebear.com/7.x/adventurer/svg?seed=Alex%20Chen",
             social: {
-              github: "https://github.com/alexchen",
-              twitter: "https://twitter.com/alexchen_dev",
-              linkedin: "https://linkedin.com/in/alexchen-dev",
-              portfolio: "https://alexchen.dev", // Added missing required field
+              github: "",
+              twitter: "",
+              linkedin: "",
+              portfolio: "",
             },
           },
           experience: [
@@ -100,50 +101,7 @@ export function DarkMinimalistTemplate({
               cgpa: "3.8", // Added missing required field
             },
           ],
-          projects: [
-            {
-              id: "proj1",
-              name: "DeFiTracker Pro",
-              description:
-                "A comprehensive DeFi portfolio tracker with real-time analytics, yield farming optimization, and automated rebalancing features.",
-              techStack: [
-                "React",
-                "TypeScript",
-                "Solana",
-                "Web3.js",
-                "TailwindCSS",
-              ],
-              sourceUrl: "https://github.com/alexchen/defitracker-pro",
-              demoUrl: "https://defitracker-pro.vercel.app",
-            },
-            {
-              id: "proj2",
-              name: "DevTools CLI",
-              description:
-                "A powerful command-line tool for developers to streamline project setup, code generation, and deployment workflows.",
-              techStack: ["Rust", "CLI", "Git", "Docker"],
-              sourceUrl: "https://github.com/alexchen/devtools-cli",
-              demoUrl: "", // Added empty string for required field
-            },
-            {
-              id: "proj3",
-              name: "Smart Contract Auditor",
-              description:
-                "Automated security analysis tool for Ethereum smart contracts with vulnerability detection and gas optimization suggestions.",
-              techStack: ["Python", "Solidity", "Machine Learning", "Web3"],
-              sourceUrl: "https://github.com/alexchen/contract-auditor",
-              demoUrl: "https://contract-auditor.app",
-            },
-            {
-              id: "proj4",
-              name: "Real-time Chat Platform",
-              description:
-                "Scalable chat application with end-to-end encryption, file sharing, and video calling capabilities.",
-              techStack: ["Next.js", "Socket.io", "PostgreSQL", "Redis"],
-              sourceUrl: "https://github.com/alexchen/secure-chat",
-              demoUrl: "https://secure-chat-demo.vercel.app",
-            },
-          ],
+          projects: [],
           blogs: [
             {
               id: "blog1",
@@ -295,11 +253,7 @@ export function DarkMinimalistTemplate({
             <div className="flex-1">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
                 {portfolioData.personalInfo.firstName}{" "}
-                <span
-                  className={`${themeClasses.accent} text-2xl sm:text-3xl md:text-4xl`}
-                >
-                  ({portfolioData.personalInfo.firstName.toLowerCase()}dev)
-                </span>
+                {portfolioData.personalInfo.lastName}
               </h1>
               <h2
                 className={`text-lg sm:text-xl md:text-2xl ${themeClasses.text} mb-6 font-medium`}
@@ -311,13 +265,13 @@ export function DarkMinimalistTemplate({
               >
                 {portfolioData.personalInfo.about}
               </p>
-              {portfolioData.personalInfo.email && (
-                <p className={`mt-6 ${themeClasses.accent} text-base`}>
-                  I love writing & reading occasionally; also 日本語 and F1 are
-                  my interests. Always excited to discuss technology and
-                  innovation.
-                </p>
-              )}
+              {portfolioData.interests &&
+                portfolioData.interests.length > 0 && (
+                  <p className={`mt-6 ${themeClasses.accent} text-base`}>
+                    My interests include {portfolioData.interests.join(", ")}.
+                    Always excited to discuss technology and innovation.
+                  </p>
+                )}
             </div>
 
             {portfolioData.personalInfo.photo && (
@@ -379,68 +333,70 @@ export function DarkMinimalistTemplate({
         )}
 
         {/* Projects Section */}
-        <section className="mb-16">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
-              Projects
-            </h2>
-            <button
-              className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-            >
-              View all →
-            </button>
-          </div>
+        {portfolioData.projects && portfolioData.projects.length > 0 && (
+          <section className="mb-16">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
+                Projects
+              </h2>
+              <button
+                className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+              >
+                View all →
+              </button>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {portfolioData.projects.map((project) => (
-              <div key={project.id} className="group">
-                <div
-                  className={`${themeClasses.cardBg}/70 ${themeClasses.buttonHover} rounded-xl p-6 border ${themeClasses.cardBorder} hover:border-gray-700 transition-all duration-300 h-full flex flex-col`}
-                >
-                  <h3
-                    className={`font-bold text-xl mb-3 ${themeClasses.text} group-hover:text-blue-400 transition-colors`}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {portfolioData.projects.map((project) => (
+                <div key={project.id} className="group">
+                  <div
+                    className={`${themeClasses.cardBg}/70 ${themeClasses.buttonHover} rounded-xl p-6 border ${themeClasses.cardBorder} hover:border-gray-700 transition-all duration-300 h-full flex flex-col`}
                   >
-                    {project.name}
-                  </h3>
-                  <p
-                    className={`${themeClasses.text} mb-4 leading-relaxed flex-1`}
-                  >
-                    {project.description}
-                  </p>
-                  <div className="mb-4">
-                    {project.techStack.map((tech) => (
-                      <Badge
-                        key={tech}
-                        variant="outline"
-                        className={`mr-2 mb-2 ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white transition-colors`}
-                      >
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="flex space-x-4 pt-2">
-                    <Link
-                      href={project.sourceUrl || "#"}
-                      className={`flex items-center gap-2 ${themeClasses.accent} hover:text-white transition-colors text-sm font-medium`}
+                    <h3
+                      className={`font-bold text-xl mb-3 ${themeClasses.text} group-hover:text-blue-400 transition-colors`}
                     >
-                      <Github className="w-4 h-4" />
-                      Source
-                    </Link>
-                    {project.demoUrl && (
+                      {project.name}
+                    </h3>
+                    <p
+                      className={`${themeClasses.text} mb-4 leading-relaxed flex-1`}
+                    >
+                      {project.description}
+                    </p>
+                    <div className="mb-4">
+                      {project.techStack.map((tech) => (
+                        <Badge
+                          key={tech}
+                          variant="outline"
+                          className={`mr-2 mb-2 ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white transition-colors`}
+                        >
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex space-x-4 pt-2">
                       <Link
-                        href={project.demoUrl}
-                        className={`flex items-center gap-2 ${themeClasses.accent} hover:text-blue-400 transition-colors text-sm font-medium`}
+                        href={project.sourceUrl || "#"}
+                        className={`flex items-center gap-2 ${themeClasses.accent} hover:text-white transition-colors text-sm font-medium`}
                       >
-                        <ExternalLink className="w-4 h-4" />
-                        Live Demo
+                        <Github className="w-4 h-4" />
+                        Source
                       </Link>
-                    )}
+                      {project.demoUrl && (
+                        <Link
+                          href={project.demoUrl}
+                          className={`flex items-center gap-2 ${themeClasses.accent} hover:text-blue-400 transition-colors text-sm font-medium`}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Live Demo
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Experience Section */}
         <section className="mb-16">
@@ -462,9 +418,9 @@ export function DarkMinimalistTemplate({
                     {exp.startDate} - {exp.isPresent ? "Present" : exp.endDate}
                   </p>
                   {exp.description && (
-                    <p className={`${themeClasses.text} leading-relaxed`}>
-                      {exp.description}
-                    </p>
+                    <div className={`${themeClasses.text}`}>
+                      {formatDescription(exp.description)}
+                    </div>
                   )}
                 </div>
               </div>

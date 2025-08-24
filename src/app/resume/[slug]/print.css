@@ -2,47 +2,128 @@
   body * {
     visibility: hidden;
   }
-  
+
   .resume-content,
   .resume-content * {
     visibility: visible;
   }
-  
+
   .resume-content {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
   }
-  
+
   .no-print {
     display: none !important;
   }
-  
+
   .bg-white {
     background: white !important;
   }
-  
+
   .shadow-lg {
     box-shadow: none !important;
   }
-  
+
   .rounded-lg {
     border-radius: 0 !important;
   }
-  
+
   .container {
     max-width: none !important;
     padding: 0 !important;
   }
-  
+
   .mx-auto {
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
-  
+
   .px-4,
   .py-8 {
     padding: 0 !important;
   }
+}
+
+/* Interactive resume styles */
+.interactive-resume-wrapper {
+  position: relative;
+}
+
+/* Smooth transitions for interactive elements */
+.interactive-resume-wrapper [data-trackable] {
+  transition: all 0.2s ease-in-out;
+}
+
+.interactive-resume-wrapper [data-trackable]:hover {
+  transform: translateY(-1px);
+}
+
+/* Visual feedback for clickable elements */
+.interactive-resume-wrapper [data-trackable="button"]:hover,
+.interactive-resume-wrapper [data-trackable="skill-badge"]:hover,
+.interactive-resume-wrapper [data-trackable="tech-badge"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Pulse animation for important interactive elements */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+.interactive-resume-wrapper [data-trackable="profile-photo"]:hover {
+  animation: pulse-glow 1.5s infinite;
+}
+
+/* Highlight effect for sections when they come into view */
+.interactive-resume-wrapper [data-section] {
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Custom cursor for interactive elements */
+.interactive-resume-wrapper [data-trackable] {
+  cursor: pointer;
+}
+
+/* Interactive elements styling */
+[data-trackable] {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+[data-trackable]:hover {
+  transform: translateY(-1px);
+}
+
+[data-trackable="skill-badge"]:hover,
+[data-trackable="tech-badge"]:hover,
+[data-trackable="button"]:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+[data-trackable="profile-photo"]:hover {
+  animation: pulse-glow 1.5s infinite;
+}
+
+[data-trackable="project-card"]:hover {
+  transform: translateY(-4px) scale(1.02);
+}
+
+[data-trackable="experience-item"]:hover,
+[data-trackable="education-item"]:hover {
+  transform: scale(1.02);
+}
+
+/* Section highlighting */
+[data-section] {
+  transition: background-color 0.3s ease-in-out;
 }

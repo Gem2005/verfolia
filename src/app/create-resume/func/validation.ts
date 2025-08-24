@@ -32,8 +32,35 @@ export const validateWordCount = (
 
 export const validateGPA = (gpa: string): boolean => {
   if (!gpa.trim()) return true; // GPA is optional
-  const gpaNum = parseFloat(gpa);
-  return !isNaN(gpaNum) && gpaNum >= 0 && gpaNum <= 4.0;
+  
+  // Handle different GPA formats (4.0 scale, 10.0 scale, percentage, etc.)
+  const gpaStr = gpa.trim().toLowerCase();
+  
+  // Check if it's a percentage (e.g., "85%")
+  if (gpaStr.includes('%')) {
+    const percentage = parseFloat(gpaStr.replace('%', ''));
+    return !isNaN(percentage) && percentage >= 0 && percentage <= 100;
+  }
+  
+  // Check if it's a fraction (e.g., "8.7 / 10")
+  if (gpaStr.includes('/')) {
+    const parts = gpaStr.split('/');
+    if (parts.length === 2) {
+      const numerator = parseFloat(parts[0]);
+      const denominator = parseFloat(parts[1]);
+      return !isNaN(numerator) && !isNaN(denominator) && 
+             numerator >= 0 && denominator > 0 && numerator <= denominator;
+    }
+  }
+  
+  // Check if it's a decimal number (4.0 scale or 10.0 scale)
+  const gpaNum = parseFloat(gpaStr);
+  if (!isNaN(gpaNum)) {
+    // Allow common GPA scales: 4.0, 5.0, 10.0, etc.
+    return gpaNum >= 0 && gpaNum <= 10.0;
+  }
+  
+  return false;
 };
 
 export const validateYear = (year: string): boolean => {

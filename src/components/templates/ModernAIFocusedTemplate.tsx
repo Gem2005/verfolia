@@ -30,10 +30,10 @@ export function ModernAIFocusedTemplate({
             photo:
               "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
             social: {
-              github: "https://github.com/johndoe",
-              linkedin: "https://linkedin.com/in/johndoe",
-              twitter: "https://twitter.com/johndoe",
-              portfolio: "https://johndoe.dev",
+              github: "",
+              linkedin: "",
+              twitter: "",
+              portfolio: "",
             },
           },
           experience: [
@@ -104,50 +104,7 @@ export function ModernAIFocusedTemplate({
               cgpa: "82%",
             },
           ],
-          projects: [
-            {
-              id: "proj1",
-              name: "Hirelytics - AI Interview Platform",
-              description:
-                "End-to-end AI-driven hiring platform with psychometric profiling, real-time voice interviews, auto evaluation, and attention monitoring.",
-              techStack: ["React", "Node.js", "OpenAI", "TensorFlow"],
-              sourceUrl: "https://github.com/johndoe/hirelytics",
-              demoUrl: "https://hirelytics.ai",
-            },
-            {
-              id: "proj2",
-              name: "Talkthru - Mental Health AI Chatbot",
-              description:
-                "AI mental health chatbot with RAG, GPT-4, semantic memory, CBT support, journaling, and crisis workflows.",
-              techStack: ["Next.js", "Python", "OpenAI", "Vector DB"],
-              sourceUrl: "https://github.com/johndoe/talkthru",
-              demoUrl: "https://talkthru.ai",
-            },
-            {
-              id: "proj3",
-              name: "Healthyio - Telehealth Platform",
-              description:
-                "Comprehensive telehealth platform with appointment scheduling, EHR workflow, video calls, dynamic questionnaires, and payment integration.",
-              techStack: [
-                "React",
-                "MongoDB",
-                "Agora",
-                "Google Calendar",
-                "Stripe",
-              ],
-              sourceUrl: "https://github.com/johndoe/healthyio",
-              demoUrl: "https://healthyio.com",
-            },
-            {
-              id: "proj4",
-              name: "Python CLI AI Coder",
-              description:
-                "CLI tool for AI-assisted code generation, folder structure scaffolding, and iterative full-stack development with Jina.",
-              techStack: ["Python", "CLI", "OpenAI", "TypeScript"],
-              sourceUrl: "https://github.com/sumanta/python-ai-coder",
-              demoUrl: "https://github.com/sumanta/python-ai-coder",
-            },
-          ],
+          projects: [],
           blogs: [
             {
               id: "blog1",
@@ -474,58 +431,60 @@ export function ModernAIFocusedTemplate({
         </section>
 
         {/* Projects Section */}
-        <section className="mb-16">
-          <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>
-            Featured Projects
-          </h2>
+        {portfolioData.projects && portfolioData.projects.length > 0 && (
+          <section className="mb-16">
+            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>
+              Featured Projects
+            </h2>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {portfolioData.projects.map((project) => (
-              <div
-                key={project.id}
-                className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder} hover:shadow-lg transition-shadow`}
-              >
-                <h3 className={`font-bold text-xl ${themeClasses.text} mb-3`}>
-                  {project.name}
-                </h3>
-                <p className={`${themeClasses.text} mb-4 leading-relaxed`}>
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.techStack.map((tech) => (
-                    <Badge
-                      key={tech}
-                      variant="secondary"
-                      className={`text-xs px-3 py-1 ${themeClasses.cardBg} ${themeClasses.text} border ${themeClasses.border}`}
-                    >
-                      {tech}
-                    </Badge>
-                  ))}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {portfolioData.projects.map((project) => (
+                <div
+                  key={project.id}
+                  className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder} hover:shadow-lg transition-shadow`}
+                >
+                  <h3 className={`font-bold text-xl ${themeClasses.text} mb-3`}>
+                    {project.name}
+                  </h3>
+                  <p className={`${themeClasses.text} mb-4 leading-relaxed`}>
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.techStack.map((tech) => (
+                      <Badge
+                        key={tech}
+                        variant="secondary"
+                        className={`text-xs px-3 py-1 ${themeClasses.cardBg} ${themeClasses.text} border ${themeClasses.border}`}
+                      >
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex gap-4">
+                    {project.sourceUrl && project.sourceUrl !== "#" && (
+                      <Link
+                        href={project.sourceUrl}
+                        target="_blank"
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        Source Code →
+                      </Link>
+                    )}
+                    {project.demoUrl && project.demoUrl !== "#" && (
+                      <Link
+                        href={project.demoUrl}
+                        target="_blank"
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        Live Demo →
+                      </Link>
+                    )}
+                  </div>
                 </div>
-                <div className="flex gap-4">
-                  {project.sourceUrl && project.sourceUrl !== "#" && (
-                    <Link
-                      href={project.sourceUrl}
-                      target="_blank"
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      Source Code →
-                    </Link>
-                  )}
-                  {project.demoUrl && project.demoUrl !== "#" && (
-                    <Link
-                      href={project.demoUrl}
-                      target="_blank"
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      Live Demo →
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Certifications Section */}
         {portfolioData.certifications &&
