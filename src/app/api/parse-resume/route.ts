@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import pdfParse from 'pdf-parse';
 import { v4 as uuidv4 } from 'uuid';
 
 export const runtime = 'nodejs';
 
+// Dynamic import to avoid build-time issues
+let pdfParse: any;
+try {
+  pdfParse = require('pdf-parse');
+} catch (error) {
+  console.warn('pdf-parse not available during build');
+}
+
 async function extractTextFromPdf(file: File): Promise<string> {
+  if (!pdfParse) {
+    throw new Error('PDF parsing not available');
+  }
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
   const result = await pdfParse(buffer);

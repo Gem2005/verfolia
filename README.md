@@ -229,3 +229,5 @@ The project follows a standard Next.js application structure:
 - `/src/hooks` - Custom React hooks
 - `/src/types` - TypeScript type definitions
 - `/src/utils` - Utility functions and services
+#   T r i g g e r   V e r c e l   r e d e p l o y  
+ 
