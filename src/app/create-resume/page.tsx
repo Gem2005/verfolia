@@ -19,6 +19,8 @@ import {
   Eye,
   Check,
   Calendar as CalendarIcon,
+  Upload,
+  PenSquare,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService } from "@/services/resume-service";
@@ -108,6 +110,7 @@ export default function CreateResumePage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [newSkill, setNewSkill] = useState(""); // Moved useState to top level
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
+  const [showChoice, setShowChoice] = useState(true); // Show choice first
 
   // Validation state
   const [validationErrors, setValidationErrors] = useState<{
@@ -2733,6 +2736,48 @@ export default function CreateResumePage() {
 
   if (!user) {
     return null;
+  }
+
+  // Show choice between Upload PDF and Build from Scratch
+  if (showChoice) {
+    return (
+      <div className="container mx-auto max-w-4xl py-10">
+        <h1 className="text-3xl font-bold mb-6">How would you like to start?</h1>
+        <p className="text-muted-foreground mb-8">
+          Upload your existing PDF resume for instant parsing, or build a new profile from scratch.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="hover:border-primary transition-colors">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Upload className="w-5 h-5" /> Upload PDF
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Drag and drop your resume PDF. We&apos;ll parse your info and prefill the editor.
+              </p>
+              <Button onClick={() => router.push("/upload-resume")}>Upload PDF</Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:border-primary transition-colors">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PenSquare className="w-5 h-5" /> Build from Scratch
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Start with a clean canvas using our guided editor.
+              </p>
+              <Button onClick={() => setShowChoice(false)} variant="outline">Start Building</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
