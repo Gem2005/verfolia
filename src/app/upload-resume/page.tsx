@@ -1,0 +1,114 @@
+"use client";
+
+import React, { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { UploadCloud, CheckCircle2, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export default function UploadResumePage() {
+  const router = useRouter();
+  const [dragActive, setDragActive] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleFiles = useCallback(async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setError("Please upload a PDF file");
+      return;
+    }
+
+    setError(null);
+    setIsParsing(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const { error: apiError } = await response.json().catch(() => ({ error: "Failed to parse" }));
+        throw new Error(apiError || "Failed to parse resume");
+      }
+
+      const { parsedResume, token } = await response.json();
+      if (parsedResume) {
+        // Store parsed data temporarily and redirect to editor
+        const storageKey = token || `parsed_resume_${Date.now()}`;
+        sessionStorage.setItem(storageKey, JSON.stringify(parsedResume));
+        router.push(`/create-resume?prefill=${encodeURIComponent(storageKey)}`);
+      } else {
+        throw new Error("No parsed data returned");
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong");
+      setIsParsing(false);
+    }
+  }, [router]);
+
+  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    handleFiles(e.dataTransfer.files);
+  }, [handleFiles]);
+
+  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFiles(e.target.files);
+  }, [handleFiles]);
+
+  return (
+    <div className="container mx-auto max-w-2xl py-10">
+      <Card>
+        <CardHeader>
+          <CardTitle>Upload your PDF resume</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div
+            onDragEnter={() => setDragActive(true)}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={onDrop}
+            className={`border-2 border-dashed rounded-lg p-10 text-center transition-colors ${dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/30"}`}
+          >
+            {isParsing ? (
+              <div className="flex flex-col items-center gap-2">
+                <UploadCloud className="w-8 h-8 animate-pulse" />
+                <p className="text-sm">Parsing your resume...</p>
+              </div>
+            ) : (
+              <>
+                <UploadCloud className="w-10 h-10 mx-auto mb-3" />
+                <p className="text-sm mb-2">Drag & drop your PDF here</p>
+                <p className="text-xs text-muted-foreground mb-4">or</p>
+                <label>
+                  <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={onChange} />
+                  <Button type="button" variant="outline">Choose File</Button>
+                </label>
+              </>
+            )}
+          </div>
+
+          {error && (
+            <div className="flex items-center gap-2 text-destructive text-sm mt-4">
+              <AlertCircle className="w-4 h-4" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>We only process your file to extract resume content. Nothing is stored until you save.</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+

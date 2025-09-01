@@ -203,11 +203,21 @@ The platform performs several key operations to collect and analyze data:
    ```bash
    npm install
    ```
-3. Start the development server:
+3. Create a `.env.local` file from the example and set Supabase:
+   ```bash
+   cp env.example .env.local
+   ```
+   Fill in:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   ```
+4. Start the development server:
    ```bash
    npm run dev
    ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Project Structure
 

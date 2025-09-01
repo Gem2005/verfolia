@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -142,6 +142,38 @@ export default function CreateResumePage() {
     languages: [],
     customSections: [],
   });
+
+  // Prefill from parsed data if available
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const key = params.get("prefill");
+    if (key) {
+      try {
+        const raw = sessionStorage.getItem(key);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setResumeTitle(parsed.title || "Imported Resume");
+          setResumeData((prev) => ({
+            ...prev,
+            title: parsed.title || prev.title,
+            personalInfo: {
+              ...prev.personalInfo,
+              ...parsed.personalInfo,
+            },
+            experience: parsed.experience || prev.experience,
+            education: parsed.education || prev.education,
+            skills: parsed.skills || prev.skills,
+            projects: parsed.projects || prev.projects,
+            certifications: parsed.certifications || prev.certifications,
+            languages: parsed.languages || prev.languages,
+            customSections: parsed.customSections || prev.customSections,
+          }));
+        }
+      } catch (e) {
+        console.error("Failed to prefill from parsed data", e);
+      }
+    }
+  }, []);
 
   const validatePersonalInfo = useCallback(() => {
     const errors: { [key: string]: string } = {};
