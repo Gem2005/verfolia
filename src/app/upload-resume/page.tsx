@@ -37,10 +37,13 @@ export default function UploadResumePage() {
       }
 
       const { parsedResume, token } = await response.json();
+      console.log("API response:", { parsedResume, token });
       if (parsedResume) {
         // Store parsed data temporarily and redirect to editor
         const storageKey = token || `parsed_resume_${Date.now()}`;
+        console.log("Storage key:", storageKey);
         sessionStorage.setItem(storageKey, JSON.stringify(parsedResume));
+        console.log("Data stored in sessionStorage");
         router.push(`/create-resume?prefill=${encodeURIComponent(storageKey)}`);
       } else {
         throw new Error("No parsed data returned");

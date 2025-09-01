@@ -150,11 +150,14 @@ export default function CreateResumePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const key = params.get("prefill");
+    console.log("Prefill key:", key);
     if (key) {
       try {
         const raw = sessionStorage.getItem(key);
+        console.log("Raw sessionStorage data:", raw);
         if (raw) {
           const parsed = JSON.parse(raw);
+          console.log("Parsed data:", parsed);
           setResumeTitle(parsed.title || "Imported Resume");
           setResumeData((prev) => ({
             ...prev,
@@ -173,6 +176,8 @@ export default function CreateResumePage() {
           }));
           // Hide choice screen when prefill data is loaded
           setShowChoice(false);
+        } else {
+          console.log("No data found in sessionStorage for key:", key);
         }
       } catch (e) {
         console.error("Failed to prefill from parsed data", e);
@@ -2737,7 +2742,16 @@ export default function CreateResumePage() {
   }
 
   if (!user) {
-    return null;
+    // Redirect to login if not authenticated
+    router.push('/login');
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Redirecting to login...</p>
+        </div>
+      </div>
+    );
   }
 
   // Show choice between Upload PDF and Build from Scratch
