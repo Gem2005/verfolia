@@ -176,8 +176,13 @@ export default function CreateResumePage() {
           }));
           // Hide choice screen when prefill data is loaded
           setShowChoice(false);
+          console.log("Resume data loaded successfully!");
         } else {
           console.log("No data found in sessionStorage for key:", key);
+          // Show a message to the user that the data wasn't found
+          alert("The uploaded resume data couldn't be found. Please try uploading again.");
+          // Clear the prefill parameter from URL
+          router.replace('/create-resume');
         }
       } catch (e) {
         console.error("Failed to prefill from parsed data", e);
@@ -2812,6 +2817,15 @@ export default function CreateResumePage() {
 
           {/* Quick actions in header */}
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowChoice(true)}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Choice
+            </Button>
+
             <div className="hidden sm:flex flex-col">
               <span className="text-sm mb-1 font-medium">Template</span>
               <select

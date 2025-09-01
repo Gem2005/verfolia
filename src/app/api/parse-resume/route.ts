@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 export const runtime = 'nodejs';
 
 // Simple PDF text extraction - returns sample data for now
-async function extractTextFromPdf(file: File): Promise<string> {
+async function extractTextFromPdf(feed file: File): Promise<string> {
   try {
     // For now, return sample data since PDF parsing libraries have Node.js compatibility issues
     // In production, this would use a proper PDF parsing service or library
