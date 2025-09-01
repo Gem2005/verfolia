@@ -211,7 +211,7 @@ The platform performs several key operations to collect and analyze data:
    ```
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   NEXT_PUBLIC_SITE_URL=e after signin http://localhost:3000
    ```
 4. Start the development server:
    ```bash
@@ -229,5 +229,6 @@ The project follows a standard Next.js application structure:
 - `/src/hooks` - Custom React hooks
 - `/src/types` - TypeScript type definitions
 - `/src/utils` - Utility functions and services
-#   T r i g g e r   V e r c e l   r e d e p l o y  
+#   T r i g g e r   V e r c e l   r e d e p l o y 
+ 
  

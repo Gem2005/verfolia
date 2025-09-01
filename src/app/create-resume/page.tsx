@@ -171,6 +171,8 @@ export default function CreateResumePage() {
             languages: parsed.languages || prev.languages,
             customSections: parsed.customSections || prev.customSections,
           }));
+          // Hide choice screen when prefill data is loaded
+          setShowChoice(false);
         }
       } catch (e) {
         console.error("Failed to prefill from parsed data", e);
