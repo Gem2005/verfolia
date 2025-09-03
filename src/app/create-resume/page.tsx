@@ -58,7 +58,6 @@ const steps = [
   { id: 6, title: "Additional", description: "Extra sections (optional)" },
 ];
 
-// Fallback templates used if API returns empty
 const templates = [
   {
     id: "clean-mono",
@@ -90,7 +89,6 @@ const templates = [
   },
 ];
 
-// Fallback themes used if API returns empty
 const themes = [
   { id: "black", name: "Black", color: "bg-black" },
   { id: "dark-gray", name: "Dark Gray", color: "bg-gray-800" },
@@ -110,20 +108,16 @@ export default function CreateResumePage() {
   const [resumeTitle, setResumeTitle] = useState("");
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [newSkill, setNewSkill] = useState(""); // Moved useState to top level
+  const [newSkill, setNewSkill] = useState("");
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
-  const [showChoice, setShowChoice] = useState(true); // Show choice first
+  const [showChoice, setShowChoice] = useState(true);
 
-  // Redirect unauthenticated users after auth state resolves
   useEffect(() => {
     if (!loading && !user) {
       router.replace('/login?returnTo=/create-resume');
     }
   }, [loading, user, router]);
 
-  // Ensure choice screen appears by default unless prefill is present
-
-  // Validation state
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
@@ -157,21 +151,16 @@ export default function CreateResumePage() {
     customSections: [],
   });
 
-  // Prefill from parsed data if available
   useEffect(() => {
-    // Only run prefill logic when user is authenticated
     if (!user) return;
     
     const params = new URLSearchParams(window.location.search);
     const key = params.get("prefill");
-    console.log("Prefill key:", key);
     if (key) {
       try {
         const raw = sessionStorage.getItem(key);
-        console.log("Raw sessionStorage data:", raw);
         if (raw) {
           const parsed = JSON.parse(raw);
-          console.log("Parsed data:", parsed);
           setResumeTitle(parsed.title || "Imported Resume");
           setResumeData((prev) => ({
             ...prev,
@@ -188,14 +177,9 @@ export default function CreateResumePage() {
             languages: parsed.languages || prev.languages,
             customSections: parsed.customSections || prev.customSections,
           }));
-          // Hide choice screen when prefill data is loaded
           setShowChoice(false);
-          console.log("Resume data loaded successfully!");
         } else {
-          console.log("No data found in sessionStorage for key:", key);
-          // Show a message to the user that the data wasn't found
           alert("The uploaded resume data couldn't be found. Please try uploading again.");
-          // Clear the prefill parameter from URL
           router.replace('/create-resume');
         }
       } catch (e) {
@@ -207,33 +191,28 @@ export default function CreateResumePage() {
   const validatePersonalInfo = useCallback(() => {
     const errors: { [key: string]: string } = {};
 
-    // Resume Title validation
     if (!resumeTitle.trim()) {
       errors.resumeTitle = "Resume title is required";
     }
 
-    // First Name validation
     if (!resumeData.personalInfo.firstName.trim()) {
       errors.firstName = "First name is required";
     } else if (!/^[a-zA-Z\s]+$/.test(resumeData.personalInfo.firstName)) {
       errors.firstName = "First name should only contain letters";
     }
 
-    // Last Name validation
     if (!resumeData.personalInfo.lastName.trim()) {
       errors.lastName = "Last name is required";
     } else if (!/^[a-zA-Z\s]+$/.test(resumeData.personalInfo.lastName)) {
       errors.lastName = "Last name should only contain letters";
     }
 
-    // Email validation
     if (!resumeData.personalInfo.email.trim()) {
       errors.email = "Email is required";
     } else if (!validateEmail(resumeData.personalInfo.email)) {
       errors.email = "Please enter a valid email address";
     }
 
-    // Phone validation (optional but must be valid if provided)
     if (
       resumeData.personalInfo.phone.trim() &&
       !validatePhone(resumeData.personalInfo.phone)
@@ -241,7 +220,6 @@ export default function CreateResumePage() {
       errors.phone = "Please enter a valid phone number";
     }
 
-    // Location validation (optional but must be string if provided)
     if (
       resumeData.personalInfo.location.trim() &&
       !/^[a-zA-Z\s,.-]+$/.test(resumeData.personalInfo.location)
@@ -250,19 +228,16 @@ export default function CreateResumePage() {
         "Location should only contain letters, spaces, commas, periods, and hyphens";
     }
 
-    // Current designation validation
     if (!resumeData.personalInfo.title.trim()) {
       errors.title = "Current designation is required";
     }
 
-    // Summary validation
     if (resumeData.personalInfo.summary.trim()) {
       if (!validateWordCount(resumeData.personalInfo.summary, 20, 100)) {
         errors.summary = "Summary should be between 20 and 100 words";
       }
     }
 
-    // LinkedIn URL validation (optional but must be valid if provided)
     if (
       resumeData.personalInfo.linkedinUrl &&
       resumeData.personalInfo.linkedinUrl.trim()
@@ -272,7 +247,6 @@ export default function CreateResumePage() {
       }
     }
 
-    // GitHub URL validation (optional but must be valid if provided)
     if (
       resumeData.personalInfo.githubUrl &&
       resumeData.personalInfo.githubUrl.trim()
@@ -288,31 +262,25 @@ export default function CreateResumePage() {
   const validateExperience = useCallback(() => {
     const errors: { [key: string]: string } = {};
 
-    // Experience is now optional - only validate if entries exist
     resumeData.experience.forEach((exp) => {
       const prefix = `experience_${exp.id}`;
 
-      // Position validation
       if (!exp.position.trim()) {
         errors[`${prefix}_position`] = "Job title is required";
       }
 
-      // Company validation
       if (!exp.company.trim()) {
         errors[`${prefix}_company`] = "Company name is required";
       }
 
-      // Start date validation
       if (!exp.startDate.trim()) {
         errors[`${prefix}_startDate`] = "Start date is required";
       }
 
-      // End date validation (only if not present)
       if (!exp.isPresent && !exp.endDate?.trim()) {
         errors[`${prefix}_endDate`] = "End date is required";
       }
 
-      // Date logic validation
       if (exp.startDate && exp.endDate && !exp.isPresent) {
         const startDate = new Date(exp.startDate);
         const endDate = new Date(exp.endDate);
@@ -321,7 +289,6 @@ export default function CreateResumePage() {
         }
       }
 
-      // Description validation (20-100 words)
       if (!exp.description.trim()) {
         errors[`${prefix}_description`] = "Job description is required";
       } else if (!validateWordCount(exp.description, 20, 100)) {
@@ -339,40 +306,33 @@ export default function CreateResumePage() {
     resumeData.education.forEach((edu) => {
       const prefix = `education_${edu.id}`;
 
-      // Institution validation
       if (!edu.institution.trim()) {
         errors[`${prefix}_institution`] = "Institution name is required";
       }
 
-      // Degree validation
       if (!edu.degree.trim()) {
         errors[`${prefix}_degree`] = "Degree is required";
       }
 
-      // Field validation (optional)
       if (edu.field && edu.field.trim() && edu.field.trim().length < 2) {
         errors[`${prefix}_field`] =
           "Field of study must be at least 2 characters";
       }
 
-      // Start date validation
       if (!edu.startDate.trim()) {
         errors[`${prefix}_startDate`] = "Start date is required";
       }
 
-      // End date validation
       if (!edu.endDate.trim()) {
         errors[`${prefix}_endDate`] = "End date is required";
       }
 
-      // Date range validation
       if (edu.startDate && edu.endDate) {
         if (!validateDateRange(edu.startDate, edu.endDate)) {
           errors[`${prefix}_endDate`] = "End date must be after start date";
         }
       }
 
-      // GPA validation (optional)
       if (edu.gpa && !validateGPA(edu.gpa)) {
         errors[`${prefix}_gpa`] =
           "GPA must be a valid format (e.g., 3.8, 8.7/10, 85%)";
@@ -388,12 +348,10 @@ export default function CreateResumePage() {
     resumeData.projects.forEach((proj) => {
       const prefix = `project_${proj.id}`;
 
-      // Project name validation
       if (!proj.name.trim()) {
         errors[`${prefix}_name`] = "Project name is required";
       }
 
-      // Description validation (20-100 words)
       if (!proj.description.trim()) {
         errors[`${prefix}_description`] = "Project description is required";
       } else if (!validateWordCount(proj.description, 20, 100)) {
@@ -401,19 +359,16 @@ export default function CreateResumePage() {
           "Description should be between 20 and 100 words";
       }
 
-      // Tech stack validation (at least one technology)
       if (!proj.techStack || proj.techStack.length === 0) {
         errors[`${prefix}_techStack`] = "At least one technology is required";
       }
 
-      // Source URL validation (optional but must be valid if provided)
       if (proj.sourceUrl && proj.sourceUrl.trim()) {
         if (!validateUrl(proj.sourceUrl)) {
           errors[`${prefix}_sourceUrl`] = "Source URL must start with https://";
         }
       }
 
-      // Demo URL validation (optional but must be valid if provided)
       if (proj.demoUrl && proj.demoUrl.trim()) {
         if (!validateUrl(proj.demoUrl)) {
           errors[`${prefix}_demoUrl`] = "Demo URL must start with https://";
@@ -427,7 +382,6 @@ export default function CreateResumePage() {
   const validateSkills = useCallback(() => {
     const errors: { [key: string]: string } = {};
 
-    // Skills validation - each skill should be meaningful
     resumeData.skills.forEach((skill, index) => {
       if (!validateSkill(skill)) {
         errors[`skill_${index}`] = "Skill must be between 2 and 50 characters";
@@ -443,17 +397,14 @@ export default function CreateResumePage() {
     resumeData.certifications.forEach((cert) => {
       const prefix = `certification_${cert.id}`;
 
-      // Certification name validation
       if (!cert.name.trim()) {
         errors[`${prefix}_name`] = "Certification name is required";
       }
 
-      // Issuer validation
       if (!cert.issuer.trim()) {
         errors[`${prefix}_issuer`] = "Issuer is required";
       }
 
-      // Date validation
       if (!cert.date || !cert.date.trim()) {
         errors[`${prefix}_date`] = "Date is required";
       }
@@ -468,12 +419,10 @@ export default function CreateResumePage() {
     resumeData.languages.forEach((lang) => {
       const prefix = `language_${lang.id}`;
 
-      // Language name validation
       if (!lang.name.trim()) {
         errors[`${prefix}_name`] = "Language name is required";
       }
 
-      // Proficiency validation
       if (!lang.proficiency || !lang.proficiency.trim()) {
         errors[`${prefix}_proficiency`] = "Proficiency level is required";
       } else if (!validateProficiency(lang.proficiency)) {
@@ -491,12 +440,10 @@ export default function CreateResumePage() {
     resumeData.customSections.forEach((section) => {
       const prefix = `customSection_${section.id}`;
 
-      // Title validation
       if (!section.title.trim()) {
         errors[`${prefix}_title`] = "Section title is required";
       }
 
-      // Description validation (20-100 words)
       if (!section.description.trim()) {
         errors[`${prefix}_description`] = "Section description is required";
       } else if (!validateWordCount(section.description, 20, 100)) {
@@ -508,11 +455,9 @@ export default function CreateResumePage() {
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.customSections]);
 
-  // Get current template
   const currentTemplate =
     templates.find((t) => t.id === selectedTemplate) || templates[0];
 
-  // Smooth step transition
   const goToStep = (step: number) => {
     setIsTransitioning(true);
     setTimeout(() => {
@@ -521,30 +466,29 @@ export default function CreateResumePage() {
     }, 150);
   };
 
-  // Validation for current step
   const validateCurrentStep = useCallback(() => {
     switch (currentStep) {
-      case 1: // Personal Info
+      case 1:
         const personalInfoValidation = validatePersonalInfo();
         setValidationErrors(personalInfoValidation.errors);
         return personalInfoValidation.isValid;
-      case 2: // Experience
+      case 2:
         const experienceValidation = validateExperience();
         setValidationErrors(experienceValidation.errors);
         return experienceValidation.isValid;
-      case 3: // Education
+      case 3:
         const educationValidation = validateEducation();
         setValidationErrors(educationValidation.errors);
         return educationValidation.isValid;
-      case 4: // Skills
+      case 4:
         const skillsValidation = validateSkills();
         setValidationErrors(skillsValidation.errors);
         return skillsValidation.isValid;
-      case 5: // Projects
+      case 5:
         const projectsValidation = validateProjects();
         setValidationErrors(projectsValidation.errors);
         return projectsValidation.isValid;
-      case 6: // Additional sections (Certifications, Languages, Custom)
+      case 6:
         const certificationsValidation = validateCertifications();
         const languagesValidation = validateLanguages();
         const customSectionsValidation = validateCustomSections();
@@ -581,7 +525,6 @@ export default function CreateResumePage() {
     [validateCurrentStep]
   );
 
-  // Convert resume data to portfolio data format for templates
   const getPortfolioData = (): PortfolioData => ({
     personalInfo: {
       firstName: resumeData.personalInfo.firstName || "John",
@@ -720,7 +663,7 @@ export default function CreateResumePage() {
               demoUrl: "https://tasks.johndoe.dev",
             },
           ],
-    blogs: [], // Not used in resume context
+    blogs: [],
     certifications:
       resumeData.certifications.length > 0
         ? resumeData.certifications.map((cert) => ({
@@ -761,7 +704,6 @@ export default function CreateResumePage() {
           ],
   });
 
-  // Render different template layouts
   const renderResumePreview = () => {
     const templateProps = {
       preview: true,
@@ -939,18 +881,14 @@ export default function CreateResumePage() {
     }: {
       template: (typeof templates)[0];
     }) => {
-      // Get preview image based on template
       const getPreviewImage = () => {
         const baseUrl = "/preview-images";
-
-        // Map template IDs to their corresponding image names
         const templateImageMap: { [key: string]: string } = {
           "clean-mono": "Clean Mono.png",
           "dark-minimalist": "Dark Minimalist.png",
           "dark-tech": "Dark Tech.png",
           "modern-ai-focused": "Modern AI Focused.png",
         };
-
         const imageName = templateImageMap[template.id];
         return imageName
           ? `${baseUrl}/${imageName}`
@@ -1003,14 +941,12 @@ export default function CreateResumePage() {
         >
           <div className="aspect-[4/5] bg-muted/20 flex items-center justify-center p-2">
             <div className="w-full h-full overflow-hidden rounded-lg bg-background shadow-sm relative">
-              {/* Preview Image */}
               <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                 <img
                   src={getPreviewImage()}
                   alt={`${template.name} preview`}
                   className="w-full h-full object-cover object-top transition-opacity duration-200"
                   onLoad={(e) => {
-                    // Hide loading state when image loads
                     const target = e.target as HTMLImageElement;
                     const loadingDiv = target.parentElement?.querySelector(
                       ".loading-placeholder"
@@ -1020,7 +956,6 @@ export default function CreateResumePage() {
                     }
                   }}
                   onError={(e) => {
-                    // Fallback to live component preview if image fails to load
                     const target = e.target as HTMLImageElement;
                     target.style.display = "none";
                     const fallbackDiv =
@@ -1030,27 +965,19 @@ export default function CreateResumePage() {
                     }
                   }}
                 />
-
-                {/* Loading placeholder */}
                 <div className="loading-placeholder absolute inset-0 flex items-center justify-center bg-gray-100">
                   <div className="text-gray-400 text-sm">
                     Loading preview...
                   </div>
                 </div>
-
-                {/* Fallback to live component preview */}
                 <div className="w-full h-full" style={{ display: "none" }}>
                   {getTemplateComponent()}
                 </div>
               </div>
-
-              {/* Theme indicator overlay */}
               <div className="absolute top-2 right-2 px-2 py-1 bg-black/80 text-white text-xs rounded-md backdrop-blur-sm">
                 {themes.find((t) => t.id === selectedTheme)?.name ||
                   selectedTheme}
               </div>
-
-              {/* Template layout indicator */}
               <div className="absolute bottom-2 left-2 flex gap-1">
                 <div className="px-2 py-1 bg-white/90 text-gray-700 text-xs rounded-md backdrop-blur-sm">
                   {template.layout}
@@ -1102,7 +1029,6 @@ export default function CreateResumePage() {
                 <TemplatePreview key={template.id} template={template} />
               ))}
             </div>
-
             <div className="pt-4 border-t">
               <h3 className="text-lg font-semibold mb-4">Color Theme</h3>
               <div className="flex flex-wrap gap-4">
@@ -1186,7 +1112,6 @@ export default function CreateResumePage() {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Resume Title - First Field */}
           <div className="space-y-2">
             <Label htmlFor="resumeTitle" className="text-sm font-medium">
               Resume Title <span className="text-red-500">*</span>
@@ -1210,7 +1135,6 @@ export default function CreateResumePage() {
             </p>
           </div>
 
-          {/* Profile Photo Upload */}
           <ImageUpload
             value={resumeData.personalInfo.photo}
             onChange={(value) =>
@@ -1339,7 +1263,6 @@ export default function CreateResumePage() {
             </div>
           </div>
 
-          {/* Current Designation */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-sm font-medium">
               Current Designation <span className="text-red-500">*</span>
@@ -2235,7 +2158,6 @@ export default function CreateResumePage() {
     );
   };
 
-  // Helper functions for Additional step
   const updateCertification = (id: string, field: string, value: any) => {
     setResumeData((prev) => ({
       ...prev,
@@ -2760,20 +2682,7 @@ export default function CreateResumePage() {
     );
   }
 
-  // While auth state is initializing, show a loader
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   if (!user) {
-    // Show a minimal loader while redirecting
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -2784,7 +2693,6 @@ export default function CreateResumePage() {
     );
   }
 
-  // Show choice between Upload PDF and Build from Scratch
   if (showChoice) {
     return (
       <div className="container mx-auto max-w-4xl py-10">
@@ -2792,7 +2700,6 @@ export default function CreateResumePage() {
         <p className="text-muted-foreground mb-8">
           Upload your existing PDF resume for instant parsing, or build a new profile from scratch.
         </p>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="hover:border-primary transition-colors">
             <CardHeader>
@@ -2807,7 +2714,6 @@ export default function CreateResumePage() {
               <Button onClick={() => router.push("/upload-resume")}>Upload PDF</Button>
             </CardContent>
           </Card>
-
           <Card className="hover:border-primary transition-colors">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -2829,37 +2735,25 @@ export default function CreateResumePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Header */}
-        // Replace the old block with this new one
-<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-    <div className="space-y-1">
-      <h1 className="text-3xl font-bold text-foreground">
-        Create Resume
-      </h1>
-      <p className="text-muted-foreground">
-        Build your professional resume with real-time preview
-      </p>
-    </div>
-    {/* ADD THIS BUTTON */}
-    <Button
-      variant="outline"
-      onClick={() => setShowChoice(true)}
-      className="flex items-center gap-2"
-    >
-      <ArrowLeft className="w-4 h-4" />
-      Back to Choice
-    </Button>
-          {/* Quick actions in header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-foreground">
+              Create Resume
+            </h1>
+            <p className="text-muted-foreground">
+              Build your professional resume with real-time preview
+            </p>
+          </div>
+          {/* CORRECTED BACK BUTTON */}
+          <Button
+            variant="outline"
+            onClick={() => setShowChoice(true)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Choice
+          </Button>
           <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowChoice(true)}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Choice
-            </Button>
-
             <div className="hidden sm:flex flex-col">
               <span className="text-sm mb-1 font-medium">Template</span>
               <select
@@ -2874,7 +2768,6 @@ export default function CreateResumePage() {
                 ))}
               </select>
             </div>
-
             <div className="w-full lg:w-auto flex justify-end">
               <Button
                 onClick={handleSave}
@@ -2896,8 +2789,6 @@ export default function CreateResumePage() {
             </div>
           </div>
         </div>
-
-        {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
             {steps.map((step, index) => (
@@ -2929,10 +2820,7 @@ export default function CreateResumePage() {
             ))}
           </div>
         </div>
-
-        {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Form Section */}
           <div className="space-y-6">
             <div
               className={`transition-opacity duration-150 ${
@@ -2954,8 +2842,6 @@ export default function CreateResumePage() {
                 </div>
               )}
             </div>
-
-            {/* Navigation Buttons */}
             <div className="flex justify-between">
               <Button
                 onClick={() => goToStep(currentStep - 1)}
@@ -2965,7 +2851,6 @@ export default function CreateResumePage() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Previous
               </Button>
-
               {currentStep < steps.length - 1 ? (
                 <Button
                   onClick={() => goToStep(currentStep + 1)}
@@ -2994,8 +2879,6 @@ export default function CreateResumePage() {
               )}
             </div>
           </div>
-
-          {/* Preview Section */}
           <div className="sticky top-4 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Preview</h2>
@@ -3008,7 +2891,6 @@ export default function CreateResumePage() {
                 Full Screen
               </Button>
             </div>
-
             <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
               <div className="bg-white p-4">
                 <div
@@ -3016,7 +2898,7 @@ export default function CreateResumePage() {
                   style={{
                     width: "100%",
                     height: "0",
-                    paddingBottom: "141.4%", // A4 aspect ratio (1:1.414)
+                    paddingBottom: "141.4%",
                   }}
                 >
                   <div
@@ -3036,7 +2918,6 @@ export default function CreateResumePage() {
           </div>
         </div>
 
-        {/* Full Preview Modal */}
         {showFullPreview && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-background rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
