@@ -2830,16 +2830,25 @@ export default function CreateResumePage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-foreground">
-              Create Resume
-            </h1>
-            <p className="text-muted-foreground">
-              Build your professional resume with real-time preview
-            </p>
-          </div>
-
+        // Replace the old block with this new one
+<div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <div className="space-y-1">
+      <h1 className="text-3xl font-bold text-foreground">
+        Create Resume
+      </h1>
+      <p className="text-muted-foreground">
+        Build your professional resume with real-time preview
+      </p>
+    </div>
+    {/* ADD THIS BUTTON */}
+    <Button
+      variant="outline"
+      onClick={() => setShowChoice(true)}
+      className="flex items-center gap-2"
+    >
+      <ArrowLeft className="w-4 h-4" />
+      Back to Choice
+    </Button>
           {/* Quick actions in header */}
           <div className="flex items-center gap-4">
             <Button
