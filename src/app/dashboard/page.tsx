@@ -22,6 +22,7 @@ import {
   FileText,
   Globe,
   Lock,
+  Upload, // Add this line
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
