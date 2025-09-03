@@ -100,9 +100,6 @@ const themes = [
 export default function CreateResumePage() {
   const router = useRouter();
   const { user, loading } = useAuth();
-  
-  // Debug authentication state
-  console.log("Auth state:", { user: !!user, loading, showChoice });
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTheme, setSelectedTheme] = useState("black");
@@ -2741,6 +2738,18 @@ export default function CreateResumePage() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // While auth state is initializing, show a loader
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
