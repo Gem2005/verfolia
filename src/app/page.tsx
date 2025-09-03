@@ -1,6 +1,7 @@
-import { AppLayout } from "@/components/layout/app-layout";
+import { AppLayout } from "@/components/layout/app-layout"; // Add this line
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// ...the rest of your imports
 import { Badge } from "@/components/ui/badge";
 import {
   FileText,
