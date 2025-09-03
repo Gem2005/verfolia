@@ -232,12 +232,18 @@ export default function Dashboard() {
                   </span>
                 )}
               </Button>
-              <Button asChild className="flex items-center gap-2 shadow-sm">
-                <Link href="/create-resume">
-                  <Plus className="h-4 w-4" />
-                  Create New Resume
-                </Link>
-              </Button>
+           <Button asChild className="flex items-center gap-2 shadow-sm">
+  <Link href="/create-resume">
+    <Plus className="h-4 w-4" />
+    Create New
+  </Link>
+</Button>
+<Button asChild variant="outline" className="flex items-center gap-2 shadow-sm">
+  <Link href="/upload-resume">
+    <Upload className="h-4 w-4" />
+    Upload PDF
+  </Link>
+</Button>
             </div>
           </div>
 
