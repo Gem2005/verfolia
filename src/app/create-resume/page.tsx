@@ -58,6 +58,7 @@ const steps = [
   { id: 6, title: "Additional", description: "Extra sections (optional)" },
 ];
 
+// Fallback templates used if API returns empty
 const templates = [
   {
     id: "clean-mono",
@@ -89,6 +90,7 @@ const templates = [
   },
 ];
 
+// Fallback themes used if API returns empty
 const themes = [
   { id: "black", name: "Black", color: "bg-black" },
   { id: "dark-gray", name: "Dark Gray", color: "bg-gray-800" },
