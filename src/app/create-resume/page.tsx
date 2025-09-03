@@ -100,6 +100,9 @@ const themes = [
 export default function CreateResumePage() {
   const router = useRouter();
   const { user, loading } = useAuth();
+  
+  // Debug authentication state
+  console.log("Auth state:", { user: !!user, loading, showChoice });
   const [saving, setSaving] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedTheme, setSelectedTheme] = useState("black");
@@ -2750,8 +2753,8 @@ export default function CreateResumePage() {
   }
 
   if (!user) {
-    // Redirect to login if not authenticated
-    router.push('/login');
+    // Redirect to login if not authenticated, with return URL
+    router.push('/login?returnTo=/create-resume');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

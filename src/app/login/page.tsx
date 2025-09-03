@@ -35,7 +35,15 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      router.push("/dashboard");
+      // Check for return URL in query params
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnTo = urlParams.get('returnTo');
+      
+      if (returnTo) {
+        router.push(returnTo);
+      } else {
+        router.push("/dashboard");
+      }
     }
   }, [isAuthenticated, loading, router]);
 
