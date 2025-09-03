@@ -27,6 +27,7 @@ import {
   Star,
 } from "lucide-react";
 import Link from "next/link";
+import { Upload } from "lucide-react";
 
 const HomePage = () => {
   return (
