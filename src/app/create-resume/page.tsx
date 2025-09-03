@@ -114,6 +114,22 @@ export default function CreateResumePage() {
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
   const [showChoice, setShowChoice] = useState(true); // Show choice first
 
+  // Redirect unauthenticated users after auth state resolves
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login?returnTo=/create-resume');
+    }
+  }, [loading, user, router]);
+
+  // Ensure choice screen appears by default unless prefill is present
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const hasPrefill = !!params.get('prefill');
+    if (!hasPrefill) {
+      setShowChoice(true);
+    }
+  }, []);
+
   // Validation state
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
@@ -2764,8 +2780,7 @@ export default function CreateResumePage() {
   }
 
   if (!user) {
-    // Redirect to login if not authenticated, with return URL
-    router.push('/login?returnTo=/create-resume');
+    // Show a minimal loader while redirecting
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
