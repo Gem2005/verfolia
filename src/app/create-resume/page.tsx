@@ -110,7 +110,7 @@ export default function CreateResumePage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
-  const [showChoice, setShowChoice] = useState(true);
+  const [showChoice, setShowChoice] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -152,42 +152,44 @@ export default function CreateResumePage() {
   });
 
   useEffect(() => {
-    if (!user) return;
-    
-    const params = new URLSearchParams(window.location.search);
-    const key = params.get("prefill");
-    if (key) {
-      try {
-        const raw = sessionStorage.getItem(key);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          setResumeTitle(parsed.title || "Imported Resume");
-          setResumeData((prev) => ({
-            ...prev,
-            title: parsed.title || prev.title,
-            personalInfo: {
-              ...prev.personalInfo,
-              ...parsed.personalInfo,
-            },
-            experience: parsed.experience || prev.experience,
-            education: parsed.education || prev.education,
-            skills: parsed.skills || prev.skills,
-            projects: parsed.projects || prev.projects,
-            certifications: parsed.certifications || prev.certifications,
-            languages: parsed.languages || prev.languages,
-            customSections: parsed.customSections || prev.customSections,
-          }));
-          setShowChoice(false);
-        } else {
-          alert("The uploaded resume data couldn't be found. Please try uploading again.");
-          router.replace('/create-resume');
-        }
-      } catch (e) {
-        console.error("Failed to prefill from parsed data", e);
+  if (!user) return;
+  
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get("prefill");
+  if (key) {
+    try {
+      const raw = sessionStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setResumeTitle(parsed.title || "Imported Resume");
+        setResumeData((prev) => ({
+          ...prev,
+          title: parsed.title || prev.title,
+          personalInfo: {
+            ...prev.personalInfo,
+            ...parsed.personalInfo,
+          },
+          experience: parsed.experience || prev.experience,
+          education: parsed.education || prev.education,
+          skills: parsed.skills || prev.skills,
+          projects: parsed.projects || prev.projects,
+          certifications: parsed.certifications || prev.certifications,
+          languages: parsed.languages || prev.languages,
+          customSections: parsed.customSections || prev.customSections,
+        }));
+        setShowChoice(false);
+      } else {
+        alert("The uploaded resume data couldn't be found. Please try uploading again.");
+        router.replace('/create-resume');
       }
+    } catch (e) {
+      console.error("Failed to prefill from parsed data", e);
     }
-  }, [user, router]);
-
+  } else {
+    // ADD THIS LINE
+    setShowChoice(true);
+  }
+}, [user, router]);
   const validatePersonalInfo = useCallback(() => {
     const errors: { [key: string]: string } = {};
 
