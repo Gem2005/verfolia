@@ -22,11 +22,16 @@ export default function UploadResumePage() {
   }, [user, loading, router]);
 
   async function extractTextFromPdf(file: File): Promise<string> {
-    const pdfjs = await import("pdfjs-dist/build/pdf");
-    // @ts-ignore worker entry
+    // Dynamically import pdfjs for client-side only
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const pdfjs: any = await import("pdfjs-dist");
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
     const arrayBuffer = await file.arrayBuffer();
-    // @ts-ignore getDocument typing from pdfjs-dist
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
     let text = "";
     for (let i = 1; i <= pdf.numPages; i++) {
