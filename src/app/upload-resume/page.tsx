@@ -21,6 +21,24 @@ export default function UploadResumePage() {
     }
   }, [user, loading, router]);
 
+  async function extractTextFromPdf(file: File): Promise<string> {
+    const pdfjs = await import("pdfjs-dist/build/pdf");
+    // @ts-ignore worker entry
+    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+    const arrayBuffer = await file.arrayBuffer();
+    // @ts-ignore getDocument typing from pdfjs-dist
+    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+    let text = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      // @ts-ignore items typing
+      const pageText = content.items.map((it: any) => it.str).join(" ");
+      text += pageText + "\n";
+    }
+    return text;
+  }
+
   const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     const file = files[0];
@@ -32,31 +50,41 @@ export default function UploadResumePage() {
     setError(null);
     setIsParsing(true);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const response = await fetch("/api/parse-resume", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const { error: apiError } = await response.json().catch(() => ({ error: "Failed to parse" }));
-        throw new Error(apiError || "Failed to parse resume");
+      // Try client-side parsing first
+      let parsedResume: any | null = null;
+      try {
+        const text = await extractTextFromPdf(file);
+        // Reuse server mapping by posting text only
+        const resp = await fetch("/api/parse-resume", {
+          method: "POST",
+          body: (() => { const fd = new FormData(); fd.append("file", file); return fd; })(),
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          parsedResume = data.parsedResume;
+        }
+      } catch (_) {
+        // fall through to API-only
       }
 
-      const { parsedResume, token } = await response.json();
-      console.log("API response:", { parsedResume, token });
-      if (parsedResume) {
-        // Store parsed data temporarily and redirect to editor
-        const storageKey = token || `parsed_resume_${Date.now()}`;
-        console.log("Storage key:", storageKey);
-        sessionStorage.setItem(storageKey, JSON.stringify(parsedResume));
-        console.log("Data stored in sessionStorage");
-        router.push(`/create-resume?prefill=${encodeURIComponent(storageKey)}`);
-      } else {
-        throw new Error("No parsed data returned");
+      // If client parse+map failed, use API fallback
+      if (!parsedResume) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await fetch("/api/parse-resume", { method: "POST", body: formData });
+        if (!response.ok) {
+          const { error: apiError } = await response.json().catch(() => ({ error: "Failed to parse" }));
+          throw new Error(apiError || "Failed to parse resume");
+        }
+        const { parsedResume: apiParsed } = await response.json();
+        parsedResume = apiParsed;
       }
+
+      if (!parsedResume) throw new Error("No parsed data returned");
+
+      const storageKey = `parsed_resume_${Date.now()}`;
+      sessionStorage.setItem(storageKey, JSON.stringify(parsedResume));
+      router.push(`/create-resume?prefill=${encodeURIComponent(storageKey)}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
       setIsParsing(false);
