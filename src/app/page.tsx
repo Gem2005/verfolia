@@ -69,7 +69,7 @@ const HomePage = () => {
                   className="text-lg px-8 py-4 h-auto glass-effect hover:bg-muted/50 transition-all duration-200"
                 >
                   <Rocket className="w-5 h-5 mr-2" />
-                  <Link href="/get-started">Get Started Free</Link>
+                  <Link href="/create-resume">Get Started Free</Link>
                 </Button>
               </div>
 

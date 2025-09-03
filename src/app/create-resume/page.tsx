@@ -148,6 +148,9 @@ export default function CreateResumePage() {
 
   // Prefill from parsed data if available
   useEffect(() => {
+    // Only run prefill logic when user is authenticated
+    if (!user) return;
+    
     const params = new URLSearchParams(window.location.search);
     const key = params.get("prefill");
     console.log("Prefill key:", key);
@@ -188,7 +191,7 @@ export default function CreateResumePage() {
         console.error("Failed to prefill from parsed data", e);
       }
     }
-  }, []);
+  }, [user, router]);
 
   const validatePersonalInfo = useCallback(() => {
     const errors: { [key: string]: string } = {};
