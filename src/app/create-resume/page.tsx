@@ -122,13 +122,6 @@ export default function CreateResumePage() {
   }, [loading, user, router]);
 
   // Ensure choice screen appears by default unless prefill is present
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const hasPrefill = !!params.get('prefill');
-    if (!hasPrefill) {
-      setShowChoice(true);
-    }
-  }, []);
 
   // Validation state
   const [validationErrors, setValidationErrors] = useState<{
