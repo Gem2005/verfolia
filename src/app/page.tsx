@@ -75,6 +75,7 @@ const HomePage = () => {
                     Get Started Free
                   </Link>
                 </Button>
+                {/* CORRECTED BUTTON */}
                 <Button
                   asChild
                   size="lg"
