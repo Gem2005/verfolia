@@ -42,7 +42,7 @@ export default function LoginPage() {
       if (returnTo) {
         router.push(returnTo);
       } else {
-        router.push("/dashboard");
+        router.push("/get-started");
       }
     }
   }, [isAuthenticated, loading, router]);

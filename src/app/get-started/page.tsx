@@ -2,12 +2,46 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, PenSquare } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function GetStartedPage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
+
+  // Redirect unauthenticated users to login with returnTo
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login?returnTo=/get-started');
+    }
+  }, [loading, user, router]);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading if not authenticated
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-4xl py-10">
