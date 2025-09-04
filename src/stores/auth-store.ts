@@ -24,10 +24,17 @@ export const useAuthStore = create<AuthState>((set) => ({
   setInitialized: (isInitialized) => set({ isInitialized }),
 
   initialize: async () => {
-    const supabase = createClient();
-
     try {
       set({ isLoading: true });
+
+      const supabase = createClient();
+      
+      // Check if we have a valid supabase client
+      if (!supabase || !supabase.auth) {
+        console.warn("Supabase client not available, skipping auth initialization");
+        set({ user: null, isInitialized: true, isLoading: false });
+        return;
+      }
 
       // Get initial session
       const {
@@ -53,8 +60,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
-    const supabase = createClient();
     try {
+      const supabase = createClient();
+      
+      if (!supabase || !supabase.auth) {
+        console.warn("Supabase client not available for auth check");
+        return null;
+      }
+      
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -68,8 +81,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signOut: async () => {
-    const supabase = createClient();
     try {
+      const supabase = createClient();
+      
+      if (!supabase || !supabase.auth) {
+        console.warn("Supabase client not available for sign out");
+        set({ user: null });
+        return;
+      }
+      
       await supabase.auth.signOut();
       set({ user: null });
     } catch (error) {
