@@ -68,7 +68,7 @@ export async function signup(formData: FormData) {
   return { success: true };
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(next?: string) {
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -76,7 +76,7 @@ export async function signInWithGoogle() {
     options: {
       redirectTo: `${
         process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-      }/auth/callback`,
+      }/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ""}`,
     },
   });
 

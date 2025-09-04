@@ -101,7 +101,10 @@ export default function LoginPage() {
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
-    await signInWithGoogle();
+    // Preserve returnTo if present so callback can send user back correctly
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnTo = urlParams.get('returnTo') || '/get-started';
+    await signInWithGoogle(returnTo);
     setIsLoading(false);
   }
 
