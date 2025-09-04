@@ -77,15 +77,15 @@ const HomePage = () => {
                 </Button>
                 {/* CORRECTED BUTTON */}
                 <Button
-                  asChild
-                  size="lg"
-                  className="text-lg px-8 py-4 h-auto bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200"
-                >
-                  <Link href="/create-resume">
-                    <Upload className="w-5 h-5 mr-2" />
-                    Upload PDF
-                  </Link>
-                </Button>
+  asChild
+  size="lg"
+  className="text-lg px-8 py-4 h-auto bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200"
+>
+  <Link href="/upload-resume">  {/* ✅ FIXED */}
+    <Upload className="w-5 h-5 mr-2" />
+    Upload PDF
+  </Link>
+</Button>
               </div>
 
               {/* Trust Indicators */}
