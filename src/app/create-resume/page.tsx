@@ -122,13 +122,24 @@ export default function CreateResumePage() {
   }, [loading, user, router]);
 
   // Ensure choice screen appears by default unless prefill is present
+  // This runs when user becomes available (after authentication)
   useEffect(() => {
+    if (!user) return; // Wait for user to be authenticated
+    
     const params = new URLSearchParams(window.location.search);
     const hasPrefill = !!params.get('prefill');
+    const forceChoice = params.get('choice') === '1';
+    
+    if (forceChoice) {
+      setShowChoice(true);
+      return;
+    }
+    
+    // If no prefill data, show choice screen
     if (!hasPrefill) {
       setShowChoice(true);
     }
-  }, []);
+  }, [user]); // Run when user changes (including when they become authenticated)
 
   // Validation state
   const [validationErrors, setValidationErrors] = useState<{
@@ -2756,6 +2767,7 @@ export default function CreateResumePage() {
     );
   };
 
+  // Show loading while authentication is being checked
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -2767,20 +2779,8 @@ export default function CreateResumePage() {
     );
   }
 
-  // While auth state is initializing, show a loader
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // If not authenticated, show redirecting message
   if (!user) {
-    // Show a minimal loader while redirecting
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
