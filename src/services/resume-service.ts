@@ -316,51 +316,51 @@ class ResumeService {
       if (interactionsError) throw interactionsError;
 
       // Process views data
-      const views = viewsData.map(view => ({
+      const views = viewsData?.map((view: any) => ({
         id: view.id,
         viewed_at: view.viewed_at,
         country: view.country,
         city: view.city,
         view_duration: view.view_duration,
         referrer: view.referrer
-      }));
+      })) || [];
 
       // Process interactions data
-      const interactions = interactionsData.map(interaction => ({
+      const interactions = interactionsData?.map((interaction: any) => ({
         id: interaction.id,
         clicked_at: interaction.clicked_at,
         interaction_type: interaction.interaction_type,
         section_name: interaction.section_name,
         target_value: interaction.target_value
-      }));
+      })) || [];
 
       // Calculate summary data
-      const viewsByDate = views.reduce((acc: { [key: string]: number }, view) => {
+      const viewsByDate = views.reduce((acc: { [key: string]: number }, view: any) => {
         const date = new Date(view.viewed_at).toISOString().split('T')[0];
         acc[date] = (acc[date] || 0) + 1;
         return acc;
       }, {});
 
-      const viewsByCountry = views.reduce((acc: { [key: string]: number }, view) => {
+      const viewsByCountry = views.reduce((acc: { [key: string]: number }, view: any) => {
         if (view.country) {
           acc[view.country] = (acc[view.country] || 0) + 1;
         }
         return acc;
       }, {});
 
-      const viewsByReferrer = views.reduce((acc: { [key: string]: number }, view) => {
+      const viewsByReferrer = views.reduce((acc: { [key: string]: number }, view: any) => {
         if (view.referrer) {
           acc[view.referrer] = (acc[view.referrer] || 0) + 1;
         }
         return acc;
       }, {});
 
-      const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction) => {
+      const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction: any) => {
         acc[interaction.interaction_type] = (acc[interaction.interaction_type] || 0) + 1;
         return acc;
       }, {});
 
-      const totalViewDuration = views.reduce((sum, view) => sum + (view.view_duration || 0), 0);
+      const totalViewDuration = views.reduce((sum: number, view: any) => sum + (view.view_duration || 0), 0);
       const avgViewDuration = views.length > 0 ? totalViewDuration / views.length : 0;
 
       // Construct and return the AnalyticsData object
@@ -371,10 +371,10 @@ class ResumeService {
           totalViews: views.length,
           totalInteractions: interactions.length,
           avgViewDuration,
-          viewsByDate: Object.entries(viewsByDate).map(([date, count]) => ({ date, count })),
-          interactionsByType: Object.entries(interactionsByType).map(([name, count]) => ({ name, count })),
-          viewsByCountry: Object.entries(viewsByCountry).map(([name, count]) => ({ name, count })),
-          viewsByReferrer: Object.entries(viewsByReferrer).map(([name, count]) => ({ name, count }))
+          viewsByDate: Object.entries(viewsByDate).map(([date, count]) => ({ date, count: count as number })),
+          interactionsByType: Object.entries(interactionsByType).map(([name, count]) => ({ name, count: count as number })),
+          viewsByCountry: Object.entries(viewsByCountry).map(([name, count]) => ({ name, count: count as number })),
+          viewsByReferrer: Object.entries(viewsByReferrer).map(([name, count]) => ({ name, count: count as number }))
         }
       };
     } catch (error) {

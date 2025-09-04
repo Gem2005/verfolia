@@ -16,7 +16,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  isLoading: true,
+  isLoading: false,
   isInitialized: false,
 
   setUser: (user) => set({ user }),
@@ -43,7 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user, isInitialized: true });
 
       // Listen for auth changes
-      supabase.auth.onAuthStateChange((event, session) => {
+      supabase.auth.onAuthStateChange((event: any, session: any) => {
         set({ user: session?.user ?? null });
 
         if (event === "SIGNED_OUT") {
