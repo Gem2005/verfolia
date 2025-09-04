@@ -37,10 +37,16 @@ export default function LoginPage() {
     if (isAuthenticated && !loading) {
       // Route to saved choice if present; else to /choice
       let option: string | null = null;
-      try { option = sessionStorage.getItem('selected_option'); } catch {}
-      if (option === 'upload') router.push('/upload');
-      else if (option === 'create') router.push('/create');
-      else router.push('/choice');
+      try { option = localStorage.getItem('selectedOption'); } catch {}
+      if (option === 'upload') {
+        try { localStorage.removeItem('selectedOption'); } catch {}
+        router.push('/upload');
+      } else if (option === 'create') {
+        try { localStorage.removeItem('selectedOption'); } catch {}
+        router.push('/create');
+      } else {
+        router.push('/choice');
+      }
     }
   }, [isAuthenticated, loading, router]);
 

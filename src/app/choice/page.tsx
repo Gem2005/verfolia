@@ -16,7 +16,7 @@ export default function ChoicePage() {
   // Always show choice; if already authenticated, clicking goes straight to destination
   const handleSelect = (option: "upload" | "create") => {
     try {
-      sessionStorage.setItem("selected_option", option);
+      localStorage.setItem("selectedOption", option);
     } catch {}
     if (!user) {
       router.push("/login");
