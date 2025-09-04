@@ -35,15 +35,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      // Check for return URL in query params
-      const urlParams = new URLSearchParams(window.location.search);
-      const returnTo = urlParams.get('returnTo');
-      
-      if (returnTo) {
-        router.push(returnTo);
-      } else {
-        router.push("/get-started");
-      }
+      // Always send users to the choice screen after sign-in
+      router.push("/get-started");
     }
   }, [isAuthenticated, loading, router]);
 
@@ -101,10 +94,8 @@ export default function LoginPage() {
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
-    // Preserve returnTo if present so callback can send user back correctly
-    const urlParams = new URLSearchParams(window.location.search);
-    const returnTo = urlParams.get('returnTo') || '/get-started';
-    await signInWithGoogle(returnTo);
+    // Always route back to choice screen after OAuth
+    await signInWithGoogle('/get-started');
     setIsLoading(false);
   }
 
