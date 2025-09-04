@@ -5,7 +5,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -1267,9 +1267,128 @@ export default function CreateResumePage() {
       </Card>
     );
   };
-  
-  // (The rest of the render functions remain the same)
-  // ...
+
+  const renderExperienceStep = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Experience</CardTitle>
+          <CardDescription>Work experience (required)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  const renderEducationStep = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Education</CardTitle>
+          <CardDescription>Education (required)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  const renderSkillsStep = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Skills</CardTitle>
+          <CardDescription>Skills (required)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  const renderProjectsStep = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Projects</CardTitle>
+          <CardDescription>Projects (required)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }  
+  const renderProgressSummary = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Progress Summary</CardTitle>
+          <CardDescription>Summary of your progress</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  } 
+  const renderCertificationsSection = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Progress Summary</CardTitle>
+          <CardDescription>Summary of your progress</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  } 
+
+  const renderLanguagesSection = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Progress Summary</CardTitle>
+          <CardDescription>Summary of your progress</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  } 
+  const renderCustomSections = () => {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Progress Summary</CardTitle>
+          <CardDescription>Summary of your progress</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            Coming Soon
+          </div>
+        </CardContent>
+      </Card>
+    );
+  } 
 
   if (loading) {
     return (
