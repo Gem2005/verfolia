@@ -19,7 +19,7 @@ export default function UploadResumePage() {
   // Check authentication on mount
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login?returnTo=/upload-resume');
+      router.push('/login?returnTo=/upload');
     }
   }, [user, loading, router]);
 

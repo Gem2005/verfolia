@@ -39,14 +39,14 @@ export default function LoginPage() {
       let option: string | null = null;
       try { option = localStorage.getItem('selectedOption'); } catch {}
       if (option === 'upload') {
-        try { localStorage.removeItem('selectedOption'); } catch {}
         router.push('/upload');
       } else if (option === 'create') {
-        try { localStorage.removeItem('selectedOption'); } catch {}
         router.push('/create');
       } else {
         router.push('/choice');
       }
+      // Clear after routing so it's one-time only
+      try { localStorage.removeItem('selectedOption'); } catch {}
     }
   }, [isAuthenticated, loading, router]);
 
