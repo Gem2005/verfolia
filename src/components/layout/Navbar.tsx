@@ -159,7 +159,7 @@ export default function Navbar() {
                     asChild
                     className="rounded-xl bg-gradient-primary hover:opacity-90 text-white shadow-glow"
                   >
-                    <Link href="/get-started">Get Started</Link>
+                    <Link href="/choice">Get Started</Link>
                   </Button>
                 </div>
               )}
@@ -271,7 +271,7 @@ export default function Navbar() {
                     className="w-full rounded-xl bg-gradient-primary text-white shadow-glow"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Link href="/get-started">Get Started</Link>
+                    <Link href="/choice">Get Started</Link>
                   </Button>
                   <Button
                     variant="outline"

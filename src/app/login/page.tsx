@@ -35,8 +35,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      // Always send users to the choice screen after sign-in
-      router.push("/get-started");
+      // Route to saved choice if present; else to /choice
+      let option: string | null = null;
+      try { option = sessionStorage.getItem('selected_option'); } catch {}
+      if (option === 'upload') router.push('/upload');
+      else if (option === 'create') router.push('/create');
+      else router.push('/choice');
     }
   }, [isAuthenticated, loading, router]);
 
@@ -94,8 +98,8 @@ export default function LoginPage() {
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
-    // Always route back to choice screen after OAuth
-    await signInWithGoogle('/get-started');
+    // After OAuth, we’ll read the stored selection and route accordingly
+    await signInWithGoogle('/choice');
     setIsLoading(false);
   }
 
