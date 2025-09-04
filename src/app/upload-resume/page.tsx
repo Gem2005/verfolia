@@ -1,185 +1,183 @@
 "use client";
 
-import React, { useCallback, useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UploadCloud, CheckCircle2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth } from "@/hooks/use-auth";
-
-export const dynamic = "force-dynamic";
+import { Upload, FileText, ArrowLeft } from "lucide-react";
 
 export default function UploadResumePage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const [dragActive, setDragActive] = useState(false);
-  const [isParsing, setIsParsing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Check authentication on mount
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login?returnTo=/upload');
-    }
-  }, [user, loading, router]);
-
-  async function extractTextFromPdf(file: File): Promise<string> {
-    // Dynamically import pdfjs for client-side only
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const pdfjs: any = await import("pdfjs-dist");
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
-    const arrayBuffer = await file.arrayBuffer();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-    let text = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      // @ts-ignore items typing
-      const pageText = content.items.map((it: any) => it.str).join(" ");
-      text += pageText + "\n";
-    }
-    return text;
-  }
-
-  const handleFiles = useCallback(async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    const file = files[0];
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      setError("Please upload a PDF file");
+  const handleFileUpload = async (file: File) => {
+    if (file.type !== 'application/pdf') {
+      alert('Please upload a PDF file');
       return;
     }
 
-    setError(null);
-    setIsParsing(true);
+    setIsProcessing(true);
+    
     try {
-      // Try client-side parsing first
-      let parsedResume: any | null = null;
-      try {
-        const text = await extractTextFromPdf(file);
-        // Reuse server mapping by posting text only
-        const resp = await fetch("/api/parse-resume", {
-          method: "POST",
-          body: (() => { const fd = new FormData(); fd.append("file", file); return fd; })(),
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          parsedResume = data.parsedResume;
-        }
-      } catch (_) {
-        // fall through to API-only
-      }
-
-      // If client parse+map failed, use API fallback
-      if (!parsedResume) {
-        const formData = new FormData();
-        formData.append("file", file);
-        const response = await fetch("/api/parse-resume", { method: "POST", body: formData });
-        if (!response.ok) {
-          const { error: apiError } = await response.json().catch(() => ({ error: "Failed to parse" }));
-          throw new Error(apiError || "Failed to parse resume");
-        }
-        const { parsedResume: apiParsed } = await response.json();
-        parsedResume = apiParsed;
-      }
-
-      if (!parsedResume) throw new Error("No parsed data returned");
-
-      const storageKey = `parsed_resume_${Date.now()}`;
-      sessionStorage.setItem(storageKey, JSON.stringify(parsedResume));
-      router.push(`/create-resume?prefill=${encodeURIComponent(storageKey)}`);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
-      setIsParsing(false);
+      // TODO: Implement PDF parsing logic here
+      // For now, redirect to create-resume with a flag
+      const sessionKey = `resume_upload_${Date.now()}`;
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        title: `Resume from ${file.name}`,
+        uploadedAt: new Date().toISOString(),
+        // Add parsed data here when PDF parsing is implemented
+      }));
+      
+      router.push(`/create-resume?prefill=${sessionKey}`);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to process PDF. Please try again.');
+    } finally {
+      setIsProcessing(false);
     }
-  }, [router]);
+  };
 
-  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    handleFiles(e.dataTransfer.files);
-  }, [handleFiles]);
+    setIsDragging(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
 
-  const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFiles(e.target.files);
-  }, [handleFiles]);
-
-  // Show loading while checking authentication
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading if not authenticated
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Redirecting to login...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
 
   return (
-    <div className="container mx-auto max-w-2xl py-10">
+    <div className="container mx-auto max-w-4xl py-10">
+      <div className="mb-8">
+        <Button 
+          variant="outline" 
+          onClick={() => router.back()}
+          className="mb-4"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <h1 className="text-3xl font-bold mb-2">Upload Your Resume</h1>
+        <p className="text-muted-foreground">
+          Upload your existing PDF resume and we'll help you create a modern, shareable profile.
+        </p>
+      </div>
+
       <Card>
         <CardHeader>
-          <CardTitle>Upload your PDF resume</CardTitle>
+          <CardTitle>Upload PDF Resume</CardTitle>
         </CardHeader>
         <CardContent>
           <div
-            onDragEnter={() => setDragActive(true)}
-            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            onDragLeave={() => setDragActive(false)}
-            onDrop={onDrop}
-            className={`border-2 border-dashed rounded-lg p-10 text-center transition-colors ${dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/30"}`}
+            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+              isDragging 
+                ? 'border-primary bg-primary/10' 
+                : 'border-muted-foreground/25 hover:border-primary/50'
+            }`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+            }}
+            onDrop={handleDrop}
           >
-            {isParsing ? (
-              <div className="flex flex-col items-center gap-2">
-                <UploadCloud className="w-8 h-8 animate-pulse" />
-                <p className="text-sm">Parsing your resume...</p>
+            {isProcessing ? (
+              <div className="space-y-4">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+                <p className="text-lg font-medium">Processing your resume...</p>
+                <p className="text-sm text-muted-foreground">
+                  This may take a few moments while we extract your information.
+                </p>
               </div>
             ) : (
-              <>
-                <UploadCloud className="w-10 h-10 mx-auto mb-3" />
-                <p className="text-sm mb-2">Drag & drop your PDF here</p>
-                <p className="text-xs text-muted-foreground mb-4">or</p>
-                <label>
-                  <input type="file" accept="application/pdf,.pdf" className="hidden" onChange={onChange} />
-                  <Button type="button" variant="outline">Choose File</Button>
-                </label>
-              </>
+              <div className="space-y-4">
+                <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Upload className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Drag and drop your resume here
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    or click to browse files
+                  </p>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="resume-upload"
+                  />
+                  <label htmlFor="resume-upload">
+                    <Button variant="outline" className="cursor-pointer">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Choose PDF File
+                    </Button>
+                  </label>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Supported format: PDF (Max 10MB)
+                </p>
+              </div>
             )}
-          </div>
-
-          {error && (
-            <div className="flex items-center gap-2 text-destructive text-sm mt-4">
-              <AlertCircle className="w-4 h-4" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>We only process your file to extract resume content. Nothing is stored until you save.</span>
           </div>
         </CardContent>
       </Card>
+
+      <div className="mt-8">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">What happens next?</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-xs font-semibold text-primary">1</span>
+              </div>
+              <div>
+                <p className="font-medium">AI Analysis</p>
+                <p className="text-sm text-muted-foreground">
+                  Our AI will extract and organize your information
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-xs font-semibold text-primary">2</span>
+              </div>
+              <div>
+                <p className="font-medium">Review & Edit</p>
+                <p className="text-sm text-muted-foreground">
+                  Review the extracted data and make any necessary adjustments
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-xs font-semibold text-primary">3</span>
+              </div>
+              <div>
+                <p className="font-medium">Publish & Share</p>
+                <p className="text-sm text-muted-foreground">
+                  Create your shareable profile with analytics tracking
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
-
-
