@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, PenSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
+export const dynamic = "force-dynamic";
+
 export default function GetStartedPage() {
   const router = useRouter();
   const { user, loading } = useAuth();

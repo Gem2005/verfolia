@@ -97,6 +97,7 @@ const themes = [
   { id: "white", name: "White", color: "bg-white" },
 ];
 
+export const dynamic = "force-dynamic";
 export default function CreateResumePage() {
   const router = useRouter();
   const { user, loading } = useAuth();
