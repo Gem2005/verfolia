@@ -110,7 +110,7 @@ export default function CreateResumePage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
-  const [showChoice, setShowChoice] = useState(false);
+  const [showChoice, setShowChoice] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
