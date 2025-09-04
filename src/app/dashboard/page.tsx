@@ -22,6 +22,7 @@ import {
   FileText,
   Globe,
   Lock,
+  Upload, // Added Upload icon import
 } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
@@ -41,7 +42,6 @@ export default function Dashboard() {
     if (!user) return;
 
     try {
-      // Only show loading on first load
       if (!initialLoadComplete) {
         setLoading(true);
       }
@@ -52,7 +52,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error loading resumes:", error);
       toast.error("Failed to load resumes");
-      // For now, set empty array if service fails
       setResumes([]);
     } finally {
       setLoading(false);
@@ -81,7 +80,7 @@ export default function Dashboard() {
     try {
       await resumeService.deleteResume(id);
       toast.success("Resume deleted successfully");
-      loadResumes(); // Reload the list
+      loadResumes();
     } catch (error) {
       console.error("Error deleting resume:", error);
       toast.error("Failed to delete resume");
@@ -232,10 +231,17 @@ export default function Dashboard() {
                   </span>
                 )}
               </Button>
+              {/* CORRECTED BUTTONS */}
               <Button asChild className="flex items-center gap-2 shadow-sm">
                 <Link href="/create-resume">
                   <Plus className="h-4 w-4" />
-                  Create New Resume
+                  Create New
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="flex items-center gap-2 shadow-sm">
+                <Link href="/upload-resume">
+                  <Upload className="h-4 w-4" />
+                  Upload PDF
                 </Link>
               </Button>
             </div>
