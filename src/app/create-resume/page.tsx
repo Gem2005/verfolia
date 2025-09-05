@@ -1559,22 +1559,24 @@ export default function CreateResumePage() {
                 <p className="text-sm text-muted-foreground">Add skills to showcase your strengths.</p>
               )}
               {resumeData.skills.map((skill, index) => (
-                <button
-                  key={`${skill}-${index}`}
-                  type="button"
-                  className="group"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    removeSkillAtIndex(index);
-                  }}
-                  title="Remove skill"
-                >
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    {skill}
-                    <X className="w-3 h-3 opacity-70 group-hover:opacity-100" />
+                <div key={`${skill}-${index}`} className="inline-flex items-center">
+                  <Badge variant="secondary" className="flex items-center gap-1 pr-1">
+                    <span>{skill}</span>
+                    <button
+                      type="button"
+                      className="ml-1 rounded px-1 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        removeSkillAtIndex(index);
+                      }}
+                      aria-label={`Remove ${skill}`}
+                      title="Remove"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
                   </Badge>
-                </button>
+                </div>
               ))}
                   </div>
           </div>
