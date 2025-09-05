@@ -2101,9 +2101,9 @@ export default function CreateResumePage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl"></div>
         
         {/* Glassmorphism orbs */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 backdrop-blur-xl rounded-full border border-white/20"></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 bg-white/5 backdrop-blur-xl rounded-full border border-white/10"></div>
-        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-white/15 backdrop-blur-xl rounded-full border border-white/30"></div>
+        <div className="absolute top-20 left-20 w-32 h-32 rounded-full border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}></div>
+        <div className="absolute bottom-20 right-20 w-24 h-24 rounded-full border border-white/10" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full border border-white/30" style={{background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(20px)'}}></div>
       </div>
       
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
@@ -2112,7 +2112,7 @@ export default function CreateResumePage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
             <div className="space-y-3">
               <div className="inline-flex items-center gap-4">
-                <div className="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
                   <PenSquare className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -2129,7 +2129,8 @@ export default function CreateResumePage() {
               <Button
                 variant="outline"
                 onClick={() => setShowChoice(true)}
-                className="flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300 px-6 py-3 shadow-xl"
+                className="flex items-center gap-2 border border-white/20 text-white hover:bg-white/20 transition-all duration-300 px-6 py-3 shadow-xl"
+                style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Choice
@@ -2137,7 +2138,8 @@ export default function CreateResumePage() {
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 bg-white/20 backdrop-blur-xl border border-white/30 text-white hover:bg-white/30 transition-all duration-300 px-8 py-3 text-lg font-semibold shadow-2xl"
+                className="flex items-center gap-2 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 px-8 py-3 text-lg font-semibold shadow-2xl"
+                style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(20px)'}}
               >
                 {saving ? (
                   <>
@@ -2155,13 +2157,13 @@ export default function CreateResumePage() {
           </div>
 
           {/* Glassmorphism Progress Indicator */}
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
+          <div className="rounded-2xl p-8 shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 {(() => { const Icon = steps[currentStep].icon as any; return Icon ? <Icon className="w-6 h-6 text-white" /> : null; })()}
                 {steps[currentStep].title}
               </h2>
-              <span className="text-sm text-white/70 bg-white/10 backdrop-blur-xl px-4 py-2 rounded-full font-semibold border border-white/20">
+              <span className="text-sm text-white/70 px-4 py-2 rounded-full font-semibold border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
                 Step {currentStep + 1} of {steps.length}
               </span>
             </div>
@@ -2175,11 +2177,19 @@ export default function CreateResumePage() {
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
                         isActive
-                          ? "bg-white/30 backdrop-blur-xl text-white shadow-2xl border border-white/40"
+                          ? "text-white shadow-2xl border border-white/40"
                           : isCompleted
-                          ? "bg-white/20 backdrop-blur-xl text-white shadow-lg border border-white/30"
-                          : "bg-white/5 backdrop-blur-xl text-white/50 border border-white/10"
+                          ? "text-white shadow-lg border border-white/30"
+                          : "text-white/50 border border-white/10"
                       }`}
+                      style={{
+                        background: isActive 
+                          ? 'rgba(255, 255, 255, 0.3)' 
+                          : isCompleted 
+                          ? 'rgba(255, 255, 255, 0.2)' 
+                          : 'rgba(255, 255, 255, 0.05)',
+                        backdropFilter: 'blur(20px)'
+                      }}
                     >
                       {isCompleted ? (
                         <Check className="w-5 h-5" />
@@ -2219,11 +2229,19 @@ export default function CreateResumePage() {
                   onClick={() => goToStep(step.id)}
                     className={`flex items-center gap-3 px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
                       isActive
-                        ? "bg-white/30 backdrop-blur-xl text-white shadow-2xl border border-white/40"
+                        ? "text-white shadow-2xl border border-white/40"
                         : isCompleted
-                        ? "bg-white/20 backdrop-blur-xl text-white border border-white/30 shadow-lg"
-                        : "bg-white/10 backdrop-blur-xl text-white/70 border border-white/20 hover:bg-white/20"
+                        ? "text-white border border-white/30 shadow-lg"
+                        : "text-white/70 border border-white/20 hover:bg-white/20"
                     }`}
+                    style={{
+                      background: isActive 
+                        ? 'rgba(255, 255, 255, 0.3)' 
+                        : isCompleted 
+                        ? 'rgba(255, 255, 255, 0.2)' 
+                        : 'rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(20px)'
+                    }}
                   >
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all duration-300 ${
                       isActive ? "bg-white/20" : isCompleted ? "bg-white/30" : "bg-white/10"
@@ -2314,10 +2332,10 @@ export default function CreateResumePage() {
 
           {/* Glassmorphism Preview Section */}
           <div className="sticky top-4 space-y-6">
-            <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
+            <div className="rounded-2xl p-8 shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white/20 backdrop-blur-xl rounded-xl flex items-center justify-center border border-white/30">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/30" style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(20px)'}}>
                     <Eye className="w-5 h-5 text-white" />
                   </div>
                   Live Preview
@@ -2326,7 +2344,8 @@ export default function CreateResumePage() {
                 onClick={() => setShowFullPreview(true)}
                 variant="outline"
                 size="lg"
-                  className="bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 transition-all duration-300 px-6 py-3 shadow-xl"
+                  className="border border-white/20 text-white hover:bg-white/20 transition-all duration-300 px-6 py-3 shadow-xl"
+                  style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}
               >
                 <Eye className="w-5 h-5 mr-2" />
                 Full Screen
@@ -2337,8 +2356,8 @@ export default function CreateResumePage() {
               </p>
             </div>
 
-            <div className="bg-white/5 backdrop-blur-xl rounded-2xl overflow-hidden shadow-2xl border border-white/20">
-              <div className="bg-white/10 backdrop-blur-xl p-6 border-b border-white/20">
+            <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
+              <div className="p-6 border-b border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
                 <div className="flex items-center gap-3 text-sm text-white/70">
                   <div className="w-4 h-4 bg-red-500/80 rounded-full shadow-sm"></div>
                   <div className="w-4 h-4 bg-yellow-500/80 rounded-full shadow-sm"></div>
@@ -2346,7 +2365,7 @@ export default function CreateResumePage() {
                   <span className="ml-6 font-bold text-lg text-white">Resume Preview</span>
                 </div>
               </div>
-              <div className="bg-white/5 backdrop-blur-xl p-8">
+              <div className="p-8" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
                 <div
                   className="relative overflow-hidden mx-auto shadow-inner rounded-xl border border-white/20"
                   style={{
@@ -2375,11 +2394,11 @@ export default function CreateResumePage() {
         {/* Glassmorphism Full Preview Modal */}
         {showFullPreview && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-white/20">
-              <div className="p-8 border-b border-white/20 flex justify-between items-center bg-white/5 backdrop-blur-xl">
+            <div className="rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
+              <div className="p-8 border-b border-white/20 flex justify-between items-center" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
                 <div>
                   <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white/20 backdrop-blur-xl rounded-xl flex items-center justify-center border border-white/30">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/30" style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(20px)'}}>
                       <Eye className="w-5 h-5 text-white" />
                     </div>
                     Resume Preview
@@ -2391,13 +2410,14 @@ export default function CreateResumePage() {
                 <Button
                   variant="ghost"
                   onClick={() => setShowFullPreview(false)}
-                  className="h-12 w-12 p-0 bg-white/10 backdrop-blur-xl border border-white/20 text-white hover:bg-white/20 rounded-xl transition-all duration-300"
+                  className="h-12 w-12 p-0 border border-white/20 text-white hover:bg-white/20 rounded-xl transition-all duration-300"
+                  style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}
                 >
                   <X className="h-6 w-6" />
                 </Button>
               </div>
-              <div className="p-8 overflow-auto max-h-[calc(95vh-140px)] bg-white/5 backdrop-blur-xl">
-                <div className="bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl p-12 mx-auto max-w-5xl border border-white/20">
+              <div className="p-8 overflow-auto max-h-[calc(95vh-140px)]" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
+                <div className="rounded-2xl shadow-2xl p-12 mx-auto max-w-5xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
                   {renderResumePreview()}
                 </div>
               </div>
