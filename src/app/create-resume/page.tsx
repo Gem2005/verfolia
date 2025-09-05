@@ -672,6 +672,40 @@ export default function CreateResumePage() {
     }));
   };
 
+  const updateExperienceField = (
+    experienceId: string,
+    field:
+      | "position"
+      | "company"
+      | "startDate"
+      | "endDate"
+      | "isPresent"
+      | "description",
+    value: string | boolean
+  ) => {
+    setResumeData((prev) => ({
+      ...prev,
+      experience: prev.experience.map((exp) =>
+        exp.id === experienceId
+          ? {
+              ...exp,
+              [field]: value,
+              ...(field === "isPresent" && value === true
+                ? { endDate: "" }
+                : {}),
+            }
+          : exp
+      ),
+    }));
+  };
+
+  const removeExperience = (experienceId: string) => {
+    setResumeData((prev) => ({
+      ...prev,
+      experience: prev.experience.filter((exp) => exp.id !== experienceId),
+    }));
+  };
+
   const addEducation = () => {
     const newEdu = {
       id: Math.random().toString(36).substring(2, 11),
@@ -685,6 +719,31 @@ export default function CreateResumePage() {
     setResumeData((prev) => ({
       ...prev,
       education: [...prev.education, newEdu],
+    }));
+  };
+
+  const updateEducationField = (
+    educationId: string,
+    field: "institution" | "degree" | "field" | "startDate" | "endDate" | "gpa",
+    value: string
+  ) => {
+    setResumeData((prev) => ({
+      ...prev,
+      education: prev.education.map((edu) =>
+        edu.id === educationId
+          ? {
+              ...edu,
+              [field]: value,
+            }
+          : edu
+      ),
+    }));
+  };
+
+  const removeEducation = (educationId: string) => {
+    setResumeData((prev) => ({
+      ...prev,
+      education: prev.education.filter((edu) => edu.id !== educationId),
     }));
   };
 
@@ -1276,8 +1335,76 @@ export default function CreateResumePage() {
           <CardDescription>Work experience (required)</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            Coming Soon
+          <div className="space-y-6">
+            {resumeData.experience.length === 0 && (
+              <p className="text-sm text-muted-foreground">Add your first experience.</p>
+            )}
+            {resumeData.experience.map((exp) => (
+              <div key={exp.id} className="p-4 border rounded-lg space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Job Title</Label>
+                    <Input
+                      value={exp.position}
+                      onChange={(e) => updateExperienceField(exp.id, "position", e.target.value)}
+                      placeholder="e.g., Senior Software Engineer"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Company</Label>
+                    <Input
+                      value={exp.company}
+                      onChange={(e) => updateExperienceField(exp.id, "company", e.target.value)}
+                      placeholder="e.g., Tech Solutions Inc."
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Start Date</Label>
+                    <SimpleDateInput
+                      value={exp.startDate}
+                      onChange={(val) => updateExperienceField(exp.id, "startDate", val)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>End Date</Label>
+                    <SimpleDateInput
+                      value={exp.endDate}
+                      onChange={(val) => updateExperienceField(exp.id, "endDate", val)}
+                      disabled={!!exp.isPresent}
+                    />
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <input
+                      id={`present-${exp.id}`}
+                      type="checkbox"
+                      className="h-4 w-4"
+                      checked={!!exp.isPresent}
+                      onChange={(e) => updateExperienceField(exp.id, "isPresent", e.target.checked)}
+                    />
+                    <Label htmlFor={`present-${exp.id}`}>I currently work here</Label>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    rows={4}
+                    value={exp.description}
+                    onChange={(e) => updateExperienceField(exp.id, "description", e.target.value)}
+                    placeholder="Describe your responsibilities, achievements, and technologies used (20-100 words)"
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={() => removeExperience(exp.id)}>
+                    <X className="w-4 h-4 mr-1" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={addExperience} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add Experience
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -1288,26 +1415,131 @@ export default function CreateResumePage() {
       <Card>
         <CardHeader>
           <CardTitle>Education</CardTitle>
-          <CardDescription>Education (required)</CardDescription>
+          <CardDescription>Educational background</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            Coming Soon
+          <div className="space-y-6">
+            {resumeData.education.length === 0 && (
+              <p className="text-sm text-muted-foreground">Add your first education entry.</p>
+            )}
+            {resumeData.education.map((edu) => (
+              <div key={edu.id} className="p-4 border rounded-lg space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Institution</Label>
+                    <Input
+                      value={edu.institution}
+                      onChange={(e) => updateEducationField(edu.id, "institution", e.target.value)}
+                      placeholder="e.g., University of Technology"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Degree</Label>
+                    <Input
+                      value={edu.degree}
+                      onChange={(e) => updateEducationField(edu.id, "degree", e.target.value)}
+                      placeholder="e.g., B.Sc. Computer Science"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Field of Study</Label>
+                    <Input
+                      value={edu.field}
+                      onChange={(e) => updateEducationField(edu.id, "field", e.target.value)}
+                      placeholder="e.g., Computer Science"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Start Year/Date</Label>
+                    <SimpleDateInput
+                      value={edu.startDate}
+                      onChange={(val) => updateEducationField(edu.id, "startDate", val)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>End Year/Date</Label>
+                    <SimpleDateInput
+                      value={edu.endDate}
+                      onChange={(val) => updateEducationField(edu.id, "endDate", val)}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>GPA / Percentage (optional)</Label>
+                    <Input
+                      value={edu.gpa}
+                      onChange={(e) => updateEducationField(edu.id, "gpa", e.target.value)}
+                      placeholder="e.g., 8.7/10 or 85%"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={() => removeEducation(edu.id)}>
+                    <X className="w-4 h-4 mr-1" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={addEducation} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add Education
+            </Button>
           </div>
         </CardContent>
       </Card>
     );
   }
   const renderSkillsStep = () => {
+    const [skillInput, setSkillInput] = useState("");
+    const onAdd = () => {
+      if (skillInput.trim()) {
+        addSkill(skillInput.trim());
+        setSkillInput("");
+      }
+    };
     return (
       <Card>
         <CardHeader>
           <CardTitle>Skills</CardTitle>
-          <CardDescription>Skills (required)</CardDescription>
+          <CardDescription>Technical and soft skills</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            Coming Soon
+            <div className="flex gap-2">
+              <Input
+                value={skillInput}
+                onChange={(e) => setSkillInput(e.target.value)}
+                placeholder="e.g., React, Node.js, SQL"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    onAdd();
+                  }
+                }}
+              />
+              <Button variant="outline" onClick={onAdd}>
+                <Plus className="w-4 h-4 mr-1" /> Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {resumeData.skills.length === 0 && (
+                <p className="text-sm text-muted-foreground">Add skills to showcase your strengths.</p>
+              )}
+              {resumeData.skills.map((skill) => (
+                <Badge key={skill} variant="secondary" className="flex items-center gap-1">
+                  {skill}
+                  <button
+                    className="ml-1 text-muted-foreground hover:text-foreground"
+                    onClick={() => removeSkill(skill)}
+                    aria-label={`Remove ${skill}`}
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>
