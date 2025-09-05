@@ -762,6 +762,31 @@ export default function CreateResumePage() {
     }));
   };
 
+  const updateProjectField = (
+    projectId: string,
+    field: "name" | "description" | "techStack" | "sourceUrl" | "demoUrl",
+    value: string | string[]
+  ) => {
+    setResumeData((prev) => ({
+      ...prev,
+      projects: prev.projects.map((proj) =>
+        proj.id === projectId
+          ? {
+              ...proj,
+              [field]: value,
+            }
+          : proj
+      ),
+    }));
+  };
+
+  const removeProject = (projectId: string) => {
+    setResumeData((prev) => ({
+      ...prev,
+      projects: prev.projects.filter((proj) => proj.id !== projectId),
+    }));
+  };
+
   const addSkill = (skill: string) => {
     if (skill.trim() && !resumeData.skills.includes(skill.trim())) {
       setResumeData((prev) => ({
@@ -1546,15 +1571,112 @@ export default function CreateResumePage() {
     );
   }
   const renderProjectsStep = () => {
+    const [techInput, setTechInput] = useState<{ [key: string]: string }>({});
+    const addTech = (projectId: string) => {
+      const value = (techInput[projectId] || "").trim();
+      if (!value) return;
+      const project = resumeData.projects.find((p) => p.id === projectId);
+      const next = Array.from(new Set([...(project?.techStack || []), value]));
+      updateProjectField(projectId, "techStack", next);
+      setTechInput((prev) => ({ ...prev, [projectId]: "" }));
+    };
     return (
       <Card>
         <CardHeader>
           <CardTitle>Projects</CardTitle>
-          <CardDescription>Projects (required)</CardDescription>
+          <CardDescription>Highlight your notable work</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            Coming Soon
+          <div className="space-y-6">
+            {resumeData.projects.length === 0 && (
+              <p className="text-sm text-muted-foreground">Add your first project.</p>
+            )}
+            {resumeData.projects.map((proj) => (
+              <div key={proj.id} className="p-4 border rounded-lg space-y-4">
+                <div className="space-y-2">
+                  <Label>Project Name</Label>
+                  <Input
+                    value={proj.name}
+                    onChange={(e) => updateProjectField(proj.id, "name", e.target.value)}
+                    placeholder="e.g., E-Commerce Platform"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    rows={4}
+                    value={proj.description}
+                    onChange={(e) => updateProjectField(proj.id, "description", e.target.value)}
+                    placeholder="Describe what you built, your role, and impact (20-100 words)"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tech Stack</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={techInput[proj.id] || ""}
+                      onChange={(e) => setTechInput((prev) => ({ ...prev, [proj.id]: e.target.value }))}
+                      placeholder="e.g., React"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addTech(proj.id);
+                        }
+                      }}
+                    />
+                    <Button variant="outline" onClick={() => addTech(proj.id)}>
+                      <Plus className="w-4 h-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {(proj.techStack || []).map((tech) => (
+                      <Badge key={tech} variant="secondary" className="flex items-center gap-1">
+                        {tech}
+                        <button
+                          className="ml-1 text-muted-foreground hover:text-foreground"
+                          onClick={() =>
+                            updateProjectField(
+                              proj.id,
+                              "techStack",
+                              (proj.techStack || []).filter((t) => t !== tech)
+                            )
+                          }
+                          aria-label={`Remove ${tech}`}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Source URL</Label>
+                    <Input
+                      value={proj.sourceUrl}
+                      onChange={(e) => updateProjectField(proj.id, "sourceUrl", e.target.value)}
+                      placeholder="https://github.com/username/repo"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Demo URL</Label>
+                    <Input
+                      value={proj.demoUrl}
+                      onChange={(e) => updateProjectField(proj.id, "demoUrl", e.target.value)}
+                      placeholder="https://demo.example.com"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={() => removeProject(proj.id)}>
+                    <X className="w-4 h-4 mr-1" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={addProject} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add Project
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -1576,15 +1698,100 @@ export default function CreateResumePage() {
     );
   } 
   const renderCertificationsSection = () => {
+    const addCertification = () => {
+      const newCert = {
+        id: Math.random().toString(36).substring(2, 11),
+        name: "",
+        issuer: "",
+        date: "",
+        url: "",
+      };
+      setResumeData((prev) => ({
+        ...prev,
+        certifications: [...prev.certifications, newCert],
+      }));
+    };
+    const updateCertificationField = (
+      certId: string,
+      field: "name" | "issuer" | "date" | "url",
+      value: string
+    ) => {
+      setResumeData((prev) => ({
+        ...prev,
+        certifications: prev.certifications.map((c) =>
+          c.id === certId
+            ? {
+                ...c,
+                [field]: value,
+              }
+            : c
+        ),
+      }));
+    };
+    const removeCertification = (certId: string) => {
+      setResumeData((prev) => ({
+        ...prev,
+        certifications: prev.certifications.filter((c) => c.id !== certId),
+      }));
+    };
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Progress Summary</CardTitle>
-          <CardDescription>Summary of your progress</CardDescription>
+          <CardTitle>Certifications</CardTitle>
+          <CardDescription>Professional certifications</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            Coming Soon
+          <div className="space-y-6">
+            {resumeData.certifications.length === 0 && (
+              <p className="text-sm text-muted-foreground">Add a certification if applicable.</p>
+            )}
+            {resumeData.certifications.map((cert) => (
+              <div key={cert.id} className="p-4 border rounded-lg space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Name</Label>
+                    <Input
+                      value={cert.name}
+                      onChange={(e) => updateCertificationField(cert.id, "name", e.target.value)}
+                      placeholder="e.g., AWS Solutions Architect"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Issuer</Label>
+                    <Input
+                      value={cert.issuer}
+                      onChange={(e) => updateCertificationField(cert.id, "issuer", e.target.value)}
+                      placeholder="e.g., Amazon Web Services"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <SimpleDateInput
+                      value={cert.date || ""}
+                      onChange={(val) => updateCertificationField(cert.id, "date", val)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Credential URL (optional)</Label>
+                    <Input
+                      value={cert.url || ""}
+                      onChange={(e) => updateCertificationField(cert.id, "url", e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={() => removeCertification(cert.id)}>
+                    <X className="w-4 h-4 mr-1" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={addCertification} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add Certification
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -1592,30 +1799,168 @@ export default function CreateResumePage() {
   } 
 
   const renderLanguagesSection = () => {
+    const addLanguage = () => {
+      const newLang = {
+        id: Math.random().toString(36).substring(2, 11),
+        name: "",
+        proficiency: "",
+      };
+      setResumeData((prev) => ({
+        ...prev,
+        languages: [...prev.languages, newLang],
+      }));
+    };
+    const updateLanguageField = (
+      langId: string,
+      field: "name" | "proficiency",
+      value: string
+    ) => {
+      setResumeData((prev) => ({
+        ...prev,
+        languages: prev.languages.map((l) =>
+          l.id === langId
+            ? {
+                ...l,
+                [field]: value,
+              }
+            : l
+        ),
+      }));
+    };
+    const removeLanguage = (langId: string) => {
+      setResumeData((prev) => ({
+        ...prev,
+        languages: prev.languages.filter((l) => l.id !== langId),
+      }));
+    };
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Progress Summary</CardTitle>
-          <CardDescription>Summary of your progress</CardDescription>
+          <CardTitle>Languages</CardTitle>
+          <CardDescription>Spoken languages and proficiency</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            Coming Soon
+          <div className="space-y-6">
+            {resumeData.languages.length === 0 && (
+              <p className="text-sm text-muted-foreground">Add languages you are proficient in.</p>
+            )}
+            {resumeData.languages.map((lang) => (
+              <div key={lang.id} className="p-4 border rounded-lg space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Language</Label>
+                    <Input
+                      value={lang.name}
+                      onChange={(e) => updateLanguageField(lang.id, "name", e.target.value)}
+                      placeholder="e.g., English"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Proficiency</Label>
+                    <select
+                      className="h-11 px-3 py-2 text-sm border border-border rounded-md bg-background"
+                      value={lang.proficiency || ""}
+                      onChange={(e) => updateLanguageField(lang.id, "proficiency", e.target.value)}
+                    >
+                      <option value="">Select level</option>
+                      <option value="Beginner">Beginner</option>
+                      <option value="Intermediate">Intermediate</option>
+                      <option value="Advanced">Advanced</option>
+                      <option value="Fluent">Fluent</option>
+                      <option value="Native">Native</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={() => removeLanguage(lang.id)}>
+                    <X className="w-4 h-4 mr-1" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={addLanguage} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add Language
+            </Button>
           </div>
         </CardContent>
       </Card>
     );
   } 
   const renderCustomSections = () => {
+    const addCustomSection = () => {
+      const newSection = {
+        id: Math.random().toString(36).substring(2, 11),
+        title: "",
+        description: "",
+      };
+      setResumeData((prev) => ({
+        ...prev,
+        customSections: [...prev.customSections, newSection],
+      }));
+    };
+    const updateCustomSectionField = (
+      sectionId: string,
+      field: "title" | "description",
+      value: string
+    ) => {
+      setResumeData((prev) => ({
+        ...prev,
+        customSections: prev.customSections.map((s) =>
+          s.id === sectionId
+            ? {
+                ...s,
+                [field]: value,
+              }
+            : s
+        ),
+      }));
+    };
+    const removeCustomSection = (sectionId: string) => {
+      setResumeData((prev) => ({
+        ...prev,
+        customSections: prev.customSections.filter((s) => s.id !== sectionId),
+      }));
+    };
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Progress Summary</CardTitle>
-          <CardDescription>Summary of your progress</CardDescription>
+          <CardTitle>Additional Sections</CardTitle>
+          <CardDescription>Any extra sections you want to include</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            Coming Soon
+          <div className="space-y-6">
+            {resumeData.customSections.length === 0 && (
+              <p className="text-sm text-muted-foreground">Add any additional sections such as interests or awards.</p>
+            )}
+            {resumeData.customSections.map((section) => (
+              <div key={section.id} className="p-4 border rounded-lg space-y-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={section.title}
+                    onChange={(e) => updateCustomSectionField(section.id, "title", e.target.value)}
+                    placeholder="e.g., Awards, Interests"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    rows={3}
+                    value={section.description}
+                    onChange={(e) => updateCustomSectionField(section.id, "description", e.target.value)}
+                    placeholder="Details for this section"
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="destructive" onClick={() => removeCustomSection(section.id)}>
+                    <X className="w-4 h-4 mr-1" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={addCustomSection} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Add Section
+            </Button>
           </div>
         </CardContent>
       </Card>
