@@ -2093,7 +2093,7 @@ export default function CreateResumePage() {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden" style={{background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%)'}}>
       {/* Glassmorphism Background */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full blur-3xl"></div>
@@ -2101,9 +2101,9 @@ export default function CreateResumePage() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-full blur-3xl"></div>
         
         {/* Glassmorphism orbs */}
-        <div className="absolute top-20 left-20 w-32 h-32 rounded-full border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 rounded-full border border-white/10" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}></div>
-        <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full border border-white/30" style={{background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(20px)'}}></div>
+        <div className="absolute top-20 left-20 w-32 h-32 rounded-full border border-white/30" style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(30px)'}}></div>
+        <div className="absolute bottom-20 right-20 w-24 h-24 rounded-full border border-white/20" style={{background: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(30px)'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-16 h-16 rounded-full border border-white/40" style={{background: 'rgba(255, 255, 255, 0.25)', backdropFilter: 'blur(30px)'}}></div>
       </div>
       
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
@@ -2112,7 +2112,7 @@ export default function CreateResumePage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
             <div className="space-y-3">
               <div className="inline-flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center border border-white/30 shadow-2xl" style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(30px)'}}>
                   <PenSquare className="w-8 h-8 text-white" />
                 </div>
                 <div>
@@ -2130,7 +2130,7 @@ export default function CreateResumePage() {
                 variant="outline"
                 onClick={() => setShowChoice(true)}
                 className="flex items-center gap-2 border border-white/20 text-white hover:bg-white/20 transition-all duration-300 px-6 py-3 shadow-xl"
-                style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}
+                style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(30px)'}}
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Choice
@@ -2139,7 +2139,7 @@ export default function CreateResumePage() {
                 onClick={handleSave}
                 disabled={saving}
                 className="flex items-center gap-2 border border-white/30 text-white hover:bg-white/30 transition-all duration-300 px-8 py-3 text-lg font-semibold shadow-2xl"
-                style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(20px)'}}
+                style={{background: 'rgba(255, 255, 255, 0.3)', backdropFilter: 'blur(30px)'}}
               >
                 {saving ? (
                   <>
@@ -2345,7 +2345,7 @@ export default function CreateResumePage() {
                 variant="outline"
                 size="lg"
                   className="border border-white/20 text-white hover:bg-white/20 transition-all duration-300 px-6 py-3 shadow-xl"
-                  style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}
+                  style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(30px)'}}
               >
                 <Eye className="w-5 h-5 mr-2" />
                 Full Screen
@@ -2411,7 +2411,7 @@ export default function CreateResumePage() {
                   variant="ghost"
                   onClick={() => setShowFullPreview(false)}
                   className="h-12 w-12 p-0 border border-white/20 text-white hover:bg-white/20 rounded-xl transition-all duration-300"
-                  style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}
+                  style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(30px)'}}
                 >
                   <X className="h-6 w-6" />
                 </Button>
