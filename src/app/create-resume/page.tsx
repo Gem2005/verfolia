@@ -1559,34 +1559,26 @@ export default function CreateResumePage() {
                 <p className="text-sm text-muted-foreground">Add skills to showcase your strengths.</p>
               )}
               {resumeData.skills.map((skill, index) => (
-                <Badge key={`${skill}-${index}`} asChild variant="secondary" className="pr-1">
+                <div key={`${skill}-${index}`} className="inline-flex items-center gap-1">
+                  <Badge variant="secondary" className="pr-1">
+                    <span className="inline-flex items-center gap-2">
+                      <span>{skill}</span>
+                    </span>
+                  </Badge>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-2 cursor-pointer"
+                    className="h-5 px-1.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       removeSkillAtIndex(index);
                     }}
-                    onPointerDown={(e) => {
-                      // Ensure tap/click always removes, even if other handlers interfere
-                      e.preventDefault();
-                      e.stopPropagation();
-                      removeSkillAtIndex(index);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        removeSkillAtIndex(index);
-                      }
-                    }}
-                    title="Remove"
                     aria-label={`Remove ${skill}`}
+                    title="Remove"
                   >
-                    <span>{skill}</span>
                     <X className="w-3.5 h-3.5" />
                   </button>
-                </Badge>
+                </div>
               ))}
                   </div>
           </div>
