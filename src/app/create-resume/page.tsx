@@ -808,6 +808,12 @@ export default function CreateResumePage() {
       ...prev,
       skills: prev.skills.filter((_, index) => index !== removeIndex),
     }));
+    // Force re-render for stubborn browsers
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        setResumeData((prev) => ({ ...prev, skills: [...prev.skills] }));
+      }, 0);
+    }
   };
 
   const renderTemplateStep = () => {
@@ -1573,6 +1579,11 @@ export default function CreateResumePage() {
                       e.stopPropagation();
                       removeSkillAtIndex(index);
                     }}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeSkillAtIndex(index);
+                    }}
                     aria-label={`Remove ${skill}`}
                     title="Remove"
                   >
@@ -1580,7 +1591,19 @@ export default function CreateResumePage() {
                   </button>
                 </div>
               ))}
-                  </div>
+            </div>
+            {resumeData.skills.length > 0 && (
+              <div className="mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setResumeData((prev) => ({ ...prev, skills: [] }))}
+                >
+                  Clear all skills
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
