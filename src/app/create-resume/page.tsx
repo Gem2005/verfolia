@@ -1617,17 +1617,17 @@ export default function CreateResumePage() {
             </div>
             {resumeData.skills.length > 0 && (
               <div className="mt-4">
-                <Button
+                    <Button
                   type="button"
                   variant="outline"
-                  size="sm"
+                      size="sm"
                   onClick={() => setResumeData((prev) => ({ ...prev, skills: [] }))}
                 >
                   Clear all skills
-                </Button>
-              </div>
-            )}
-          </div>
+                    </Button>
+                  </div>
+                      )}
+                    </div>
         </CardContent>
       </Card>
     );
@@ -1676,18 +1676,18 @@ export default function CreateResumePage() {
                     </div>
                 <div className="space-y-2">
                   <Label>Tech Stack</Label>
-                  <div className="flex gap-2">
-                      <Input
-                      value={newTech[proj.id] || ""}
+                      <div className="flex gap-2">
+                        <Input
+                          value={newTech[proj.id] || ""}
                       onChange={(e) => setNewTech((prev) => ({ ...prev, [proj.id]: e.target.value }))}
                       placeholder="e.g., React"
-                      onKeyDown={(e) => {
+                          onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                          e.preventDefault();
+                              e.preventDefault();
                           addTech(proj.id);
-                        }
-                      }}
-                    />
+                            }
+                          }}
+                        />
                     <Button variant="outline" onClick={() => addTech(proj.id)}>
                       <Plus className="w-4 h-4 mr-1" /> Add
                     </Button>
@@ -1712,7 +1712,7 @@ export default function CreateResumePage() {
                           </Badge>
                         ))}
                       </div>
-                </div>
+                    </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Source URL</Label>
@@ -1735,7 +1735,7 @@ export default function CreateResumePage() {
                   <Button variant="destructive" onClick={() => removeProject(proj.id)}>
                     <X className="w-4 h-4 mr-1" /> Remove
                   </Button>
-                </div>
+                  </div>
                 </div>
               ))}
             <Button variant="outline" onClick={addProject} className="flex items-center gap-2">
@@ -2091,7 +2091,7 @@ export default function CreateResumePage() {
         </div>
       </div>
     );
-  } else {
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -2105,15 +2105,15 @@ export default function CreateResumePage() {
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                    Create Resume
-                  </h1>
+              Create Resume
+            </h1>
                   <p className="text-slate-600 text-lg">
-                    Build your professional resume with real-time preview
-                  </p>
-                </div>
+              Build your professional resume with real-time preview
+            </p>
+          </div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
               <Button
                 variant="outline"
                 onClick={() => setShowChoice(true)}
@@ -2146,7 +2146,7 @@ export default function CreateResumePage() {
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                {steps[currentStep].icon && <steps[currentStep].icon className="w-5 h-5 text-blue-600" />}
+                {(() => { const Icon = steps[currentStep].icon as any; return Icon ? <Icon className="w-5 h-5 text-blue-600" /> : null; })()}
                 {steps[currentStep].title}
               </h2>
               <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
@@ -2197,14 +2197,14 @@ export default function CreateResumePage() {
               const isActive = currentStep === step.id;
               const isCompleted = currentStep > step.id;
               return (
-                <div
-                  key={step.id}
-                  className={`flex items-center ${
-                    index < steps.length - 1 ? "flex-1" : ""
-                  }`}
-                >
-                  <button
-                    onClick={() => goToStep(step.id)}
+              <div
+                key={step.id}
+                className={`flex items-center ${
+                  index < steps.length - 1 ? "flex-1" : ""
+                }`}
+              >
+                <button
+                  onClick={() => goToStep(step.id)}
                     className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                       isActive
                         ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
@@ -2222,14 +2222,14 @@ export default function CreateResumePage() {
                         <Icon className="w-3 h-3" />
                       )}
                     </div>
-                    <span className="hidden sm:inline">{step.title}</span>
-                  </button>
-                  {index < steps.length - 1 && (
+                  <span className="hidden sm:inline">{step.title}</span>
+                </button>
+                {index < steps.length - 1 && (
                     <div className={`hidden sm:block flex-1 h-px mx-2 transition-colors ${
                       isCompleted ? "bg-green-300" : "bg-slate-200"
                     }`} />
-                  )}
-                </div>
+                )}
+              </div>
               );
             })}
           </div>
@@ -2308,15 +2308,15 @@ export default function CreateResumePage() {
                   <Eye className="w-5 h-5 text-blue-600" />
                   Live Preview
                 </h2>
-                <Button
-                  onClick={() => setShowFullPreview(true)}
-                  variant="outline"
-                  size="sm"
+              <Button
+                onClick={() => setShowFullPreview(true)}
+                variant="outline"
+                size="sm"
                   className="hover:bg-slate-50 transition-colors"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Full Screen
-                </Button>
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Full Screen
+              </Button>
               </div>
               <p className="text-sm text-slate-600">
                 See how your resume looks in real-time as you make changes
@@ -2388,5 +2388,4 @@ export default function CreateResumePage() {
       </div>
     </div>
   );
-  }
 }
