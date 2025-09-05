@@ -1568,6 +1568,12 @@ export default function CreateResumePage() {
                       e.stopPropagation();
                       removeSkillAtIndex(index);
                     }}
+                    onPointerDown={(e) => {
+                      // Ensure tap/click always removes, even if other handlers interfere
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeSkillAtIndex(index);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
