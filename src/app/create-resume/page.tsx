@@ -1560,20 +1560,27 @@ export default function CreateResumePage() {
               )}
               {resumeData.skills.map((skill, index) => (
                 <div key={`${skill}-${index}`} className="inline-flex items-center">
-                  <Badge variant="secondary" className="flex items-center gap-1 pr-1">
+                  <Badge variant="secondary" className="flex items-center gap-2 pr-1">
                     <span>{skill}</span>
                     <button
                       type="button"
-                      className="ml-1 rounded px-1 text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="ml-1 inline-flex items-center justify-center rounded-sm px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-ring pointer-events-auto cursor-pointer"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         removeSkillAtIndex(index);
                       }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          removeSkillAtIndex(index);
+                        }
+                      }}
+                      tabIndex={0}
                       aria-label={`Remove ${skill}`}
                       title="Remove"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </Badge>
                 </div>
