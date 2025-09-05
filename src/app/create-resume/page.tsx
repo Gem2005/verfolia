@@ -803,6 +803,13 @@ export default function CreateResumePage() {
     }));
   };
 
+  const removeSkillAtIndex = (removeIndex: number) => {
+    setResumeData((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((_, index) => index !== removeIndex),
+    }));
+  };
+
   const renderTemplateStep = () => {
     const TemplatePreview = ({
       template,
@@ -1551,22 +1558,19 @@ export default function CreateResumePage() {
               {resumeData.skills.length === 0 && (
                 <p className="text-sm text-muted-foreground">Add skills to showcase your strengths.</p>
               )}
-              {resumeData.skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="flex items-center gap-1">
-                  {skill}
-                  <button
-                    type="button"
-                    className="ml-1 text-muted-foreground hover:text-foreground"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      removeSkill(skill);
-                    }}
+              {resumeData.skills.map((skill, index) => (
+                <div key={`${skill}-${index}`} className="inline-flex">
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1 cursor-pointer select-none"
+                    onClick={() => removeSkillAtIndex(index)}
                     aria-label={`Remove ${skill}`}
+                    title="Click to remove"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
-                </Badge>
+                    {skill}
+                    <X className="w-3 h-3 ml-1" />
+                  </Badge>
+                </div>
               ))}
             </div>
           </div>
