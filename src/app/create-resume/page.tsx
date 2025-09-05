@@ -803,6 +803,13 @@ export default function CreateResumePage() {
     }));
   };
 
+  const removeSkillAtIndex = (removeIndex: number) => {
+    setResumeData((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((_, index) => index !== removeIndex),
+    }));
+  };
+
   const renderTemplateStep = () => {
     const TemplatePreview = ({
       template,
@@ -1559,7 +1566,7 @@ export default function CreateResumePage() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    removeSkill(skill);
+                    removeSkillAtIndex(index);
                   }}
                   title="Remove skill"
                 >
