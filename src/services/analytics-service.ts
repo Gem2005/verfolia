@@ -66,11 +66,11 @@ class AnalyticsService {
       const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : '';
       const referrer = typeof document !== 'undefined' ? document.referrer : '';
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/track-analytics`, {
+      // Use internal API route which forwards to Supabase when configured
+      const response = await fetch(`/api/track-analytics`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
           resumeId,
