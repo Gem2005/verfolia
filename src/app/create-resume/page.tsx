@@ -1559,29 +1559,29 @@ export default function CreateResumePage() {
                 <p className="text-sm text-muted-foreground">Add skills to showcase your strengths.</p>
               )}
               {resumeData.skills.map((skill, index) => (
-                <div key={`${skill}-${index}`} className="inline-flex items-center">
+                <div
+                  key={`${skill}-${index}`}
+                  className="inline-flex items-center cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  title="Remove skill"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeSkillAtIndex(index);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      removeSkillAtIndex(index);
+                    }
+                  }}
+                >
                   <Badge variant="secondary" className="flex items-center gap-2 pr-1">
                     <span>{skill}</span>
-                    <button
-                      type="button"
-                      className="ml-1 inline-flex items-center justify-center rounded-sm px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 focus:outline-none focus:ring-2 focus:ring-ring pointer-events-auto cursor-pointer"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        removeSkillAtIndex(index);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          removeSkillAtIndex(index);
-                        }
-                      }}
-                      tabIndex={0}
-                      aria-label={`Remove ${skill}`}
-                      title="Remove"
-                    >
+                    <span className="ml-1 inline-flex items-center justify-center rounded-sm px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 pointer-events-none">
                       <X className="w-3.5 h-3.5" />
-                    </button>
+                    </span>
                   </Badge>
                 </div>
               ))}
