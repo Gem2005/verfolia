@@ -1559,31 +1559,28 @@ export default function CreateResumePage() {
                 <p className="text-sm text-muted-foreground">Add skills to showcase your strengths.</p>
               )}
               {resumeData.skills.map((skill, index) => (
-                <div
-                  key={`${skill}-${index}`}
-                  className="inline-flex items-center cursor-pointer"
-                  role="button"
-                  tabIndex={0}
-                  title="Remove skill"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    removeSkillAtIndex(index);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                <Badge key={`${skill}-${index}`} asChild variant="secondary" className="pr-1">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 cursor-pointer"
+                    onClick={(e) => {
                       e.preventDefault();
+                      e.stopPropagation();
                       removeSkillAtIndex(index);
-                    }
-                  }}
-                >
-                  <Badge variant="secondary" className="flex items-center gap-2 pr-1">
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        removeSkillAtIndex(index);
+                      }
+                    }}
+                    title="Remove"
+                    aria-label={`Remove ${skill}`}
+                  >
                     <span>{skill}</span>
-                    <span className="ml-1 inline-flex items-center justify-center rounded-sm px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 pointer-events-none">
-                      <X className="w-3.5 h-3.5" />
-                    </span>
-                  </Badge>
-                </div>
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </Badge>
               ))}
                   </div>
           </div>
