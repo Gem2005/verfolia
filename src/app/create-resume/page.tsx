@@ -227,7 +227,7 @@ export default function CreateResumePage() {
     });
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.experience]);
-
+  
   // (Keep all other validation functions as they are)
   const validateEducation = useCallback(() => {
     const errors: { [key: string]: string } = {};
@@ -366,7 +366,7 @@ export default function CreateResumePage() {
     () => validateCurrentStep(),
     [validateCurrentStep]
   );
-
+  
   // (Keep all helper functions like getPortfolioData, renderResumePreview, handleSave, etc.)
   // ...
   const getPortfolioData = (): PortfolioData => ({
@@ -797,12 +797,9 @@ export default function CreateResumePage() {
   };
 
   const removeSkill = (skillToRemove: string) => {
-    const normalizedToRemove = (skillToRemove || "").trim().toLowerCase();
     setResumeData((prev) => ({
       ...prev,
-      skills: prev.skills.filter(
-        (skill) => (skill || "").trim().toLowerCase() !== normalizedToRemove
-      ),
+      skills: prev.skills.filter((skill) => skill !== skillToRemove),
     }));
   };
 
@@ -1032,7 +1029,7 @@ export default function CreateResumePage() {
       </>
     );
   };
-
+  
   // (Keep renderPersonalInfoStep and other render steps)
   // ...
   const renderPersonalInfoStep = () => {
@@ -1357,11 +1354,11 @@ export default function CreateResumePage() {
 
   const renderExperienceStep = () => {
     return (
-    <Card>
-      <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle>Experience</CardTitle>
           <CardDescription>Work experience (required)</CardDescription>
-      </CardHeader>
+        </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {resumeData.experience.length === 0 && (
@@ -1397,15 +1394,15 @@ export default function CreateResumePage() {
                   </div>
                   <div className="space-y-2">
                     <Label>End Date</Label>
-                        <SimpleDateInput
+                    <SimpleDateInput
                       value={exp.endDate}
                       onChange={(val) => updateExperienceField(exp.id, "endDate", val)}
                       disabled={!!exp.isPresent}
                     />
                   </div>
                   <div className="flex items-end gap-2">
-                        <input
-                          id={`present-${exp.id}`}
+                    <input
+                      id={`present-${exp.id}`}
                       type="checkbox"
                       className="h-4 w-4"
                       checked={!!exp.isPresent}
@@ -1434,17 +1431,17 @@ export default function CreateResumePage() {
               <Plus className="w-4 h-4" /> Add Experience
             </Button>
           </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
   }
   const renderEducationStep = () => {
     return (
-    <Card>
-      <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle>Education</CardTitle>
           <CardDescription>Educational background</CardDescription>
-      </CardHeader>
+        </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {resumeData.education.length === 0 && (
@@ -1515,16 +1512,15 @@ export default function CreateResumePage() {
               <Plus className="w-4 h-4" /> Add Education
             </Button>
           </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
   }
   const renderSkillsStep = () => {
-    const [skillInput, setSkillInput] = useState("");
     const onAdd = () => {
-      if (skillInput.trim()) {
-        addSkill(skillInput.trim());
-        setSkillInput("");
+      if (newSkill.trim()) {
+        addSkill(newSkill.trim());
+        setNewSkill("");
       }
     };
     return (
@@ -1537,8 +1533,8 @@ export default function CreateResumePage() {
           <div className="space-y-4">
             <div className="flex gap-2">
               <Input
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
                 placeholder="e.g., React, Node.js, SQL"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -1566,14 +1562,13 @@ export default function CreateResumePage() {
                       e.stopPropagation();
                       removeSkill(skill);
                     }}
-                    onMouseDown={(e) => e.preventDefault()}
                     aria-label={`Remove ${skill}`}
                   >
                     <X className="w-3 h-3" />
                   </button>
                 </Badge>
               ))}
-                  </div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -1604,25 +1599,25 @@ export default function CreateResumePage() {
               <div key={proj.id} className="p-4 border rounded-lg space-y-4">
                 <div className="space-y-2">
                   <Label>Project Name</Label>
-                      <Input
-                        value={proj.name}
+                  <Input
+                    value={proj.name}
                     onChange={(e) => updateProjectField(proj.id, "name", e.target.value)}
                     placeholder="e.g., E-Commerce Platform"
                   />
-                    </div>
+                </div>
                 <div className="space-y-2">
                   <Label>Description</Label>
-                      <Textarea
+                  <Textarea
                     rows={4}
-                        value={proj.description}
+                    value={proj.description}
                     onChange={(e) => updateProjectField(proj.id, "description", e.target.value)}
                     placeholder="Describe what you built, your role, and impact (20-100 words)"
                   />
-                    </div>
+                </div>
                 <div className="space-y-2">
                   <Label>Tech Stack</Label>
                   <div className="flex gap-2">
-                      <Input
+                    <Input
                       value={techInput[proj.id] || ""}
                       onChange={(e) => setTechInput((prev) => ({ ...prev, [proj.id]: e.target.value }))}
                       placeholder="e.g., React"
@@ -1636,7 +1631,7 @@ export default function CreateResumePage() {
                     <Button variant="outline" onClick={() => addTech(proj.id)}>
                       <Plus className="w-4 h-4 mr-1" /> Add
                     </Button>
-                    </div>
+                  </div>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {(proj.techStack || []).map((tech) => (
                       <Badge key={tech} variant="secondary" className="flex items-center gap-1">
@@ -1654,19 +1649,19 @@ export default function CreateResumePage() {
                         >
                           <X className="w-3 h-3" />
                         </button>
-                          </Badge>
-                        ))}
-                      </div>
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Source URL</Label>
-                        <Input
+                    <Input
                       value={proj.sourceUrl}
                       onChange={(e) => updateProjectField(proj.id, "sourceUrl", e.target.value)}
                       placeholder="https://github.com/username/repo"
                     />
-                      </div>
+                  </div>
                   <div className="space-y-2">
                     <Label>Demo URL</Label>
                     <Input
@@ -1674,19 +1669,19 @@ export default function CreateResumePage() {
                       onChange={(e) => updateProjectField(proj.id, "demoUrl", e.target.value)}
                       placeholder="https://demo.example.com"
                     />
-                    </div>
                   </div>
+                </div>
                 <div className="flex justify-end">
                   <Button variant="destructive" onClick={() => removeProject(proj.id)}>
                     <X className="w-4 h-4 mr-1" /> Remove
                   </Button>
                 </div>
-                </div>
-              ))}
+              </div>
+            ))}
             <Button variant="outline" onClick={addProject} className="flex items-center gap-2">
               <Plus className="w-4 h-4" /> Add Project
-              </Button>
-            </div>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -1707,19 +1702,19 @@ export default function CreateResumePage() {
     );
   } 
   const renderCertificationsSection = () => {
-  const addCertification = () => {
-    const newCert = {
-      id: Math.random().toString(36).substring(2, 11),
-      name: "",
-      issuer: "",
-      date: "",
-      url: "",
+    const addCertification = () => {
+      const newCert = {
+        id: Math.random().toString(36).substring(2, 11),
+        name: "",
+        issuer: "",
+        date: "",
+        url: "",
+      };
+      setResumeData((prev) => ({
+        ...prev,
+        certifications: [...prev.certifications, newCert],
+      }));
     };
-    setResumeData((prev) => ({
-      ...prev,
-      certifications: [...prev.certifications, newCert],
-    }));
-  };
     const updateCertificationField = (
       certId: string,
       field: "name" | "issuer" | "date" | "url",
@@ -1744,11 +1739,11 @@ export default function CreateResumePage() {
       }));
     };
     return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Certifications</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle>Certifications</CardTitle>
           <CardDescription>Professional certifications</CardDescription>
-      </CardHeader>
+        </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {resumeData.certifications.length === 0 && (
@@ -1802,23 +1797,23 @@ export default function CreateResumePage() {
               <Plus className="w-4 h-4" /> Add Certification
             </Button>
           </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
   } 
 
   const renderLanguagesSection = () => {
-  const addLanguage = () => {
-    const newLang = {
-      id: Math.random().toString(36).substring(2, 11),
-      name: "",
-      proficiency: "",
+    const addLanguage = () => {
+      const newLang = {
+        id: Math.random().toString(36).substring(2, 11),
+        name: "",
+        proficiency: "",
+      };
+      setResumeData((prev) => ({
+        ...prev,
+        languages: [...prev.languages, newLang],
+      }));
     };
-    setResumeData((prev) => ({
-      ...prev,
-      languages: [...prev.languages, newLang],
-    }));
-  };
     const updateLanguageField = (
       langId: string,
       field: "name" | "proficiency",
@@ -1843,11 +1838,11 @@ export default function CreateResumePage() {
       }));
     };
     return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Languages</CardTitle>
+      <Card>
+        <CardHeader>
+          <CardTitle>Languages</CardTitle>
           <CardDescription>Spoken languages and proficiency</CardDescription>
-      </CardHeader>
+        </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {resumeData.languages.length === 0 && (
@@ -1891,29 +1886,29 @@ export default function CreateResumePage() {
               <Plus className="w-4 h-4" /> Add Language
             </Button>
           </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
   } 
   const renderCustomSections = () => {
-  const addCustomSection = () => {
-    const newSection = {
-      id: Math.random().toString(36).substring(2, 11),
-      title: "",
-      description: "",
+    const addCustomSection = () => {
+      const newSection = {
+        id: Math.random().toString(36).substring(2, 11),
+        title: "",
+        description: "",
+      };
+      setResumeData((prev) => ({
+        ...prev,
+        customSections: [...prev.customSections, newSection],
+      }));
     };
-    setResumeData((prev) => ({
-      ...prev,
-      customSections: [...prev.customSections, newSection],
-    }));
-  };
     const updateCustomSectionField = (
       sectionId: string,
       field: "title" | "description",
       value: string
     ) => {
-                      setResumeData((prev) => ({
-                        ...prev,
+      setResumeData((prev) => ({
+        ...prev,
         customSections: prev.customSections.map((s) =>
           s.id === sectionId
             ? {
@@ -1945,21 +1940,21 @@ export default function CreateResumePage() {
               <div key={section.id} className="p-4 border rounded-lg space-y-4">
                 <div className="space-y-2">
                   <Label>Title</Label>
-                    <Input
-                      value={section.title}
+                  <Input
+                    value={section.title}
                     onChange={(e) => updateCustomSectionField(section.id, "title", e.target.value)}
                     placeholder="e.g., Awards, Interests"
                   />
-                  </div>
+                </div>
                 <div className="space-y-2">
                   <Label>Description</Label>
-                    <Textarea
+                  <Textarea
                     rows={3}
-                      value={section.description}
+                    value={section.description}
                     onChange={(e) => updateCustomSectionField(section.id, "description", e.target.value)}
                     placeholder="Details for this section"
                   />
-                  </div>
+                </div>
                 <div className="flex justify-end">
                   <Button variant="destructive" onClick={() => removeCustomSection(section.id)}>
                     <X className="w-4 h-4 mr-1" /> Remove
@@ -1971,9 +1966,9 @@ export default function CreateResumePage() {
               <Plus className="w-4 h-4" /> Add Section
             </Button>
           </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
   } 
 
   if (loading) {
@@ -1982,8 +1977,8 @@ export default function CreateResumePage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p>Loading...</p>
-            </div>
-              </div>
+        </div>
+      </div>
     );
   }
 
@@ -2037,19 +2032,19 @@ export default function CreateResumePage() {
       </div>
     );
   } else {
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-foreground">
-              Create Resume
-            </h1>
-            <p className="text-muted-foreground">
-              Build your professional resume with real-time preview
-            </p>
-          </div>
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-6 max-w-7xl">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold text-foreground">
+                Create Resume
+              </h1>
+              <p className="text-muted-foreground">
+                Build your professional resume with real-time preview
+              </p>
+            </div>
             <Button
               variant="outline"
               onClick={() => setShowChoice(true)}
@@ -2058,124 +2053,26 @@ export default function CreateResumePage() {
               <ArrowLeft className="w-4 h-4" />
               Back to Choice
             </Button>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col">
-              <span className="text-sm mb-1 font-medium">Template</span>
-              <select
-                value={selectedTemplate}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="h-9 w-48 px-3 py-1 text-sm border border-border rounded-md bg-background"
-              >
-                {templates.map((tpl) => (
-                  <option key={tpl.id} value={tpl.id}>
-                    {tpl.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="w-full lg:w-auto flex justify-end">
-              <Button
-                onClick={handleSave}
-                disabled={saving}
-                className="self-stretch sm:self-end w-full sm:w-auto shrink-0"
-              >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Save Resume
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-            {steps.map((step, index) => (
-              <div
-                key={step.id}
-                className={`flex items-center ${
-                  index < steps.length - 1 ? "flex-1" : ""
-                }`}
-              >
-                <button
-                  onClick={() => goToStep(step.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    currentStep === step.id
-                      ? "bg-primary text-primary-foreground"
-                      : currentStep > step.id
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex flex-col">
+                <span className="text-sm mb-1 font-medium">Template</span>
+                <select
+                  value={selectedTemplate}
+                  onChange={(e) => setSelectedTemplate(e.target.value)}
+                  className="h-9 w-48 px-3 py-1 text-sm border border-border rounded-md bg-background"
                 >
-                  <span className="w-6 h-6 rounded-full bg-current/20 flex items-center justify-center text-xs">
-                    {step.id + 1}
-                  </span>
-                  <span className="hidden sm:inline">{step.title}</span>
-                </button>
-                {index < steps.length - 1 && (
-                  <div className="hidden sm:block flex-1 h-px bg-border mx-2" />
-                )}
+                  {templates.map((tpl) => (
+                    <option key={tpl.id} value={tpl.id}>
+                      {tpl.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Form Section */}
-          <div className="space-y-6">
-            <div
-              className={`transition-opacity duration-150 ${
-                isTransitioning ? "opacity-0" : "opacity-100"
-              }`}
-            >
-              {currentStep === 0 && renderTemplateStep()}
-              {currentStep === 1 && renderPersonalInfoStep()}
-              {currentStep === 2 && renderExperienceStep()}
-              {currentStep === 3 && renderEducationStep()}
-              {currentStep === 4 && renderSkillsStep()}
-              {currentStep === 5 && renderProjectsStep()}
-              {currentStep === 6 && (
-                <div className="space-y-6">
-                  {renderProgressSummary()}
-                  {renderCertificationsSection()}
-                  {renderLanguagesSection()}
-                  {renderCustomSections()}
-                </div>
-              )}
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between">
-              <Button
-                onClick={() => goToStep(currentStep - 1)}
-                disabled={currentStep === 0}
-                variant="outline"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Previous
-              </Button>
-
-              {currentStep < steps.length - 1 ? (
-                <Button
-                  onClick={() => goToStep(currentStep + 1)}
-                  disabled={!canProceedToNext}
-                >
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
+              <div className="w-full lg:w-auto flex justify-end">
                 <Button
                   onClick={handleSave}
-                  disabled={saving || !canProceedToNext}
+                  disabled={saving}
+                  className="self-stretch sm:self-end w-full sm:w-auto shrink-0"
                 >
                   {saving ? (
                     <>
@@ -2189,80 +2086,178 @@ export default function CreateResumePage() {
                     </>
                   )}
                 </Button>
-              )}
+              </div>
             </div>
           </div>
 
-          {/* Preview Section */}
-          <div className="sticky top-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Preview</h2>
-              <Button
-                onClick={() => setShowFullPreview(true)}
-                variant="outline"
-                size="sm"
+          {/* Progress Steps */}
+          <div className="mb-8">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+              {steps.map((step, index) => (
+                <div
+                  key={step.id}
+                  className={`flex items-center ${
+                    index < steps.length - 1 ? "flex-1" : ""
+                  }`}
+                >
+                  <button
+                    onClick={() => goToStep(step.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      currentStep === step.id
+                        ? "bg-primary text-primary-foreground"
+                        : currentStep > step.id
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    }`}
+                  >
+                    <span className="w-6 h-6 rounded-full bg-current/20 flex items-center justify-center text-xs">
+                      {step.id + 1}
+                    </span>
+                    <span className="hidden sm:inline">{step.title}</span>
+                  </button>
+                  {index < steps.length - 1 && (
+                    <div className="hidden sm:block flex-1 h-px bg-border mx-2" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Form Section */}
+            <div className="space-y-6">
+              <div
+                className={`transition-opacity duration-150 ${
+                  isTransitioning ? "opacity-0" : "opacity-100"
+                }`}
               >
-                <Eye className="w-4 h-4 mr-2" />
-                Full Screen
-              </Button>
+                {currentStep === 0 && renderTemplateStep()}
+                {currentStep === 1 && renderPersonalInfoStep()}
+                {currentStep === 2 && renderExperienceStep()}
+                {currentStep === 3 && renderEducationStep()}
+                {currentStep === 4 && renderSkillsStep()}
+                {currentStep === 5 && renderProjectsStep()}
+                {currentStep === 6 && (
+                  <div className="space-y-6">
+                    {renderProgressSummary()}
+                    {renderCertificationsSection()}
+                    {renderLanguagesSection()}
+                    {renderCustomSections()}
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between">
+                <Button
+                  onClick={() => goToStep(currentStep - 1)}
+                  disabled={currentStep === 0}
+                  variant="outline"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Previous
+                </Button>
+
+                {currentStep < steps.length - 1 ? (
+                  <Button
+                    onClick={() => goToStep(currentStep + 1)}
+                    disabled={!canProceedToNext}
+                  >
+                    Next
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleSave}
+                    disabled={saving || !canProceedToNext}
+                  >
+                    {saving ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4 mr-2" />
+                        Save Resume
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
 
-            <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
-              <div className="bg-white p-4">
-                <div
-                  className="relative overflow-hidden"
-                  style={{
-                    width: "100%",
-                    height: "0",
-                    paddingBottom: "141.4%", // A4 aspect ratio (1:1.414)
-                  }}
+            {/* Preview Section */}
+            <div className="sticky top-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Preview</h2>
+                <Button
+                  onClick={() => setShowFullPreview(true)}
+                  variant="outline"
+                  size="sm"
                 >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Full Screen
+                </Button>
+              </div>
+
+              <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
+                <div className="bg-white p-4">
                   <div
-                    className="absolute top-0 left-0"
+                    className="relative overflow-hidden"
                     style={{
-                      width: "250%",
-                      height: "250%",
-                      transform: "scale(0.4)",
-                      transformOrigin: "top left",
+                      width: "100%",
+                      height: "0",
+                      paddingBottom: "141.4%", // A4 aspect ratio (1:1.414)
                     }}
                   >
-                    {renderResumePreview()}
+                    <div
+                      className="absolute top-0 left-0"
+                      style={{
+                        width: "250%",
+                        height: "250%",
+                        transform: "scale(0.4)",
+                        transformOrigin: "top left",
+                      }}
+                    >
+                      {renderResumePreview()}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Full Preview Modal */}
-        {showFullPreview && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-background rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
-              <div className="p-6 border-b flex justify-between items-center bg-card">
-                <div>
-                  <h2 className="text-xl font-semibold">Resume Preview</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Full-size preview of your resume
-                  </p>
+          {/* Full Preview Modal */}
+          {showFullPreview && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-background rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
+                <div className="p-6 border-b flex justify-between items-center bg-card">
+                  <div>
+                    <h2 className="text-xl font-semibold">Resume Preview</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Full-size preview of your resume
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowFullPreview(false)}
+                    className="h-10 w-10 p-0"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowFullPreview(false)}
-                  className="h-10 w-10 p-0"
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="p-6 overflow-auto max-h-[calc(95vh-120px)] bg-muted/20">
-                <div className="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
-                  {renderResumePreview()}
+                <div className="p-6 overflow-auto max-h-[calc(95vh-120px)] bg-muted/20">
+                  <div className="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
+                    {renderResumePreview()}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
   }
 }
