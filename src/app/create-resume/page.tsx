@@ -21,6 +21,19 @@ import {
   Calendar as CalendarIcon,
   Upload,
   PenSquare,
+  ChevronRight,
+  ChevronLeft,
+  Sparkles,
+  Save,
+  Download,
+  User,
+  Briefcase,
+  GraduationCap,
+  Code,
+  FolderOpen,
+  Award,
+  Globe,
+  PlusCircle,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService } from "@/services/resume-service";
@@ -45,17 +58,18 @@ import {
 } from "./func/validation";
 
 const steps = [
-  { id: 0, title: "Template", description: "Choose a template" },
-  { id: 1, title: "Personal Info", description: "Basic information" },
-  { id: 2, title: "Experience", description: "Work experience (required)" },
+  { id: 0, title: "Template", description: "Choose a template", icon: Sparkles },
+  { id: 1, title: "Personal Info", description: "Basic information", icon: User },
+  { id: 2, title: "Experience", description: "Work experience (required)", icon: Briefcase },
   {
     id: 3,
     title: "Education",
     description: "Educational background (optional)",
+    icon: GraduationCap,
   },
-  { id: 4, title: "Skills", description: "Technical skills (optional)" },
-  { id: 5, title: "Projects", description: "Project details (optional)" },
-  { id: 6, title: "Additional", description: "Extra sections (optional)" },
+  { id: 4, title: "Skills", description: "Technical skills (optional)", icon: Code },
+  { id: 5, title: "Projects", description: "Project details (optional)", icon: FolderOpen },
+  { id: 6, title: "Additional", description: "Extra sections (optional)", icon: Award },
 ];
 
 // Fallback templates used if API returns empty
@@ -1047,10 +1061,13 @@ export default function CreateResumePage() {
   // ...
   const renderPersonalInfoStep = () => {
     return (
-      <Card>
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50">
         <CardHeader className="pb-6">
-          <CardTitle className="text-xl">Personal Information</CardTitle>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <User className="w-6 h-6 text-blue-600" />
+            Personal Information
+          </CardTitle>
+          <p className="text-slate-600 leading-relaxed">
             Tell us about yourself
           </p>
         </CardHeader>
@@ -1367,10 +1384,13 @@ export default function CreateResumePage() {
 
   const renderExperienceStep = () => {
     return (
-    <Card>
-      <CardHeader>
-          <CardTitle>Experience</CardTitle>
-          <CardDescription>Work experience (required)</CardDescription>
+    <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50">
+      <CardHeader className="pb-6">
+          <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <Briefcase className="w-6 h-6 text-blue-600" />
+            Experience
+          </CardTitle>
+          <CardDescription className="text-slate-600">Work experience (required)</CardDescription>
       </CardHeader>
         <CardContent>
           <div className="space-y-6">
@@ -1537,10 +1557,13 @@ export default function CreateResumePage() {
       }
     };
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Skills</CardTitle>
-          <CardDescription>Technical and soft skills</CardDescription>
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50">
+        <CardHeader className="pb-6">
+          <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <Code className="w-6 h-6 text-blue-600" />
+            Skills
+          </CardTitle>
+          <CardDescription className="text-slate-600">Technical and soft skills</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -1619,10 +1642,13 @@ export default function CreateResumePage() {
       setNewTech((prev) => ({ ...prev, [projectId]: "" }));
     };
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Projects</CardTitle>
-          <CardDescription>Highlight your notable work</CardDescription>
+      <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-slate-50">
+        <CardHeader className="pb-6">
+          <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <FolderOpen className="w-6 h-6 text-blue-600" />
+            Projects
+          </CardTitle>
+          <CardDescription className="text-slate-600">Highlight your notable work</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
@@ -2067,93 +2093,145 @@ export default function CreateResumePage() {
     );
   } else {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-foreground">
-              Create Resume
-            </h1>
-            <p className="text-muted-foreground">
-              Build your professional resume with real-time preview
-            </p>
-          </div>
-            <Button
-              variant="outline"
-              onClick={() => setShowChoice(true)}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Choice
-            </Button>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col">
-              <span className="text-sm mb-1 font-medium">Template</span>
-              <select
-                value={selectedTemplate}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="h-9 w-48 px-3 py-1 text-sm border border-border rounded-md bg-background"
-              >
-                {templates.map((tpl) => (
-                  <option key={tpl.id} value={tpl.id}>
-                    {tpl.name}
-                  </option>
-                ))}
-              </select>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Enhanced Header */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <PenSquare className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                    Create Resume
+                  </h1>
+                  <p className="text-slate-600 text-lg">
+                    Build your professional resume with real-time preview
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="w-full lg:w-auto flex justify-end">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                onClick={() => setShowChoice(true)}
+                className="flex items-center gap-2 hover:bg-slate-50 transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Choice
+              </Button>
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="self-stretch sm:self-end w-full sm:w-auto shrink-0"
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
               >
                 {saving ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <Check className="w-4 h-4 mr-2" />
+                    <Save className="w-4 h-4" />
                     Save Resume
                   </>
                 )}
               </Button>
             </div>
           </div>
+
+          {/* Progress Indicator */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                {steps[currentStep].icon && <steps[currentStep].icon className="w-5 h-5 text-blue-600" />}
+                {steps[currentStep].title}
+              </h2>
+              <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+                Step {currentStep + 1} of {steps.length}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              {steps.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = index === currentStep;
+                const isCompleted = index < currentStep;
+                return (
+                  <div key={step.id} className="flex items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                        isActive
+                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-110"
+                          : isCompleted
+                          ? "bg-green-500 text-white"
+                          : "bg-slate-200 text-slate-500"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <Icon className="w-4 h-4" />
+                      )}
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div
+                        className={`w-12 h-0.5 mx-2 transition-all duration-300 ${
+                          isCompleted ? "bg-green-500" : "bg-slate-200"
+                        }`}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* Progress Steps */}
+        {/* Enhanced Step Navigation */}
         <div className="mb-8">
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-            {steps.map((step, index) => (
-              <div
-                key={step.id}
-                className={`flex items-center ${
-                  index < steps.length - 1 ? "flex-1" : ""
-                }`}
-              >
-                <button
-                  onClick={() => goToStep(step.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    currentStep === step.id
-                      ? "bg-primary text-primary-foreground"
-                      : currentStep > step.id
-                      ? "bg-primary/10 text-primary"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = currentStep === step.id;
+              const isCompleted = currentStep > step.id;
+              return (
+                <div
+                  key={step.id}
+                  className={`flex items-center ${
+                    index < steps.length - 1 ? "flex-1" : ""
                   }`}
                 >
-                  <span className="w-6 h-6 rounded-full bg-current/20 flex items-center justify-center text-xs">
-                    {step.id + 1}
-                  </span>
-                  <span className="hidden sm:inline">{step.title}</span>
-                </button>
-                {index < steps.length - 1 && (
-                  <div className="hidden sm:block flex-1 h-px bg-border mx-2" />
-                )}
-              </div>
-            ))}
+                  <button
+                    onClick={() => goToStep(step.id)}
+                    className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
+                        : isCompleted
+                        ? "bg-green-100 text-green-700 hover:bg-green-200 border border-green-200"
+                        : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-sm"
+                    }`}
+                  >
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                      isActive ? "bg-white/20" : isCompleted ? "bg-green-200" : "bg-slate-200"
+                    }`}>
+                      {isCompleted ? (
+                        <Check className="w-3 h-3" />
+                      ) : (
+                        <Icon className="w-3 h-3" />
+                      )}
+                    </div>
+                    <span className="hidden sm:inline">{step.title}</span>
+                  </button>
+                  {index < steps.length - 1 && (
+                    <div className={`hidden sm:block flex-1 h-px mx-2 transition-colors ${
+                      isCompleted ? "bg-green-300" : "bg-slate-200"
+                    }`} />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -2222,24 +2300,41 @@ export default function CreateResumePage() {
             </div>
           </div>
 
-          {/* Preview Section */}
+          {/* Enhanced Preview Section */}
           <div className="sticky top-4 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold">Preview</h2>
-              <Button
-                onClick={() => setShowFullPreview(true)}
-                variant="outline"
-                size="sm"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                Full Screen
-              </Button>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-blue-600" />
+                  Live Preview
+                </h2>
+                <Button
+                  onClick={() => setShowFullPreview(true)}
+                  variant="outline"
+                  size="sm"
+                  className="hover:bg-slate-50 transition-colors"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Full Screen
+                </Button>
+              </div>
+              <p className="text-sm text-slate-600">
+                See how your resume looks in real-time as you make changes
+              </p>
             </div>
 
-            <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
-              <div className="bg-white p-4">
+            <div className="border-2 border-slate-200 rounded-xl overflow-hidden bg-white shadow-lg">
+              <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 border-b border-slate-200">
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="ml-2 font-medium">Resume Preview</span>
+                </div>
+              </div>
+              <div className="bg-white p-6">
                 <div
-                  className="relative overflow-hidden"
+                  className="relative overflow-hidden mx-auto shadow-lg"
                   style={{
                     width: "100%",
                     height: "0",
