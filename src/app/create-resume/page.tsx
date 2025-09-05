@@ -2093,31 +2093,37 @@ export default function CreateResumePage() {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
         {/* Enhanced Header */}
         <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-6">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <PenSquare className="w-6 h-6 text-white" />
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-blue-100">
+                  <PenSquare className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-              Create Resume
-            </h1>
-                  <p className="text-slate-600 text-lg">
-              Build your professional resume with real-time preview
-            </p>
-          </div>
+                  <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">
+                    Create Resume
+                  </h1>
+                  <p className="text-slate-600 text-xl font-medium">
+                    Build your professional resume with real-time preview
+                  </p>
+                </div>
               </div>
             </div>
-          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
               <Button
                 variant="outline"
                 onClick={() => setShowChoice(true)}
-                className="flex items-center gap-2 hover:bg-slate-50 transition-colors"
+                className="flex items-center gap-2 hover:bg-slate-50 transition-all duration-200 border-2 hover:border-blue-300 hover:shadow-md px-6 py-3"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Choice
@@ -2125,16 +2131,16 @@ export default function CreateResumePage() {
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg"
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 shadow-xl hover:shadow-2xl transition-all duration-300 px-8 py-3 text-lg font-semibold"
               >
                 {saving ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
                     Saving...
                   </>
                 ) : (
                   <>
-                    <Save className="w-4 h-4" />
+                    <Save className="w-5 h-5" />
                     Save Resume
                   </>
                 )}
@@ -2142,18 +2148,18 @@ export default function CreateResumePage() {
             </div>
           </div>
 
-          {/* Progress Indicator */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                {(() => { const Icon = steps[currentStep].icon as any; return Icon ? <Icon className="w-5 h-5 text-blue-600" /> : null; })()}
+          {/* Enhanced Progress Indicator */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/20">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                {(() => { const Icon = steps[currentStep].icon as any; return Icon ? <Icon className="w-6 h-6 text-blue-600" /> : null; })()}
                 {steps[currentStep].title}
               </h2>
-              <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+              <span className="text-sm text-slate-600 bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-2 rounded-full font-semibold border border-blue-200">
                 Step {currentStep + 1} of {steps.length}
               </span>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {steps.map((step, index) => {
                 const Icon = step.icon;
                 const isActive = index === currentStep;
@@ -2161,24 +2167,24 @@ export default function CreateResumePage() {
                 return (
                   <div key={step.id} className="flex items-center">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 transform hover:scale-110 ${
                         isActive
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-110"
+                          ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-2xl scale-110 ring-4 ring-blue-200"
                           : isCompleted
-                          ? "bg-green-500 text-white"
-                          : "bg-slate-200 text-slate-500"
+                          ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
+                          : "bg-slate-200 text-slate-500 hover:bg-slate-300"
                       }`}
                     >
                       {isCompleted ? (
-                        <Check className="w-4 h-4" />
+                        <Check className="w-5 h-5" />
                       ) : (
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-5 h-5" />
                       )}
                     </div>
                     {index < steps.length - 1 && (
                       <div
-                        className={`w-12 h-0.5 mx-2 transition-all duration-300 ${
-                          isCompleted ? "bg-green-500" : "bg-slate-200"
+                        className={`w-16 h-1 mx-3 rounded-full transition-all duration-500 ${
+                          isCompleted ? "bg-gradient-to-r from-green-500 to-emerald-500" : "bg-slate-200"
                         }`}
                       />
                     )}
@@ -2190,8 +2196,8 @@ export default function CreateResumePage() {
         </div>
 
         {/* Enhanced Step Navigation */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+        <div className="mb-10">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             {steps.map((step, index) => {
               const Icon = step.icon;
               const isActive = currentStep === step.id;
@@ -2205,28 +2211,28 @@ export default function CreateResumePage() {
               >
                 <button
                   onClick={() => goToStep(step.id)}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-3 px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
                       isActive
-                        ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105"
+                        ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-2xl ring-4 ring-blue-200 scale-105"
                         : isCompleted
-                        ? "bg-green-100 text-green-700 hover:bg-green-200 border border-green-200"
-                        : "bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 shadow-sm"
+                        ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 hover:bg-green-200 border-2 border-green-200 shadow-lg"
+                        : "bg-white/80 backdrop-blur-sm text-slate-600 hover:bg-white border-2 border-slate-200 hover:border-blue-300 shadow-lg"
                     }`}
                   >
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
                       isActive ? "bg-white/20" : isCompleted ? "bg-green-200" : "bg-slate-200"
                     }`}>
                       {isCompleted ? (
-                        <Check className="w-3 h-3" />
+                        <Check className="w-4 h-4" />
                       ) : (
-                        <Icon className="w-3 h-3" />
+                        <Icon className="w-4 h-4" />
                       )}
                     </div>
                   <span className="hidden sm:inline">{step.title}</span>
                 </button>
                 {index < steps.length - 1 && (
-                    <div className={`hidden sm:block flex-1 h-px mx-2 transition-colors ${
-                      isCompleted ? "bg-green-300" : "bg-slate-200"
+                    <div className={`hidden sm:block flex-1 h-1 mx-3 rounded-full transition-all duration-300 ${
+                      isCompleted ? "bg-gradient-to-r from-green-300 to-emerald-300" : "bg-slate-200"
                     }`} />
                 )}
               </div>
@@ -2236,9 +2242,9 @@ export default function CreateResumePage() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* Form Section */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div
               className={`transition-opacity duration-150 ${
                 isTransitioning ? "opacity-0" : "opacity-100"
@@ -2301,40 +2307,42 @@ export default function CreateResumePage() {
           </div>
 
           {/* Enhanced Preview Section */}
-          <div className="sticky top-4 space-y-4">
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-blue-600" />
+          <div className="sticky top-4 space-y-6">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-white" />
+                  </div>
                   Live Preview
                 </h2>
               <Button
                 onClick={() => setShowFullPreview(true)}
                 variant="outline"
-                size="sm"
-                  className="hover:bg-slate-50 transition-colors"
+                size="lg"
+                  className="hover:bg-slate-50 transition-all duration-200 border-2 hover:border-blue-300 hover:shadow-lg px-6 py-3"
               >
-                <Eye className="w-4 h-4 mr-2" />
+                <Eye className="w-5 h-5 mr-2" />
                 Full Screen
               </Button>
               </div>
-              <p className="text-sm text-slate-600">
+              <p className="text-slate-600 text-lg font-medium">
                 See how your resume looks in real-time as you make changes
               </p>
             </div>
 
-            <div className="border-2 border-slate-200 rounded-xl overflow-hidden bg-white shadow-lg">
-              <div className="bg-gradient-to-r from-slate-50 to-slate-100 p-4 border-b border-slate-200">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="ml-2 font-medium">Resume Preview</span>
+            <div className="border-2 border-slate-200 rounded-2xl overflow-hidden bg-white shadow-2xl">
+              <div className="bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 p-6 border-b border-slate-200">
+                <div className="flex items-center gap-3 text-sm text-slate-600">
+                  <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm"></div>
+                  <div className="w-4 h-4 bg-yellow-500 rounded-full shadow-sm"></div>
+                  <div className="w-4 h-4 bg-green-500 rounded-full shadow-sm"></div>
+                  <span className="ml-6 font-bold text-lg">Resume Preview</span>
                 </div>
               </div>
-              <div className="bg-white p-6">
+              <div className="bg-gradient-to-br from-slate-50 to-white p-8">
                 <div
-                  className="relative overflow-hidden mx-auto shadow-lg"
+                  className="relative overflow-hidden mx-auto shadow-inner rounded-xl border border-slate-200"
                   style={{
                     width: "100%",
                     height: "0",
@@ -2358,27 +2366,32 @@ export default function CreateResumePage() {
           </div>
         </div>
 
-        {/* Full Preview Modal */}
+        {/* Enhanced Full Preview Modal */}
         {showFullPreview && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-background rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
-              <div className="p-6 border-b flex justify-between items-center bg-card">
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-white/20">
+              <div className="p-8 border-b flex justify-between items-center bg-gradient-to-r from-slate-50 to-slate-100">
                 <div>
-                  <h2 className="text-xl font-semibold">Resume Preview</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Full-size preview of your resume
+                  <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                      <Eye className="w-5 h-5 text-white" />
+                    </div>
+                    Resume Preview
+                  </h2>
+                  <p className="text-lg text-slate-600 mt-2">
+                    Full-size preview of your professional resume
                   </p>
                 </div>
                 <Button
                   variant="ghost"
                   onClick={() => setShowFullPreview(false)}
-                  className="h-10 w-10 p-0"
+                  className="h-12 w-12 p-0 hover:bg-slate-200 rounded-xl transition-all duration-200"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-6 w-6" />
                 </Button>
               </div>
-              <div className="p-6 overflow-auto max-h-[calc(95vh-120px)] bg-muted/20">
-                <div className="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-4xl">
+              <div className="p-8 overflow-auto max-h-[calc(95vh-140px)] bg-gradient-to-br from-slate-50 to-white">
+                <div className="bg-white rounded-2xl shadow-2xl p-12 mx-auto max-w-5xl border border-slate-200">
                   {renderResumePreview()}
                 </div>
               </div>
