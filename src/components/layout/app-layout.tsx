@@ -16,7 +16,7 @@ export function AppLayout({
   showFooter = true,
 }: AppLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="glass-bg min-h-screen flex flex-col">
       {showNavbar && <Navbar />}
       <main className={`flex-1`}>{children}</main>
       {showFooter && <Footer />}
