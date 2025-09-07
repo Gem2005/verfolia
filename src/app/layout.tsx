@@ -4,6 +4,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { plusJakartaSans, lora, robotoMono } from "@/lib/fonts";
 import { GlassmorphismInjector } from "@/components/glassmorphism-injector";
+import { ForceGlassmorphism } from "@/components/force-glassmorphism";
 
 export const metadata: Metadata = {
   title: "Verfolia",
@@ -37,6 +38,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <GlassmorphismInjector />
+          <ForceGlassmorphism /> {/* Nuclear approach */}
           <div style={{ background: 'transparent' }}>
             {children}
             <Toaster />

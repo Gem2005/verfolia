@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Glassmorphism Theme - ULTRA AGGRESSIVE */
+/* Global Glassmorphism Theme - NUCLEAR APPROACH */
 * {
   background: transparent !important;
   color: white !important;
@@ -403,4 +403,57 @@ button:hover, .btn:hover {
 .gradient-border > * {
   background: var(--background);
   border-radius: calc(var(--radius) - 2px);
+}
+
+/* NUCLEAR APPROACH - FORCE EVERYTHING */
+html, body, #__next, #root {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
+  min-height: 100vh !important;
+  color: white !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Force all elements to be transparent or glassmorphism */
+* {
+  background-color: transparent !important;
+  color: white !important;
+}
+
+/* Force specific elements */
+div, section, main, article, aside, header, footer, nav {
+  background: transparent !important;
+  color: white !important;
+}
+
+/* Force buttons */
+button, .btn, [role="button"] {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+/* Force navigation */
+nav, .navbar, header {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Force text elements */
+h1, h2, h3, h4, h5, h6, p, span, a, li, td, th {
+  color: white !important;
+}
+
+/* Override any inline styles */
+[style*="background"] {
+  background: transparent !important;
+}
+
+/* Force cards and containers */
+.card, .container, .wrapper, .content {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
