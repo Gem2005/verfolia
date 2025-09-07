@@ -56,7 +56,6 @@ import {
   validateSkill,
   validateProficiency,
 } from "./func/validation";
-import "./glassmorphism.css";
 
 const steps = [
   { id: 0, title: "Template", description: "Choose a template", icon: Sparkles },
