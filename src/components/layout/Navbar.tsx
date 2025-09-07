@@ -58,7 +58,14 @@ export default function Navbar() {
   return (
     <>
       {/* Main Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 w-full py-4">
+      <nav 
+        className="fixed top-0 left-0 right-0 z-50 w-full py-4"
+        style={{
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
+        }}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div
             className={`flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-300 glass-effect ${
@@ -66,6 +73,12 @@ export default function Navbar() {
                 ? "shadow-soft backdrop-blur-xl bg-background/80 border-border/50"
                 : "shadow-subtle backdrop-blur-md bg-background/60 border-border/20"
             }`}
+            style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(30px)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white'
+            }}
           >
             {/* Logo Section */}
             <div className="flex items-center">
