@@ -58,6 +58,8 @@ import {
 } from "./func/validation";
 import "./glassmorphism.css";
 
+export const dynamic = "force-dynamic";
+
 const steps = [
   { id: 0, title: "Template", description: "Choose a template", icon: Sparkles },
   { id: 1, title: "Personal Info", description: "Basic information", icon: User },
@@ -2034,10 +2036,10 @@ export default function CreateResumePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="glass-bg flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glass-blue mx-auto mb-4"></div>
+          <p className="text-glass-white">Loading...</p>
             </div>
               </div>
     );
@@ -2045,10 +2047,10 @@ export default function CreateResumePage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="glass-bg flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Redirecting to login...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glass-blue mx-auto mb-4"></div>
+          <p className="text-glass-white">Redirecting to login...</p>
         </div>
       </div>
     );
@@ -2057,38 +2059,38 @@ export default function CreateResumePage() {
   // ** THIS IS THE STRUCTURAL FIX **
   if (showChoice) {
     return (
-      <div className="container mx-auto max-w-4xl py-10">
-        <h1 className="text-3xl font-bold mb-6">How would you like to start?</h1>
-        <p className="text-muted-foreground mb-8">
-          Upload your existing PDF resume for instant parsing, or build a new profile from scratch.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="hover:border-primary transition-colors">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="w-5 h-5" /> Upload PDF
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Drag and drop your resume PDF. We&apos;ll parse your info and prefill the editor.
-              </p>
-              <Button onClick={() => router.push("/upload-resume")}>Upload PDF</Button>
-            </CardContent>
-          </Card>
-          <Card className="hover:border-primary transition-colors">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PenSquare className="w-5 h-5" /> Build from Scratch
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Start with a clean canvas using our guided editor.
-              </p>
-              <Button onClick={() => setShowChoice(false)} variant="outline">Start Building</Button>
-            </CardContent>
-          </Card>
+      <div className="glass-bg min-h-screen">
+        <div className="container mx-auto max-w-4xl py-10">
+          <h1 className="text-3xl font-bold mb-6 text-glass-white">How would you like to start?</h1>
+          <p className="text-glass-gray mb-8">
+            Upload your existing PDF resume for instant parsing, or build a new profile from scratch.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="glass-card hover:border-glass-blue transition-colors">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-glass-white">
+                  <Upload className="w-5 h-5 text-glass-blue" /> Upload PDF
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-glass-gray">
+                  Drag and drop your resume PDF. We&apos;ll parse your info and prefill the editor.
+                </p>
+                <Button onClick={() => router.push("/upload-resume")} className="glass-button">Upload PDF</Button>
+              </CardContent>
+            </Card>
+            <Card className="glass-card hover:border-glass-blue transition-colors">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-glass-white">
+                  <PenSquare className="w-5 h-5 text-glass-blue" /> Build from Scratch
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-glass-gray">Start with a clean canvas using our guided editor.</p>
+                <Button onClick={() => setShowChoice(false)} variant="outline" className="glass-button">Start Building</Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
