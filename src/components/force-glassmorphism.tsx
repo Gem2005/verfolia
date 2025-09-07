@@ -20,65 +20,74 @@ export function ForceGlassmorphism() {
       // Force all divs
       const allDivs = document.querySelectorAll('div');
       allDivs.forEach(div => {
-        if (!div.style.background || div.style.background === 'white' || div.style.background === 'rgb(255, 255, 255)') {
-          div.style.setProperty('background', 'transparent', 'important');
+        const element = div as HTMLElement;
+        if (!element.style.background || element.style.background === 'white' || element.style.background === 'rgb(255, 255, 255)') {
+          element.style.setProperty('background', 'transparent', 'important');
         }
-        div.style.setProperty('color', 'white', 'important');
+        element.style.setProperty('color', 'white', 'important');
       });
 
       // Force all buttons
       const allButtons = document.querySelectorAll('button');
       allButtons.forEach(button => {
-        button.style.setProperty('background', 'rgba(255, 255, 255, 0.2)', 'important');
-        button.style.setProperty('backdrop-filter', 'blur(10px)', 'important');
-        button.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important');
-        button.style.setProperty('color', 'white', 'important');
+        const element = button as HTMLElement;
+        element.style.setProperty('background', 'rgba(255, 255, 255, 0.2)', 'important');
+        element.style.setProperty('backdrop-filter', 'blur(10px)', 'important');
+        element.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important');
+        element.style.setProperty('color', 'white', 'important');
       });
 
       // Force all nav elements
       const allNavs = document.querySelectorAll('nav');
       allNavs.forEach(nav => {
-        nav.style.setProperty('background', 'rgba(255, 255, 255, 0.1)', 'important');
-        nav.style.setProperty('backdrop-filter', 'blur(20px)', 'important');
-        nav.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.2)', 'important');
+        const element = nav as HTMLElement;
+        element.style.setProperty('background', 'rgba(255, 255, 255, 0.1)', 'important');
+        element.style.setProperty('backdrop-filter', 'blur(20px)', 'important');
+        element.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.2)', 'important');
       });
 
       // Force all sections
       const allSections = document.querySelectorAll('section');
       allSections.forEach(section => {
-        section.style.setProperty('background', 'transparent', 'important');
-        section.style.setProperty('color', 'white', 'important');
+        const element = section as HTMLElement;
+        element.style.setProperty('background', 'transparent', 'important');
+        element.style.setProperty('color', 'white', 'important');
       });
 
       // Force all main elements
       const allMains = document.querySelectorAll('main');
       allMains.forEach(main => {
-        main.style.setProperty('background', 'transparent', 'important');
-        main.style.setProperty('color', 'white', 'important');
+        const element = main as HTMLElement;
+        element.style.setProperty('background', 'transparent', 'important');
+        element.style.setProperty('color', 'white', 'important');
       });
 
       // Force all links
       const allLinks = document.querySelectorAll('a');
       allLinks.forEach(link => {
-        link.style.setProperty('color', 'white', 'important');
+        const element = link as HTMLElement;
+        element.style.setProperty('color', 'white', 'important');
       });
 
       // Force all paragraphs
       const allParagraphs = document.querySelectorAll('p');
       allParagraphs.forEach(p => {
-        p.style.setProperty('color', 'white', 'important');
+        const element = p as HTMLElement;
+        element.style.setProperty('color', 'white', 'important');
       });
 
       // Force all headings
       const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
       allHeadings.forEach(heading => {
-        heading.style.setProperty('color', 'white', 'important');
+        const element = heading as HTMLElement;
+        element.style.setProperty('color', 'white', 'important');
       });
 
       // Force all spans
       const allSpans = document.querySelectorAll('span');
       allSpans.forEach(span => {
-        span.style.setProperty('color', 'white', 'important');
+        const element = span as HTMLElement;
+        element.style.setProperty('color', 'white', 'important');
       });
     };
 
