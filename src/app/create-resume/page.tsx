@@ -2095,10 +2095,11 @@ export default function CreateResumePage() {
   }
   return (
     <div 
-      className="min-h-screen relative overflow-hidden glassmorphism-container" 
+      className="min-h-screen relative overflow-hidden" 
       style={{
         background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%)',
-        minHeight: '100vh'
+        minHeight: '100vh',
+        color: 'white !important'
       }}
     >
       {/* Glassmorphism Background */}
