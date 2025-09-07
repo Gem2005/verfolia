@@ -16,14 +16,7 @@ export function AppLayout({
   showFooter = true,
 }: AppLayoutProps) {
   return (
-    <div 
-      className="min-h-screen flex flex-col"
-      style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%)',
-        minHeight: '100vh',
-        color: 'white'
-      }}
-    >
+    <div className="min-h-screen flex flex-col">
       {showNavbar && <Navbar />}
       <main className={`flex-1`}>{children}</main>
       {showFooter && <Footer />}

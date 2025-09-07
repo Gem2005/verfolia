@@ -2,458 +2,143 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Glassmorphism Theme - NUCLEAR APPROACH */
-* {
-  background: transparent !important;
-  color: white !important;
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --sidebar: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --spacing: 1rem;
+    --tracking-normal: 0em;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 94.1%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
 }
 
-html {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
-  min-height: 100vh !important;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
-body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
-  color: white !important;
-  min-height: 100vh !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-#__next {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
-  min-height: 100vh !important;
-}
-
-/* Override shadcn/ui components for glassmorphism */
-.card {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-  color: white !important;
-}
-
-.input {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.textarea {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.button {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-.button:hover {
-  background: rgba(255, 255, 255, 0.3) !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
-}
-
-/* Override all text colors */
-* {
-  color: white !important;
-}
-
-/* Override specific shadcn/ui components */
-[data-radix-popper-content-wrapper] {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-}
-
-[role="dialog"] {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-}
-
-/* Additional shadcn/ui component overrides */
-[data-radix-select-content] {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-}
-
-[data-radix-dropdown-content] {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-}
-
-[data-radix-tooltip-content] {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-}
-
-/* Override form elements */
-input, textarea, select {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-  backdrop-filter: blur(10px) !important;
-}
-
-input::placeholder, textarea::placeholder {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-/* Override links */
-a {
-  color: #60a5fa !important;
-}
-
-a:hover {
-  color: #93c5fd !important;
-}
-
-/* Force glassmorphism on all pages */
-html, body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
-  color: white !important;
-}
-
-/* Override any page-specific backgrounds */
-.min-h-screen {
-  background: transparent !important;
-}
-
-/* Override shadcn/ui specific classes */
-.bg-background {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-.bg-card {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-}
-
-.bg-popover {
-  background: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(30px) !important;
-}
-
-.bg-muted {
-  background: rgba(255, 255, 255, 0.05) !important;
-}
-
-.bg-accent {
-  background: rgba(255, 255, 255, 0.1) !important;
-}
-
-.bg-secondary {
-  background: rgba(255, 255, 255, 0.1) !important;
-}
-
-/* Force glassmorphism on specific components */
-nav, header, .navbar {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Override any solid backgrounds */
-.bg-white, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-zinc-50 {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-/* Force glassmorphism on buttons */
-button, .btn {
-  background: rgba(255, 255, 255, 0.2) !important;
-  backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-}
-
-button:hover, .btn:hover {
-  background: rgba(255, 255, 255, 0.3) !important;
-}
-
-/* Override any inline styles */
-[style*="background"] {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(20px) !important;
-}
-
-/* Glassmorphism Styles */
-.glassmorphism {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-}
-
-.glassmorphism-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-}
-
-:root {
-  --background: rgba(15, 23, 42, 0.8);
-  --foreground: #ffffff;
-  --card: rgba(255, 255, 255, 0.15);
-  --card-foreground: #ffffff;
-  --popover: rgba(255, 255, 255, 0.15);
-  --popover-foreground: #ffffff;
-  --primary: #60a5fa;
-  --primary-foreground: #ffffff;
-  --secondary: rgba(255, 255, 255, 0.1);
-  --secondary-foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.05);
-  --muted-foreground: rgba(255, 255, 255, 0.7);
-  --accent: rgba(255, 255, 255, 0.1);
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.3);
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: #60a5fa;
-  --chart-1: #6366f1;
-  --chart-2: #4f46e5;
-  --chart-3: #4338ca;
-  --chart-4: #3730a3;
-  --chart-5: #312e81;
-  --sidebar: rgba(255, 255, 255, 0.1);
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #60a5fa;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(255, 255, 255, 0.1);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.3);
-  --sidebar-ring: #60a5fa;
-  --font-sans: Plus Jakarta Sans, sans-serif;
-  --font-serif: Lora, serif;
-  --font-mono: Roboto Mono, monospace;
-  --radius: 1.25rem;
-  --shadow-2xs: 2px 2px 10px 4px rgba(152, 152, 163, 0.09);
-  --shadow-xs: 2px 2px 10px 4px rgba(152, 152, 163, 0.09);
-  --shadow-sm: 2px 2px 10px 4px rgba(152, 152, 163, 0.18),
-    2px 1px 2px 3px rgba(152, 152, 163, 0.18);
-  --shadow: 2px 2px 10px 4px rgba(152, 152, 163, 0.18),
-    2px 1px 2px 3px rgba(152, 152, 163, 0.18);
-  --shadow-md: 2px 2px 10px 4px rgba(152, 152, 163, 0.18),
-    2px 2px 4px 3px rgba(152, 152, 163, 0.18);
-  --shadow-lg: 2px 2px 10px 4px rgba(152, 152, 163, 0.18),
-    2px 4px 6px 3px rgba(152, 152, 163, 0.18);
-  --shadow-xl: 2px 2px 10px 4px rgba(152, 152, 163, 0.18),
-    2px 8px 10px 3px rgba(152, 152, 163, 0.18);
-  --shadow-2xl: 2px 2px 10px 4px rgba(152, 152, 163, 0.45);
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-}
-
-.dark {
-  --background: rgba(15, 23, 42, 0.9);
-  --foreground: #ffffff;
-  --card: rgba(255, 255, 255, 0.2);
-  --card-foreground: #ffffff;
-  --popover: rgba(255, 255, 255, 0.2);
-  --popover-foreground: #ffffff;
-  --primary: #60a5fa;
-  --primary-foreground: #ffffff;
-  --secondary: rgba(255, 255, 255, 0.15);
-  --secondary-foreground: #ffffff;
-  --muted: rgba(255, 255, 255, 0.1);
-  --muted-foreground: rgba(255, 255, 255, 0.8);
-  --accent: rgba(255, 255, 255, 0.15);
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.4);
-  --input: rgba(255, 255, 255, 0.15);
-  --ring: #60a5fa;
-  --chart-1: #818cf8;
-  --chart-2: #6366f1;
-  --chart-3: #4f46e5;
-  --chart-4: #4338ca;
-  --chart-5: #3730a3;
-  --sidebar: rgba(255, 255, 255, 0.15);
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #60a5fa;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(255, 255, 255, 0.15);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.4);
-  --sidebar-ring: #60a5fa;
-  --font-sans: Plus Jakarta Sans, sans-serif;
-  --font-serif: Lora, serif;
-  --font-mono: Roboto Mono, monospace;
-  --radius: 1.25rem;
-  --shadow-2xs: 2px 2px 10px 4px rgba(0, 0, 0, 0.09);
-  --shadow-xs: 2px 2px 10px 4px rgba(0, 0, 0, 0.09);
-  --shadow-sm: 2px 2px 10px 4px rgba(0, 0, 0, 0.18),
-    2px 1px 2px 3px rgba(0, 0, 0, 0.18);
-  --shadow: 2px 2px 10px 4px rgba(0, 0, 0, 0.18),
-    2px 1px 2px 3px rgba(0, 0, 0, 0.18);
-  --shadow-md: 2px 2px 10px 4px rgba(0, 0, 0, 0.18),
-    2px 2px 4px 3px rgba(0, 0, 0, 0.18);
-  --shadow-lg: 2px 2px 10px 4px rgba(0, 0, 0, 0.18),
-    2px 4px 6px 3px rgba(0, 0, 0, 0.18);
-  --shadow-xl: 2px 2px 10px 4px rgba(0, 0, 0, 0.18),
-    2px 8px 10px 3px rgba(0, 0, 0, 0.18);
-  --shadow-2xl: 2px 2px 10px 4px rgba(0, 0, 0, 0.45);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-serif: var(--font-serif);
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-
-  --shadow-2xs: var(--shadow-2xs);
-  --shadow-xs: var(--shadow-xs);
-  --shadow-sm: var(--shadow-sm);
-  --shadow: var(--shadow);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
-  --shadow-2xl: var(--shadow-2xl);
-}
-
-/* Added custom animations and gradients for modern feel */
-@keyframes fadeInUp {
+/* Custom animations */
+@keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
     transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
 }
 
-.animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out;
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out;
 }
 
+/* Glass effect utility */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Gradient border utility */
 .gradient-border {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  padding: 2px;
+  background: linear-gradient(var(--background), var(--background)) padding-box,
+    linear-gradient(135deg, var(--primary), var(--secondary)) border-box;
+  border: 2px solid transparent;
   border-radius: var(--radius);
 }
 
 .gradient-border > * {
   background: var(--background);
   border-radius: calc(var(--radius) - 2px);
-}
-
-/* NUCLEAR APPROACH - FORCE EVERYTHING */
-html, body, #__next, #root {
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
-  min-height: 100vh !important;
-  color: white !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Force all elements to be transparent or glassmorphism */
-* {
-  background-color: transparent !important;
-  color: white !important;
-}
-
-/* Force specific elements */
-div, section, main, article, aside, header, footer, nav {
-  background: transparent !important;
-  color: white !important;
-}
-
-/* Force buttons */
-button, .btn, [role="button"] {
-  background: rgba(255, 255, 255, 0.2) !important;
-  backdrop-filter: blur(10px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  color: white !important;
-}
-
-/* Force navigation */
-nav, .navbar, header {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-/* Force text elements */
-h1, h2, h3, h4, h5, h6, p, span, a, li, td, th {
-  color: white !important;
-}
-
-/* Override any inline styles */
-[style*="background"] {
-  background: transparent !important;
-}
-
-/* Force cards and containers */
-.card, .container, .wrapper, .content {
-  background: rgba(255, 255, 255, 0.1) !important;
-  backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }

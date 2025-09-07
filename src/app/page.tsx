@@ -32,14 +32,7 @@ import Link from "next/link";
 const HomePage = () => {
   return (
     <AppLayout>
-      <div 
-        className="min-h-screen font-jakarta"
-        style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%)',
-          minHeight: '100vh',
-          color: 'white'
-        }}
-      >
+      <div className="min-h-screen bg-background font-jakarta">
         {/* Hero Section */}
         <section className="pt-32 pb-20 gradient-bg relative overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -76,12 +69,6 @@ const HomePage = () => {
                   variant="outline"
                   size="lg"
                   className="text-lg px-8 py-4 h-auto glass-effect hover:bg-muted/50 transition-all duration-200"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    color: 'white'
-                  }}
                 >
                   <Link href="/create-resume">
                     <Rocket className="w-5 h-5 mr-2" />
@@ -93,12 +80,6 @@ const HomePage = () => {
   asChild
   size="lg"
   className="text-lg px-8 py-4 h-auto bg-primary text-primary-foreground hover:opacity-90 transition-all duration-200"
-  style={{
-    background: 'rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    color: 'white'
-  }}
 >
   <Link href="/upload-resume">  {/* ✅ FIXED */}
     <Upload className="w-5 h-5 mr-2" />
