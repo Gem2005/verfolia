@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { plusJakartaSans, lora, robotoMono } from "@/lib/fonts";
+import { GlassmorphismInjector } from "@/components/glassmorphism-injector";
 
 export const metadata: Metadata = {
   title: "Verfolia",
@@ -20,18 +20,27 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${lora.variable} ${robotoMono.variable}`}
+      style={{
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%)',
+        minHeight: '100vh'
+      }}
     >
-      <body className="font-sans antialiased">
+      <body 
+        className="font-sans antialiased"
+        style={{
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%)',
+          minHeight: '100vh',
+          color: 'white',
+          margin: 0,
+          padding: 0
+        }}
+      >
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <GlassmorphismInjector />
+          <div style={{ background: 'transparent' }}>
             {children}
             <Toaster />
-          </ThemeProvider>
+          </div>
         </AuthProvider>
       </body>
     </html>

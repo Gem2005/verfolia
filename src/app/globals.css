@@ -2,11 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Global Glassmorphism Theme */
+/* Global Glassmorphism Theme - ULTRA AGGRESSIVE */
+* {
+  background: transparent !important;
+  color: white !important;
+}
+
+html {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
+  min-height: 100vh !important;
+}
+
 body {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
   color: white !important;
-  min-height: 100vh;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#__next {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
+  min-height: 100vh !important;
 }
 
 /* Override shadcn/ui components for glassmorphism */
@@ -139,6 +156,37 @@ html, body {
 
 .bg-secondary {
   background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Force glassmorphism on specific components */
+nav, header, .navbar {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Override any solid backgrounds */
+.bg-white, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-zinc-50 {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+/* Force glassmorphism on buttons */
+button, .btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+button:hover, .btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Override any inline styles */
+[style*="background"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
 }
 
 /* Glassmorphism Styles */
