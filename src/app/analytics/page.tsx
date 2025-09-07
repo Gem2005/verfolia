@@ -1237,7 +1237,7 @@ export default function AnalyticsPage() {
                                       border-b border-border/20 transition-colors hover:bg-muted/40
                                       ${
                                         index % 2 === 0
-                                          ? ""
+                                          ? "bg-background"
                                           : "bg-muted/10"
                                       }
                                     `}
@@ -1426,7 +1426,7 @@ export default function AnalyticsPage() {
                                       border-b border-border/20 transition-colors hover:bg-muted/40
                                       ${
                                         index % 2 === 0
-                                          ? ""
+                                          ? "bg-background"
                                           : "bg-muted/10"
                                       }
                                     `}

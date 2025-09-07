@@ -73,6 +73,16 @@ const config = {
           4: "var(--chart-4)",
           5: "var(--chart-5)",
         },
+        // Glassmorphism Color Palette
+        glass: {
+          dark: "#0B0C10",
+          "dark-blue": "#1A1F2B",
+          "light-blue": "#4AC6FF",
+          "sky-blue": "#5DE0FF",
+          "highlight-blue": "#00AFFF",
+          "light-gray": "#A9B3C1",
+          "input-bg": "#1E2430",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
