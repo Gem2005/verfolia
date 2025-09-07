@@ -28,39 +28,41 @@ export default function ChoicePage() {
 
   // No blocking spinners here – choice must be shown even pre-auth
   return (
-    <div className="container mx-auto max-w-4xl py-10">
-      <h1 className="text-3xl font-bold mb-6">How would you like to start?</h1>
-      <p className="text-muted-foreground mb-8">
-        Upload your existing PDF resume or build a new profile from scratch.
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="hover:border-primary transition-colors">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="w-5 h-5" /> Upload PDF Resume
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              We’ll parse your PDF and prefill the editor.
-            </p>
-            <Button onClick={() => handleSelect("upload")}>Upload PDF</Button>
-          </CardContent>
-        </Card>
+    <div className="glass-bg min-h-screen">
+      <div className="container mx-auto max-w-4xl py-10">
+        <h1 className="text-3xl font-bold mb-6 text-glass-white">How would you like to start?</h1>
+        <p className="text-glass-gray mb-8">
+          Upload your existing PDF resume or build a new profile from scratch.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="glass-card hover:border-glass-blue transition-colors">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-glass-white">
+                <Upload className="w-5 h-5 text-glass-blue" /> Upload PDF Resume
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-glass-gray">
+                We'll parse your PDF and prefill the editor.
+              </p>
+              <Button onClick={() => handleSelect("upload")} className="glass-button">Upload PDF</Button>
+            </CardContent>
+          </Card>
 
-        <Card className="hover:border-primary transition-colors">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <PenSquare className="w-5 h-5" /> Build From Scratch
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">Start with a blank editor.</p>
-            <Button variant="outline" onClick={() => handleSelect("create")}>
-              Start Building
-            </Button>
-          </CardContent>
-        </Card>
+          <Card className="glass-card hover:border-glass-blue transition-colors">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-glass-white">
+                <PenSquare className="w-5 h-5 text-glass-blue" /> Build From Scratch
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-glass-gray">Start with a blank editor.</p>
+              <Button variant="outline" onClick={() => handleSelect("create")} className="glass-button">
+                Start Building
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

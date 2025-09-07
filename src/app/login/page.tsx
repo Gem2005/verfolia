@@ -111,19 +111,19 @@ export default function LoginPage() {
 
   if (loading || isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen glass-bg flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-glass-blue" />
       </div>
     );
   }
 
   return (
     <AppLayout showFooter={false}>
-        <div className="min-h-screen flex items-center justify-center p-4 pt-24">
+        <div className="min-h-screen glass-bg flex items-center justify-center p-4 pt-24">
             <div className="w-full max-w-md space-y-4">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold verfolia-text-gradient">Welcome to Verfolia</h1>
-                    <p className="text-muted-foreground text-sm">
+                    <h1 className="text-2xl font-bold gradient-text">Welcome to Verfolia</h1>
+                    <p className="text-glass-gray text-sm">
                         Access your account or create a new one to get started.
                     </p>
                 </div>
@@ -135,42 +135,57 @@ export default function LoginPage() {
                 )}
 
                 <div className="space-y-4">
-                    <Button variant="outline" className="w-full" onClick={handleGoogleAuth} disabled={isLoading}>
+                    <Button variant="outline" className="glass-button w-full" onClick={handleGoogleAuth} disabled={isLoading}>
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
                         Continue with Google
                     </Button>
                     <div className="relative">
-                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                        <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">OR</span></div>
+                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-glass-border" /></div>
+                        <div className="relative flex justify-center text-xs uppercase"><span className="glass-bg px-2 text-glass-gray">OR</span></div>
                     </div>
                 </div>
                 
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="signin">Sign In</TabsTrigger>
-                    <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                <TabsList className="glass-card grid w-full grid-cols-2">
+                    <TabsTrigger value="signin" className="text-glass-white">Sign In</TabsTrigger>
+                    <TabsTrigger value="signup" className="text-glass-white">Sign Up</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="signin">
-                    <Card className="border-none shadow-none bg-transparent">
+                    <Card className="glass-card border-none shadow-none">
                         <CardContent className="pt-6">
                             <form onSubmit={handleSignIn} className="space-y-4">
-                            <div className="space-y-2"><Label htmlFor="signin-email">Email</Label><Input id="signin-email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-                            <div className="space-y-2"><Label htmlFor="signin-password">Password</Label><Input id="signin-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-                            <Button type="submit" className="w-full" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Sign In</Button>
+                            <div className="space-y-2">
+                                <Label htmlFor="signin-email" className="text-glass-white">Email</Label>
+                                <Input id="signin-email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="glass-input" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="signin-password" className="text-glass-white">Password</Label>
+                                <Input id="signin-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="glass-input" />
+                            </div>
+                            <Button type="submit" className="glass-button w-full" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Sign In</Button>
                             </form>
                         </CardContent>
                     </Card>
                 </TabsContent>
                 
                 <TabsContent value="signup">
-                    <Card className="border-none shadow-none bg-transparent">
+                    <Card className="glass-card border-none shadow-none">
                     <CardContent className="pt-6">
                         <form onSubmit={handleSignUp} className="space-y-4">
-                        <div className="space-y-2"><Label htmlFor="signup-email">Email</Label><Input id="signup-email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-                        <div className="space-y-2"><Label htmlFor="signup-password">Password</Label><Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-                        <div className="space-y-2"><Label htmlFor="confirm-password">Confirm Password</Label><Input id="confirm-password" type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /></div>
-                        <Button type="submit" className="w-full" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create Account</Button>
+                        <div className="space-y-2">
+                            <Label htmlFor="signup-email" className="text-glass-white">Email</Label>
+                            <Input id="signup-email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="glass-input" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="signup-password" className="text-glass-white">Password</Label>
+                            <Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required className="glass-input" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="confirm-password" className="text-glass-white">Confirm Password</Label>
+                            <Input id="confirm-password" type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="glass-input" />
+                        </div>
+                        <Button type="submit" className="glass-button w-full" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create Account</Button>
                         </form>
                     </CardContent>
                     </Card>

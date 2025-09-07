@@ -116,25 +116,26 @@ export default function Dashboard() {
     return (
       <ProtectedRoute>
         <AppLayout>
-          <div className="container mx-auto px-4 py-8 mt-16">
-            <div className="animate-pulse space-y-8">
-              {/* Header Skeleton */}
-              <div className="flex justify-between items-center">
-                <div className="space-y-2">
-                  <div className="h-8 bg-muted rounded w-64"></div>
-                  <div className="h-4 bg-muted rounded w-96"></div>
+          <div className="glass-bg min-h-screen">
+            <div className="container mx-auto px-4 py-8 mt-16">
+              <div className="animate-pulse space-y-8">
+                {/* Header Skeleton */}
+                <div className="flex justify-between items-center">
+                  <div className="space-y-2">
+                    <div className="h-8 bg-glass-input-bg rounded w-64"></div>
+                    <div className="h-4 bg-glass-input-bg rounded w-96"></div>
+                  </div>
+                  <div className="h-10 bg-glass-input-bg rounded w-40"></div>
                 </div>
-                <div className="h-10 bg-muted rounded w-40"></div>
-              </div>
 
               {/* Stats Cards Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-6 rounded-lg">
+                  <div key={i} className="glass-card p-6 rounded-lg">
                     <div className="space-y-3">
-                      <div className="h-4 bg-muted rounded w-24"></div>
-                      <div className="h-8 bg-muted rounded w-16"></div>
-                      <div className="h-3 bg-muted rounded w-32"></div>
+                      <div className="h-4 bg-glass-input-bg rounded w-24"></div>
+                      <div className="h-8 bg-glass-input-bg rounded w-16"></div>
+                      <div className="h-3 bg-glass-input-bg rounded w-32"></div>
                     </div>
                   </div>
                 ))}
@@ -143,18 +144,18 @@ export default function Dashboard() {
               {/* Resume Cards Skeleton */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="p-6 rounded-lg space-y-4">
+                  <div key={i} className="glass-card p-6 rounded-lg space-y-4">
                     <div className="space-y-2">
-                      <div className="h-6 bg-muted rounded w-3/4"></div>
-                      <div className="h-4 bg-muted rounded w-1/2"></div>
+                      <div className="h-6 bg-glass-input-bg rounded w-3/4"></div>
+                      <div className="h-4 bg-glass-input-bg rounded w-1/2"></div>
                     </div>
                     <div className="space-y-2">
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      <div className="h-4 bg-muted rounded w-full"></div>
+                      <div className="h-4 bg-glass-input-bg rounded w-full"></div>
+                      <div className="h-4 bg-glass-input-bg rounded w-full"></div>
                     </div>
                     <div className="flex gap-2">
-                      <div className="h-8 bg-muted rounded w-16"></div>
-                      <div className="h-8 bg-muted rounded w-20"></div>
+                      <div className="h-8 bg-glass-input-bg rounded w-16"></div>
+                      <div className="h-8 bg-glass-input-bg rounded w-20"></div>
                     </div>
                   </div>
                 ))}
@@ -169,23 +170,24 @@ export default function Dashboard() {
   return (
     <ProtectedRoute>
       <AppLayout>
-        <div className="container mx-auto px-8 pt-28 pb-32">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold text-foreground">
-                Resume Dashboard
-              </h1>
-              <p className="text-muted-foreground">
-                Manage and organize all your resumes in one place
-              </p>
-            </div>
+        <div className="glass-bg min-h-screen">
+          <div className="container mx-auto px-8 pt-28 pb-32">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold text-glass-white">
+                  Resume Dashboard
+                </h1>
+                <p className="text-glass-gray">
+                  Manage and organize all your resumes in one place
+                </p>
+              </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"
                 onClick={loadResumes}
                 disabled={loading}
-                className="shadow-sm"
+                className="glass-button"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -232,13 +234,13 @@ export default function Dashboard() {
                 )}
               </Button>
               {/* CORRECTED BUTTONS */}
-              <Button asChild className="flex items-center gap-2 shadow-sm">
+              <Button asChild className="glass-button flex items-center gap-2">
                 <Link href="/create-resume">
                   <Plus className="h-4 w-4" />
                   Create New
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="flex items-center gap-2 shadow-sm">
+              <Button asChild variant="outline" className="glass-button flex items-center gap-2">
                 <Link href="/upload-resume">
                   <Upload className="h-4 w-4" />
                   Upload PDF
@@ -249,50 +251,50 @@ export default function Dashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="shadow-sm">
+            <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium text-glass-gray">
                   Total Resumes
                 </CardTitle>
-                <FileText className="h-4 w-4 text-primary" />
+                <FileText className="h-4 w-4 text-glass-blue" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground font-mono">
+                <div className="text-3xl font-bold text-glass-white font-mono">
                   {resumes.length}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-glass-gray mt-1">
                   {resumes.filter((r) => r.is_public).length} public,{" "}
                   {resumes.filter((r) => !r.is_public).length} private
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="shadow-sm">
+            <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium text-glass-gray">
                   Public Resumes
                 </CardTitle>
-                <Globe className="h-4 w-4 text-primary" />
+                <Globe className="h-4 w-4 text-glass-blue" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground font-mono">
+                <div className="text-3xl font-bold text-glass-white font-mono">
                   {resumes.filter((r) => r.is_public).length}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-glass-gray mt-1">
                   Visible to employers
                 </p>
               </CardContent>
             </Card>
 
-            <Card className=" shadow-sm">
+            <Card className="glass-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+                <CardTitle className="text-sm font-medium text-glass-gray">
                   Recently Updated
                 </CardTitle>
-                <Calendar className="h-4 w-4 text-primary" />
+                <Calendar className="h-4 w-4 text-glass-blue" />
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-foreground font-mono">
+                <div className="text-3xl font-bold text-glass-white font-mono">
                   {resumes.length > 0
                     ? formatDate(
                         resumes.sort(
@@ -303,7 +305,7 @@ export default function Dashboard() {
                       )
                     : "N/A"}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-glass-gray mt-1">
                   Last modification
                 </p>
               </CardContent>
