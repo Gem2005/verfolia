@@ -114,8 +114,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <ProtectedRoute>
-        <AppLayout>
+      <AppLayout>
           <div className="glass-bg min-h-screen">
             <div className="container mx-auto px-4 py-8 mt-16">
               <div className="animate-pulse space-y-8">
@@ -158,14 +157,12 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-        </AppLayout>
-      </ProtectedRoute>
+      </AppLayout>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <AppLayout>
+    <AppLayout>
         <div className="glass-bg min-h-screen">
           <div className="container mx-auto px-8 pt-28 pb-32">
             {/* Header */}
@@ -178,277 +175,276 @@ export default function Dashboard() {
                   Manage and organize all your resumes in one place
                 </p>
               </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={loadResumes}
-                disabled={loading}
-                className="glass-button"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Refreshing...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      />
-                    </svg>
-                    Refresh
-                  </span>
-                )}
-              </Button>
-              {/* CORRECTED BUTTONS */}
-              <Button asChild className="glass-button flex items-center gap-2">
-                <Link href="/create-resume">
-                  <Plus className="h-4 w-4" />
-                  Create New
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="glass-button flex items-center gap-2">
-                <Link href="/upload-resume">
-                  <Upload className="h-4 w-4" />
-                  Upload PDF
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="glass-card">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-sm font-medium text-glass-gray">
-                  Total Resumes
-                </CardTitle>
-                <FileText className="h-4 w-4 text-glass-blue" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-glass-white font-mono">
-                  {resumes.length}
-                </div>
-                <p className="text-xs text-glass-gray mt-1">
-                  {resumes.filter((r) => r.is_public).length} public,{" "}
-                  {resumes.filter((r) => !r.is_public).length} private
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-sm font-medium text-glass-gray">
-                  Public Resumes
-                </CardTitle>
-                <Globe className="h-4 w-4 text-glass-blue" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-glass-white font-mono">
-                  {resumes.filter((r) => r.is_public).length}
-                </div>
-                <p className="text-xs text-glass-gray mt-1">
-                  Visible to employers
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-                <CardTitle className="text-sm font-medium text-glass-gray">
-                  Recently Updated
-                </CardTitle>
-                <Calendar className="h-4 w-4 text-glass-blue" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-glass-white font-mono">
-                  {resumes.length > 0
-                    ? formatDate(
-                        resumes.sort(
-                          (a, b) =>
-                            new Date(b.updated_at).getTime() -
-                            new Date(a.updated_at).getTime()
-                        )[0].updated_at
-                      )
-                    : "N/A"}
-                </div>
-                <p className="text-xs text-glass-gray mt-1">
-                  Last modification
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Resume Grid */}
-          {resumes.length === 0 ? (
-            <Card className="shadow-sm text-center py-16">
-              <CardContent>
-                <div className="max-w-md mx-auto">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2 font-serif">
-                    No resumes yet
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Get started by creating your first professional resume with
-                    our modern templates
-                  </p>
-                  <Button asChild size="lg" className="shadow-sm">
-                    <Link href="/create-resume">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Your First Resume
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {resumes.map((resume) => (
-                <Card
-                  key={resume.id}
-                  className="group hover:shadow-lg transition-all duration-200 shadow-sm hover:scale-[1.02]"
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={loadResumes}
+                  disabled={loading}
+                  className="glass-button"
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg truncate text-foreground">
-                          {resume.title}
-                        </CardTitle>
-                        <CardDescription className="mt-1 text-muted-foreground">
-                          {resume.template_id.charAt(0).toUpperCase() +
-                            resume.template_id.slice(1)}{" "}
-                          Template
-                        </CardDescription>
-                      </div>
-                      <div className="flex items-center gap-2 ml-2">
-                        <Badge
-                          variant={resume.is_public ? "default" : "secondary"}
-                          className="text-xs"
-                        >
-                          {resume.is_public ? (
-                            <>
-                              <Globe className="h-3 w-3 mr-1" />
-                              Public
-                            </>
-                          ) : (
-                            <>
-                              <Lock className="h-3 w-3 mr-1" />
-                              Private
-                            </>
-                          )}
-                        </Badge>
-                      </div>
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="animate-spin h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Refresh
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                      Refresh
+                    </span>
+                  )}
+                </Button>
+                {/* CORRECTED BUTTONS */}
+                <Button asChild className="glass-button flex items-center gap-2">
+                  <Link href="/create-resume">
+                    <Plus className="h-4 w-4" />
+                    Create New
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="glass-button flex items-center gap-2">
+                  <Link href="/upload-resume">
+                    <Upload className="h-4 w-4" />
+                    Upload PDF
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="glass-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-medium text-glass-gray">
+                    Total Resumes
+                  </CardTitle>
+                  <FileText className="h-4 w-4 text-glass-blue" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-glass-white font-mono">
+                    {resumes.length}
+                  </div>
+                  <p className="text-xs text-glass-gray mt-1">
+                    {resumes.filter((r) => r.is_public).length} public, {" "}
+                    {resumes.filter((r) => !r.is_public).length} private
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="glass-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-medium text-glass-gray">
+                    Public Resumes
+                  </CardTitle>
+                  <Globe className="h-4 w-4 text-glass-blue" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-glass-white font-mono">
+                    {resumes.filter((r) => r.is_public).length}
+                  </div>
+                  <p className="text-xs text-glass-gray mt-1">
+                    Visible to employers
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="glass-card">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+                  <CardTitle className="text-sm font-medium text-glass-gray">
+                    Recently Updated
+                  </CardTitle>
+                  <Calendar className="h-4 w-4 text-glass-blue" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold text-glass-white font-mono">
+                    {resumes.length > 0
+                      ? formatDate(
+                          resumes.sort(
+                            (a, b) =>
+                              new Date(b.updated_at).getTime() -
+                              new Date(a.updated_at).getTime()
+                          )[0].updated_at
+                        )
+                      : "N/A"}
+                  </div>
+                  <p className="text-xs text-glass-gray mt-1">
+                    Last modification
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Resume Grid */}
+            {resumes.length === 0 ? (
+              <Card className="shadow-sm text-center py-16">
+                <CardContent>
+                  <div className="max-w-md mx-auto">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileText className="h-8 w-8 text-primary" />
                     </div>
-                  </CardHeader>
-
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="text-sm text-muted-foreground space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span>Created:</span>
-                          <span>{formatDate(resume.created_at)}</span>
+                    <h3 className="text-xl font-semibold text-foreground mb-2 font-serif">
+                      No resumes yet
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      Get started by creating your first professional resume with
+                      our modern templates
+                    </p>
+                    <Button asChild size="lg" className="shadow-sm">
+                      <Link href="/create-resume">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Your First Resume
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {resumes.map((resume) => (
+                  <Card
+                    key={resume.id}
+                    className="group hover:shadow-lg transition-all duration-200 shadow-sm hover:scale-[1.02]"
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-lg truncate text-foreground">
+                            {resume.title}
+                          </CardTitle>
+                          <CardDescription className="mt-1 text-muted-foreground">
+                            {resume.template_id.charAt(0).toUpperCase() +
+                              resume.template_id.slice(1)}{" "}
+                            Template
+                          </CardDescription>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span>Updated:</span>
-                          <span>{formatDate(resume.updated_at)}</span>
+                        <div className="flex items-center gap-2 ml-2">
+                          <Badge
+                            variant={resume.is_public ? "default" : "secondary"}
+                            className="text-xs"
+                          >
+                            {resume.is_public ? (
+                              <>
+                                <Globe className="h-3 w-3 mr-1" />
+                                Public
+                              </>
+                            ) : (
+                              <>
+                                <Lock className="h-3 w-3 mr-1" />
+                                Private
+                              </>
+                            )}
+                          </Badge>
                         </div>
                       </div>
+                    </CardHeader>
 
-                      <div className="flex flex-wrap gap-2">
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={`/create-resume?edit=${resume.id}`}>
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit
-                          </Link>
-                        </Button>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="text-sm text-muted-foreground space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span>Created:</span>
+                            <span>{formatDate(resume.created_at)}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span>Updated:</span>
+                            <span>{formatDate(resume.updated_at)}</span>
+                          </div>
+                        </div>
 
-                        {resume.is_public && (
+                        <div className="flex flex-wrap gap-2">
                           <Button asChild size="sm" variant="outline">
-                            <Link
-                              href={`/resume/${resume.slug}`}
-                              target="_blank"
-                            >
-                              <Globe className="h-3 w-3 mr-1" />
-                              View Public
+                            <Link href={`/create-resume?edit=${resume.id}`}>
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit
                             </Link>
                           </Button>
-                        )}
 
-                        <Button asChild size="sm" variant="outline">
-                          <Link href={`/analytics?resumeId=${resume.id}`}>
-                            <FileText className="h-3 w-3 mr-1" />
-                            Analytics
-                          </Link>
-                        </Button>
+                          {resume.is_public && (
+                            <Button asChild size="sm" variant="outline">
+                              <Link
+                                href={`/resume/${resume.slug}`}
+                                target="_blank"
+                              >
+                                <Globe className="h-3 w-3 mr-1" />
+                                View Public
+                              </Link>
+                            </Button>
+                          )}
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleToggleVisibility(resume.id)}
-                        >
-                          <Share2 className="h-3 w-3 mr-1" />
-                          {resume.is_public ? "Make Private" : "Make Public"}
-                        </Button>
+                          <Button asChild size="sm" variant="outline">
+                            <Link href={`/analytics?resumeId=${resume.id}`}>
+                              <FileText className="h-3 w-3 mr-1" />
+                              Analytics
+                            </Link>
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleToggleVisibility(resume.id)}
+                          >
+                            <Share2 className="h-3 w-3 mr-1" />
+                            {resume.is_public ? "Make Private" : "Make Public"}
+                          </Button>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-3">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <Download className="h-3 w-3 mr-1" />
+                            Download
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteResume(resume.id)}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
-
-                      <div className="flex justify-between items-center pt-3">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-muted-foreground hover:text-foreground"
-                        >
-                          <Download className="h-3 w-3 mr-1" />
-                          Download
-                        </Button>
-
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDeleteResume(resume.id)}
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </AppLayout>
-    </ProtectedRoute>
+    </AppLayout>
   );
 }

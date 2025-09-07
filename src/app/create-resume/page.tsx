@@ -2121,10 +2121,10 @@ export default function CreateResumePage() {
                 </div>
                 <div>
                   <h1 className="text-5xl font-bold text-glass-white">
-                    Create Resume
-                  </h1>
+              Create Resume
+            </h1>
                   <p className="text-glass-gray text-xl font-medium">
-                    Build your professional resume with real-time preview
+              Build your professional resume with real-time preview
             </p>
           </div>
               </div>
