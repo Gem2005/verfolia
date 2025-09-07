@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 
 export default function AuthCodeError() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white/80 backdrop-blur-xl shadow-2xl border border-white/20">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-2xl border border-white/20">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-red-600">Authentication Error</CardTitle>
           <CardDescription className="text-gray-600">

@@ -102,6 +102,45 @@ a:hover {
   color: #93c5fd !important;
 }
 
+/* Force glassmorphism on all pages */
+html, body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%) !important;
+  color: white !important;
+}
+
+/* Override any page-specific backgrounds */
+.min-h-screen {
+  background: transparent !important;
+}
+
+/* Override shadcn/ui specific classes */
+.bg-background {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.bg-card {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(30px) !important;
+}
+
+.bg-popover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(30px) !important;
+}
+
+.bg-muted {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.bg-accent {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.bg-secondary {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
 /* Glassmorphism Styles */
 .glassmorphism {
   background: rgba(255, 255, 255, 0.1);

@@ -32,7 +32,7 @@ import Link from "next/link";
 const HomePage = () => {
   return (
     <AppLayout>
-      <div className="min-h-screen bg-background font-jakarta">
+      <div className="min-h-screen font-jakarta">
         {/* Hero Section */}
         <section className="pt-32 pb-20 gradient-bg relative overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
