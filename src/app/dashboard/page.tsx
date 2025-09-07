@@ -119,7 +119,6 @@ export default function Dashboard() {
           <div className="glass-bg min-h-screen">
             <div className="container mx-auto px-4 py-8 mt-16">
               <div className="animate-pulse space-y-8">
-                {/* Header Skeleton */}
                 <div className="flex justify-between items-center">
                   <div className="space-y-2">
                     <div className="h-8 bg-glass-input-bg rounded w-64"></div>
@@ -127,38 +126,35 @@ export default function Dashboard() {
                   </div>
                   <div className="h-10 bg-glass-input-bg rounded w-40"></div>
                 </div>
-
-              {/* Stats Cards Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="glass-card p-6 rounded-lg">
-                    <div className="space-y-3">
-                      <div className="h-4 bg-glass-input-bg rounded w-24"></div>
-                      <div className="h-8 bg-glass-input-bg rounded w-16"></div>
-                      <div className="h-3 bg-glass-input-bg rounded w-32"></div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="glass-card p-6 rounded-lg">
+                      <div className="space-y-3">
+                        <div className="h-4 bg-glass-input-bg rounded w-24"></div>
+                        <div className="h-8 bg-glass-input-bg rounded w-16"></div>
+                        <div className="h-3 bg-glass-input-bg rounded w-32"></div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Resume Cards Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="glass-card p-6 rounded-lg space-y-4">
-                    <div className="space-y-2">
-                      <div className="h-6 bg-glass-input-bg rounded w-3/4"></div>
-                      <div className="h-4 bg-glass-input-bg rounded w-1/2"></div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="glass-card p-6 rounded-lg space-y-4">
+                      <div className="space-y-2">
+                        <div className="h-6 bg-glass-input-bg rounded w-3/4"></div>
+                        <div className="h-4 bg-glass-input-bg rounded w-1/2"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-glass-input-bg rounded w-full"></div>
+                        <div className="h-4 bg-glass-input-bg rounded w-full"></div>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="h-8 bg-glass-input-bg rounded w-16"></div>
+                        <div className="h-8 bg-glass-input-bg rounded w-20"></div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="h-4 bg-glass-input-bg rounded w-full"></div>
-                      <div className="h-4 bg-glass-input-bg rounded w-full"></div>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="h-8 bg-glass-input-bg rounded w-16"></div>
-                      <div className="h-8 bg-glass-input-bg rounded w-20"></div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
