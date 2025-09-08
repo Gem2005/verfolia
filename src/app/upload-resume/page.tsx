@@ -8,6 +8,7 @@ import { Upload, FileText, ArrowLeft } from "lucide-react";
 import "../create-resume/glassmorphism.css";
 import { parseResumeFromPdf } from "@/utils/pdf-parser";
 import { extractPdfText } from "@/utils/pdf-parser";
+import { parseResumeFromText } from "@/utils/pdf-parser";
 import { useRef } from "react";
 
 export const dynamic = "force-dynamic";
@@ -72,18 +73,53 @@ export default function UploadResumePage() {
     } catch (error) {
       console.error('Structured parse failed, attempting raw text fallback:', error);
       try {
-        const rawText = await extractPdfText(file);
+        // Try server-side API for parsing
+        const form = new FormData();
+        form.append('file', file);
+        const resp = await fetch('/api/parse-resume', { method: 'POST', body: form });
+        if (!resp.ok) throw new Error('Server parse failed');
+        const data = await resp.json();
+        const serverParsed = data?.parsed || {};
+        const rawText = serverParsed.text as string | undefined;
+        let structured = undefined as any;
+        if (rawText) {
+          structured = parseResumeFromText(rawText);
+        }
         const fallbackPrefill = {
           title: `Resume from ${file.name}`,
-          personalInfo: { fullName: "", email: "", phone: "", location: "", headline: "", website: "" },
-          skills: [],
-          experience: [],
-          education: [],
+          personalInfo: {
+            fullName: structured?.personalInfo.fullName || "",
+            email: structured?.personalInfo.email || "",
+            phone: structured?.personalInfo.phone || "",
+            location: "",
+            headline: "",
+            website: structured?.personalInfo.links?.[0] || "",
+          },
+          skills: (structured?.skills || []).map((s: string) => ({ name: s, proficiency: "Intermediate" })),
+          experience: (structured?.experience || []).map((e: any) => ({
+            id: crypto.randomUUID(),
+            company: e.company || "",
+            role: e.role || "",
+            startDate: e.startDate || "",
+            endDate: e.endDate || "",
+            location: e.location || "",
+            description: e.description || "",
+            technologies: [],
+          })),
+          education: (structured?.education || []).map((ed: any) => ({
+            id: crypto.randomUUID(),
+            institution: ed.institution || "",
+            degree: ed.degree || "",
+            field: ed.field || "",
+            startDate: ed.startDate || "",
+            endDate: ed.endDate || "",
+            grade: ed.grade || "",
+          })),
           projects: [],
           certifications: [],
           languages: [],
           customSections: [],
-          rawText,
+          rawText: rawText || '',
         };
         const sessionKey = `resume_upload_${Date.now()}`;
         sessionStorage.setItem(sessionKey, JSON.stringify(fallbackPrefill));

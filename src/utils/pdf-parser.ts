@@ -227,3 +227,47 @@ export async function parseResumeFromPdf(file: File): Promise<ParsedResume> {
     education,
   };
 }
+
+export function parseResumeFromText(text: string): ParsedResume {
+  const sections = splitSections(text);
+  const email = extractEmails(text);
+  const phone = extractPhone(text);
+  const links = extractLinks(text);
+  const fullName = guessName(text);
+
+  const skillsBlock = sections["skills"] || "";
+  const skills = naiveBulletsToArray(skillsBlock)
+    .join(",")
+    .split(/[,|]/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  const experienceBlock = sections["experience"] || sections["work experience"] || sections["employment"] || "";
+  const experienceLines = naiveBulletsToArray(experienceBlock);
+  const roleCompany = extractCompanyRole(experienceLines);
+  const dateRanges = extractDateRanges(experienceBlock);
+  const experience = roleCompany.slice(0, 6).map((rc, idx) => ({
+    company: rc.company,
+    role: rc.role,
+    description: rc.description,
+    startDate: dateRanges[idx]?.start,
+    endDate: dateRanges[idx]?.end,
+  }));
+
+  const educationBlock = sections["education"] || "";
+  const educationLines = naiveBulletsToArray(educationBlock);
+  const educationParsed = extractEducationEntries(educationLines);
+  const education = educationParsed.slice(0, 4).map(e => ({
+    institution: e.institution,
+    degree: e.degree,
+    field: e.field,
+  }));
+
+  return {
+    text,
+    personalInfo: { fullName, email, phone, links },
+    skills,
+    experience,
+    education,
+  };
+}
