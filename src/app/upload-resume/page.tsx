@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, ArrowLeft } from "lucide-react";
 import "../create-resume/glassmorphism.css";
 import { parseResumeFromPdf } from "@/utils/pdf-parser";
+import { useRef } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,7 @@ export default function UploadResumePage() {
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileUpload = async (file: File) => {
     if (file.type !== 'application/pdf') {
@@ -88,6 +90,8 @@ export default function UploadResumePage() {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       handleFileUpload(files[0]);
+      // reset value so selecting same file again still triggers change
+      e.currentTarget.value = "";
     }
   };
 
@@ -151,18 +155,21 @@ export default function UploadResumePage() {
                       or click to browse files
                     </p>
                     <input
+                      ref={fileInputRef}
                       type="file"
-                      accept=".pdf"
+                      accept="application/pdf,.pdf"
                       onChange={handleFileSelect}
                       className="hidden"
-                      id="resume-upload"
                     />
-                    <label htmlFor="resume-upload">
-                      <Button variant="outline" className="cursor-pointer glass-button">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Choose PDF File
-                      </Button>
-                    </label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="cursor-pointer glass-button"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Choose PDF File
+                    </Button>
                   </div>
                   <p className="text-xs text-glass-gray">
                     Supported format: PDF (Max 10MB)
