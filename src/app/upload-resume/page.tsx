@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, ArrowLeft } from "lucide-react";
 import "../create-resume/glassmorphism.css";
+import { parseResumeFromPdf } from "@/utils/pdf-parser";
 
 export const dynamic = "force-dynamic";
 
@@ -23,15 +24,47 @@ export default function UploadResumePage() {
     setIsProcessing(true);
     
     try {
-      // TODO: Implement PDF parsing logic here
-      // For now, redirect to create-resume with a flag
-      const sessionKey = `resume_upload_${Date.now()}`;
-      sessionStorage.setItem(sessionKey, JSON.stringify({
+      const parsed = await parseResumeFromPdf(file);
+
+      const prefill = {
         title: `Resume from ${file.name}`,
-        uploadedAt: new Date().toISOString(),
-        // Add parsed data here when PDF parsing is implemented
-      }));
-      
+        personalInfo: {
+          fullName: parsed.personalInfo.fullName || "",
+          email: parsed.personalInfo.email || "",
+          phone: parsed.personalInfo.phone || "",
+          location: parsed.personalInfo.location || "",
+          headline: parsed.personalInfo.headline || "",
+          website: parsed.personalInfo.links?.[0] || "",
+        },
+        skills: parsed.skills.map(s => ({ name: s, proficiency: "Intermediate" })),
+        experience: parsed.experience.map(e => ({
+          id: crypto.randomUUID(),
+          company: e.company || "",
+          role: e.role || "",
+          startDate: e.startDate || "",
+          endDate: e.endDate || "",
+          location: e.location || "",
+          description: e.description || "",
+          technologies: [],
+        })),
+        education: parsed.education.map(ed => ({
+          id: crypto.randomUUID(),
+          institution: ed.institution || "",
+          degree: ed.degree || "",
+          field: ed.field || "",
+          startDate: ed.startDate || "",
+          endDate: ed.endDate || "",
+          grade: ed.grade || "",
+        })),
+        projects: [],
+        certifications: [],
+        languages: [],
+        customSections: [],
+        rawText: parsed.text,
+      };
+
+      const sessionKey = `resume_upload_${Date.now()}`;
+      sessionStorage.setItem(sessionKey, JSON.stringify(prefill));
       router.push(`/create-resume?prefill=${sessionKey}`);
     } catch (error) {
       console.error('Upload failed:', error);
