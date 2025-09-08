@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, ArrowLeft } from "lucide-react";
 import "../create-resume/glassmorphism.css";
 import { parseResumeFromPdf } from "@/utils/pdf-parser";
+import { extractPdfText } from "@/utils/pdf-parser";
 import { useRef } from "react";
 
 export const dynamic = "force-dynamic";
@@ -69,8 +70,28 @@ export default function UploadResumePage() {
       sessionStorage.setItem(sessionKey, JSON.stringify(prefill));
       router.push(`/create-resume?prefill=${sessionKey}`);
     } catch (error) {
-      console.error('Upload failed:', error);
-      alert('Failed to process PDF. Please try again.');
+      console.error('Structured parse failed, attempting raw text fallback:', error);
+      try {
+        const rawText = await extractPdfText(file);
+        const fallbackPrefill = {
+          title: `Resume from ${file.name}`,
+          personalInfo: { fullName: "", email: "", phone: "", location: "", headline: "", website: "" },
+          skills: [],
+          experience: [],
+          education: [],
+          projects: [],
+          certifications: [],
+          languages: [],
+          customSections: [],
+          rawText,
+        };
+        const sessionKey = `resume_upload_${Date.now()}`;
+        sessionStorage.setItem(sessionKey, JSON.stringify(fallbackPrefill));
+        router.push(`/create-resume?prefill=${sessionKey}`);
+      } catch (fallbackErr) {
+        console.error('Raw text fallback also failed:', fallbackErr);
+        alert('Failed to process PDF. Please try another file.');
+      }
     } finally {
       setIsProcessing(false);
     }
