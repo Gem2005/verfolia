@@ -2141,6 +2141,14 @@ export default function CreateResumePage() {
                 Back to Choice
               </Button>
               <Button
+                variant="outline"
+                onClick={() => router.push('/upload-resume')}
+                className="glass-button flex items-center gap-2 px-6 py-3"
+              >
+                <Upload className="w-4 h-4" />
+                Upload PDF
+              </Button>
+              <Button
                 onClick={handleSave}
                 disabled={saving}
                 className="glass-button flex items-center gap-2 px-8 py-3 text-lg font-semibold"
