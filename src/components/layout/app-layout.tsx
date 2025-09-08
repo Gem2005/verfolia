@@ -2,6 +2,7 @@
 
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import "@/app/create-resume/glassmorphism.css";
 
 interface AppLayoutProps {
   children: React.ReactNode;
