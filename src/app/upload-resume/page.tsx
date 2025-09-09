@@ -34,8 +34,10 @@ export default function UploadResumePage() {
         const resp = await fetch('/api/parse-resume', { method: 'POST', body: form });
         if (resp.ok) {
           const data = await resp.json();
-          const server = data?.parsedResume;
+          const server = data?.parsed_resume;
           const rawText = data?.rawText as string | undefined;
+          const markdownFromServer = data?.editor_markdown as string | undefined;
+          const savedFilename = server?.filename as string | undefined;
           const toMarkdown = (text: string | undefined) => {
             if (!text) return '';
             return text
@@ -52,53 +54,55 @@ export default function UploadResumePage() {
               })
               .join('\n');
           };
-          const markdown = toMarkdown(rawText);
+          const markdown = markdownFromServer || toMarkdown(rawText);
           const prefillFromServer = {
             title: `Resume from ${file.name}`,
             personalInfo: {
-              firstName: server?.personalInfo?.firstName || "",
-              lastName: server?.personalInfo?.lastName || "",
-              email: server?.personalInfo?.email || "",
-              phone: server?.personalInfo?.phone || "",
-              location: server?.personalInfo?.location || "",
-              summary: server?.personalInfo?.summary || "",
-              title: server?.personalInfo?.title || "",
+              firstName: '',
+              lastName: '',
+              email: server?.email?.value || "",
+              phone: server?.phone?.value || "",
+              location: server?.address?.value || "",
+              summary: server?.summary?.value || "",
+              title: '',
               photo: "",
-              linkedinUrl: server?.personalInfo?.linkedinUrl || "",
-              githubUrl: server?.personalInfo?.githubUrl || "",
+              linkedinUrl: server?.linkedin?.value || "",
+              githubUrl: server?.github?.value || "",
             },
-            skills: server?.skills || [],
+            skills: (server?.skills || []).map((s: any) => (typeof s === 'string' ? s : (s?.value ?? '') )).filter(Boolean),
             experience: (server?.experience || []).map((e: any) => ({
               id: crypto.randomUUID(),
-              company: e.company || "",
-              position: e.position || "",
-              startDate: e.startDate || "",
-              endDate: e.endDate || "",
-              isPresent: !!e.isPresent,
-              description: e.description || "",
+              company: e.organization || "",
+              position: e.title || "",
+              startDate: e.start_date || "",
+              endDate: e.end_date || "",
+              isPresent: !!e.is_present,
+              description: Array.isArray(e.description) ? e.description.join('\n') : (e.description || ""),
             })),
             education: (server?.education || []).map((ed: any) => ({
               id: crypto.randomUUID(),
-              institution: ed.institution || "",
+              institution: ed.school || "",
               degree: ed.degree || "",
               field: ed.field || "",
-              startDate: ed.startDate || "",
-              endDate: ed.endDate || "",
+              startDate: ed.start_date || "",
+              endDate: ed.end_date || "",
               gpa: ed.gpa || "",
             })),
             projects: (server?.projects || []).map((p: any) => ({
               id: crypto.randomUUID(),
-              name: p.name || "",
-              description: p.description || "",
-              techStack: p.techStack || [],
-              sourceUrl: p.sourceUrl || "",
-              demoUrl: p.demoUrl || "",
+              name: p.title || p.name || "",
+              description: Array.isArray(p.description) ? p.description.join('\n') : (p.description || ""),
+              techStack: Array.isArray(p.tech_stack) ? p.tech_stack : [],
+              sourceUrl: p.source || "",
+              demoUrl: p.demo || "",
             })),
             certifications: server?.certifications || [],
             languages: server?.languages || [],
             customSections: [],
             rawText: rawText || "",
             markdown,
+            originalFileSavedAs: savedFilename || '',
+            parsed_resume: server,
           };
           const sessionKey = `resume_upload_${Date.now()}`;
           sessionStorage.setItem(sessionKey, JSON.stringify(prefillFromServer));
