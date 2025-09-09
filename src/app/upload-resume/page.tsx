@@ -23,6 +23,11 @@ export default function UploadResumePage() {
       alert('Please upload a PDF file');
       return;
     }
+    // Optional size guard (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File too large. Please upload a PDF ≤ 10MB.');
+      return;
+    }
 
     setIsProcessing(true);
     
@@ -32,12 +37,13 @@ export default function UploadResumePage() {
         const form = new FormData();
         form.append('file', file);
         const resp = await fetch('/api/parse-resume', { method: 'POST', body: form });
-        if (resp.ok) {
-          const data = await resp.json();
+        const data = await resp.json().catch(() => null);
+        if (resp.ok && data) {
           const server = data?.parsed_resume;
           const rawText = data?.rawText as string | undefined;
           const markdownFromServer = data?.editor_markdown as string | undefined;
           const savedFilename = server?.filename as string | undefined;
+          const errorReport: string[] = Array.isArray(data?.error_report) ? data.error_report : [];
           const toMarkdown = (text: string | undefined) => {
             if (!text) return '';
             return text
@@ -55,6 +61,11 @@ export default function UploadResumePage() {
               .join('\n');
           };
           const markdown = markdownFromServer || toMarkdown(rawText);
+          // If server indicates image-only / OCR needed, show guidance and stop early
+          if (!rawText && errorReport.includes('image-only — OCR needed')) {
+            alert('This PDF appears to be image-only. Please run OCR (e.g., with ocrmypdf at ≥300 DPI) or upload a text-based PDF.');
+            return;
+          }
           const prefillFromServer = {
             title: `Resume from ${file.name}`,
             personalInfo: {
@@ -118,6 +129,12 @@ export default function UploadResumePage() {
             URL.revokeObjectURL(blobUrl);
           } catch {}
           router.push(`/create-resume?prefill=${sessionKey}`);
+          return;
+        } else if (data && Array.isArray(data.error_report) && data.error_report.length) {
+          alert(`Could not parse this PDF: ${data.error_report.join('; ')}`);
+          return;
+        } else if (!resp.ok) {
+          alert('Server could not parse this PDF. Please try another file.');
           return;
         }
       } catch (serverErr) {
@@ -255,7 +272,7 @@ export default function UploadResumePage() {
         router.push(`/create-resume?prefill=${sessionKey}`);
       } catch (fallbackErr) {
         console.error('Raw text fallback also failed:', fallbackErr);
-        alert('Failed to process PDF. Please try another file.');
+        alert('Could not process this PDF. If it is image-only, please run OCR and try again.');
       }
     } finally {
       setIsProcessing(false);
