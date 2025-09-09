@@ -1,5 +1,7 @@
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
+import * as pdfjsLib from 'pdfjs-dist';
+import { createWorker } from 'tesseract.js';
 
 // Configure worker - consumers must set proper path in Next.js if needed
 // For now, we rely on default workerless mode in modern pdfjs (v4 supports workerless)
@@ -181,6 +183,32 @@ export async function extractPdfText(file: File): Promise<string> {
     texts.push(pageText);
   }
   return texts.join("\n");
+}
+
+export async function ocrExtractTextFromPdf(file: File, lang: string = 'eng'): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer();
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+  const pdf = await loadingTask.promise;
+
+  const worker = await createWorker(lang);
+  try {
+    let fullText = '';
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) continue;
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: context as any, viewport }).promise;
+      const { data: { text } } = await worker.recognize(canvas as unknown as HTMLCanvasElement);
+      fullText += (text || '') + '\n\n';
+    }
+    return fullText.trim();
+  } finally {
+    await worker.terminate();
+  }
 }
 
 export async function parseResumeFromPdf(file: File): Promise<ParsedResume> {

@@ -8,6 +8,7 @@ import { Upload, FileText, ArrowLeft } from "lucide-react";
 import "../create-resume/glassmorphism.css";
 import { parseResumeFromPdf } from "@/utils/pdf-parser";
 import { extractPdfText } from "@/utils/pdf-parser";
+import { ocrExtractTextFromPdf } from "@/utils/pdf-parser";
 import { useRef } from "react";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +64,27 @@ export default function UploadResumePage() {
           const markdown = markdownFromServer || toMarkdown(rawText);
           // If server indicates image-only / OCR needed, show guidance and stop early
           if (!rawText && errorReport.includes('image-only — OCR needed')) {
+            // Try OCR automatically on client
+            try {
+              const ocrText = await ocrExtractTextFromPdf(file, 'eng');
+              if (ocrText && ocrText.trim().length > 20) {
+                const markdown = toMarkdown(ocrText);
+                const prefillFromOcr = {
+                  title: `Resume from ${file.name}`,
+                  personalInfo: { firstName: "", lastName: "", email: "", phone: "", location: "", summary: "", title: "", photo: "", linkedinUrl: "", githubUrl: "" },
+                  skills: [], experience: [], education: [], projects: [], certifications: [], languages: [], customSections: [],
+                  rawText: ocrText,
+                  markdown,
+                  originalFileSavedAs: savedFilename || '',
+                };
+                const sessionKey = `resume_upload_${Date.now()}`;
+                sessionStorage.setItem(sessionKey, JSON.stringify(prefillFromOcr));
+                router.push(`/create-resume?prefill=${sessionKey}`);
+                return;
+              }
+            } catch (ocrErr) {
+              console.warn('Client OCR failed:', ocrErr);
+            }
             alert('This PDF appears to be image-only. Please run OCR (e.g., with ocrmypdf at ≥300 DPI) or upload a text-based PDF.');
             return;
           }
@@ -228,7 +250,12 @@ export default function UploadResumePage() {
     } catch (error) {
       console.error('Structured parse failed, attempting raw text fallback:', error);
       try {
-        const rawText = await extractPdfText(file);
+        let rawText = await extractPdfText(file);
+        if (!rawText || rawText.trim().length < 10) {
+          try {
+            rawText = await ocrExtractTextFromPdf(file, 'eng');
+          } catch {}
+        }
         const toMarkdown = (text: string | undefined) => {
           if (!text) return '';
           return text
