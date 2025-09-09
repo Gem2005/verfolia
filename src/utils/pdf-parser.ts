@@ -186,11 +186,25 @@ export async function extractPdfText(file: File): Promise<string> {
 }
 
 export async function ocrExtractTextFromPdf(file: File, lang: string = 'eng'): Promise<string> {
+  if (typeof window === 'undefined') {
+    throw new Error('OCR is only available in the browser');
+  }
+  // Configure pdf.js worker (required in browser)
+  try {
+    // @ts-ignore
+    if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+      // Use a CDN worker compatible with current pdfjs version
+      // Fallback to a known version if needed
+      // @ts-ignore
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  } catch {}
+
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
   const pdf = await loadingTask.promise;
 
-  const worker = await createWorker(lang);
+  const worker = await createWorker(lang as any);
   try {
     let fullText = '';
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
