@@ -193,7 +193,6 @@ export async function ocrExtractTextFromPdf(file: File, lang: string = 'eng'): P
   try {
     // @ts-ignore
     if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-      // Primary CDN
       // @ts-ignore
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
@@ -203,9 +202,17 @@ export async function ocrExtractTextFromPdf(file: File, lang: string = 'eng'): P
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
   const pdf = await loadingTask.promise;
 
+  // Configure Tesseract to use CDN resources
+  const workerOptions: any = {
+    logger: () => {},
+    workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/worker.min.js',
+    corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@4/tesseract-core.wasm.js',
+    langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+  };
+
   let worker: TesseractWorker | null = null;
   try {
-    worker = await createWorker({ logger: () => {} } as any);
+    worker = await createWorker(workerOptions);
     // @ts-ignore
     await (worker as any).loadLanguage(lang);
     // @ts-ignore
@@ -225,13 +232,6 @@ export async function ocrExtractTextFromPdf(file: File, lang: string = 'eng'): P
       fullText += (text || '') + '\n\n';
     }
     return fullText.trim();
-  } catch (e) {
-    // Fallback worker src if first attempt failed due to workerSrc
-    try {
-      // @ts-ignore
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-    } catch {}
-    throw e;
   } finally {
     if (worker) {
       try { await (worker as any).terminate(); } catch {}
