@@ -131,11 +131,14 @@ export default function UploadResumePage() {
           router.push(`/create-resume?prefill=${sessionKey}`);
           return;
         } else if (data && Array.isArray(data.error_report) && data.error_report.length) {
-          alert(`Could not parse this PDF: ${data.error_report.join('; ')}`);
-          return;
+          // If specifically image-only, surface guidance and stop. Otherwise, fall back to client parsing below.
+          if (data.error_report.includes('image-only — OCR needed')) {
+            alert('This PDF appears to be image-only. Please run OCR (e.g., with ocrmypdf at ≥300 DPI) or upload a text-based PDF.');
+            return;
+          }
+          // parse-exception or other errors: continue to client fallback
         } else if (!resp.ok) {
-          alert('Server could not parse this PDF. Please try another file.');
-          return;
+          // Server failed; continue to client fallback
         }
       } catch (serverErr) {
         console.warn('Server parse failed, falling back to client:', serverErr);
