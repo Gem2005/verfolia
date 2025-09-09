@@ -492,11 +492,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only PDF files are supported' }, { status: 400 });
     }
 
+    const instruction = `You are an accurate resume parser. Carefully extract all details, including Name, Contact Information, Education, Skills, Certifications, Experience, and Projects. Preserve the original formatting, section order, bullet points, and dates. Do not skip, summarize, or rephrase any information. Ensure the extracted text is clean, properly structured, and ready to be edited inside the editor.`;
+
     const text = await extractTextFromPdf(file);
     const parsedResume = mapTextToResume(text);
 
     const token = `prefill_${Date.now()}`;
-    return NextResponse.json({ parsedResume, token }, { status: 200 });
+    return NextResponse.json({ parsedResume, rawText: text, token, instruction }, { status: 200 });
   } catch (error) {
     console.error('PDF parse error:', error);
     return NextResponse.json({ error: 'Failed to parse resume' }, { status: 500 });

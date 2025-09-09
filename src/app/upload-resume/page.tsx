@@ -27,43 +27,117 @@ export default function UploadResumePage() {
     setIsProcessing(true);
     
     try {
+      // Prefer server parsing to preserve formatting and section order
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const resp = await fetch('/api/parse-resume', { method: 'POST', body: form });
+        if (resp.ok) {
+          const data = await resp.json();
+          const server = data?.parsedResume;
+          const rawText = data?.rawText as string | undefined;
+          const prefillFromServer = {
+            title: `Resume from ${file.name}`,
+            personalInfo: {
+              firstName: server?.personalInfo?.firstName || "",
+              lastName: server?.personalInfo?.lastName || "",
+              email: server?.personalInfo?.email || "",
+              phone: server?.personalInfo?.phone || "",
+              location: server?.personalInfo?.location || "",
+              summary: server?.personalInfo?.summary || "",
+              title: server?.personalInfo?.title || "",
+              photo: "",
+              linkedinUrl: server?.personalInfo?.linkedinUrl || "",
+              githubUrl: server?.personalInfo?.githubUrl || "",
+            },
+            skills: server?.skills || [],
+            experience: (server?.experience || []).map((e: any) => ({
+              id: crypto.randomUUID(),
+              company: e.company || "",
+              position: e.position || "",
+              startDate: e.startDate || "",
+              endDate: e.endDate || "",
+              isPresent: !!e.isPresent,
+              description: e.description || "",
+            })),
+            education: (server?.education || []).map((ed: any) => ({
+              id: crypto.randomUUID(),
+              institution: ed.institution || "",
+              degree: ed.degree || "",
+              field: ed.field || "",
+              startDate: ed.startDate || "",
+              endDate: ed.endDate || "",
+              gpa: ed.gpa || "",
+            })),
+            projects: (server?.projects || []).map((p: any) => ({
+              id: crypto.randomUUID(),
+              name: p.name || "",
+              description: p.description || "",
+              techStack: p.techStack || [],
+              sourceUrl: p.sourceUrl || "",
+              demoUrl: p.demoUrl || "",
+            })),
+            certifications: server?.certifications || [],
+            languages: server?.languages || [],
+            customSections: [],
+            rawText: rawText || "",
+          };
+          const sessionKey = `resume_upload_${Date.now()}`;
+          sessionStorage.setItem(sessionKey, JSON.stringify(prefillFromServer));
+          router.push(`/create-resume?prefill=${sessionKey}`);
+          return;
+        }
+      } catch (serverErr) {
+        console.warn('Server parse failed, falling back to client:', serverErr);
+      }
+
       const parsed = await parseResumeFromPdf(file);
 
       const prefill = {
         title: `Resume from ${file.name}`,
         personalInfo: {
-          fullName: parsed.personalInfo.fullName || "",
-          email: parsed.personalInfo.email || "",
-          phone: parsed.personalInfo.phone || "",
-          location: parsed.personalInfo.location || "",
-          headline: parsed.personalInfo.headline || "",
-          website: parsed.personalInfo.links?.[0] || "",
+          // Split fullName into first/last if needed
+          ...((() => {
+            const pi: any = parsed?.personalInfo || {};
+            const full = (pi.fullName || "").trim();
+            const parts = full ? full.split(/\s+/) : [];
+            const first = parts.length ? parts[0] : (pi.firstName || "");
+            const last = parts.length > 1 ? parts.slice(1).join(" ") : (pi.lastName || "");
+            return { firstName: first, lastName: last };
+          })()),
+          email: (parsed as any)?.personalInfo?.email || "",
+          phone: (parsed as any)?.personalInfo?.phone || "",
+          location: (parsed as any)?.personalInfo?.location || "",
+          summary: (parsed as any)?.personalInfo?.summary || (parsed as any)?.personalInfo?.headline || "",
+          title: (parsed as any)?.personalInfo?.title || "",
+          photo: "",
+          linkedinUrl: (parsed as any)?.personalInfo?.linkedinUrl || (parsed as any)?.personalInfo?.links?.[0] || "",
+          githubUrl: (parsed as any)?.personalInfo?.githubUrl || "",
         },
-        skills: parsed.skills.map(s => ({ name: s, proficiency: "Intermediate" })),
-        experience: parsed.experience.map(e => ({
+        skills: (parsed as any)?.skills || [],
+        experience: (parsed as any)?.experience?.map((e: any) => ({
           id: crypto.randomUUID(),
           company: e.company || "",
-          role: e.role || "",
+          position: e.position || e.role || "",
           startDate: e.startDate || "",
           endDate: e.endDate || "",
-          location: e.location || "",
+          isPresent: !!e.isPresent,
           description: e.description || "",
-          technologies: [],
-        })),
-        education: parsed.education.map(ed => ({
+        })) || [],
+        education: (parsed as any)?.education?.map((ed: any) => ({
           id: crypto.randomUUID(),
           institution: ed.institution || "",
           degree: ed.degree || "",
           field: ed.field || "",
           startDate: ed.startDate || "",
           endDate: ed.endDate || "",
-          grade: ed.grade || "",
-        })),
+          gpa: ed.gpa || ed.grade || "",
+        })) || [],
         projects: [],
         certifications: [],
         languages: [],
         customSections: [],
-        rawText: parsed.text,
+        rawText: (parsed as any)?.text,
       };
 
       const sessionKey = `resume_upload_${Date.now()}`;
@@ -75,7 +149,7 @@ export default function UploadResumePage() {
         const rawText = await extractPdfText(file);
         const fallbackPrefill = {
           title: `Resume from ${file.name}`,
-          personalInfo: { fullName: "", email: "", phone: "", location: "", headline: "", website: "" },
+          personalInfo: { firstName: "", lastName: "", email: "", phone: "", location: "", summary: "", title: "", photo: "", linkedinUrl: "", githubUrl: "" },
           skills: [],
           experience: [],
           education: [],
