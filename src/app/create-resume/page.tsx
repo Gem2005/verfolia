@@ -2476,53 +2476,205 @@ export default function CreateResumePage() {
           </div>
         )}
         {/* Markdown Editor Modal */}
-        {showMarkdownEditor && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="rounded-3xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
-              <div className="p-6 border-b border-white/20 flex justify-between items-center" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
-                <h2 className="text-2xl font-bold text-white">Editable Markdown</h2>
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      try {
+        {showMarkdownEditor && (() => {
+          // Local editor state/utilities
+          const textareaRef = { current: null as HTMLTextAreaElement | null };
+          const [editorWidth, setEditorWidth] = useState(50);
+          const [dragging, setDragging] = useState(false);
+          const [activeTab, setActiveTab] = useState<'edit'|'preview'>('edit');
+          const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+          const applyWrap = (before: string, after: string = before) => {
+            const ta = textareaRef.current;
+            if (!ta) return;
+            const start = ta.selectionStart ?? 0;
+            const end = ta.selectionEnd ?? 0;
+            const value = markdown || '';
+            const selected = value.slice(start, end);
+            const next = value.slice(0, start) + before + selected + after + value.slice(end);
+            setMarkdown(next);
+            requestAnimationFrame(() => {
+              ta.focus();
+              ta.selectionStart = start + before.length;
+              ta.selectionEnd = end + before.length;
+            });
+          };
+
+          const applyPrefixLines = (prefix: string) => {
+            const ta = textareaRef.current; if (!ta) return;
+            const start = ta.selectionStart ?? 0; const end = ta.selectionEnd ?? 0;
+            const value = markdown || '';
+            const before = value.slice(0, start);
+            const selected = value.slice(start, end) || '';
+            const after = value.slice(end);
+            const block = selected || '';
+            const transformed = block.split('\n').map(line => `${prefix}${line}`.trimEnd()).join('\n');
+            const next = before + transformed + after;
+            setMarkdown(next);
+          };
+
+          const insertLink = () => {
+            const ta = textareaRef.current; if (!ta) return;
+            const start = ta.selectionStart ?? 0; const end = ta.selectionEnd ?? 0;
+            const value = markdown || '';
+            const selected = value.slice(start, end) || 'text';
+            const url = 'https://';
+            const next = value.slice(0, start) + `[${selected}](${url})` + value.slice(end);
+            setMarkdown(next);
+          };
+
+          const toHtml = (md: string) => {
+            const esc = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            let h = md || '';
+            // Code blocks
+            h = h.replace(/```([\s\S]*?)```/g, (_m, p1) => `<pre class="rounded-xl p-4 bg-black/50 border border-white/10 overflow-auto"><code>${esc(p1)}</code></pre>`);
+            // Blockquotes
+            h = h.replace(/^>\s?(.*)$/gm, (_m, p1) => `<blockquote class="border-l-4 pl-3 ml-1 border-[#E6E6FA] text-white/80 italic">${p1}</blockquote>`);
+            // Headings
+            h = h.replace(/^######\s?(.*)$/gm, '<h6>$1</h6>')
+                 .replace(/^#####\s?(.*)$/gm, '<h5>$1</h5>')
+                 .replace(/^####\s?(.*)$/gm, '<h4>$1</h4>')
+                 .replace(/^###\s?(.*)$/gm, '<h3>$1</h3>')
+                 .replace(/^##\s?(.*)$/gm, '<h2>$1</h2>')
+                 .replace(/^#\s?(.*)$/gm, '<h1>$1</h1>');
+            // Lists
+            h = h.replace(/^(\s*)-\s+(.*)$/gm, '$1<li>$2</li>');
+            h = h.replace(/^(\s*)\d+\.\s+(.*)$/gm, '$1<li>$2</li>');
+            h = h.replace(/(<li>[^<]*<\/li>\n?)+/g, (m) => m.includes('.</li>') ? `<ol class="ml-5 list-decimal">${m}</ol>` : `<ul class="ml-5 list-disc">${m}</ul>`);
+            // Inline code
+            h = h.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-white/10 border border-white/10">$1</code>');
+            // Bold/Italic
+            h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            h = h.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            // Links
+            h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a class="text-[#E6E6FA] underline-offset-2 hover:underline" href="$2" target="_blank" rel="noreferrer">$1</a>');
+            // Paragraphs
+            h = h.replace(/^(?!<h\d|<ul|<ol|<li|<pre|<blockquote)(.+)$/gm, '<p>$1</p>');
+            return h;
+          };
+
+          const words = (markdown || '').trim().split(/\s+/).filter(Boolean).length;
+          const chars = (markdown || '').length;
+
+          const onMouseDownDivider = () => setDragging(true);
+          const onMouseMove = (e: any) => {
+            if (!dragging) return;
+            const container = document.getElementById('md-editor-container');
+            if (!container) return;
+            const rect = container.getBoundingClientRect();
+            const pct = Math.min(80, Math.max(20, ((e.clientX - rect.left) / rect.width) * 100));
+            setEditorWidth(pct);
+          };
+          const onMouseUp = () => setDragging(false);
+
+          useEffect(() => {
+            if (!dragging) return;
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('mouseup', onMouseUp);
+            return () => { window.removeEventListener('mousemove', onMouseMove); window.removeEventListener('mouseup', onMouseUp); };
+          }, [dragging]);
+
+          return (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+              <div className="rounded-3xl w-full max-w-[1200px] max-h-[95vh] overflow-hidden shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(30px)'}}>
+                {/* Header / Toolbar */}
+                <div className="px-4 py-3 border-b border-white/15 flex items-center justify-between" style={{background: 'rgba(255,255,255,0.06)'}}>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" className="h-9 px-3 glass-button" onClick={() => setShowMarkdownEditor(false)}>
+                      <X className="w-4 h-4 mr-1"/> Close
+                    </Button>
+                    <div className="hidden md:flex items-center gap-1">
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyWrap('**','**')}><strong>B</strong></Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyWrap('*','*')}><em>I</em></Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyPrefixLines('# ')}>H1</Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyPrefixLines('## ')}>H2</Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={insertLink}>Link</Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyWrap('````\n','\n````')}>Code</Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyPrefixLines('- ')}>UL</Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyPrefixLines('1. ')}>OL</Button>
+                      <Button variant="outline" className="icon-btn h-9 px-3" onClick={() => applyPrefixLines('> ')}>Quote</Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      className="h-9 px-3 glass-button"
+                      onClick={() => {
                         const blob = new Blob([markdown], { type: 'text/markdown' });
                         const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = `resume-${Date.now()}.md`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        URL.revokeObjectURL(url);
-                      } catch (e) {
-                        console.error('MD download failed', e);
-                      }
-                    }}
-                    className="h-10 px-4 border border-white/20 text-white hover:bg-white/20 rounded-xl"
-                  >
-                    <Download className="w-4 h-4 mr-2" /> Download .md
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowMarkdownEditor(false)}
-                    className="h-10 w-10 p-0 border border-white/20 text-white hover:bg-white/20 rounded-xl"
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
+                        const a = document.createElement('a'); a.href = url; a.download = `resume-${Date.now()}.md`; a.click(); URL.revokeObjectURL(url);
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-1"/> Download .md
+                    </Button>
+                    <Button
+                      className="h-9 px-4"
+                      onClick={() => { setLastSaved(new Date()); }}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Mobile tabs */}
+                <div className="md:hidden px-4 pt-3 flex gap-2">
+                  <button className={`px-4 py-2 rounded-xl border ${activeTab==='edit'?'border-[#E6E6FA] text-white':'border-white/20 text-white/70'}`} onClick={()=>setActiveTab('edit')}>Edit</button>
+                  <button className={`px-4 py-2 rounded-xl border ${activeTab==='preview'?'border-[#E6E6FA] text-white':'border-white/20 text-white/70'}`} onClick={()=>setActiveTab('preview')}>Preview</button>
+                </div>
+
+                {/* Body */}
+                <div id="md-editor-container" className="p-4 grid md:grid-cols-12 gap-3" style={{maxHeight: 'calc(95vh - 140px)'}}>
+                  {/* Editor */}
+                  <div className={`${activeTab==='edit' ? '' : 'hidden'} md:block md:col-span-6`} style={{width: '100%'}}>
+                    <div className="glass-card h-[60vh] md:h-[calc(70vh)] overflow-hidden">
+                      <div className="h-full w-full flex">
+                        <div className="w-12 text-right pr-2 py-3 text-white/40 select-none bg-white/5 border-r border-white/10">
+                          {Array.from({length: Math.max(1, (markdown.match(/\n/g)||[]).length + 1)}).map((_,i)=> (
+                            <div key={i} className="leading-6 text-xs">{i+1}</div>
+                          ))}
+                        </div>
+                        <textarea
+                          ref={(el) => { textareaRef.current = el; }}
+                          value={markdown}
+                          onChange={(e) => setMarkdown(e.target.value)}
+                          className="flex-1 h-full p-3 text-sm text-white bg-transparent outline-none"
+                          placeholder="# Edit your resume in Markdown here\n\n## Education\n- Degree — School (Dates)\n\n## Experience\n- Title — Company (Dates)\n  - Achievement..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Divider (desktop) */}
+                  <div className="hidden md:flex md:col-span-0 items-stretch">
+                    <div
+                      onMouseDown={onMouseDownDivider}
+                      className="w-1 mx-1 rounded-full bg-white/10 hover:bg-[#E6E6FA]/40 cursor-col-resize"
+                      title="Drag to resize"
+                    />
+                  </div>
+
+                  {/* Preview */}
+                  <div className={`${activeTab==='preview' ? '' : 'hidden'} md:block md:col-span-6`}>
+                    <div className="glass-card h-[60vh] md:h-[calc(70vh)] overflow-auto p-5 prose prose-invert max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: toHtml(markdown) }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status bar */}
+                <div className="px-4 py-2 border-t border-white/15 text-sm flex items-center justify-between text-white/70" style={{background: 'rgba(255,255,255,0.06)'}}>
+                  <div className="flex gap-4">
+                    <span>Words: {words}</span>
+                    <span>Chars: {chars}</span>
+                  </div>
+                  <div>
+                    {lastSaved ? `Last saved: ${lastSaved.toLocaleTimeString()}` : 'Unsaved changes'}
+                  </div>
                 </div>
               </div>
-              <div className="p-6 overflow-auto max-h-[calc(95vh-100px)]" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
-                <textarea
-                  value={markdown}
-                  onChange={(e) => setMarkdown(e.target.value)}
-                  className="w-full h-[70vh] rounded-xl p-4 text-sm text-white bg-black/40 border border-white/20 outline-none"
-                  placeholder="# Paste or edit your resume in Markdown here"
-                />
-              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
