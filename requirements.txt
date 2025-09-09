@@ -1,3 +1,6 @@
 fastapi
 uvicorn
 supabase
+pyyaml 
+ua-parser 
+user-agents
