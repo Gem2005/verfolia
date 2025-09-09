@@ -7,7 +7,7 @@ user-agents
 dotenv
 typing
 pydantic
-collections
 datetime
 os
 httpx
+
