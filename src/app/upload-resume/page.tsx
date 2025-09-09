@@ -36,6 +36,23 @@ export default function UploadResumePage() {
           const data = await resp.json();
           const server = data?.parsedResume;
           const rawText = data?.rawText as string | undefined;
+          const toMarkdown = (text: string | undefined) => {
+            if (!text) return '';
+            return text
+              .split(/\r?\n/)
+              .map((line) => {
+                const trimmed = line.trim();
+                if (/^(SUMMARY|EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|LANGUAGES|PROFILE|OBJECTIVE)\b/i.test(trimmed)) {
+                  return `## ${trimmed}`;
+                }
+                if (/^[•\-*]\s+/.test(trimmed)) {
+                  return trimmed.replace(/^[•\-*]\s+/, '- ');
+                }
+                return trimmed;
+              })
+              .join('\n');
+          };
+          const markdown = toMarkdown(rawText);
           const prefillFromServer = {
             title: `Resume from ${file.name}`,
             personalInfo: {
@@ -81,9 +98,21 @@ export default function UploadResumePage() {
             languages: server?.languages || [],
             customSections: [],
             rawText: rawText || "",
+            markdown,
           };
           const sessionKey = `resume_upload_${Date.now()}`;
           sessionStorage.setItem(sessionKey, JSON.stringify(prefillFromServer));
+          // Save local copy of original file
+          try {
+            const blobUrl = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = `copy-${Date.now()}-${file.name}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+          } catch {}
           router.push(`/create-resume?prefill=${sessionKey}`);
           return;
         }
@@ -92,6 +121,23 @@ export default function UploadResumePage() {
       }
 
       const parsed = await parseResumeFromPdf(file);
+
+      const toMarkdown = (text: string | undefined) => {
+        if (!text) return '';
+        return text
+          .split(/\r?\n/)
+          .map((line) => {
+            const trimmed = line.trim();
+            if (/^(SUMMARY|EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|LANGUAGES|PROFILE|OBJECTIVE)\b/i.test(trimmed)) {
+              return `## ${trimmed}`;
+            }
+            if (/^[•\-*]\s+/.test(trimmed)) {
+              return trimmed.replace(/^[•\-*]\s+/, '- ');
+            }
+            return trimmed;
+          })
+          .join('\n');
+      };
 
       const prefill = {
         title: `Resume from ${file.name}`,
@@ -138,15 +184,44 @@ export default function UploadResumePage() {
         languages: [],
         customSections: [],
         rawText: (parsed as any)?.text,
+        markdown: toMarkdown((parsed as any)?.text),
       };
 
       const sessionKey = `resume_upload_${Date.now()}`;
       sessionStorage.setItem(sessionKey, JSON.stringify(prefill));
+      // Save local copy of original file
+      try {
+        const blobUrl = URL.createObjectURL(file);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = `copy-${Date.now()}-${file.name}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      } catch {}
       router.push(`/create-resume?prefill=${sessionKey}`);
     } catch (error) {
       console.error('Structured parse failed, attempting raw text fallback:', error);
       try {
         const rawText = await extractPdfText(file);
+        const toMarkdown = (text: string | undefined) => {
+          if (!text) return '';
+          return text
+            .split(/\r?\n/)
+            .map((line) => {
+              const trimmed = line.trim();
+              if (/^(SUMMARY|EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|LANGUAGES|PROFILE|OBJECTIVE)\b/i.test(trimmed)) {
+                return `## ${trimmed}`;
+              }
+              if (/^[•\-*]\s+/.test(trimmed)) {
+                return trimmed.replace(/^[•\-*]\s+/, '- ');
+              }
+              return trimmed;
+            })
+            .join('\n');
+        };
+        const markdown = toMarkdown(rawText);
         const fallbackPrefill = {
           title: `Resume from ${file.name}`,
           personalInfo: { firstName: "", lastName: "", email: "", phone: "", location: "", summary: "", title: "", photo: "", linkedinUrl: "", githubUrl: "" },
@@ -158,9 +233,21 @@ export default function UploadResumePage() {
           languages: [],
           customSections: [],
           rawText,
+          markdown,
         };
         const sessionKey = `resume_upload_${Date.now()}`;
         sessionStorage.setItem(sessionKey, JSON.stringify(fallbackPrefill));
+        // Save local copy of original file
+        try {
+          const blobUrl = URL.createObjectURL(file);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = `copy-${Date.now()}-${file.name}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        } catch {}
         router.push(`/create-resume?prefill=${sessionKey}`);
       } catch (fallbackErr) {
         console.error('Raw text fallback also failed:', fallbackErr);

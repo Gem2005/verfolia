@@ -124,6 +124,8 @@ export default function CreateResumePage() {
   const [selectedTheme, setSelectedTheme] = useState("black");
   const [selectedTemplate, setSelectedTemplate] = useState("clean-mono");
   const [showFullPreview, setShowFullPreview] = useState(false);
+  const [showMarkdownEditor, setShowMarkdownEditor] = useState(false);
+  const [markdown, setMarkdown] = useState("");
   const [resumeTitle, setResumeTitle] = useState("");
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -150,6 +152,9 @@ export default function CreateResumePage() {
         if (raw) {
           const parsed = JSON.parse(raw);
           setResumeTitle(parsed.title || "Imported Resume");
+          if (parsed.markdown) {
+            setMarkdown(parsed.markdown);
+          }
           setResumeData((prev) => ({
             ...prev,
             title: parsed.title || prev.title,
@@ -2142,11 +2147,45 @@ export default function CreateResumePage() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => router.push('/upload-resume')}
+                onClick={() => setShowMarkdownEditor(true)}
                 className="glass-button flex items-center gap-2 px-6 py-3"
               >
-                <Upload className="w-4 h-4" />
-                Upload PDF
+                <PenSquare className="w-4 h-4" />
+                Markdown Editor
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  try {
+                    const exportPayload = {
+                      title: resumeTitle || "My Resume",
+                      personalInfo: resumeData.personalInfo,
+                      experience: resumeData.experience,
+                      education: resumeData.education,
+                      skills: resumeData.skills,
+                      projects: resumeData.projects,
+                      certifications: resumeData.certifications,
+                      languages: resumeData.languages,
+                      customSections: resumeData.customSections,
+                      markdown,
+                    };
+                    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `resume-${Date.now()}.json`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                  } catch (e) {
+                    console.error('JSON export failed', e);
+                  }
+                }}
+                className="glass-button flex items-center gap-2 px-6 py-3"
+              >
+                <Download className="w-4 h-4" />
+                Export JSON
               </Button>
               <Button
                 onClick={handleSave}
@@ -2432,6 +2471,54 @@ export default function CreateResumePage() {
                 <div className="rounded-2xl shadow-2xl p-12 mx-auto max-w-5xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
                   {renderResumePreview()}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Markdown Editor Modal */}
+        {showMarkdownEditor && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="rounded-3xl max-w-5xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
+              <div className="p-6 border-b border-white/20 flex justify-between items-center" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
+                <h2 className="text-2xl font-bold text-white">Editable Markdown</h2>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      try {
+                        const blob = new Blob([markdown], { type: 'text/markdown' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `resume-${Date.now()}.md`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                      } catch (e) {
+                        console.error('MD download failed', e);
+                      }
+                    }}
+                    className="h-10 px-4 border border-white/20 text-white hover:bg-white/20 rounded-xl"
+                  >
+                    <Download className="w-4 h-4 mr-2" /> Download .md
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowMarkdownEditor(false)}
+                    className="h-10 w-10 p-0 border border-white/20 text-white hover:bg-white/20 rounded-xl"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+              </div>
+              <div className="p-6 overflow-auto max-h-[calc(95vh-100px)]" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
+                <textarea
+                  value={markdown}
+                  onChange={(e) => setMarkdown(e.target.value)}
+                  className="w-full h-[70vh] rounded-xl p-4 text-sm text-white bg-black/40 border border-white/20 outline-none"
+                  placeholder="# Paste or edit your resume in Markdown here"
+                />
               </div>
             </div>
           </div>
