@@ -1,7 +1,7 @@
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import type { PDFDocumentProxy } from "pdfjs-dist/types/src/display/api";
 import * as pdfjsLib from 'pdfjs-dist';
-import { createWorker } from 'tesseract.js';
+import { createWorker, type Worker as TesseractWorker } from 'tesseract.js';
 
 // Configure worker - consumers must set proper path in Next.js if needed
 // For now, we rely on default workerless mode in modern pdfjs (v4 supports workerless)
@@ -193,8 +193,7 @@ export async function ocrExtractTextFromPdf(file: File, lang: string = 'eng'): P
   try {
     // @ts-ignore
     if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-      // Use a CDN worker compatible with current pdfjs version
-      // Fallback to a known version if needed
+      // Primary CDN
       // @ts-ignore
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
@@ -204,24 +203,39 @@ export async function ocrExtractTextFromPdf(file: File, lang: string = 'eng'): P
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
   const pdf = await loadingTask.promise;
 
-  const worker = await createWorker(lang as any);
+  let worker: TesseractWorker | null = null;
   try {
+    worker = await createWorker({ logger: () => {} } as any);
+    // @ts-ignore
+    await (worker as any).loadLanguage(lang);
+    // @ts-ignore
+    await (worker as any).initialize(lang);
+
     let fullText = '';
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
-      const viewport = page.getViewport({ scale: 2 });
+      const viewport = page.getViewport({ scale: 3 });
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       if (!context) continue;
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       await page.render({ canvasContext: context as any, viewport }).promise;
-      const { data: { text } } = await worker.recognize(canvas as unknown as HTMLCanvasElement);
+      const { data: { text } } = await (worker as any).recognize(canvas as unknown as HTMLCanvasElement);
       fullText += (text || '') + '\n\n';
     }
     return fullText.trim();
+  } catch (e) {
+    // Fallback worker src if first attempt failed due to workerSrc
+    try {
+      // @ts-ignore
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+    } catch {}
+    throw e;
   } finally {
-    await worker.terminate();
+    if (worker) {
+      try { await (worker as any).terminate(); } catch {}
+    }
   }
 }
 
