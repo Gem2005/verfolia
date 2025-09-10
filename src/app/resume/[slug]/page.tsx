@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 import {
   resumeService,
   type Resume,
@@ -21,6 +22,7 @@ import {
   ModernAIFocusedTemplate,
 } from "@/components/templates";
 import type { PortfolioData } from "@/types/PortfolioTypes";
+import { ProfileHeader } from "@/components/layout/ProfileHeader";
 import "./print.css";
 
 interface PublicResumePageProps {
@@ -33,6 +35,8 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
   const { slug } = params;
   const [resume, setResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth(); // Get the currently logged-in user
+  const [isOwner, setIsOwner] = useState(false); // State to check if viewer is owner
 
   useEffect(() => {
     const loadResume = async () => {
@@ -51,9 +55,21 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     loadResume();
   }, [slug]);
 
+  // This is a new block of code.
+  // It checks if the logged-in user's ID matches the resume's creator ID.
+  useEffect(() => {
+    if (user && resume) {
+      setIsOwner(user.id === resume.user_id);
+    } else {
+      setIsOwner(false);
+    }
+  }, [user, resume]);
+
+
   // Track view duration
   useEffect(() => {
-    if (!resume) return;
+    // We only track views for people who are NOT the owner
+    if (!resume || isOwner) return;
 
     const startTime = Date.now();
 
@@ -70,11 +86,11 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       window.removeEventListener("beforeunload", trackViewDuration);
       trackViewDuration();
     };
-  }, [resume]);
+  }, [resume, isOwner]);
 
   // Convert resume data to portfolio data format
   const getPortfolioData = (resume: Resume): PortfolioData => {
-    // Validate and provide fallbacks for required data
+    // This function remains mostly the same
     const personalInfo = resume.personal_info || {};
     const experience = Array.isArray(resume.experience)
       ? resume.experience
@@ -94,16 +110,16 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       personalInfo: {
         firstName: personalInfo.firstName || "John",
         lastName: personalInfo.lastName || "Doe",
-        title: "Professional", // Hardcoded since it's not in PersonalInfo
+        title: "Professional",
         email: personalInfo.email || "contact@example.com",
         phone: personalInfo.phone || "+1 (555) 123-4567",
         location: personalInfo.location || "Location",
-        about: "Professional", // Hardcoded since summary is not in PersonalInfo
-        photo: "/professional-headshot.png", // Hardcoded since it's not in PersonalInfo
+        about: "Professional",
+        photo: "/professional-headshot.png",
         social: {
-          github: personalInfo.website || "", // Using website as a fallback
+          github: personalInfo.website || "",
           twitter: "",
-          linkedin: personalInfo.website || "", // Using website as a fallback
+          linkedin: personalInfo.website || "",
           portfolio: personalInfo.website || "",
         },
       },
@@ -119,20 +135,21 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       skills: skills.filter((skill: string) => skill && skill.trim()),
       education: education.map((edu: Education) => ({
         id: edu.id || Math.random().toString(),
-        institution: edu.school || "Institution", // Changed to match Education type
+        institution: edu.school || "Institution",
         degree: edu.degree || "Degree",
         field: edu.field || "",
         startYear: edu.startDate || "",
         endYear: edu.endDate || "",
-        cgpa: "", // Education type doesn't have gpa field
+        cgpa: "",
       })),
       projects: projects.map((proj: Project) => ({
         id: proj.id || Math.random().toString(),
         name: proj.name || "Project",
         description: proj.description || "Project description",
         techStack: proj.technologies || [],
-        sourceUrl: proj.repoUrl || "", // Using repoUrl from Project type
-        demoUrl: proj.liveUrl || "", // Using liveUrl from Project type
+        sourceUrl: proj.repoUrl || "",
+        demoUrl: proj.liveUrl || "",
+        isLocked: proj.isLocked || false,
       })),
       blogs: [],
       certifications: certifications.map((cert: Certification) => ({
@@ -162,17 +179,8 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       preview: false,
       data: portfolioData,
       theme: resume.theme_id || "black",
-      resumeId: resume.id, // Add resumeId for tracking
+      resumeId: resume.id,
     };
-
-    // Log for debugging
-    console.log(
-      "Rendering template:",
-      resume.template_id,
-      "with theme:",
-      resume.theme_id
-    );
-    console.log("Portfolio data:", portfolioData);
 
     try {
       switch (resume.template_id) {
@@ -185,14 +193,10 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
         case "modern-ai-focused":
           return <ModernAIFocusedTemplate {...templateProps} />;
         default:
-          console.warn(
-            `Unknown template: ${resume.template_id}, falling back to clean-mono`
-          );
           return <CleanMonoTemplate {...templateProps} />;
       }
     } catch (error) {
       console.error("Error rendering template:", error);
-      // Fallback to interactive clean mono template with error handling
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
@@ -232,8 +236,16 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
 
   return (
     <div className="min-h-screen">
-      {resume && <ViewTracker resumeId={resume.id} />}
-      {renderResumeTemplate(resume)}
+      {/* This is the key change: only show the header if the user is the owner */}
+      {isOwner && <ProfileHeader resume={resume} />}
+      
+      {/* Only track the view if it's NOT the owner */}
+      {!isOwner && <ViewTracker resumeId={resume.id} />}
+      
+      <div className="resume-content">
+        {renderResumeTemplate(resume)}
+      </div>
     </div>
   );
 }
+
