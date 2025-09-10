@@ -55,6 +55,7 @@ export interface Project {
   repoUrl?: string;
   startDate?: string;
   endDate?: string;
+  isLocked?: boolean; // This property was missing
 }
 
 export interface Certification {
@@ -140,18 +141,19 @@ class ResumeService {
 
   // Create resume
   async createResume(resume: Omit<Resume, 'id' | 'created_at' | 'updated_at'>): Promise<Resume | null> {
-    const { data, error } = await this.supabase
-      .from('resumes')
-      .insert([resume])
-      .select()
-      .single();
+    const response = await fetch('/api/resumes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resume),
+    });
 
-    if (error) {
-      console.error('Error creating resume:', error);
-      return null;
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error creating resume:', errorData);
+        throw new Error(errorData.error || 'Failed to create resume');
     }
 
-    return data;
+    return await response.json();
   }
 
   // Update resume
@@ -290,9 +292,10 @@ class ResumeService {
     }
 
     return data || [];
+  
   }
 
-  // Get resume analytics
+    // Get resume analytics
   async getResumeAnalytics(resumeId: string, days: number): Promise<AnalyticsData> {
     try {
       const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
