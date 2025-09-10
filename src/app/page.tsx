@@ -83,7 +83,7 @@ const HomePage = () => {
 >
   <Link href="/upload-resume">  {/* ✅ FIXED */}
     <Upload className="w-5 h-5 mr-2" />
-    Upload PDF
+    Upload Resume
   </Link>
 </Button>
               </div>
