@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    
+    // THE FIX IS HERE: Changed "customSections" to "custom_sections" to match the database
     const {
       title,
       template_id,
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
       projects,
       certifications,
       languages,
-      custom_sections
+      custom_sections 
     } = body;
 
     // Validate required fields
@@ -53,26 +55,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // This is the corrected data object we will save
     const resumeData = {
       user_id: user.id,
       title,
-      slug: createSlug(title), // Use our new function to create a unique slug
-      template_id: template_id,
-      theme_id: theme_id,
-      is_public: is_public,
-      personal_info: personal_info,
+      slug: createSlug(title),
+      template_id,
+      theme_id,
+      is_public,
+      personal_info,
       experience,
       education,
       skills,
       projects,
       certifications,
       languages,
-      custom_sections: customSections,
+      custom_sections, // This now correctly uses the variable from the request
       view_count: 0 
     };
 
-    // Directly insert the data into the 'resumes' table in your database
     const { data: newResume, error } = await supabase
       .from('resumes')
       .insert(resumeData)
@@ -81,11 +81,9 @@ export async function POST(request: NextRequest) {
 
     if (error) {
         console.error('Database insert error:', error);
-        // This will catch any database errors and report them
         throw new Error(error.message);
     }
 
-    // Send the successfully created resume back to the user's browser
     return NextResponse.json(newResume, { status: 201 });
 
   } catch (error) {
