@@ -41,6 +41,7 @@ export interface PortfolioData {
     techStack: string[];
     sourceUrl: string;
     demoUrl: string;
+    isLocked?: boolean; // <-- THIS IS THE FIX
   }>;
   blogs: Array<{
     id: string;
