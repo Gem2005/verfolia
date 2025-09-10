@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { resumeService } from '@/services/resume-service';
 
+// Helper function to create a unique, URL-friendly slug from a title
+function createSlug(title: string): string {
+  const baseSlug = title
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove non-word chars except spaces and hyphens
+    .replace(/[\s_-]+/g, '-') // Replace spaces and hyphens with a single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+
+  // Add a short random string to the end to ensure it's always unique
+  const randomString = Math.random().toString(36).substring(2, 8);
+
+  return `${baseSlug}-${randomString}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
@@ -9,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized. Please log in to save your resume.' },
         { status: 401 }
       );
     }
@@ -17,34 +32,36 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       title,
-      templateId,
-      themeId,
-      isPublic,
-      personalInfo,
+      template_id,
+      theme_id,
+      is_public,
+      personal_info,
       experience,
       education,
       skills,
       projects,
       certifications,
       languages,
-      customSections
+      custom_sections
     } = body;
 
     // Validate required fields
-    if (!title || !templateId || !themeId) {
+    if (!title || !template_id || !theme_id) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields (title, template, or theme)' },
         { status: 400 }
       );
     }
 
+    // This is the corrected data object we will save
     const resumeData = {
       user_id: user.id,
       title,
-      template_id: templateId,
-      theme_id: themeId,
-      is_public: isPublic,
-      personal_info: personalInfo,
+      slug: createSlug(title), // Use our new function to create a unique slug
+      template_id: template_id,
+      theme_id: theme_id,
+      is_public: is_public,
+      personal_info: personal_info,
       experience,
       education,
       skills,
@@ -52,17 +69,30 @@ export async function POST(request: NextRequest) {
       certifications,
       languages,
       custom_sections: customSections,
-      slug: title.toLowerCase().replace(/[^\w-]+/g, '-'), // Convert title to URL-friendly slug
-      view_count: 0 // Initialize view count to 0
+      view_count: 0 
     };
 
-    const resume = await resumeService.createResume(resumeData);
+    // Directly insert the data into the 'resumes' table in your database
+    const { data: newResume, error } = await supabase
+      .from('resumes')
+      .insert(resumeData)
+      .select()
+      .single();
 
-    return NextResponse.json(resume, { status: 201 });
+    if (error) {
+        console.error('Database insert error:', error);
+        // This will catch any database errors and report them
+        throw new Error(error.message);
+    }
+
+    // Send the successfully created resume back to the user's browser
+    return NextResponse.json(newResume, { status: 201 });
+
   } catch (error) {
     console.error('Error creating resume:', error);
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
     return NextResponse.json(
-      { error: 'Failed to create resume' },
+      { error: 'Failed to create resume', detail: errorMessage },
       { status: 500 }
     );
   }
@@ -91,3 +121,4 @@ export async function GET() {
     );
   }
 }
+
