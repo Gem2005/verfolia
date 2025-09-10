@@ -222,3 +222,30 @@ input::placeholder, textarea::placeholder {
   border: 1px solid var(--glass-border) !important;
   color: var(--glass-white) !important;
 }
+
+.shining-glass-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shining-glass-effect::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent,
+    rgba(168, 85, 247, 0.4), /* purple */
+    rgba(59, 130, 246, 0.4), /* blue */
+    transparent 30%
+  );
+  animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
