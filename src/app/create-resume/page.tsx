@@ -135,16 +135,14 @@ export default function CreateResumePage() {
   const [showChoice, setShowChoice] = useState(false); // Default to false
 
   // Redirect unauthenticated users after auth state resolves
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login?returnTo=/create-resume');
-    }
-  }, [loading, user, router]);
+  // useEffect(() => {
+  //   if (!loading && !user) {
+  //     router.replace('/login?returnTo=/create-resume');
+  //   }
+  // }, [loading, user, router]);
 
-  // Handle prefill or show choice screen logic
+    // Handle prefill or show choice screen logic
   useEffect(() => {
-    if (!user) return;
-
     const params = new URLSearchParams(window.location.search);
     const key = params.get("prefill");
     if (key) {
@@ -171,10 +169,10 @@ export default function CreateResumePage() {
             languages: parsed.languages || prev.languages,
             customSections: parsed.customSections || prev.customSections,
           }));
-          setShowChoice(false); // Prefill data exists, hide choice
+          setShowChoice(false); // Prefill data exists, go to builder
         } else {
           alert("The uploaded resume data couldn't be found. Please try uploading again.");
-          router.replace('/create-resume');
+          router.replace('/choice');
         }
       } catch (e) {
         console.error("Failed to prefill from parsed data", e);
@@ -182,7 +180,7 @@ export default function CreateResumePage() {
     } else {
       setShowChoice(true); // No prefill data, show choice
     }
-  }, [user, router]);
+  }, [router]);
 
   // Validation state
   const [validationErrors, setValidationErrors] = useState<{
@@ -590,9 +588,33 @@ export default function CreateResumePage() {
   };
 
   const handleSave = async () => {
+    // Check authentication when trying to save
     if (!user) {
-      toast.error("You must be logged in to save a resume.");
-      return;
+      try {
+        const currentData = {
+          title: resumeTitle,
+          personalInfo: resumeData.personalInfo,
+          experience: resumeData.experience,
+          education: resumeData.education,
+          skills: resumeData.skills,
+          projects: resumeData.projects,
+          certifications: resumeData.certifications,
+          languages: resumeData.languages,
+          customSections: resumeData.customSections,
+          selectedTemplate,
+          selectedTheme,
+          currentStep
+        };
+        sessionStorage.setItem('resumeData', JSON.stringify(currentData));
+        
+        // Redirect to login with return to create-resume
+        router.push('/login?returnTo=/create-resume&action=save');
+        return;
+      } catch (e) {
+        toast.error("Please log in to save your resume.");
+        router.push('/login?returnTo=/create-resume');
+        return;
+      }
     }
 
     if (!validateCurrentStep()) {
@@ -623,6 +645,11 @@ export default function CreateResumePage() {
       const savedResume = await resumeService.createResume(resumePayload as any);
 
       if (savedResume && savedResume.slug) {
+        // Clear temporary data
+        try {
+          sessionStorage.removeItem('resumeData');
+        } catch {}
+        
         toast.dismiss();
         toast.success("Resume saved successfully!");
         router.push(`/resume/${savedResume.slug}`);
@@ -689,6 +716,45 @@ export default function CreateResumePage() {
       experience: prev.experience.filter((exp) => exp.id !== experienceId),
     }));
   };
+
+    // Restore data after login
+  useEffect(() => {
+    if (user && !loading) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('action') === 'save') {
+        try {
+          const savedData = sessionStorage.getItem('resumeData');
+          if (savedData) {
+            const parsed = JSON.parse(savedData);
+            setResumeTitle(parsed.title || '');
+            setSelectedTemplate(parsed.selectedTemplate || 'clean-mono');
+            setSelectedTheme(parsed.selectedTheme || 'black');
+            setCurrentStep(parsed.currentStep || 0);
+            setResumeData(prev => ({
+              ...prev,
+              title: parsed.title || prev.title,
+              personalInfo: parsed.personalInfo || prev.personalInfo,
+              experience: parsed.experience || prev.experience,
+              education: parsed.education || prev.education,
+              skills: parsed.skills || prev.skills,
+              projects: parsed.projects || prev.projects,
+              certifications: parsed.certifications || prev.certifications,
+              languages: parsed.languages || prev.languages,
+              customSections: parsed.customSections || prev.customSections,
+            }));
+            setShowChoice(false);
+            
+            // Auto-save after restoration
+            setTimeout(() => {
+              handleSave();
+            }, 500);
+          }
+        } catch (e) {
+          console.error('Failed to restore resume data', e);
+        }
+      }
+    }
+  }, [user, loading]);
 
   const addEducation = () => {
     const newEdu = {
@@ -2005,21 +2071,12 @@ export default function CreateResumePage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glass-blue mx-auto mb-4"></div>
           <p className="text-glass-white">Loading...</p>
-            </div>
-              </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="glass-bg flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glass-blue mx-auto mb-4"></div>
-          <p className="text-glass-white">Redirecting to login...</p>
         </div>
       </div>
     );
   }
+
+  // NO AUTH BLOCKING - Allow users to explore without login
 
   // ** THIS IS THE STRUCTURAL FIX **
   if (showChoice) {

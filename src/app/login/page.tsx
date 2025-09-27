@@ -90,6 +90,7 @@ export default function LoginPage() {
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
+    formData.append("confirmPassword", confirmPassword);
     const result = await signup(formData);
     if (result?.error) {
       setMessage({ type: "error", text: result.error });
