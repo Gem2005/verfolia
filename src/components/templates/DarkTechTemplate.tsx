@@ -119,39 +119,39 @@ export function DarkTechTemplate({
     switch (theme) {
       case "dark-gray":
         return {
-          bg: "bg-gray-800",
-          text: "text-gray-100",
-          accent: "text-gray-300",
+          bg: "bg-gray-900",
+          text: "text-white",
+          accent: "text-blue-400",
           border: "border-gray-600",
-          cardBg: "bg-gray-700",
+          cardBg: "bg-gray-800",
           cardBorder: "border-gray-600",
           sectionBorder: "border-gray-600",
-          buttonHover: "hover:bg-gray-600",
-          badgeHover: "hover:bg-gray-600",
+          buttonHover: "hover:bg-blue-600",
+          badgeHover: "hover:bg-blue-600",
         };
       case "navy-blue":
         return {
-          bg: "bg-blue-900",
-          text: "text-blue-100",
-          accent: "text-blue-300",
-          border: "border-blue-600",
-          cardBg: "bg-blue-800",
-          cardBorder: "border-blue-600",
-          sectionBorder: "border-blue-600",
-          buttonHover: "hover:bg-blue-700",
-          badgeHover: "hover:bg-blue-700",
+          bg: "bg-slate-900",
+          text: "text-white",
+          accent: "text-cyan-400",
+          border: "border-blue-500",
+          cardBg: "bg-blue-900",
+          cardBorder: "border-blue-500",
+          sectionBorder: "border-blue-500",
+          buttonHover: "hover:bg-cyan-600",
+          badgeHover: "hover:bg-cyan-600",
         };
       case "professional":
         return {
-          bg: "bg-gray-700",
-          text: "text-gray-100",
-          accent: "text-gray-300",
-          border: "border-gray-500",
-          cardBg: "bg-gray-600",
-          cardBorder: "border-gray-500",
-          sectionBorder: "border-gray-500",
-          buttonHover: "hover:bg-gray-500",
-          badgeHover: "hover:bg-gray-500",
+          bg: "bg-slate-800",
+          text: "text-white",
+          accent: "text-emerald-400",
+          border: "border-slate-600",
+          cardBg: "bg-slate-700",
+          cardBorder: "border-slate-600",
+          sectionBorder: "border-slate-600",
+          buttonHover: "hover:bg-emerald-600",
+          badgeHover: "hover:bg-emerald-600",
         };
       case "black":
         return {
@@ -168,14 +168,14 @@ export function DarkTechTemplate({
       case "white":
         return {
           bg: "bg-white",
-          text: "text-gray-900",
-          accent: "text-gray-600",
-          border: "border-gray-300",
-          cardBg: "bg-gray-50",
-          cardBorder: "border-gray-200",
-          sectionBorder: "border-gray-300",
-          buttonHover: "hover:bg-gray-100",
-          badgeHover: "hover:bg-gray-100",
+          text: "text-black",
+          accent: "text-blue-700",
+          border: "border-gray-400",
+          cardBg: "bg-gray-100",
+          cardBorder: "border-gray-400",
+          sectionBorder: "border-gray-400",
+          buttonHover: "hover:bg-blue-700",
+          badgeHover: "hover:bg-blue-700",
         };
       default: // dark tech default
         return {
@@ -195,9 +195,10 @@ export function DarkTechTemplate({
   const themeClasses = getThemeClasses();
 
   return (
-    <div
-      className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} font-sans`}
-    >
+    <div className={`theme-${theme}`}>
+      <div
+        className={`min-h-screen ${themeClasses.bg} font-sans`}
+      >
       <div
         className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(120,119,198,0.3)_0,transparent_600px),radial-gradient(circle_at_0%_60%,rgba(71,118,230,0.3)_0,transparent_400px)]"
         style={{ zIndex: 0 }}
@@ -301,7 +302,19 @@ export function DarkTechTemplate({
             {portfolioData.skills.map((skill) => (
               <Badge
                 key={skill}
-                className={`px-4 py-2 rounded-md ${themeClasses.cardBg}/50 ${themeClasses.badgeHover}/10 ${themeClasses.text} border ${themeClasses.border}`}
+                className={`px-4 py-2 rounded-md border transition-colors ${
+                  theme === "white"
+                    ? "text-gray-600"
+                    : `${themeClasses.text}`
+                } ${themeClasses.border}`}
+                style={{
+                  ...(theme === "white" && {
+                    background: "rgba(255, 255, 255, 0.3)",
+                    backdropFilter: "blur(4px)",
+                    border: "1px solid rgba(0, 0, 0, 0.06)",
+                    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.05)",
+                  })
+                }}
               >
                 {skill}
               </Badge>
@@ -354,7 +367,19 @@ export function DarkTechTemplate({
               {portfolioData.projects.map((project) => (
                 <div
                   key={project.id}
-                  className="group relative bg-gray-900/50 border border-gray-800 rounded-lg overflow-hidden hover:border-blue-500/50 transition-all"
+                  className={`group relative ${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-lg overflow-hidden transition-all ${
+                    theme === "white" 
+                      ? "hover:border-blue-200 shadow-sm hover:shadow-md" 
+                      : "hover:border-blue-500/50"
+                  }`}
+                  style={{
+                    ...(theme === "white" && {
+                      background: "rgba(255, 255, 255, 0.25)",
+                      backdropFilter: "blur(6px)",
+                      border: "1px solid rgba(0, 0, 0, 0.08)",
+                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+                    })
+                  }}
                 >
                   <div className="p-5">
                     <div className="flex justify-between items-start mb-2">
@@ -368,7 +393,18 @@ export function DarkTechTemplate({
                       {project.techStack.map((tech) => (
                         <Badge
                           key={tech}
-                          className="bg-gray-800 text-xs text-gray-300 border-gray-700"
+                          className={`text-xs transition-colors ${
+                            theme === "white"
+                              ? "text-gray-600 border-gray-100"
+                              : "bg-gray-800 text-gray-300 border-gray-700"
+                          }`}
+                          style={{
+                            ...(theme === "white" && {
+                              background: "rgba(255, 255, 255, 0.4)",
+                              backdropFilter: "blur(4px)",
+                              border: "1px solid rgba(0, 0, 0, 0.06)",
+                            })
+                          }}
                         >
                           {tech}
                         </Badge>
@@ -440,7 +476,20 @@ export function DarkTechTemplate({
                   <h3 className="font-bold text-lg hover:text-blue-400 transition-colors flex items-center">
                     {edu.institution}
                     {edu.institution.includes("Trident") && (
-                      <Badge className="ml-2 bg-gray-800 text-gray-300">
+                      <Badge 
+                        className={`ml-2 ${
+                          theme === "white" 
+                            ? "text-gray-600" 
+                            : "bg-gray-800 text-gray-300"
+                        }`}
+                        style={{
+                          ...(theme === "white" && {
+                            background: "rgba(255, 255, 255, 0.3)",
+                            backdropFilter: "blur(4px)",
+                            border: "1px solid rgba(0, 0, 0, 0.06)",
+                          })
+                        }}
+                      >
                         <ChevronRight className="w-3 h-3 mr-1" />
                       </Badge>
                     )}
@@ -464,11 +513,25 @@ export function DarkTechTemplate({
               {portfolioData.blogs.map((blog) => (
                 <div
                   key={blog.id}
-                  className="bg-gray-900/50 border border-gray-800 p-5 rounded-lg hover:border-blue-500/50 transition-all"
+                  className={`p-5 rounded-lg transition-all ${
+                    theme === "white"
+                      ? "border hover:border-blue-200"
+                      : "bg-gray-900/50 border border-gray-800 hover:border-blue-500/50"
+                  }`}
+                  style={{
+                    ...(theme === "white" && {
+                      background: "rgba(255, 255, 255, 0.2)",
+                      backdropFilter: "blur(5px)",
+                      border: "1px solid rgba(0, 0, 0, 0.06)",
+                      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.04)",
+                    })
+                  }}
                 >
                   <h3 className="font-bold text-lg mb-2">{blog.title}</h3>
-                  <p className="text-gray-400 mb-4">{blog.summary}</p>
-                  <div className="text-gray-500 text-sm">
+                  <p className={`mb-4 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                    {blog.summary}
+                  </p>
+                  <div className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
                     {new Date(blog.publishDate).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
@@ -547,6 +610,7 @@ export function DarkTechTemplate({
           </div>
         </footer>
       </div>
+    </div>
     </div>
   );
 }

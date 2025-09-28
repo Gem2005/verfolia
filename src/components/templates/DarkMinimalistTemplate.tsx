@@ -167,39 +167,39 @@ export function DarkMinimalistTemplate({
     switch (theme) {
       case "dark-gray":
         return {
-          bg: "bg-gray-800",
-          text: "text-gray-100",
-          accent: "text-gray-300",
+          bg: "bg-gray-900",
+          text: "text-white",
+          accent: "text-blue-400",
           border: "border-gray-600",
-          cardBg: "bg-gray-700",
+          cardBg: "bg-gray-800",
           cardBorder: "border-gray-600",
           sectionBorder: "border-gray-600",
-          buttonHover: "hover:bg-gray-600",
-          badgeHover: "hover:bg-gray-600",
+          buttonHover: "hover:bg-blue-600",
+          badgeHover: "hover:bg-blue-600",
         };
       case "navy-blue":
         return {
-          bg: "bg-blue-900",
-          text: "text-blue-100",
-          accent: "text-blue-300",
-          border: "border-blue-600",
-          cardBg: "bg-blue-800",
-          cardBorder: "border-blue-600",
-          sectionBorder: "border-blue-600",
-          buttonHover: "hover:bg-blue-700",
-          badgeHover: "hover:bg-blue-700",
+          bg: "bg-slate-900",
+          text: "text-white",
+          accent: "text-cyan-400",
+          border: "border-blue-500",
+          cardBg: "bg-blue-900",
+          cardBorder: "border-blue-500",
+          sectionBorder: "border-blue-500",
+          buttonHover: "hover:bg-cyan-600",
+          badgeHover: "hover:bg-cyan-600",
         };
       case "professional":
         return {
-          bg: "bg-gray-700",
-          text: "text-gray-100",
-          accent: "text-gray-300",
-          border: "border-gray-500",
-          cardBg: "bg-gray-600",
-          cardBorder: "border-gray-500",
-          sectionBorder: "border-gray-500",
-          buttonHover: "hover:bg-gray-500",
-          badgeHover: "hover:bg-gray-500",
+          bg: "bg-slate-800",
+          text: "text-white",
+          accent: "text-emerald-400",
+          border: "border-slate-600",
+          cardBg: "bg-slate-700",
+          cardBorder: "border-slate-600",
+          sectionBorder: "border-slate-600",
+          buttonHover: "hover:bg-emerald-600",
+          badgeHover: "hover:bg-emerald-600",
         };
       case "black":
         return {
@@ -216,14 +216,14 @@ export function DarkMinimalistTemplate({
       case "white":
         return {
           bg: "bg-white",
-          text: "text-gray-900",
-          accent: "text-gray-600",
-          border: "border-gray-300",
-          cardBg: "bg-gray-50",
-          cardBorder: "border-gray-200",
-          sectionBorder: "border-gray-300",
-          buttonHover: "hover:bg-gray-100",
-          badgeHover: "hover:bg-gray-100",
+          text: "text-black",
+          accent: "text-blue-700",
+          border: "border-gray-400",
+          cardBg: "bg-gray-100",
+          cardBorder: "border-gray-400",
+          sectionBorder: "border-gray-400",
+          buttonHover: "hover:bg-blue-700",
+          badgeHover: "hover:bg-blue-700",
         };
       default: // dark minimalist default
         return {
@@ -243,9 +243,10 @@ export function DarkMinimalistTemplate({
   const themeClasses = getThemeClasses();
 
   return (
-    <div
-      className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} font-sans`}
-    >
+    <div className={`theme-${theme}`}>
+      <div
+        className={`min-h-screen ${themeClasses.bg} font-sans`}
+      >
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12 max-w-5xl">
         {/* Header */}
         <header className="mb-12 sm:mb-14 md:mb-16 mt-6 sm:mt-8">
@@ -504,6 +505,7 @@ export function DarkMinimalistTemplate({
           </div>
         </section>
       </div>
+    </div>
     </div>
   );
 }

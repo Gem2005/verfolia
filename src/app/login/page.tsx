@@ -35,15 +35,25 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
-      // Route to saved choice if present; else to /choice
+      // Check for returnTo parameter first
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo');
+      
+      if (returnTo) {
+        console.log('Redirecting to returnTo:', returnTo);
+        router.push(returnTo);
+        return;
+      }
+      
+      // Fallback to saved choice if no returnTo
       let option: string | null = null;
       try { option = localStorage.getItem('selectedOption'); } catch {}
       if (option === 'upload') {
-        router.push('/upload');
+        router.push('/upload-resume');
       } else if (option === 'create') {
-        router.push('/create');
+        router.push('/create-resume');
       } else {
-        router.push('/choice');
+        router.push('/dashboard'); // Change from /choice to /dashboard
       }
       // Clear after routing so it's one-time only
       try { localStorage.removeItem('selectedOption'); } catch {}
@@ -69,9 +79,18 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setMessage(null);
+    
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
+    
+    // Add returnTo parameter if it exists
+    const params = new URLSearchParams(window.location.search);
+    const returnTo = params.get('returnTo');
+    if (returnTo) {
+      formData.append("returnTo", returnTo);
+    }
+    
     const result = await login(formData);
     if (result?.error) {
       setMessage({ type: "error", text: result.error });
@@ -105,8 +124,13 @@ export default function LoginPage() {
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);
-    // After OAuth, we’ll read the stored selection and route accordingly
-    await signInWithGoogle('/choice');
+    
+    // Get returnTo parameter and pass it to Google OAuth
+    const params = new URLSearchParams(window.location.search);
+    const returnTo = params.get('returnTo');
+    
+    console.log('Google OAuth with returnTo:', returnTo);
+    await signInWithGoogle(returnTo || '/dashboard');
     setIsLoading(false);
   }
 
