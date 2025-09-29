@@ -72,13 +72,13 @@ export const ProjectsStep: React.FC<ProjectsStepProps> = ({
   };
 
   return (
-    <Card className="glass-step-card border-0 shadow-lg">
+    <Card className="border-0 shadow-lg bg-card">
       <CardHeader className="pb-6">
-        <CardTitle className="text-2xl font-bold text-glass-primary flex items-center gap-2">
-          <FolderOpen className="w-6 h-6 text-glass-blue" />
+        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <FolderOpen className="w-6 h-6 text-primary" />
           Projects
         </CardTitle>
-        <CardDescription className="text-glass-secondary">Highlight your notable work</CardDescription>
+        <CardDescription className="text-muted-foreground">Highlight your notable work</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -86,9 +86,9 @@ export const ProjectsStep: React.FC<ProjectsStepProps> = ({
             <p className="text-muted-foreground text-sm italic">No projects added yet. Click the button below to add your first project.</p>
           )}
           {resumeData.projects.map((proj) => (
-            <div key={proj.id} className="p-4 border rounded-lg space-y-4 glass-form-card">
+            <div key={proj.id} className="p-4 border rounded-lg space-y-4 bg-muted/50">
               <div className="flex justify-between items-start">
-                <h4 className="font-medium text-glass-primary">Project</h4>
+                <h4 className="font-medium text-foreground">Project</h4>
                 <Button
                   variant="ghost"
                   size="sm"

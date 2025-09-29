@@ -58,13 +58,13 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({
   };
 
   return (
-    <Card className="glass-step-card border-0 shadow-lg">
+    <Card className="border-0 shadow-lg bg-card">
       <CardHeader className="pb-6">
-        <CardTitle className="text-2xl font-bold text-glass-primary flex items-center gap-2">
-          <Code className="w-6 h-6 text-glass-blue" />
+        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <Code className="w-6 h-6 text-primary" />
           Skills
         </CardTitle>
-        <CardDescription className="text-glass-secondary">Technical and soft skills</CardDescription>
+        <CardDescription className="text-muted-foreground">Technical and soft skills</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -93,7 +93,7 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({
           
           {resumeData.skills.length > 0 && (
             <div className="space-y-3">
-              <Label className="text-sm font-medium text-slate-700">
+              <Label className="text-sm font-medium text-foreground">
                 Your Skills ({resumeData.skills.length})
               </Label>
               <div className="flex flex-wrap gap-2">

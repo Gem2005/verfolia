@@ -70,23 +70,23 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
   };
 
   return (
-    <Card className="glass-step-card border-0 shadow-lg">
+    <Card className="border-0 shadow-lg bg-card">
       <CardHeader className="pb-6">
-        <CardTitle className="text-2xl font-bold text-glass-primary flex items-center gap-2">
-          <Briefcase className="w-6 h-6 text-glass-blue" />
+        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <Briefcase className="w-6 h-6 text-primary" />
           Experience
         </CardTitle>
-        <CardDescription className="text-glass-secondary">Work experience (required)</CardDescription>
+        <CardDescription className="text-muted-foreground">Work experience (required)</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           {resumeData.experience.length === 0 && (
-            <p className="text-glass-secondary text-sm italic">No work experience added yet. Click the button below to add your first experience.</p>
+            <p className="text-muted-foreground text-sm italic">No work experience added yet. Click the button below to add your first experience.</p>
           )}
           {resumeData.experience.map((exp) => (
-            <div key={exp.id} className="p-4 border rounded-lg space-y-4 glass-form-card">
+            <div key={exp.id} className="p-4 border rounded-lg space-y-4 bg-muted/50">
               <div className="flex justify-between items-start">
-                <h4 className="font-medium text-glass-primary">Work Experience</h4>
+                <h4 className="font-medium text-foreground">Work Experience</h4>
                 <Button
                   variant="ghost"
                   size="sm"

@@ -23,27 +23,27 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   validationErrors,
 }) => {
   return (
-    <Card className="glass-step-card border-0 shadow-lg">
+    <Card className="border-0 shadow-lg bg-card">
       <CardHeader className="pb-6">
-        <CardTitle className="text-2xl font-bold text-glass-primary flex items-center gap-2">
-          <User className="w-6 h-6 text-glass-blue" />
+        <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <User className="w-6 h-6 text-primary" />
           Personal Information
         </CardTitle>
-        <p className="text-glass-secondary leading-relaxed">
+        <p className="text-muted-foreground leading-relaxed">
           Tell us about yourself
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Resume Title - First Field */}
         <div className="space-y-2">
-          <Label htmlFor="resumeTitle" className="text-sm font-medium text-glass-primary">
+          <Label htmlFor="resumeTitle" className="text-sm font-medium text-foreground">
             Resume Title <span className="text-red-500">*</span>
           </Label>
           <Input
             id="resumeTitle"
             value={resumeTitle}
             onChange={(e) => setResumeTitle(e.target.value)}
-            className={`glass-input h-11 ${
+            className={`h-11 ${
               validationErrors.resumeTitle ? "border-red-500" : ""
             }`}
             placeholder="e.g., John Doe - Senior Software Engineer"
@@ -53,7 +53,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
               {validationErrors.resumeTitle}
             </p>
           )}
-          <p className="text-xs text-glass-secondary">
+          <p className="text-xs text-muted-foreground">
             This will be the title of your resume
           </p>
         </div>
@@ -78,7 +78,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="firstName" className="text-sm font-medium text-glass-primary">
+            <Label htmlFor="firstName" className="text-sm font-medium text-foreground">
               First Name <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -93,7 +93,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   },
                 }))
               }
-              className={`glass-input h-11 ${
+              className={`h-11 ${
                 validationErrors.firstName ? "border-red-500" : ""
               }`}
               placeholder="Enter your first name"

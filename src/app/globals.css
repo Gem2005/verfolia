@@ -2,45 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Glassmorphism Theme Variables */
-:root {
-  /* Dark Theme Variables */
-  --glass-dark: #0B0C10;
-  --glass-dark-blue: #1A1F2B;
-  --glass-input-bg: #1E2430;
-  --glass-white: #FFFFFF;
-  --glass-light-gray: #A9B3C1;
-  
-  /* Light Theme Variables */
-  --glass-light: #FFFFFF;
-  --glass-light-blue-bg: #F8FAFC;
-  --glass-light-input-bg: #F1F5F9;
-  --glass-dark-text: #1E293B;
-  --glass-medium-gray: #64748B;
-  
-  /* Accent Colors */
-  --glass-light-blue: #4AC6FF;
-  --glass-sky-blue: #5DE0FF;
-  --glass-highlight-blue: #00AFFF;
-  
-  /* Color Scheme Variables - Black (Default) */
-  --scheme-bg-primary: #000000;
-  --scheme-bg-secondary: #1a1a1a;
-  --scheme-text-primary: #ffffff;
-  --scheme-text-secondary: #a3a3a3;
-  --scheme-border: rgba(255, 255, 255, 0.1);
-  --scheme-accent: #4AC6FF;
-  
-  /* Glassmorphism Effects */
-  --glass-blur: 20px;
-  --glass-border-dark: rgba(255, 255, 255, 0.1);
-  --glass-border-light: rgba(0, 0, 0, 0.1);
-  --glass-shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --glass-shadow-light: 0 8px 32px rgba(0, 0, 0, 0.1);
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
 }
 
-/* Color Scheme Variations */
-/* Dark Gray Theme */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
+
+/* Resume Theme Color Schemes */
+/* These will now inherit the base light/dark mode and only override specific resume elements */
 .theme-dark-gray {
   --scheme-bg-primary: #1f2937;
   --scheme-bg-secondary: #374151;
@@ -50,7 +70,6 @@
   --scheme-accent: #60a5fa;
 }
 
-/* Navy Blue Theme */
 .theme-navy-blue {
   --scheme-bg-primary: #1e3a8a;
   --scheme-bg-secondary: #3b82f6;
@@ -60,7 +79,6 @@
   --scheme-accent: #93c5fd;
 }
 
-/* Professional Theme */
 .theme-professional {
   --scheme-bg-primary: #374151;
   --scheme-bg-secondary: #4b5563;
@@ -70,34 +88,15 @@
   --scheme-accent: #10b981;
 }
 
-/* White Theme */
 .theme-white {
   --scheme-bg-primary: #ffffff;
   --scheme-bg-secondary: #f8fafc;
-  --scheme-text-primary: #000000;
+  --scheme-text-primary: #111827; /* Changed from #000000 for better text rendering */
   --scheme-text-secondary: #374151;
-  --scheme-border: rgba(0, 0, 0, 0.2);
+  --scheme-border: rgba(0, 0, 0, 0.1); /* Adjusted for light theme */
   --scheme-accent: #1d4ed8;
 }
 
-/* Force white theme text visibility */
-.theme-white * {
-  color: #000000 !important;
-}
-
-.theme-white h1,
-.theme-white h2,
-.theme-white h3,
-.theme-white h4,
-.theme-white h5,
-.theme-white h6,
-.theme-white p,
-.theme-white span,
-.theme-white div {
-  color: #000000 !important;
-}
-
-/* Black Theme (Default - already defined in root) */
 .theme-black {
   --scheme-bg-primary: #000000;
   --scheme-bg-secondary: #1a1a1a;
@@ -107,564 +106,9 @@
   --scheme-accent: #4AC6FF;
 }
 
-/* Global Glassmorphism Theme */
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  background: linear-gradient(135deg, var(--glass-dark) 0%, var(--glass-dark-blue) 100%);
-  color: var(--glass-white);
-  min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Glassmorphism Base Classes */
-.glass-bg {
-  background: linear-gradient(135deg, var(--glass-dark) 0%, var(--glass-dark-blue) 100%);
-}
-
-/* Light Theme Support */
-.light .glass-bg {
-  background: linear-gradient(135deg, var(--glass-light) 0%, var(--glass-light-blue-bg) 100%);
-}
-
-.glass-card {
-  background: rgba(30, 36, 48, 0.3);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-dark);
-  box-shadow: var(--glass-shadow-dark);
-  border-radius: 16px;
-}
-
-/* Light Theme Glass Card */
-.light .glass-card {
-  background: rgba(248, 250, 252, 0.8);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-light);
-  box-shadow: var(--glass-shadow-light);
-  border-radius: 16px;
-}
-
-/* Step Component Cards - Dark Theme */
-.glass-step-card {
-  background: rgba(30, 36, 48, 0.3);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-dark);
-  box-shadow: var(--glass-shadow-dark);
-  border-radius: 16px;
-  color: var(--glass-white);
-}
-
-/* Step Component Cards - Light Theme */
-.light .glass-step-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-light);
-  box-shadow: var(--glass-shadow-light);
-  border-radius: 16px;
-  color: var(--glass-dark-text);
-}
-
-.glass-button {
-  background: rgba(74, 198, 255, 0.2);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid rgba(74, 198, 255, 0.3);
-  color: var(--glass-white);
-  transition: all 0.3s ease;
-}
-
-.glass-button:hover {
-  background: rgba(74, 198, 255, 0.3);
-  border-color: rgba(74, 198, 255, 0.5);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(74, 198, 255, 0.2);
-}
-
-.glass-input {
-  background: var(--glass-input-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-dark);
-  color: var(--glass-white);
-  border-radius: 12px;
-}
-
-/* Light Theme Glass Input */
-.light .glass-input {
-  background: var(--glass-light-input-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-light);
-  color: var(--glass-dark-text);
-  border-radius: 12px;
-}
-
-.glass-input:focus {
-  border-color: var(--glass-light-blue);
-  box-shadow: 0 0 0 3px rgba(74, 198, 255, 0.1);
-  outline: none;
-}
-
-.glass-input::placeholder {
-  color: var(--glass-light-gray);
-}
-
-/* Light Theme Placeholder */
-.light .glass-input::placeholder {
-  color: var(--glass-medium-gray);
-}
-
-/* Theme-aware Textarea */
-.glass-textarea {
-  background: var(--glass-input-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-dark);
-  color: var(--glass-white);
-  border-radius: 12px;
-}
-
-.light .glass-textarea {
-  background: var(--glass-light-input-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-light);
-  color: var(--glass-dark-text);
-  border-radius: 12px;
-}
-
-.glass-textarea:focus {
-  border-color: var(--glass-light-blue);
-  box-shadow: 0 0 0 3px rgba(74, 198, 255, 0.1);
-  outline: none;
-}
-
-.glass-textarea::placeholder {
-  color: var(--glass-light-gray);
-}
-
-.light .glass-textarea::placeholder {
-  color: var(--glass-medium-gray);
-}
-
-/* Theme-aware Form Cards */
-.glass-form-card {
-  background: rgba(30, 36, 48, 0.2);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-dark);
-  box-shadow: var(--glass-shadow-dark);
-  border-radius: 12px;
-  color: var(--glass-white);
-}
-
-.light .glass-form-card {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-light);
-  box-shadow: var(--glass-shadow-light);
-  border-radius: 12px;
-  color: var(--glass-dark-text);
-}
-
-/* Text Colors */
-.text-glass-white {
-  color: var(--glass-white);
-}
-
-.text-glass-gray {
-  color: var(--glass-light-gray);
-}
-
-.text-glass-blue {
-  color: var(--glass-light-blue);
-}
-
-.text-glass-highlight {
-  color: var(--glass-highlight-blue);
-}
-
-/* Theme-aware text classes */
-.text-glass-primary {
-  color: var(--glass-white);
-}
-
-.light .text-glass-primary {
-  color: var(--glass-dark-text);
-}
-
-.text-glass-secondary {
-  color: var(--glass-light-gray);
-}
-
-.light .text-glass-secondary {
-  color: var(--glass-medium-gray);
-}
-
-/* Color Scheme Utility Classes */
-.scheme-bg-primary {
-  background-color: var(--scheme-bg-primary);
-}
-
-.scheme-bg-secondary {
-  background-color: var(--scheme-bg-secondary);
-}
-
-.scheme-text-primary {
-  color: var(--scheme-text-primary);
-}
-
-.scheme-text-secondary {
-  color: var(--scheme-text-secondary);
-}
-
-.scheme-border {
-  border-color: var(--scheme-border);
-}
-
-.scheme-accent {
-  color: var(--scheme-accent);
-}
-
-.scheme-bg-accent {
-  background-color: var(--scheme-accent);
-}
-
-/* Template Theme Enhancements */
-/* These classes provide additional theme support for templates */
-.template-wrapper {
-  /* Base template wrapper with theme support */
-  background-color: var(--scheme-bg-primary);
-  color: var(--scheme-text-primary);
-}
-
-.template-card {
-  background-color: var(--scheme-bg-secondary);
-  color: var(--scheme-text-primary);
-  border-color: var(--scheme-border);
-}
-
-.template-text-accent {
-  color: var(--scheme-accent);
-}
-
-.template-button {
-  background-color: transparent;
-  color: var(--scheme-accent);
-  border-color: var(--scheme-accent);
-  transition: all 0.2s ease;
-}
-
-.template-button:hover {
-  background-color: var(--scheme-accent);
-  color: var(--scheme-bg-primary);
-}
-
-/* Theme-specific overrides for templates */
-.theme-black .template-glassmorphism {
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.theme-dark-gray .template-glassmorphism {
-  background: rgba(31, 41, 55, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.theme-navy-blue .template-glassmorphism {
-  background: rgba(30, 58, 138, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.theme-professional .template-glassmorphism {
-  background: rgba(55, 65, 81, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.theme-white .template-glassmorphism {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced Visual Appeal Classes */
-.theme-dark-gray {
-  /* Enhanced background gradient for better depth */
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-}
-
-.theme-navy-blue {
-  /* Enhanced background gradient with navy blue tones */
-  background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
-}
-
-.theme-professional {
-  /* Enhanced background gradient for professional look */
-  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
-}
-
-.theme-white {
-  /* Clean white background with subtle gradient */
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-}
-
-.theme-black {
-  /* Pure black with subtle gradient */
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-}
-
-/* Enhanced button styles for better visual appeal */
-.template-enhanced-button {
-  background: linear-gradient(135deg, var(--scheme-accent), var(--scheme-accent));
-  border: 2px solid var(--scheme-accent);
-  color: var(--scheme-bg-primary);
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.template-enhanced-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  filter: brightness(1.1);
-}
-
-/* Enhanced card styles */
-.template-enhanced-card {
-  background: var(--scheme-bg-secondary);
-  border: 2px solid var(--scheme-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.template-enhanced-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-  border-color: var(--scheme-accent);
-}
-
-/* Theme Selection Button Enhancements */
-.theme-button-black {
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-  border: 2px solid #6b7280;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
-}
-
-.theme-button-black::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(74, 198, 255, 0.2) 0%, transparent 50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.theme-button-black:hover::before {
-  opacity: 1;
-}
-
-.theme-button-black:hover {
-  border-color: #9ca3af;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
-}
-
-.theme-button-dark-gray {
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-  border: 2px solid #60a5fa;
-  box-shadow: 0 3px 10px rgba(31, 41, 55, 0.6);
-}
-
-.theme-button-dark-gray:hover {
-  border-color: #93c5fd;
-  box-shadow: 0 5px 15px rgba(31, 41, 55, 0.8);
-}
-
-.theme-button-navy-blue {
-  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-  border: 2px solid #22d3ee;
-  box-shadow: 0 3px 10px rgba(30, 58, 138, 0.6);
-}
-
-.theme-button-navy-blue:hover {
-  border-color: #67e8f9;
-  box-shadow: 0 5px 15px rgba(30, 58, 138, 0.8);
-}
-
-.theme-button-professional {
-  background: linear-gradient(135deg, #374151 0%, #10b981 20%, #374151 100%);
-  border: 2px solid #10b981;
-  box-shadow: 0 3px 10px rgba(55, 65, 81, 0.6);
-}
-
-.theme-button-professional:hover {
-  border-color: #34d399;
-  box-shadow: 0 5px 15px rgba(55, 65, 81, 0.8);
-}
-
-.theme-button-white {
-  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-  border: 3px solid #374151;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  position: relative;
-}
-
-.theme-button-white:hover {
-  border-color: #1f2937;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-  transform: scale(1.05);
-}
-
-/* Gradient Text */
-.gradient-text {
-  background: linear-gradient(135deg, var(--glass-light-blue) 0%, var(--glass-sky-blue) 100%);
+.verfolia-text-gradient {
+  background-image: linear-gradient(to right, var(--primary), var(--accent), var(--secondary));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-/* Floating Elements */
-.floating-orb {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(74, 198, 255, 0.2) 0%, rgba(93, 224, 255, 0.1) 100%);
-  filter: blur(40px);
-  animation: float 6s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-  }
-}
-
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--glass-dark);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--glass-light-blue);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--glass-sky-blue);
-}
-
-/* Selection Styling */
-::selection {
-  background: rgba(74, 198, 255, 0.3);
-  color: var(--glass-white);
-}
-
-/* Focus Styling */
-*:focus-visible {
-  outline: 2px solid var(--glass-light-blue);
-  outline-offset: 2px;
-}
-
-/* Override shadcn/ui default styles */
-.dark {
-  --background: var(--glass-dark);
-  --foreground: var(--glass-white);
-  --card: rgba(30, 36, 48, 0.3);
-  --card-foreground: var(--glass-white);
-  --popover: rgba(30, 36, 48, 0.3);
-  --popover-foreground: var(--glass-white);
-  --primary: var(--glass-light-blue);
-  --primary-foreground: var(--glass-dark);
-  --secondary: rgba(30, 36, 48, 0.5);
-  --secondary-foreground: var(--glass-white);
-  --muted: rgba(30, 36, 48, 0.3);
-  --muted-foreground: var(--glass-light-gray);
-  --accent: var(--glass-highlight-blue);
-  --accent-foreground: var(--glass-white);
-  --destructive: #ef4444;
-  --destructive-foreground: var(--glass-white);
-  --border: var(--glass-border);
-  --input: var(--glass-input-bg);
-  --ring: var(--glass-light-blue);
-  --radius: 0.75rem;
-}
-
-/* Ensure all elements use glassmorphism theme */
-body, html {
-  background: linear-gradient(135deg, var(--glass-dark) 0%, var(--glass-dark-blue) 100%) !important;
-  color: var(--glass-white) !important;
-}
-
-/* Override any light theme */
-* {
-  color: var(--glass-white) !important;
-}
-
-/* Specific overrides for common elements */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--glass-white) !important;
-}
-
-p, span, div {
-  color: var(--glass-white) !important;
-}
-
-/* Button overrides */
-button {
-  color: var(--glass-white) !important;
-}
-
-/* Input overrides */
-input, textarea, select {
-  background: var(--glass-input-bg) !important;
-  color: var(--glass-white) !important;
-  border-color: var(--glass-border) !important;
-}
-
-input::placeholder, textarea::placeholder {
-  color: var(--glass-light-gray) !important;
-}
-
-/* Card overrides */
-.card, [data-card] {
-  background: rgba(30, 36, 48, 0.3) !important;
-  backdrop-filter: blur(var(--glass-blur)) !important;
-  border: 1px solid var(--glass-border) !important;
-  color: var(--glass-white) !important;
-}
-
-.shining-glass-effect {
-  position: relative;
-  overflow: hidden;
-}
-
-.shining-glass-effect::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(
-    transparent,
-    rgba(168, 85, 247, 0.4), /* purple */
-    rgba(59, 130, 246, 0.4), /* blue */
-    transparent 30%
-  );
-  animation: rotate 4s linear infinite;
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
+  color: transparent;
 }

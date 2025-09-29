@@ -147,9 +147,9 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
             <p className="text-muted-foreground text-sm italic">No certifications added yet. Click the button below to add your certifications.</p>
           )}
           {resumeData.certifications.map((cert) => (
-            <div key={cert.id} className="p-4 border rounded-lg space-y-4 glass-form-card">
+            <div key={cert.id} className="p-4 border rounded-lg space-y-4 bg-muted/50">
               <div className="flex justify-between items-start">
-                <h4 className="font-medium text-glass-primary">Certification</h4>
+                <h4 className="font-medium text-foreground">Certification</h4>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -241,9 +241,9 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
             <p className="text-muted-foreground text-sm italic">No languages added yet. Click the button below to add your languages.</p>
           )}
           {resumeData.languages.map((lang) => (
-            <div key={lang.id} className="p-4 border rounded-lg space-y-4 glass-form-card">
+            <div key={lang.id} className="p-4 border rounded-lg space-y-4 bg-muted/50">
               <div className="flex justify-between items-start">
-                <h4 className="font-medium text-glass-primary">Language</h4>
+                <h4 className="font-medium text-foreground">Language</h4>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -314,9 +314,9 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
             <p className="text-muted-foreground text-sm italic">No additional sections added yet. Click the button below to add custom sections.</p>
           )}
           {resumeData.customSections.map((section) => (
-            <div key={section.id} className="p-4 border rounded-lg space-y-4 glass-form-card">
+            <div key={section.id} className="p-4 border rounded-lg space-y-4 bg-muted/50">
               <div className="flex justify-between items-start">
-                <h4 className="font-medium text-glass-primary">Custom Section</h4>
+                <h4 className="font-medium text-foreground">Custom Section</h4>
                 <Button
                   variant="ghost"
                   size="sm"

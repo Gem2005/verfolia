@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, FileText, ArrowLeft } from "lucide-react";
-import "../create-resume/glassmorphism.css";
+
 import { parseResumeFromPdf } from "@/utils/pdf-parser";
 import { extractPdfText } from "@/utils/pdf-parser";
 import { ocrExtractTextFromPdf } from "@/utils/pdf-parser";

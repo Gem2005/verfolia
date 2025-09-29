@@ -11,7 +11,6 @@ import { CleanMonoTemplate, DarkMinimalistTemplate, DarkTechTemplate, ModernAIFo
 import type { PortfolioData } from "@/types/PortfolioTypes";
 import { ResumeData } from "@/types/ResumeData";
 import { validateEmail, validatePhone, validateUrl, validateWordCount, validateGPA, validateDateRange, validateSkill, validateProficiency } from "../../utils/validation";
-import "./glassmorphism.css";
 import { steps, templates, themes } from "../../../data/constants";
 import { getPortfolioData } from "../../components/PortfolioDataProvider";
 import { TemplateStep } from "../../components/steps/TemplateStep";
