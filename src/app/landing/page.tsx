@@ -3,6 +3,7 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { ArrowRight, Sparkles, Users, BarChart3 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -15,23 +16,28 @@ const LandingPage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
       <div className="hero py-24">
-        <h1 className="text-5xl md:text-6xl font-bold mb-5">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
           Build smarter.
           <br />
-          Apply faster.
+          <span className="verfolia-text-gradient">Apply faster.</span>
           <br />
           Track everything.
         </h1>
-        <p className="text-lg md:text-xl max-w-2xl mx-auto mb-8 text-muted-foreground">
+        <p className="text-xl md:text-2xl max-w-3xl mx-auto mb-12 text-muted-foreground leading-relaxed">
           Verfolia is on a mission to bring transparency to your career. Build your profile, share your link, 
           and track who’s engaging with your story.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {!isAuthenticated ? (
-            <Button onClick={() => signIn("google")} variant="secondary" size="lg">
-              Sign in with Google
-            </Button>
+              <Button 
+                onClick={() => signIn("google")} 
+                size="lg" 
+                className="button-enhanced text-lg px-8 py-6 h-auto"
+              >
+                <Users className="w-5 h-5 mr-2" />
+                Sign in with Google
+              </Button>
           ) : (
             <Button onClick={() => signOut()} variant="secondary" size="lg">
               Sign out

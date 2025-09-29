@@ -144,78 +144,192 @@ export default function LoginPage() {
 
   return (
     <AppLayout showFooter={false}>
-        <div className="min-h-screen glass-bg flex items-center justify-center p-4 pt-24">
-            <div className="w-full max-w-md space-y-4">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold gradient-text">Welcome to Verfolia</h1>
-                    <p className="text-glass-gray text-sm">
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4 pt-24">
+            <div className="w-full max-w-md space-y-6">
+                {/* Header Section */}
+                <div className="text-center space-y-3">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        Welcome to Verfolia
+                    </h1>
+                    <p className="text-muted-foreground">
                         Access your account or create a new one to get started.
                     </p>
                 </div>
                 
+                {/* Alert Messages */}
                 {message && (
-                <Alert variant={message.type === "error" ? "destructive" : "default"}>
+                <Alert variant={message.type === "error" ? "destructive" : "default"} className="animate-fade-in">
                     <AlertDescription>{message.text}</AlertDescription>
                 </Alert>
                 )}
 
+                {/* Google Sign In Section */}
                 <div className="space-y-4">
-                    <Button variant="outline" className="glass-button w-full" onClick={handleGoogleAuth} disabled={isLoading}>
-                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                    <Button 
+                        variant="outline" 
+                        className="glass-button w-full h-12 text-base font-medium transition-all duration-200 hover:scale-[1.02]" 
+                        onClick={handleGoogleAuth} 
+                        disabled={isLoading}
+                    >
+                        {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <GoogleIcon />}
                         Continue with Google
                     </Button>
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-glass-border" /></div>
-                        <div className="relative flex justify-center text-xs uppercase"><span className="glass-bg px-2 text-glass-gray">OR</span></div>
+                    
+                    {/* Divider */}
+                    <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-border" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-4 py-1 text-muted-foreground font-medium rounded-full border border-border">
+                                OR
+                            </span>
+                        </div>
                     </div>
                 </div>
                 
+                {/* Auth Tabs */}
                 <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="glass-card grid w-full grid-cols-2">
-                    <TabsTrigger value="signin" className="text-glass-white">Sign In</TabsTrigger>
-                    <TabsTrigger value="signup" className="text-glass-white">Sign Up</TabsTrigger>
-                </TabsList>
+                  <TabsList className="card-enhanced grid w-full grid-cols-2 h-12 p-1 bg-muted/50 border border-border">
+                    <TabsTrigger 
+                      value="signin" 
+                      className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                    >
+                      Sign In
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="signup" 
+                      className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                    >
+                      Sign Up
+                    </TabsTrigger>
+                  </TabsList>
                 
-                <TabsContent value="signin">
-                    <Card className="glass-card border-none shadow-none">
-                        <CardContent className="pt-6">
-                            <form onSubmit={handleSignIn} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="signin-email" className="text-glass-white">Email</Label>
-                                <Input id="signin-email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="glass-input" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="signin-password" className="text-glass-white">Password</Label>
-                                <Input id="signin-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="glass-input" />
-                            </div>
-                            <Button type="submit" className="glass-button w-full" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Sign In</Button>
-                            </form>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                    {/* Sign In Form */}
+                    <TabsContent value="signin" className="mt-6">
+                        <Card className="card-enhanced border border-border shadow-lg">
+                            <CardContent className="pt-6 space-y-4">
+                                <form onSubmit={handleSignIn} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="signin-email" className="text-foreground font-medium">
+                                            Email Address
+                                        </Label>
+                                        <Input 
+                                            id="signin-email" 
+                                            type="email" 
+                                            placeholder="Enter your email" 
+                                            value={email} 
+                                            onChange={(e) => setEmail(e.target.value)} 
+                                            required 
+                                            className="input-enhanced h-12 border-border" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="signin-password" className="text-foreground font-medium">
+                                            Password
+                                        </Label>
+                                        <Input 
+                                            id="signin-password" 
+                                            type="password" 
+                                            placeholder="Enter your password"
+                                            value={password} 
+                                            onChange={(e) => setPassword(e.target.value)} 
+                                            required 
+                                            className="input-enhanced h-12 border-border" 
+                                        />
+                                    </div>
+                                    <Button 
+                                        type="submit" 
+                                        className="button-enhanced w-full h-12 text-base font-medium mt-6 bg-primary hover:bg-primary/90 text-primary-foreground" 
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                                        Sign In
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
                 
-                <TabsContent value="signup">
-                    <Card className="glass-card border-none shadow-none">
-                    <CardContent className="pt-6">
-                        <form onSubmit={handleSignUp} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="signup-email" className="text-glass-white">Email</Label>
-                            <Input id="signup-email" type="email" placeholder="m@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="glass-input" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="signup-password" className="text-glass-white">Password</Label>
-                            <Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required className="glass-input" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirm-password" className="text-glass-white">Confirm Password</Label>
-                            <Input id="confirm-password" type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className="glass-input" />
-                        </div>
-                        <Button type="submit" className="glass-button w-full" disabled={isLoading}>{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Create Account</Button>
-                        </form>
-                    </CardContent>
-                    </Card>
-                </TabsContent>
+                    {/* Sign Up Form */}
+                    <TabsContent value="signup" className="mt-6">
+                        <Card className="card-enhanced border border-border shadow-lg">
+                            <CardContent className="pt-6 space-y-4">
+                                <form onSubmit={handleSignUp} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="signup-email" className="text-foreground font-medium">
+                                            Email Address
+                                        </Label>
+                                        <Input 
+                                            id="signup-email" 
+                                            type="email" 
+                                            placeholder="Enter your email" 
+                                            value={email} 
+                                            onChange={(e) => setEmail(e.target.value)} 
+                                            required 
+                                            className="input-enhanced h-12 border-border" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="signup-password" className="text-foreground font-medium">
+                                            Password
+                                        </Label>
+                                        <Input 
+                                            id="signup-password" 
+                                            type="password" 
+                                            placeholder="Create a password" 
+                                            value={password} 
+                                            onChange={(e) => setPassword(e.target.value)} 
+                                            required 
+                                            className="input-enhanced h-12 border-border" 
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="confirm-password" className="text-foreground font-medium">
+                                            Confirm Password
+                                        </Label>
+                                        <Input 
+                                            id="confirm-password" 
+                                            type="password" 
+                                            placeholder="Confirm your password" 
+                                            value={confirmPassword} 
+                                            onChange={(e) => setConfirmPassword(e.target.value)} 
+                                            required 
+                                            className="input-enhanced h-12 border-border" 
+                                        />
+                                    </div>
+                                    <Button 
+                                        type="submit" 
+                                        className="button-enhanced w-full h-12 text-base font-medium mt-6 bg-primary hover:bg-primary/90 text-primary-foreground" 
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                                        Create Account
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
                 </Tabs>
+                
+                {/* Footer */}
+                <div className="text-center text-sm text-muted-foreground mt-6">
+                    <p>
+                        By continuing, you agree to our{" "}
+                        <Link href="/terms" className="text-primary hover:underline">
+                            Terms of Service
+                        </Link>{" "}
+                        and{" "}
+                        <Link href="/privacy" className="text-primary hover:underline">
+                            Privacy Policy
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     </AppLayout>

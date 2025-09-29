@@ -58,15 +58,17 @@ export default function Navbar() {
   return (
     <>
       {/* Main Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 w-full py-4">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div
-            className={`flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-300 ${
-              scrolled
-                ? "shadow-md backdrop-blur-xl bg-background/80 border border-border/50"
-                : "shadow-sm backdrop-blur-md bg-background/60 border border-border/20"
-            }`}
-          >
+      <nav className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
+        scrolled ? 'py-4' : 'py-4'
+      }`}>
+        <div className={`mx-auto transition-all duration-300 px-4 sm:px-6 lg:px-8 ${
+          scrolled ? 'max-w-7xl' : 'max-w-full'
+        }`}>
+          <div className={`flex items-center justify-between transition-all duration-300 rounded-2xl ${
+            scrolled 
+              ? 'px-6 py-3 navbar-scrolled card-enhanced border-border/80 shadow-md' 
+              : 'px-6 py-3 navbar-glass'
+          }`}>
             {/* Logo Section */}
             <div className="flex items-center">
               <Link href="/" className="flex items-center space-x-3 group">
@@ -157,7 +159,7 @@ export default function Navbar() {
                   <Button
                     size="sm"
                     asChild
-                    className="rounded-xl bg-gradient-primary hover:opacity-90 text-white shadow-glow"
+                    className="glass-button rounded-xl hover:bg-primary hover:text-primary-foreground"
                   >
                     <Link href="/choice">Get Started</Link>
                   </Button>

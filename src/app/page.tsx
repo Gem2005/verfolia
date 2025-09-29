@@ -34,7 +34,7 @@ const HomePage = () => {
     <AppLayout>
       <div className="min-h-screen bg-background font-jakarta">
         {/* Hero Section */}
-        <section className="pt-32 pb-20 gradient-bg relative overflow-hidden">
+        <section className="pt-32 pb-20 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="max-w-5xl mx-auto">
               {/* Announcement Badge */}
@@ -68,7 +68,7 @@ const HomePage = () => {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="text-lg px-8 py-4 h-auto glass-effect hover:bg-muted/50 transition-all duration-200"
+                  className="glass-button text-lg px-8 py-4 h-auto transition-all duration-200"
                 >
                   <Link href="/choice">
                     <Rocket className="w-5 h-5 mr-2" />
@@ -134,7 +134,7 @@ const HomePage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Feature Cards */}
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                     <FileText className="w-6 h-6 text-white" />
@@ -151,7 +151,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                     <BarChart3 className="w-6 h-6 text-white" />
@@ -168,7 +168,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                     <Brain className="w-6 h-6 text-white" />
@@ -188,7 +188,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                     <Share2 className="w-6 h-6 text-white" />
@@ -204,7 +204,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                     <Shield className="w-6 h-6 text-white" />
@@ -222,7 +222,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                     <Target className="w-6 h-6 text-white" />
@@ -283,7 +283,7 @@ const HomePage = () => {
                   ))}
                 </div>
 
-                <Button variant="outline" size="lg" className="glass-effect">
+                <Button variant="outline" size="lg" className="glass-button">
                   <Link
                     href="/login"
                     className="flex flex-row justify-center items-center"
@@ -396,7 +396,7 @@ const HomePage = () => {
                       <BarChart3 className="w-5 h-5 ml-2" />
                     </Link>
                   </Button>
-                  <Button variant="outline" size="lg" className="glass-effect">
+                  <Button variant="outline" size="lg" className="glass-button">
                     See Demo
                   </Button>
                 </div>
@@ -421,7 +421,7 @@ const HomePage = () => {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                     <Brain className="w-8 h-8 text-white" />
@@ -436,7 +436,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                     <Target className="w-8 h-8 text-white" />
@@ -451,7 +451,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
                 <CardHeader className="pb-4">
                   <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                     <MessageSquare className="w-8 h-8 text-white" />
@@ -487,7 +487,7 @@ const HomePage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="group hover:shadow-soft transition-all duration-300 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -518,7 +518,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -549,7 +549,7 @@ const HomePage = () => {
                 </CardContent>
               </Card>
 
-              <Card className="group hover:shadow-soft transition-all duration-300 border-border/50">
+              <Card className="card-enhanced group transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -600,7 +600,7 @@ const HomePage = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
                 <Button
                   size="lg"
-                  className="text-lg px-8 py-4 h-auto bg-gradient-primary text-white shadow-glow hover:shadow-large hover:scale-105 transition-all duration-200"
+                  className="text-lg px-8 py-4 h-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow hover:shadow-large hover:scale-105 transition-all duration-200"
                   asChild
                 >
                   <Link href="/create-resume">
@@ -608,6 +608,7 @@ const HomePage = () => {
                     <Rocket className="w-5 h-5 ml-2" />
                   </Link>
                 </Button>
+                
                 <Button
                   variant="outline"
                   size="lg"

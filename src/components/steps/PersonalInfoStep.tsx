@@ -23,7 +23,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   validationErrors,
 }) => {
   return (
-    <Card className="border-0 shadow-lg bg-card">
+    <Card className="card-enhanced border-0 shadow-lg bg-card">
       <CardHeader className="pb-6">
         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
           <User className="w-6 h-6 text-primary" />
@@ -43,7 +43,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             id="resumeTitle"
             value={resumeTitle}
             onChange={(e) => setResumeTitle(e.target.value)}
-            className={`h-11 ${
+            className={`input-enhanced h-11 ${
               validationErrors.resumeTitle ? "border-red-500" : ""
             }`}
             placeholder="e.g., John Doe - Senior Software Engineer"

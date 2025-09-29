@@ -72,7 +72,7 @@ export const ProjectsStep: React.FC<ProjectsStepProps> = ({
   };
 
   return (
-    <Card className="border-0 shadow-lg bg-card">
+    <Card className="card-enhanced border-0 shadow-lg bg-card">
       <CardHeader className="pb-6">
         <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
           <FolderOpen className="w-6 h-6 text-primary" />

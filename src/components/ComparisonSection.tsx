@@ -42,7 +42,7 @@ export const ComparisonSection = () => {
           </p>
         </div>
 
-        <Card className="p-8 md:p-12 bg-card/50 backdrop-blur-lg border-border/50">
+        <Card className="card-enhanced p-8 md:p-12 bg-card/50 backdrop-blur-lg border-border/50">
           <div className="grid md:grid-cols-[1fr,auto,1fr] gap-4 md:gap-8 mb-12 items-center">
             {/* The Old Way */}
             <div className="text-center md:text-right flex flex-col items-center md:items-end">

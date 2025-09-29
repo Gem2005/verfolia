@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -514,10 +514,10 @@ export default function CreateResumePage() {
 
   if (loading) {
     return (
-      <div className="glass-bg flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-glass-blue mx-auto mb-4"></div>
-          <p className="text-glass-white">Loading...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground">Loading...</p>
         </div>
       </div>
     );
@@ -527,45 +527,45 @@ export default function CreateResumePage() {
 
   return (
     <div 
-      className="min-h-screen relative overflow-hidden glass-bg" 
+      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted/20" 
       data-page="create-resume"
     >
-      {/* Glassmorphism Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="floating-orb absolute -top-40 -right-40 w-80 h-80"></div>
-        <div className="floating-orb absolute -bottom-40 -left-40 w-80 h-80" style={{animationDelay: '2s'}}></div>
-        <div className="floating-orb absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96" style={{animationDelay: '4s'}}></div>
+      {/* Enhanced Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-accent/10 to-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-primary/5 to-accent/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '4s'}}></div>
         
-        {/* Glassmorphism orbs */}
-        <div className="glass-card absolute top-20 left-20 w-32 h-32"></div>
-        <div className="glass-card absolute bottom-20 right-20 w-24 h-24"></div>
-        <div className="glass-card absolute top-1/3 right-1/4 w-16 h-16"></div>
+        {/* Decorative elements */}
+        <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-xl animate-float"></div>
+        <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-accent/20 to-primary/20 rounded-3xl blur-xl animate-float" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-gradient-to-br from-primary/30 to-accent/30 rounded-2xl blur-lg animate-float" style={{animationDelay: '3s'}}></div>
       </div>
       
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
-        {/* Glassmorphism Header */}
+        {/* Enhanced Header */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
             <div className="space-y-3">
               <div className="inline-flex items-center gap-4">
-                <div className="glass-card w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl">
-                  <PenSquare className="w-8 h-8 text-glass-white" />
+                <div className="card-enhanced w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg border border-border/50 bg-gradient-to-br from-primary/10 to-accent/10">
+                  <PenSquare className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-5xl font-bold text-glass-white">
-              Create Resume
-            </h1>
-                  <p className="text-glass-gray text-xl font-medium">
-              Build your professional resume with real-time preview
-            </p>
-          </div>
+                  <h1 className="text-5xl font-bold text-foreground">
+                    Create Resume
+                  </h1>
+                  <p className="text-muted-foreground text-xl font-medium">
+                    Build your professional resume with real-time preview
+                  </p>
+                </div>
               </div>
             </div>
           <div className="flex items-center gap-4">
                 <Button
                 variant="outline"
                 onClick={() => router.push('/choice')}
-                className="glass-button flex items-center gap-2 px-6 py-3"
+                className="glass-button flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
                 >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Choice
@@ -573,7 +573,7 @@ export default function CreateResumePage() {
               <Button
                 variant="outline"
                 onClick={() => setShowMarkdownEditor(true)}
-                className="glass-button flex items-center gap-2 px-6 py-3"
+                className="glass-button flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
               >
                 <PenSquare className="w-4 h-4" />
                 Markdown Editor
@@ -607,7 +607,7 @@ export default function CreateResumePage() {
                     console.error('JSON export failed', e);
                   }
                 }}
-                className="glass-button flex items-center gap-2 px-6 py-3"
+                className="glass-button flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
               >
                 <Download className="w-4 h-4" />
                 Export JSON
@@ -615,11 +615,11 @@ export default function CreateResumePage() {
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="glass-button flex items-center gap-2 px-8 py-3 text-lg font-semibold"
+                className="button-enhanced flex items-center gap-2 px-8 py-3 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 {saving ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current" />
                     Saving...
                   </>
                 ) : (
@@ -632,112 +632,73 @@ export default function CreateResumePage() {
             </div>
           </div>
 
-          {/* Glassmorphism Progress Indicator */}
-          <div className="rounded-2xl p-8 shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
+          {/* Enhanced Progress Indicator */}
+          <div className="card-enhanced rounded-2xl p-8 shadow-lg border border-border/50 bg-background/80 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                {(() => { const Icon = steps[currentStep].icon as any; return Icon ? <Icon className="w-6 h-6 text-white" /> : null; })()}
+              <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                {(() => { const Icon = steps[currentStep].icon as any; return Icon ? <Icon className="w-6 h-6 text-primary" /> : null; })()}
                 {steps[currentStep].title}
               </h2>
-              <span className="text-sm text-white/70 px-4 py-2 rounded-full font-semibold border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
+              <span className="text-sm text-muted-foreground px-4 py-2 rounded-full font-semibold border border-border/50 bg-muted/50">
                 Step {currentStep + 1} of {steps.length}
               </span>
             </div>
-            <div className="flex items-center space-x-3">
-              {steps.map((step, index) => {
-                const Icon = step.icon;
-                const isActive = index === currentStep;
-                const isCompleted = index < currentStep;
-                return (
-                  <div key={step.id} className="flex items-center">
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                        isActive
-                          ? "text-white shadow-2xl border border-white/40"
-                          : isCompleted
-                          ? "text-white shadow-lg border border-white/30"
-                          : "text-white/50 border border-white/10"
-                      }`}
-                      style={{
-                        background: isActive 
-                          ? 'rgba(255, 255, 255, 0.3)' 
-                          : isCompleted 
-                          ? 'rgba(255, 255, 255, 0.2)' 
-                          : 'rgba(255, 255, 255, 0.05)',
-                        backdropFilter: 'blur(20px)'
-                      }}
-                    >
-                      {isCompleted ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <Icon className="w-5 h-5" />
-                      )}
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div
-                        className={`w-16 h-1 mx-3 rounded-full transition-all duration-300 ${
-                          isCompleted ? "bg-white/30" : "bg-white/10"
-                        }`}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Glassmorphism Step Navigation */}
-        <div className="mb-10">
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              const isActive = currentStep === step.id;
-              const isCompleted = currentStep > step.id;
-              return (
-              <div
-                key={step.id}
-                className={`flex items-center ${
-                  index < steps.length - 1 ? "flex-1" : ""
-                }`}
-              >
-                <button
-                  onClick={() => goToStep(step.id)}
-                    className={`flex items-center gap-3 px-6 py-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                      isActive
-                        ? "text-white shadow-2xl border border-white/40"
-                        : isCompleted
-                        ? "text-white border border-white/30 shadow-lg"
-                        : "text-white/70 border border-white/20 hover:bg-white/20"
-                    }`}
-                    style={{
-                      background: isActive 
-                        ? 'rgba(255, 255, 255, 0.3)' 
-                        : isCompleted 
-                        ? 'rgba(255, 255, 255, 0.2)' 
-                        : 'rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(20px)'
+            <div className="relative">
+              {/* Progress Line Container */}
+              <div className="absolute top-7 left-0 right-0 flex items-center px-7">
+                <div className="flex-1 h-1 bg-border/50 rounded-full relative">
+                  {/* Progress Fill */}
+                  <div 
+                    className="absolute left-0 top-0 h-1 bg-primary rounded-full transition-all duration-700 ease-out"
+                    style={{ 
+                      width: `${(currentStep / (steps.length - 1)) * 100}%` 
                     }}
-                  >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all duration-300 ${
-                      isActive ? "bg-white/20" : isCompleted ? "bg-white/30" : "bg-white/10"
-                    }`}>
-                      {isCompleted ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        <Icon className="w-4 h-4" />
-                      )}
-                    </div>
-                  <span className="hidden sm:inline">{step.title}</span>
-                </button>
-                {index < steps.length - 1 && (
-                    <div className={`hidden sm:block flex-1 h-1 mx-3 rounded-full transition-all duration-300 ${
-                      isCompleted ? "bg-white/30" : "bg-white/10"
-                    }`} />
-                )}
+                  ></div>
+                </div>
               </div>
-              );
-            })}
+              
+              {/* Steps */}
+              <div className="flex justify-between relative z-10">
+                {steps.map((step, index) => {
+                  const Icon = step.icon;
+                  const isActive = index === currentStep;
+                  const isCompleted = index < currentStep;
+                  
+                  return (
+                    <div key={step.id} className="flex flex-col items-center">
+                      {/* Step Circle */}
+                      <button
+                        onClick={() => goToStep(step.id)}
+                        className={`w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all duration-300 border-2 relative ${
+                          isActive
+                            ? "text-primary-foreground bg-primary border-primary shadow-lg cursor-pointer transform scale-110"
+                            : isCompleted
+                            ? "text-primary-foreground bg-primary border-primary cursor-pointer hover:scale-105 shadow-md"
+                            : "text-muted-foreground bg-background border-border hover:bg-muted/50 cursor-pointer hover:scale-105"
+                        }`}
+                      >
+                        {isCompleted ? (
+                          <Check className="w-5 h-5" />
+                        ) : (
+                          <Icon className="w-5 h-5" />
+                        )}
+                      </button>
+                      
+                      {/* Step Label */}
+                      <span className={`mt-3 text-xs font-medium text-center max-w-20 leading-tight transition-colors duration-300 ${
+                        isActive 
+                          ? "text-primary font-semibold" 
+                          : isCompleted 
+                          ? "text-foreground" 
+                          : "text-muted-foreground"
+                      }`}>
+                        {step.title}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -817,6 +778,7 @@ export default function CreateResumePage() {
                 onClick={() => goToStep(currentStep - 1)}
                 disabled={currentStep === 0}
                 variant="outline"
+                className="glass-button border-border/50 hover:bg-muted/50"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Previous
@@ -826,6 +788,7 @@ export default function CreateResumePage() {
                 <Button
                   onClick={() => goToStep(currentStep + 1)}
                   disabled={!canProceedToNext}
+                  className="button-enhanced bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Next
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -834,10 +797,11 @@ export default function CreateResumePage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving || !canProceedToNext}
+                  className="button-enhanced bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {saving ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
                       Saving...
                     </>
                   ) : (
@@ -851,13 +815,13 @@ export default function CreateResumePage() {
             </div>
           </div>
 
-          {/* Glassmorphism Preview Section */}
+          {/* Enhanced Preview Section */}
           <div className="sticky top-4 space-y-6">
-            <div className="rounded-2xl p-8 shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
+            <div className="card-enhanced rounded-2xl p-8 shadow-lg border border-border/50 bg-background/80 backdrop-blur-sm">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/30" style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(20px)'}}>
-                    <Eye className="w-5 h-5 text-white" />
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-border/50 bg-primary/10">
+                    <Eye className="w-5 h-5 text-primary" />
                   </div>
                   Live Preview
                 </h2>
@@ -865,30 +829,29 @@ export default function CreateResumePage() {
                 onClick={() => setShowFullPreview(true)}
                 variant="outline"
                 size="lg"
-                  className="border border-white/20 text-white hover:bg-white/20 transition-all duration-300 px-6 py-3 shadow-xl"
-                  style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(30px)'}}
+                  className="glass-button border-border/50 hover:bg-muted/50 px-6 py-3"
               >
                 <Eye className="w-5 h-5 mr-2" />
                 Full Screen
               </Button>
               </div>
-              <p className="text-white/70 text-lg font-medium">
+              <p className="text-muted-foreground text-lg font-medium">
                 See how your resume looks in real-time as you make changes
               </p>
             </div>
 
-            <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
-              <div className="p-6 border-b border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
-                <div className="flex items-center gap-3 text-sm text-white/70">
-                  <div className="w-4 h-4 bg-red-500/80 rounded-full shadow-sm"></div>
-                  <div className="w-4 h-4 bg-yellow-500/80 rounded-full shadow-sm"></div>
-                  <div className="w-4 h-4 bg-green-500/80 rounded-full shadow-sm"></div>
-                  <span className="ml-6 font-bold text-lg text-white">Resume Preview</span>
+            <div className="card-enhanced rounded-2xl overflow-hidden shadow-lg border border-border/50 bg-background/50 backdrop-blur-sm">
+              <div className="p-6 border-b border-border/50 bg-muted/30">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm"></div>
+                  <div className="w-4 h-4 bg-yellow-500 rounded-full shadow-sm"></div>
+                  <div className="w-4 h-4 bg-green-500 rounded-full shadow-sm"></div>
+                  <span className="ml-6 font-bold text-lg text-foreground">Resume Preview</span>
                 </div>
               </div>
-              <div className="p-8" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
+              <div className="p-8 bg-background/30">
                 <div
-                  className="relative overflow-hidden mx-auto shadow-inner rounded-xl border border-white/20"
+                  className="relative overflow-hidden mx-auto shadow-lg rounded-xl border border-border/50 bg-background"
                   style={{
                     width: "100%",
                     height: "0",
@@ -912,33 +875,32 @@ export default function CreateResumePage() {
           </div>
         </div>
 
-        {/* Glassmorphism Full Preview Modal */}
+        {/* Enhanced Full Preview Modal */}
         {showFullPreview && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
-              <div className="p-8 border-b border-white/20 flex justify-between items-center" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="card-enhanced rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-border bg-background">
+              <div className="p-8 border-b border-border flex justify-between items-center bg-muted/30">
                 <div>
-                  <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-white/30" style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(20px)'}}>
-                      <Eye className="w-5 h-5 text-white" />
+                  <h2 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-border bg-primary/10">
+                      <Eye className="w-5 h-5 text-primary" />
                     </div>
                     Resume Preview
                   </h2>
-                  <p className="text-lg text-white/70 mt-2">
+                  <p className="text-lg text-muted-foreground mt-2">
                     Full-size preview of your professional resume
                   </p>
                 </div>
                 <Button
                   variant="ghost"
                   onClick={() => setShowFullPreview(false)}
-                  className="h-12 w-12 p-0 border border-white/20 text-white hover:bg-white/20 rounded-xl transition-all duration-300"
-                  style={{background: 'rgba(255, 255, 255, 0.2)', backdropFilter: 'blur(30px)'}}
+                  className="h-12 w-12 p-0 border border-border hover:bg-muted/50 rounded-xl transition-all duration-300"
                 >
                   <X className="h-6 w-6" />
                 </Button>
               </div>
-              <div className="p-8 overflow-auto max-h-[calc(95vh-140px)]" style={{background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)'}}>
-                <div className="rounded-2xl shadow-2xl p-12 mx-auto max-w-5xl border border-white/20" style={{background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(20px)'}}>
+              <div className="p-8 overflow-auto max-h-[calc(95vh-140px)] bg-background/50">
+                <div className="card-enhanced rounded-2xl shadow-lg p-12 mx-auto max-w-5xl border border-border bg-background">
                   {renderResumePreview()}
                 </div>
               </div>

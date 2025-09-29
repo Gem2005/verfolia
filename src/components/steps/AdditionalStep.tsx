@@ -136,7 +136,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
   };
 
   const renderCertificationsSection = () => (
-    <Card>
+    <Card className="card-enhanced">
       <CardHeader>
         <CardTitle>Certifications</CardTitle>
         <CardDescription>Professional certifications</CardDescription>
@@ -168,7 +168,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                   <Input
                     value={cert.name}
                     onChange={(e) => updateCertificationField(cert.id, "name", e.target.value)}
-                    className={`h-10 ${validationErrors[`certification_${cert.id}_name`] ? "border-red-500" : ""}`}
+                    className={`input-enhanced h-10 ${validationErrors[`certification_${cert.id}_name`] ? "border-red-500" : ""}`}
                     placeholder="e.g., AWS Solutions Architect"
                   />
                   {validationErrors[`certification_${cert.id}_name`] && (
@@ -183,7 +183,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                   <Input
                     value={cert.issuer}
                     onChange={(e) => updateCertificationField(cert.id, "issuer", e.target.value)}
-                    className={`h-10 ${validationErrors[`certification_${cert.id}_issuer`] ? "border-red-500" : ""}`}
+                    className={`input-enhanced h-10 ${validationErrors[`certification_${cert.id}_issuer`] ? "border-red-500" : ""}`}
                     placeholder="e.g., Amazon Web Services"
                   />
                   {validationErrors[`certification_${cert.id}_issuer`] && (
@@ -201,7 +201,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                     type="month"
                     value={cert.date}
                     onChange={(e) => updateCertificationField(cert.id, "date", e.target.value)}
-                    className={`h-10 ${validationErrors[`certification_${cert.id}_date`] ? "border-red-500" : ""}`}
+                    className={`input-enhanced h-10 ${validationErrors[`certification_${cert.id}_date`] ? "border-red-500" : ""}`}
                   />
                   {validationErrors[`certification_${cert.id}_date`] && (
                     <p className="text-xs text-red-500">{validationErrors[`certification_${cert.id}_date`]}</p>
@@ -213,14 +213,14 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                   <Input
                     value={cert.url}
                     onChange={(e) => updateCertificationField(cert.id, "url", e.target.value)}
-                    className="h-10"
+                    className="input-enhanced h-10"
                     placeholder="https://certificate-url.com"
                   />
                 </div>
               </div>
             </div>
           ))}
-          <Button onClick={addCertification} variant="outline" className="w-full">
+          <Button onClick={addCertification} variant="outline" className="button-enhanced w-full">
             <Plus className="h-4 w-4 mr-2" />
             Add Certification
           </Button>
@@ -230,7 +230,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
   );
 
   const renderLanguagesSection = () => (
-    <Card>
+    <Card className="card-enhanced">
       <CardHeader>
         <CardTitle>Languages</CardTitle>
         <CardDescription>Spoken languages and proficiency</CardDescription>
@@ -262,7 +262,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                   <Input
                     value={lang.name}
                     onChange={(e) => updateLanguageField(lang.id, "name", e.target.value)}
-                    className={`h-10 ${validationErrors[`language_${lang.id}_name`] ? "border-red-500" : ""}`}
+                    className={`input-enhanced h-10 ${validationErrors[`language_${lang.id}_name`] ? "border-red-500" : ""}`}
                     placeholder="e.g., English"
                   />
                   {validationErrors[`language_${lang.id}_name`] && (
@@ -293,7 +293,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
               </div>
             </div>
           ))}
-          <Button onClick={addLanguage} variant="outline" className="w-full">
+          <Button onClick={addLanguage} variant="outline" className="button-enhanced w-full">
             <Plus className="h-4 w-4 mr-2" />
             Add Language
           </Button>
@@ -303,7 +303,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
   );
 
   const renderCustomSections = () => (
-    <Card>
+    <Card className="card-enhanced">
       <CardHeader>
         <CardTitle>Additional Sections</CardTitle>
         <CardDescription>Any extra sections you want to include</CardDescription>
@@ -334,7 +334,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                 <Input
                   value={section.title}
                   onChange={(e) => updateCustomSectionField(section.id, "title", e.target.value)}
-                  className={`h-10 ${validationErrors[`customSection_${section.id}_title`] ? "border-red-500" : ""}`}
+                  className={`input-enhanced h-10 ${validationErrors[`customSection_${section.id}_title`] ? "border-red-500" : ""}`}
                   placeholder="e.g., Volunteer Experience"
                 />
                 {validationErrors[`customSection_${section.id}_title`] && (
@@ -350,7 +350,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                   rows={3}
                   value={section.description}
                   onChange={(e) => updateCustomSectionField(section.id, "description", e.target.value)}
-                  className={`resize-none ${validationErrors[`customSection_${section.id}_description`] ? "border-red-500" : ""}`}
+                  className={`input-enhanced resize-none ${validationErrors[`customSection_${section.id}_description`] ? "border-red-500" : ""}`}
                   placeholder="Describe this section (20-100 words)"
                 />
                 {validationErrors[`customSection_${section.id}_description`] && (
@@ -364,7 +364,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
               </div>
             </div>
           ))}
-          <Button onClick={addCustomSection} variant="outline" className="w-full">
+          <Button onClick={addCustomSection} variant="outline" className="button-enhanced w-full">
             <Plus className="h-4 w-4 mr-2" />
             Add Custom Section
           </Button>
