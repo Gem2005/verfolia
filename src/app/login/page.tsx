@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { login, signup, signInWithGoogle } from "./actions";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/layout/app-layout"; // Import AppLayout
+import { storageHelpers } from "@/utils/storage";
 
 // SVG for Google Icon
 const GoogleIcon = () => (
@@ -46,8 +47,7 @@ export default function LoginPage() {
       }
       
       // Fallback to saved choice if no returnTo
-      let option: string | null = null;
-      try { option = localStorage.getItem('selectedOption'); } catch {}
+      const option = storageHelpers.getSelectedOption();
       if (option === 'upload') {
         router.push('/upload-resume');
       } else if (option === 'create') {
@@ -56,7 +56,7 @@ export default function LoginPage() {
         router.push('/dashboard'); // Change from /choice to /dashboard
       }
       // Clear after routing so it's one-time only
-      try { localStorage.removeItem('selectedOption'); } catch {}
+      storageHelpers.clearSelectedOption();
     }
   }, [isAuthenticated, loading, router]);
 

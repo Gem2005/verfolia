@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { X, ArrowLeft, ArrowRight, Eye, Check, PenSquare, Save, Download } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService } from "@/services/resume-service";
+import { analyticsService } from "@/services/analytics-service";
+import { storageHelpers } from "@/utils/storage";
 import { CleanMonoTemplate, DarkMinimalistTemplate, DarkTechTemplate, ModernAIFocusedTemplate } from "@/components/templates";
 import type { PortfolioData } from "@/types/PortfolioTypes";
 import { ResumeData } from "@/types/ResumeData";
@@ -40,6 +42,11 @@ export default function CreateResumePage() {
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
   const [showChoice, setShowChoice] = useState(false); // Default to false
 
+  // Analytics tracking state
+  const [sessionStartTime] = useState<number>(Date.now());
+  const [stepStartTimes, setStepStartTimes] = useState<{ [key: number]: number }>({});
+  const [pageViewTracked, setPageViewTracked] = useState(false);
+
   // Redirect unauthenticated users after auth state resolves
   // useEffect(() => {
   //   if (!loading && !user) {
@@ -53,7 +60,7 @@ export default function CreateResumePage() {
     const key = params.get("prefill");
     if (key) {
       try {
-        const raw = sessionStorage.getItem(key);
+        const raw = storageHelpers.get(key, 'session');
         if (raw) {
           const parsed = JSON.parse(raw);
           setResumeTitle(parsed.title || "Imported Resume");
@@ -87,6 +94,58 @@ export default function CreateResumePage() {
       setShowChoice(true); // No prefill data, show choice
     }
   }, [router]);
+
+  // Analytics tracking useEffects
+  useEffect(() => {
+    if (!pageViewTracked) {
+      // Track initial page view with user context
+      analyticsService.trackInitialPageView(user?.id);
+      setPageViewTracked(true);
+      
+      // Set initial step start time
+      setStepStartTimes(prev => ({ ...prev, [currentStep]: Date.now() }));
+    }
+  }, [pageViewTracked, currentStep, user?.id]);
+
+  // Track step changes
+  useEffect(() => {
+    if (pageViewTracked && stepStartTimes[currentStep] === undefined) {
+      // Track step change
+      analyticsService.trackStepChange(currentStep, steps[currentStep]?.title || `Step ${currentStep}`);
+      
+      // Set start time for new step
+      setStepStartTimes(prev => ({ ...prev, [currentStep]: Date.now() }));
+    }
+  }, [currentStep, pageViewTracked, stepStartTimes]);
+
+  // Track session end on page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const totalTimeOnPage = Date.now() - sessionStartTime;
+      
+      // Track final step time
+      const currentStepStartTime = stepStartTimes[currentStep];
+      if (currentStepStartTime) {
+        const timeSpent = Date.now() - currentStepStartTime;
+        analyticsService.trackStepDuration(currentStep, steps[currentStep]?.title || `Step ${currentStep}`, timeSpent);
+      }
+      
+      // Track page view with total time (this will update the initial page view)
+      analyticsService.trackCreationPageView(totalTimeOnPage, user?.id);
+      analyticsService.trackSessionEnd(totalTimeOnPage);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [sessionStartTime, stepStartTimes, currentStep, user?.id]);
+
+  // Track when user authentication state changes (login/logout)
+  useEffect(() => {
+    if (pageViewTracked && user?.id) {
+      // If user just logged in and we haven't tracked for this user yet, track as potentially first-time user
+      analyticsService.trackInitialPageView(user.id);
+    }
+  }, [user?.id, pageViewTracked]);
 
   // Validation state
   const [validationErrors, setValidationErrors] = useState<{
@@ -227,11 +286,32 @@ export default function CreateResumePage() {
     templates.find((t) => t.id === selectedTemplate) || templates[0];
 
   const goToStep = (step: number) => {
+    // Track time spent on current step before moving
+    const currentStepStartTime = stepStartTimes[currentStep];
+    if (currentStepStartTime && pageViewTracked) {
+      const timeSpent = Date.now() - currentStepStartTime;
+      analyticsService.trackStepDuration(currentStep, steps[currentStep]?.title || `Step ${currentStep}`, timeSpent);
+    }
+
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentStep(step);
       setIsTransitioning(false);
+      
+      // Set start time for new step
+      setStepStartTimes(prev => ({ ...prev, [step]: Date.now() }));
     }, 150);
+  };
+
+  // Enhanced template and theme selection handlers with analytics
+  const handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplate(templateId);
+    analyticsService.trackTemplateSelection(templateId, currentStep);
+  };
+
+  const handleThemeSelect = (themeId: string) => {
+    setSelectedTheme(themeId);
+    analyticsService.trackThemeSelection(themeId, currentStep);
   };
 
   const validateCurrentStep = useCallback(() => {
@@ -326,6 +406,7 @@ export default function CreateResumePage() {
   const handleSave = async () => {
     // Check authentication when trying to save
     if (!user) {
+      analyticsService.trackSaveAttempt(false, 'User not authenticated');
       try {
         const currentData = {
           title: resumeTitle,
@@ -341,10 +422,11 @@ export default function CreateResumePage() {
           selectedTheme,
           currentStep
         };
-        sessionStorage.setItem('resumeData', JSON.stringify(currentData));
+        storageHelpers.setResumeData(currentData);
         
-        // Redirect to login with return to create-resume
-        router.push('/login?returnTo=/create-resume&action=save');
+        // Redirect to login with return to create-resume with action parameter
+        const returnUrl = encodeURIComponent('/create-resume?action=save');
+        router.push(`/login?returnTo=${returnUrl}`);
         return;
       } catch (e) {
         toast.error("Please log in to save your resume.");
@@ -354,6 +436,7 @@ export default function CreateResumePage() {
     }
 
     if (!validateCurrentStep()) {
+      analyticsService.trackSaveAttempt(false, 'Validation failed');
       toast.error("Please fix the errors on this page before saving.");
       return;
     }
@@ -381,19 +464,33 @@ export default function CreateResumePage() {
       const savedResume = await resumeService.createResume(resumePayload as any);
 
       if (savedResume && savedResume.slug) {
+        // Track successful save
+        analyticsService.trackSaveAttempt(true);
+        
+        // Track session completion with total time
+        const totalTimeOnPage = Date.now() - sessionStartTime;
+        analyticsService.trackSessionEnd(totalTimeOnPage);
+        
+        // Clear creation session
+        analyticsService.clearCreationSession();
+        
         // Clear temporary data
         try {
           sessionStorage.removeItem('resumeData');
         } catch {}
         
         toast.dismiss();
-        toast.success("Resume saved successfully!");
-        router.push(`/resume/${savedResume.slug}`);
+        toast.success("Resume saved successfully! Redirecting to your dashboard...");
+        router.push(`/dashboard?fromSave=true`);
       } else {
         throw new Error("Failed to save resume or receive a valid response.");
       }
     } catch (error) {
       console.error("Error saving resume:", error);
+      
+      // Track failed save
+      analyticsService.trackSaveAttempt(false, error instanceof Error ? error.message : "Unknown error");
+      
       toast.dismiss();
       toast.error(
         error instanceof Error ? error.message : "An unknown error occurred."
@@ -413,9 +510,9 @@ export default function CreateResumePage() {
         console.log('Restoring resume data after login...');
         
         try {
-          const savedData = sessionStorage.getItem('resumeData');
+          const savedData = storageHelpers.getResumeData();
           if (savedData) {
-            const parsed = JSON.parse(savedData);
+            const parsed = typeof savedData === 'string' ? JSON.parse(savedData) : savedData;
             console.log('Found saved data:', parsed);
             
             // Restore all the data immediately
@@ -477,23 +574,37 @@ export default function CreateResumePage() {
                 const savedResume = await resumeService.createResume(resumePayload as any);
 
                 if (savedResume && savedResume.slug) {
+                  // Track successful auto-save
+                  analyticsService.trackSaveAttempt(true);
+                  
+                  // Track session completion
+                  const totalTimeOnPage = Date.now() - sessionStartTime;
+                  analyticsService.trackSessionEnd(totalTimeOnPage);
+                  
+                  // Clear creation session
+                  analyticsService.clearCreationSession();
+                  
                   // Clear temporary data
                   try {
                     sessionStorage.removeItem('resumeData');
                   } catch {}
                   
                   toast.dismiss();
-                  toast.success("Resume saved successfully! Redirecting...");
+                  toast.success("Resume saved successfully! Redirecting to your dashboard...");
                   
-                  // Redirect to the saved resume
+                  // Redirect to dashboard where user can see all their resumes
                   setTimeout(() => {
-                    router.push(`/resume/${savedResume.slug}`);
+                    router.push(`/dashboard?fromSave=true`);
                   }, 1500);
                 } else {
                   throw new Error("Failed to save resume or receive a valid response.");
                 }
               } catch (error) {
                 console.error("Error saving restored resume:", error);
+                
+                // Track failed auto-save
+                analyticsService.trackSaveAttempt(false, error instanceof Error ? error.message : "Auto-save failed");
+                
                 toast.dismiss();
                 toast.error("Failed to save your resume. You can try saving manually.");
               } finally {
@@ -715,8 +826,8 @@ export default function CreateResumePage() {
                 <TemplateStep
                   selectedTemplate={selectedTemplate}
                   selectedTheme={selectedTheme}
-                  onTemplateSelect={setSelectedTemplate}
-                  onThemeSelect={setSelectedTheme}
+                  onTemplateSelect={handleTemplateSelect}
+                  onThemeSelect={handleThemeSelect}
                   getPortfolioData={() => getPortfolioData(resumeData)}
                   previewTemplate={previewTemplate}
                   setPreviewTemplate={setPreviewTemplate}

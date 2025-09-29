@@ -24,6 +24,7 @@ import {
   Upload, // Added Upload icon import
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import {
   resumeService,
@@ -33,9 +34,23 @@ import { toast } from "sonner";
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [resumes, setResumes] = useState<ResumeType[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Check for success message from create-resume page
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromSave = params.get('fromSave');
+    
+    if (fromSave === 'true') {
+      toast.success("Your resume has been saved successfully! You can find it below.");
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }, []);
 
   const loadResumes = useCallback(async () => {
     if (!user) return;

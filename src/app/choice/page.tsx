@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, PenSquare } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { storageHelpers } from "@/utils/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +13,7 @@ export default function ChoicePage() {
 
   const handleSelect = (option: "upload" | "create") => {
     try {
-      localStorage.setItem("selectedOption", option);
+      storageHelpers.setSelectedOption(option);
     } catch {}
     
     if (option === "upload") router.push("/upload-resume");
