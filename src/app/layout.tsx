@@ -8,6 +8,11 @@ import { plusJakartaSans, lora, robotoMono } from "@/lib/fonts";
 export const metadata: Metadata = {
   title: "Verfolia",
   description: "Your Digital Professional Identity Platform",
+  metadataBase: new URL('https://verfolia.com'),
+  // Add performance hints
+  other: {
+    'format-detection': 'telephone=no',
+  },
 };
 
 export default function RootLayout({
@@ -21,6 +26,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${lora.variable} ${robotoMono.variable}`}
     >
+      <head>
+        {/* Preconnect to external domains for faster loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* DNS prefetch for Supabase */}
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL || ''} />
+      </head>
       <body className="font-sans antialiased">
         <AuthProvider>
           <ThemeProvider

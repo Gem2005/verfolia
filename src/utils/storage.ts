@@ -28,7 +28,6 @@ export const STORAGE_KEYS = {
   SELECTED_OPTION: 'selectedOption',
   USER_THEME: 'user_theme',
   USER_LANGUAGE: 'user_language',
-  ANALYTICS_CONSENT: 'analytics_consent',
   REMEMBER_ME: 'remember_me',
   
   // Resume data
@@ -332,7 +331,7 @@ class StorageManager {
       
       // Default options for security and compliance
       const defaultOptions: CookieOptions = {
-        expires: 365, // 1 year default
+        expires: 30, // 30 days default
         path: '/',
         secure: window.location.protocol === 'https:',
         sameSite: 'lax'
@@ -444,17 +443,11 @@ export const storageHelpers = {
   // User Preferences
   getUserTheme: () => storage.getCookie<string>(STORAGE_KEYS.USER_THEME) || 'system',
   setUserTheme: (theme: 'light' | 'dark' | 'system') => 
-    storage.setCookie(STORAGE_KEYS.USER_THEME, theme, { expires: 365 }),
+    storage.setCookie(STORAGE_KEYS.USER_THEME, theme, { expires: 30 }),
   
   getUserLanguage: () => storage.getCookie<string>(STORAGE_KEYS.USER_LANGUAGE) || 'en',
   setUserLanguage: (language: string) => 
-    storage.setCookie(STORAGE_KEYS.USER_LANGUAGE, language, { expires: 365 }),
-
-  // Analytics & Consent
-  getAnalyticsConsent: () => storage.getCookie<boolean>(STORAGE_KEYS.ANALYTICS_CONSENT),
-  setAnalyticsConsent: (consent: boolean) => 
-    storage.setCookie(STORAGE_KEYS.ANALYTICS_CONSENT, consent, { expires: 365 }),
-  hasAnalyticsConsent: () => storage.hasCookie(STORAGE_KEYS.ANALYTICS_CONSENT),
+    storage.setCookie(STORAGE_KEYS.USER_LANGUAGE, language, { expires: 30 }),
 
   // Authentication Preferences
   getRememberMe: () => storage.getCookie<boolean>(STORAGE_KEYS.REMEMBER_ME) || false,
@@ -466,7 +459,6 @@ export const storageHelpers = {
   clearAllPreferences: () => {
     storage.removeCookie(STORAGE_KEYS.USER_THEME);
     storage.removeCookie(STORAGE_KEYS.USER_LANGUAGE);
-    storage.removeCookie(STORAGE_KEYS.ANALYTICS_CONSENT);
     storage.removeCookie(STORAGE_KEYS.REMEMBER_ME);
   },
 
@@ -474,7 +466,6 @@ export const storageHelpers = {
   getAllPreferences: () => ({
     theme: storageHelpers.getUserTheme(),
     language: storageHelpers.getUserLanguage(),
-    analyticsConsent: storageHelpers.getAnalyticsConsent(),
     rememberMe: storageHelpers.getRememberMe()
   })
 };

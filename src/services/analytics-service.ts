@@ -8,8 +8,6 @@ interface CreationEventData {
   time_spent_on_step?: number;
   template_id?: string;
   theme_id?: string;
-  total_time_on_page?: number;
-  is_first_time_visitor?: boolean;
   save_success?: boolean;
   save_error_message?: string;
 }
@@ -17,20 +15,15 @@ interface CreationEventData {
 class AnalyticsService {
   private sessionId: string | null = null;
   private creationSessionId: string | null = null;
+  private sessionInitialized: boolean = false;
+  private sessionInitializing: boolean = false; // Prevent race conditions
+  private currentUserId: string | null = null;
 
   constructor() {
     if (typeof window !== 'undefined') {
       this.sessionId = storageHelpers.getSessionId() || this.generateSessionId();
       this.creationSessionId = storageHelpers.getCreationSessionId() || this.generateCreationSessionId();
     }
-  }
-
-  /**
-   * Check if analytics tracking is allowed
-   */
-  private canTrack(): boolean {
-    const consent = storageHelpers.getAnalyticsConsent();
-    return consent === true; // Only track if explicitly consented
   }
 
   private generateSessionId(): string {
@@ -64,11 +57,6 @@ class AnalyticsService {
   }
 
   async trackResumeView(resumeId: string): Promise<void> {
-    if (!this.canTrack()) {
-      console.log('Analytics tracking skipped - no consent');
-      return;
-    }
-
     try {
       const sessionId = this.getSessionId();
       const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : '';
@@ -175,16 +163,27 @@ class AnalyticsService {
 
   // Creation Analytics Methods
   async trackCreationEvent(eventType: string, eventData: CreationEventData = {}): Promise<void> {
-    if (!this.canTrack()) {
-      console.log('Creation analytics tracking skipped - no consent');
-      return;
-    }
-
     try {
-      const sessionId = this.getCreationSessionId();
-      const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : '';
-      const referrer = typeof document !== 'undefined' ? document.referrer : '';
+      // Ensure session exists before tracking any event
+      if (!this.sessionInitialized && !this.sessionInitializing) {
+        console.warn('⚠️ Session not initialized, skipping event:', eventType);
+        return;
+      }
 
+      // Wait for session initialization if in progress
+      let waitCount = 0;
+      while (this.sessionInitializing && waitCount < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        waitCount++;
+      }
+
+      if (!this.sessionInitialized) {
+        console.error('❌ Session failed to initialize, cannot track event:', eventType);
+        return;
+      }
+
+      const sessionId = this.getCreationSessionId();
+      
       const response = await fetch('/api/analytics/creation', {
         method: 'POST',
         headers: {
@@ -198,12 +197,8 @@ class AnalyticsService {
           time_spent_on_step: eventData.time_spent_on_step,
           template_id: eventData.template_id,
           theme_id: eventData.theme_id,
-          total_time_on_page: eventData.total_time_on_page,
-          is_first_time_visitor: eventData.is_first_time_visitor,
           save_success: eventData.save_success,
           save_error_message: eventData.save_error_message,
-          user_agent: userAgent,
-          referrer,
         }),
       });
 
@@ -218,60 +213,88 @@ class AnalyticsService {
   }
 
   // Specific creation tracking methods
-  async trackCreationPageView(totalTimeOnPage: number, userId?: string): Promise<void> {
-    // Check if this is first time for this specific user or session
-    let isFirstTime = false;
-    
-    if (typeof window !== 'undefined') {
-      if (userId) {
-        // If user is logged in, check user-specific flag
-        isFirstTime = !storageHelpers.hasUserVisited(userId);
-        if (isFirstTime) {
-          storageHelpers.markUserVisited(userId);
-        }
-      } else {
-        // If not logged in, use session-specific flag
-        const sessionId = this.getCreationSessionId();
-        isFirstTime = !storageHelpers.hasSessionVisited(sessionId);
-        if (isFirstTime) {
-          storageHelpers.markSessionVisited(sessionId);
-        }
-      }
-    }
-
-    return this.trackCreationEvent('page_view', {
-      total_time_on_page: totalTimeOnPage,
-      is_first_time_visitor: isFirstTime,
-    });
+  async trackCreationPageView(userId?: string): Promise<void> {
+    await this.ensureSession(userId);
+    return this.trackCreationEvent('page_view', {});
   }
 
-  // Also add an initial page view method for when the page first loads
+  // Initialize session on first page view
   async trackInitialPageView(userId?: string): Promise<void> {
-    let isFirstTime = false;
+    const userChanged = this.currentUserId !== (userId || null);
+    if (userChanged) {
+      this.sessionInitialized = false;
+      this.currentUserId = userId || null;
+    }
     
-    if (typeof window !== 'undefined') {
-      if (userId) {
-        // If user is logged in, check user-specific flag
-        isFirstTime = !storageHelpers.hasUserVisited(userId);
-        console.log(`🔍 Analytics: User ${userId} first time visit: ${isFirstTime}`);
-        if (isFirstTime) {
-          storageHelpers.markUserVisited(userId);
-        }
-      } else {
-        // If not logged in, use session-specific flag
-        const sessionId = this.getCreationSessionId();
-        isFirstTime = !storageHelpers.hasSessionVisited(sessionId);
-        console.log(`🔍 Analytics: Anonymous session first time visit: ${isFirstTime}`);
-        if (isFirstTime) {
-          storageHelpers.markSessionVisited(sessionId);
-        }
-      }
+    await this.ensureSession(userId);
+    return this.trackCreationEvent('page_view', {});
+  }
+
+  // Ensure session record exists in database
+  private async ensureSession(userId?: string): Promise<void> {
+    // If already initialized or currently initializing, skip
+    if (this.sessionInitialized) return;
+    if (this.sessionInitializing) {
+      // Wait for ongoing initialization
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return this.ensureSession(userId); // Retry
     }
 
-    return this.trackCreationEvent('page_view', {
-      total_time_on_page: 0, // Initial view, no time spent yet
-      is_first_time_visitor: isFirstTime,
-    });
+    this.sessionInitializing = true;
+
+    try {
+      const sessionId = this.getCreationSessionId();
+      const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : '';
+      const referrer = typeof document !== 'undefined' ? document.referrer : '';
+      
+      let isFirstTime = false;
+      if (typeof window !== 'undefined') {
+        if (userId) {
+          isFirstTime = !storageHelpers.hasUserVisited(userId);
+          if (isFirstTime) {
+            storageHelpers.markUserVisited(userId);
+          }
+        } else {
+          isFirstTime = !storageHelpers.hasSessionVisited(sessionId);
+          if (isFirstTime) {
+            storageHelpers.markSessionVisited(sessionId);
+          }
+        }
+      }
+
+      const response = await fetch('/api/analytics/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          user_id: userId || null,
+          is_first_time_visitor: isFirstTime,
+          user_agent: userAgent,
+          referrer,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        // If session already exists (duplicate key error), that's OK
+        if (error.details && error.details.includes('duplicate key')) {
+          console.log('✅ Session already exists:', sessionId);
+          this.sessionInitialized = true;
+        } else {
+          throw new Error(`Failed to initialize session: ${response.statusText}`);
+        }
+      } else {
+        const result = await response.json();
+        this.sessionInitialized = true;
+        console.log('✅ Session initialized:', { sessionId, isFirstTime, exists: result.exists });
+      }
+    } catch (error) {
+      console.error('❌ Error initializing session:', error);
+    } finally {
+      this.sessionInitializing = false;
+    }
   }
 
   // Remove the helper method as we're passing userId directly
@@ -307,21 +330,41 @@ class AnalyticsService {
   async trackSaveAttempt(success: boolean, errorMessage?: string): Promise<void> {
     return this.trackCreationEvent('save_attempt', {
       save_success: success,
-      save_error_message: errorMessage || null,
+      save_error_message: errorMessage || undefined,
     });
   }
 
-  async trackSessionEnd(totalTimeOnPage: number): Promise<void> {
-    return this.trackCreationEvent('session_end', {
-      total_time_on_page: totalTimeOnPage,
-    });
+  async trackSessionEnd(): Promise<void> {
+    return this.trackCreationEvent('session_end', {});
   }
 
   // Clear creation session (called after successful save)
-  clearCreationSession(): void {
+  async clearCreationSession(): Promise<void> {
     if (typeof window !== 'undefined') {
+      const sessionId = this.creationSessionId;
+      
+      // Mark session as completed
+      if (sessionId && this.sessionInitialized) {
+        try {
+          await fetch('/api/analytics/session/complete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              session_id: sessionId,
+            }),
+          });
+        } catch (error) {
+          console.error('❌ Error marking session complete:', error);
+        }
+      }
+      
       storageHelpers.clearCreationSession();
       this.creationSessionId = null;
+      this.sessionInitialized = false;
+      this.sessionInitializing = false;
+      this.currentUserId = null;
     }
   }
 }

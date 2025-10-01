@@ -60,7 +60,7 @@ export default function CreateResumePage() {
     const key = params.get("prefill");
     if (key) {
       try {
-        const raw = storageHelpers.get(key, 'session');
+        const raw = sessionStorage.getItem(key);
         if (raw) {
           const parsed = JSON.parse(raw);
           setResumeTitle(parsed.title || "Imported Resume");
@@ -130,9 +130,8 @@ export default function CreateResumePage() {
         analyticsService.trackStepDuration(currentStep, steps[currentStep]?.title || `Step ${currentStep}`, timeSpent);
       }
       
-      // Track page view with total time (this will update the initial page view)
-      analyticsService.trackCreationPageView(totalTimeOnPage, user?.id);
-      analyticsService.trackSessionEnd(totalTimeOnPage);
+      // Track session end on page unload
+      analyticsService.trackSessionEnd();
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -467,12 +466,11 @@ export default function CreateResumePage() {
         // Track successful save
         analyticsService.trackSaveAttempt(true);
         
-        // Track session completion with total time
-        const totalTimeOnPage = Date.now() - sessionStartTime;
-        analyticsService.trackSessionEnd(totalTimeOnPage);
+        // Track session completion
+        analyticsService.trackSessionEnd();
         
         // Clear creation session
-        analyticsService.clearCreationSession();
+        await analyticsService.clearCreationSession();
         
         // Clear temporary data
         try {
@@ -578,11 +576,10 @@ export default function CreateResumePage() {
                   analyticsService.trackSaveAttempt(true);
                   
                   // Track session completion
-                  const totalTimeOnPage = Date.now() - sessionStartTime;
-                  analyticsService.trackSessionEnd(totalTimeOnPage);
+                  analyticsService.trackSessionEnd();
                   
                   // Clear creation session
-                  analyticsService.clearCreationSession();
+                  await analyticsService.clearCreationSession();
                   
                   // Clear temporary data
                   try {

@@ -19,28 +19,35 @@ export async function GET(req: NextRequest) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    // Get creation events
-    const { data: events, error } = await supabase
-      .from('resume_creation_analytics')
+    // Get sessions and events using the new schema
+    const { data: sessions, error: sessionsError } = await supabase
+      .from('resume_creation_sessions')
+      .select('*')
+      .gte('created_at', startDate.toISOString());
+
+    if (sessionsError) {
+      console.error('Error fetching sessions:', sessionsError);
+      return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 });
+    }
+
+    const { data: events, error: eventsError } = await supabase
+      .from('resume_creation_events')
       .select('*')
       .gte('created_at', startDate.toISOString())
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching creation analytics:', error);
+    if (eventsError) {
+      console.error('Error fetching events:', eventsError);
       return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 });
     }
 
     // Process the data for summary
-    const sessions = new Set(events?.map(e => e.session_id) || []);
-    const completedSessions = new Set(
-      events?.filter(e => e.event_type === 'session_end' && e.save_success)
-        .map(e => e.session_id) || []
-    );
+    const sessionSet = new Set(sessions?.map(s => s.session_id) || []);
+    const completedSessions = sessions?.filter(s => s.session_completed) || [];
 
     const templateSelections = events?.filter(e => e.event_type === 'template_selection') || [];
     const themeSelections = events?.filter(e => e.event_type === 'theme_selection') || [];
-    const pageViews = events?.filter(e => e.event_type === 'page_view') || [];
+    const sessionEndEvents = events?.filter(e => e.event_type === 'session_end') || [];
     
     // Calculate popular templates
     const templateCounts = templateSelections.reduce((acc: any, event) => {
@@ -68,17 +75,21 @@ export async function GET(req: NextRequest) {
       return acc;
     }, {}) || {};
 
-    // Calculate average session duration and time on page
-    const avgSessionDuration = pageViews.length > 0 ? 
-      Math.round(pageViews.reduce((sum, event) => sum + (event.total_time_on_page || 0), 0) / pageViews.length) : 0;
+    // Calculate average session duration from sessions table
+    const completedSessionsData = sessions?.filter(s => s.session_completed && s.session_ended_at) || [];
+    const avgSessionDuration = completedSessionsData.length > 0 ? 
+      Math.round(completedSessionsData.reduce((sum, session) => {
+        const duration = new Date(session.session_ended_at!).getTime() - new Date(session.created_at).getTime();
+        return sum + duration / 1000; // Convert to seconds
+      }, 0) / completedSessionsData.length) : 0;
 
     // First-time vs returning visitors
-    const firstTimeVisitors = pageViews.filter(e => e.is_first_time_visitor).length;
-    const returningVisitors = pageViews.filter(e => !e.is_first_time_visitor).length;
+    const firstTimeVisitors = sessions?.filter(s => s.is_first_time_visitor).length || 0;
+    const returningVisitors = (sessions?.length || 0) - firstTimeVisitors;
 
     const summary = {
-      totalSessions: sessions.size,
-      completedSessions: completedSessions.size,
+      totalSessions: sessionSet.size,
+      completedSessions: completedSessions.length,
       averageSessionDuration: avgSessionDuration,
       firstTimeVisitors,
       returningVisitors,
@@ -93,8 +104,8 @@ export async function GET(req: NextRequest) {
       stepEngagement: Object.entries(stepCounts)
         .map(([step, count]) => ({ step: parseInt(step), count: count as number }))
         .sort((a, b) => a.step - b.step),
-      conversionRate: sessions.size > 0 ? 
-        Math.round((completedSessions.size / sessions.size) * 100) : 0,
+      conversionRate: sessionSet.size > 0 ? 
+        Math.round((completedSessions.length / sessionSet.size) * 100) : 0,
     };
 
     return NextResponse.json({
