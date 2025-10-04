@@ -87,7 +87,8 @@ export function detectSections(text: string): ResumeSections {
   const maxContactLines = 15; // Don't search beyond this
   
   // Look for the first section header or stop at max lines
-  for (let i = 0; i < Math.min(maxContactLines, lines.length); i++) {
+  // Start from line 1 (skip line 0 which is usually the name)
+  for (let i = 1; i < Math.min(maxContactLines, lines.length); i++) {
     const line = lines[i].trim();
     
     // Skip empty lines
@@ -118,9 +119,10 @@ export function detectSections(text: string): ResumeSections {
     }
   }
   
-  // If we didn't find a section header, use the first 5 lines as contact
+  // If we didn't find a section header in the first few lines, use the first 3-4 lines as contact
+  // But only if contactEndIndex is still 0
   if (contactEndIndex === 0) {
-    contactEndIndex = Math.min(5, lines.length);
+    contactEndIndex = Math.min(4, lines.length);
   }
   
   const potentialContact = lines.slice(0, contactEndIndex).join('\n');

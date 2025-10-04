@@ -53,9 +53,27 @@ async function extractFromPDF(file: File): Promise<string> {
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: any) => item.str)
-        .join(' ');
+      
+      // Process text items with better line break detection
+      let pageText = '';
+      let lastY = -1;
+      
+      textContent.items.forEach((item: any, index: number) => {
+        const currentY = item.transform[5]; // Y coordinate
+        const str = item.str;
+        
+        // If Y position changed significantly, it's a new line
+        if (lastY !== -1 && Math.abs(currentY - lastY) > 2) {
+          pageText += '\n';
+        } else if (index > 0 && str && !str.match(/^[.,;:!?)]/) && pageText.length > 0) {
+          // Add space between words if not punctuation
+          pageText += ' ';
+        }
+        
+        pageText += str;
+        lastY = currentY;
+      });
+      
       fullText += pageText + '\n\n';
     }
     
