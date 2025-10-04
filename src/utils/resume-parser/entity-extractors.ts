@@ -26,7 +26,8 @@ export const PATTERNS = {
 
 // What contact info looks like when we extract it
 export interface ContactInfo {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   location: string;
@@ -74,6 +75,46 @@ export function extractContactInfo(text: string): ContactInfo {
       fullName = lines[1] || lines[0];
     }
   }
+
+  // Clean and normalize the name
+  fullName = fullName.trim();
+
+  // Split full name into first and last name
+  let firstName = '';
+  let lastName = '';
+
+  // Check if name has spaces
+  if (fullName.includes(' ')) {
+    const nameParts = fullName.split(/\s+/);
+    firstName = nameParts[0] || '';
+    lastName = nameParts.slice(1).join(' ') || '';
+  } else if (fullName.length > 0) {
+    // No spaces - might be like "GEMINISHARMA" or "JohnDoe"
+    // Try to split on capital letters (camelCase or consecutive capitals)
+    
+    // Check if all uppercase (like "GEMINISHARMA")
+    if (fullName === fullName.toUpperCase() && fullName.length > 3) {
+      // Try to intelligently split - assume roughly equal parts
+      const midPoint = Math.floor(fullName.length / 2);
+      firstName = fullName.substring(0, midPoint);
+      lastName = fullName.substring(midPoint);
+      
+      // Capitalize properly
+      firstName = firstName.charAt(0) + firstName.slice(1).toLowerCase();
+      lastName = lastName.charAt(0) + lastName.slice(1).toLowerCase();
+    } else {
+      // CamelCase like "JohnDoe" - split on capital letters
+      const matches = fullName.match(/[A-Z][a-z]*/g);
+      if (matches && matches.length >= 2) {
+        firstName = matches[0];
+        lastName = matches.slice(1).join(' ');
+      } else {
+        // Fallback: just use as firstName
+        firstName = fullName;
+        lastName = '';
+      }
+    }
+  }
   
   // Try to find the location (City, State format)
   const locationPattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*),?\s*([A-Z]{2}|[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/;
@@ -81,7 +122,8 @@ export function extractContactInfo(text: string): ContactInfo {
   const location = locationMatch ? locationMatch[0] : '';
   
   return {
-    fullName,
+    firstName,
+    lastName,
     email,
     phone,
     location,
@@ -276,9 +318,25 @@ function parseExperienceBlock(block: string): Experience | null {
   }
   
   // Extract description (bullet points and paragraphs)
-  const descriptionLines = lines.filter(line => 
-    line.startsWith('•') && line.length > 2
-  );
+  // We need to capture bullet points AND their continuation lines
+  const descriptionLines: string[] = [];
+  let inBulletPoint = false;
+  
+  for (const line of lines) {
+    if (line.startsWith('•') && line.length > 2) {
+      // Start of a new bullet point
+      descriptionLines.push(line);
+      inBulletPoint = true;
+    } else if (inBulletPoint && line.trim().length > 0) {
+      // Continuation of the previous bullet point
+      // Append to the last bullet point with a space
+      descriptionLines[descriptionLines.length - 1] += ' ' + line.trim();
+    } else if (line.trim().length === 0) {
+      // Empty line ends the current bullet point
+      inBulletPoint = false;
+    }
+  }
+  
   const description = descriptionLines.join('\n');
   
   return {
@@ -301,6 +359,8 @@ export interface Education {
   field: string;
   institution: string;
   location?: string;
+  startDate?: string;
+  endDate?: string;
   graduationDate: string;
   gpa?: string;
 }
@@ -367,104 +427,111 @@ function parseEducationBlock(block: string): Education | null {
   
   if (lines.length === 0) return null;
   
-  // Try to find degree
-  const degreeMatch = block.match(PATTERNS.degree);
-  let degree = degreeMatch ? degreeMatch[0] : '';
-  
-  // Extract field of study
+  let degree = '';
   let field = '';
-  let degreeLineIndex = -1;
+  let institution = '';
+  let location = undefined;
+  let startDate = '';
+  let endDate = '';
+  let gpa = undefined;
   
-  // Look for degree in bullet points or inline text
-  if (degree) {
-    const degreeText = lines.find((l, idx) => {
-      if (PATTERNS.degree.test(l)) {
-        degreeLineIndex = idx;
-        return true;
-      }
-      return false;
-    }) || '';
-    
-    // Field usually follows degree: "Bachelor of Science in Computer Science"
-    const fieldPattern = /(?:in|of)\s+([A-Z][a-zA-Z\s&,]+?)(?:\s*[;,|\n]|$)/;
-    const fieldMatch = degreeText.match(fieldPattern);
-    if (fieldMatch) {
-      field = fieldMatch[1].trim();
-    }
-  } else {
-    // If no standard degree found, check for "B.Tech", "M.Tech" etc in bullet points
-    const btechMatch = block.match(/B\.?Tech\.?\s+(?:in\s+)?([^;,\n]+)/i);
-    const mtechMatch = block.match(/M\.?Tech\.?\s+(?:in\s+)?([^;,\n]+)/i);
-    
-    if (btechMatch) {
-      degree = 'B.Tech.';
-      field = btechMatch[1].trim();
-    } else if (mtechMatch) {
-      degree = 'M.Tech.';
-      field = mtechMatch[1].trim();
+  // Extract dates first
+  const dates = extractDates(block);
+  startDate = dates.startDate || '';
+  endDate = dates.endDate || '';
+  
+  // The first line usually contains institution name, location, and dates
+  const firstLine = lines[0];
+  
+  // Extract institution from first line (remove dates and location)
+  let institutionLine = firstLine;
+  
+  // Remove date portion
+  institutionLine = institutionLine.replace(/\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}\s*-\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|Present)\s*\d{0,4}/i, '');
+  institutionLine = institutionLine.replace(/\s*\d{4}\s*-\s*\d{4}/i, '');
+  institutionLine = institutionLine.replace(/\s*(August|April|June|July)\s+\d{4}/i, '');
+  
+  // Extract location (usually after last comma before dates)
+  const locationMatch = institutionLine.match(/,\s*([^,]+)$/);
+  if (locationMatch) {
+    const possibleLocation = locationMatch[1].trim();
+    // Check if it looks like a location (city, state/country)
+    if (possibleLocation.length < 50 && /^[A-Z]/.test(possibleLocation)) {
+      location = possibleLocation;
+      institutionLine = institutionLine.substring(0, institutionLine.lastIndexOf(',')).trim();
     }
   }
   
-  // Extract institution - usually the first non-bullet line with a date range or first substantial line
-  let institution = '';
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+  institution = institutionLine.replace(/,+$/, '').trim();
+  
+  // Look for degree information in bullet points or subsequent lines
+  for (const line of lines) {
+    // Check for B.Tech, M.Tech, etc.
+    const btechMatch = line.match(/•?\s*B\.?Tech\.?\s+in\s+([^;,\n]+)/i);
+    const mtechMatch = line.match(/•?\s*M\.?Tech\.?\s+in\s+([^;,\n]+)/i);
+    const bscMatch = line.match(/•?\s*(?:Bachelor of Science|B\.?Sc\.?)\s+in\s+([^;,\n]+)/i);
+    const mscMatch = line.match(/•?\s*(?:Master of Science|M\.?Sc\.?)\s+in\s+([^;,\n]+)/i);
+    const baMatch = line.match(/•?\s*(?:Bachelor of Arts|B\.?A\.?)\s+in\s+([^;,\n]+)/i);
+    const maMatch = line.match(/•?\s*(?:Master of Arts|M\.?A\.?)\s+in\s+([^;,\n]+)/i);
     
-    // Skip bullet points, degree lines, and short lines
-    if (line.startsWith('•') || 
-        i === degreeLineIndex || 
-        line.startsWith('Graduated') ||
-        PATTERNS.gpa.test(line) ||
-        line.startsWith('Board of') ||
-        line.startsWith('Percentage:') ||
-        line.startsWith('CGPA:') ||
-        line.length < 10) {
-      continue;
-    }
+    // Check for Board of Secondary Education (high school)
+    const boardMatch = line.match(/•?\s*(Board of [^;,\n]+)/i);
+    const matricMatch = line.match(/•?\s*(Matriculation|Higher Secondary|Secondary Education)/i);
     
-    // Check if line has university/school/college keywords or has a date range
-    if (line.match(/University|Institute|College|School|Academy/i) || 
-        PATTERNS.monthYear.test(line) || 
-        PATTERNS.yearRange.test(line)) {
-      
-      // Remove the date portion if present
-      let cleanLine = line;
-      
-      // Try to extract just the institution name before the date
-      const dateMatch = line.match(/(.+?)\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|\d{4})/i);
-      if (dateMatch) {
-        cleanLine = dateMatch[1].trim();
-      }
-      
-      // Remove location if present (after comma)
-      if (cleanLine.includes(',')) {
-        const parts = cleanLine.split(',');
-        // Take first part if it looks like institution name
-        if (parts[0].match(/University|Institute|College|School|Academy/i)) {
-          institution = parts[0].trim();
-        } else {
-          institution = cleanLine;
-        }
-      } else {
-        institution = cleanLine;
-      }
+    if (btechMatch) {
+      degree = 'B.Tech.';
+      field = btechMatch[1].trim().replace(/;.*$/, '').trim();
+      break;
+    } else if (mtechMatch) {
+      degree = 'M.Tech.';
+      field = mtechMatch[1].trim().replace(/;.*$/, '').trim();
+      break;
+    } else if (bscMatch) {
+      degree = 'Bachelor of Science';
+      field = bscMatch[1].trim().replace(/;.*$/, '').trim();
+      break;
+    } else if (mscMatch) {
+      degree = 'Master of Science';
+      field = mscMatch[1].trim().replace(/;.*$/, '').trim();
+      break;
+    } else if (baMatch) {
+      degree = 'Bachelor of Arts';
+      field = baMatch[1].trim().replace(/;.*$/, '').trim();
+      break;
+    } else if (maMatch) {
+      degree = 'Master of Arts';
+      field = maMatch[1].trim().replace(/;.*$/, '').trim();
+      break;
+    } else if (boardMatch) {
+      degree = boardMatch[1].trim().replace(/;.*$/, '').trim();
+      field = ''; // Board exams don't have a "field"
+      break;
+    } else if (matricMatch) {
+      degree = matricMatch[1].trim();
+      field = '';
       break;
     }
   }
   
-  // If we still don't have a degree or institution, this might not be valid education
-  if (!degree && !institution) return null;
-  
-  // Extract graduation date
-  const { endDate } = extractDates(block);
-  const graduationDate = endDate || '';
+  // If still no degree found, try general pattern
+  if (!degree) {
+    const degreeMatch = block.match(PATTERNS.degree);
+    degree = degreeMatch ? degreeMatch[0] : '';
+    
+    if (degree) {
+      const fieldPattern = /(?:in|of)\s+([A-Z][a-zA-Z\s&,]+?)(?:\s*[;,|\n]|$)/;
+      const fieldMatch = block.match(fieldPattern);
+      if (fieldMatch) {
+        field = fieldMatch[1].trim();
+      }
+    }
+  }
   
   // Extract GPA or percentage
   const gpaMatch = block.match(PATTERNS.gpa);
   const percentageMatch = block.match(/Percentage:\s*(\d+\.?\d*)%/i);
   const cgpaMatch = block.match(/CGPA:\s*(\d+\.?\d*)/i);
   
-  let gpa = undefined;
   if (cgpaMatch) {
     gpa = cgpaMatch[1] + '/10.0';
   } else if (gpaMatch) {
@@ -473,17 +540,17 @@ function parseEducationBlock(block: string): Education | null {
     gpa = percentageMatch[1] + '%';
   }
   
-  // Extract location
-  const locationPattern = /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*),?\s*([A-Z]{2}|[A-Z][a-z]+)/;
-  const locationMatch = block.match(locationPattern);
-  const location = locationMatch ? locationMatch[0] : undefined;
+  // If we don't have at least an institution or degree, this might not be valid
+  if (!institution && !degree) return null;
   
   return {
     degree,
     field,
-    institution: institution.replace(/[,.]$/, '').trim(),
+    institution,
     location,
-    graduationDate,
+    startDate,
+    endDate,
+    graduationDate: endDate, // Keep for backward compatibility
     gpa,
   };
 }
@@ -596,62 +663,115 @@ export function extractProjects(text: string): Project[] {
     if (projectMatch) {
       const nameAndTech = cleanLine;
       
-      // Find where the tech stack starts - look for the first capitalized word after the project name
-      // that's followed by a comma or is a known tech
-      const words = nameAndTech.split(/\s+/);
-      let nameEndIndex = 0;
+      // The issue: In PDF, project names are concatenated with tech stack (no space)
+      // Example: "Personal Task Management SystemNextJS, TypeScript, ..."
+      // We need to find where the tech stack starts by looking for tech keywords
       
-      // Common tech keywords
-      const techKeywords = /^(NextJS|React|Vue|Angular|Python|Java|JavaScript|TypeScript|Node|Express|MongoDB|PostgreSQL|MySQL|Redis|Docker|Kubernetes|AWS|Azure|GCP|Django|Flask|FastAPI|Spring|Laravel|Rails|Terraform|Ansible|Git|GitHub|Jenkins|CI|CD|HTML|CSS|Sass|TailwindCSS|Bootstrap|jQuery|GraphQL|REST|API|Webpack|Vite|Babel|ESLint|Jest|Mocha|Cypress|Selenium|Pandas|NumPy|TensorFlow|PyTorch|Scikit|Keras|OpenCV|NLTK|Spark|Hadoop|Kafka|RabbitMQ|Nginx|Apache|Linux|Ubuntu|Debian|CentOS|Shell|Bash|PowerShell|C\+\+|C#|\.NET|Unity|Unreal|Godot|Blender|Photoshop|Illustrator|Figma|Sketch|AdobeXD|InDesign|Premiere|AfterEffects|AKS|Helm|Drizzle|Zustand|Supabase|ORM|SHAP|FastAPI|Gemini)$/i;
+      // Look for concatenated tech keywords (no space before them, or followed by comma)
+      const techKeywordsPattern = /(NextJS|React|Vue|Angular|Python|Java|JavaScript|TypeScript|Node|Express|MongoDB|PostgreSQL|MySQL|Redis|Docker|Kubernetes|Django|Flask|FastAPI|Spring|Laravel|Rails|Terraform|Ansible|Git|GitHub|Jenkins|CI|CD|HTML|CSS|Sass|SCSS|TailwindCSS|Tailwind|Bootstrap|jQuery|GraphQL|REST|Webpack|Vite|Babel|ESLint|Prettier|Jest|Mocha|Cypress|Selenium|Pandas|NumPy|TensorFlow|PyTorch|Scikit|Keras|OpenCV|NLTK|Spark|Hadoop|Kafka|RabbitMQ|Nginx|Apache|Linux|Ubuntu|Debian|CentOS|Shell|Bash|PowerShell|C\+\+|C#|\.NET|Unity|Unreal|Godot|Blender|Photoshop|Illustrator|Figma|Sketch|AdobeXD|InDesign|Premiere|AfterEffects|Helm|Drizzle|Zustand|Supabase|ORM|SHAP|Gemini|API)(?:,|\s|$)/i;
       
-      for (let w = 0; w < words.length; w++) {
-        const word = words[w].replace(/,$/, ''); // Remove trailing comma
-        if (techKeywords.test(word)) {
-          nameEndIndex = w;
-          break;
-        }
-      }
+      let name = '';
+      let techPart = '';
       
-      // If we didn't find a tech keyword, look for where commas start appearing frequently
-      if (nameEndIndex === 0) {
-        for (let w = 2; w < words.length; w++) { // Start from index 2 (at least 2 words for project name)
-          if (words[w].includes(',') || (w < words.length - 1 && words[w + 1].includes(','))) {
-            nameEndIndex = w;
-            break;
+      // Strategy: Find the first concatenated tech keyword (one that appears mid-word or before comma)
+      // Examples: "SystemNextJS," or "AKSKubernetes," or "TrialVisionPython,"
+      const match = nameAndTech.match(techKeywordsPattern);
+      
+      if (match && match.index !== undefined) {
+        // Found a tech keyword - split there
+        name = nameAndTech.substring(0, match.index).trim();
+        techPart = nameAndTech.substring(match.index).trim();
+        
+        // Clean up the name: remove trailing common words that might be partial
+        // Example: "E-Commerce App Deployment on Azure AKS" - we want to keep "Azure AKS" in name
+        // But "SystemNextJS" should split at "System"
+        
+        // Check if name ends with a standalone word that's a tech term (like "Azure", "AWS", "GCP")
+        // These should stay in the name
+        const cloudProviders = /\b(Azure|AWS|GCP|Heroku|DigitalOcean|Vercel|Netlify|Firebase)\s*$/i;
+        const match2 = name.match(cloudProviders);
+        if (match2) {
+          // Check if the tech part starts with a related term (like "AKS" after "Azure")
+          const relatedTerms = {
+            'Azure': /(AKS|Functions|DevOps)/i,
+            'AWS': /(EC2|S3|Lambda|ECS|EKS)/i,
+            'GCP': /(GKE|Cloud)/i,
+          };
+          
+          const provider = match2[1];
+          const relatedPattern = relatedTerms[provider as keyof typeof relatedTerms];
+          
+          if (relatedPattern) {
+            const techMatch = techPart.match(new RegExp(`^${relatedPattern.source}`, 'i'));
+            if (techMatch) {
+              // Include the related term in the name
+              name = name + ' ' + techMatch[0].replace(/,.*$/, '');
+              techPart = techPart.substring(techMatch[0].length).replace(/^,?\s*/, '');
+            }
           }
         }
+      } else {
+        // Fallback: split at first comma
+        const firstComma = nameAndTech.indexOf(',');
+        if (firstComma > 0) {
+          name = nameAndTech.substring(0, firstComma).trim();
+          techPart = nameAndTech.substring(firstComma + 1).trim();
+        } else {
+          name = nameAndTech;
+          techPart = '';
+        }
       }
-      
-      // Fallback: if still no tech stack found, assume first 4 words are name
-      if (nameEndIndex === 0) {
-        nameEndIndex = Math.min(4, words.length - 1);
-      }
-      
-      const name = words.slice(0, nameEndIndex).join(' ');
-      const techPart = words.slice(nameEndIndex).join(' ');
       
       // Extract technologies from the tech part
       const technologies = techPart.split(/[,]+/).map((t: string) => t.trim()).filter((t: string) => 
         t && !t.includes('(') && !t.includes(')') && t.length > 1 && t.length < 50
       );
       
-      // Get description from next lines
+      // Get description from next lines (similar to experience description handling)
       let description = '';
       let j = i + 1;
       const descLines: string[] = [];
+      
       while (j < lines.length) {
         const nextLine = lines[j].trim();
-        
-        // Stop if we hit another project line (has commas and starts with capital)
         const nextClean = nextLine.replace(/^•\s*/, '');
-        const isNextProject = /^[A-Z]/.test(nextClean) && nextClean.includes(',') && (nextClean.match(/[A-Z][a-z]+/g) || []).length > 2;
+        
+        // A new project line must:
+        // 1. Have a tech keyword concatenated (no space) with project name
+        // 2. OR have pattern like "ProjectName TechName, Tech2, Tech3" (starts with uppercase word then tech)
+        // Description lines typically start with articles (A, An, The) or verbs (Built, Created, etc.)
+        
+        const startsWithArticle = /^(A|An|The)\s/.test(nextClean);
+        const startsWithVerb = /^(Built|Created|Developed|Engineered|Deployed|Designed|Implemented|Managed|Increased|Reduced|Enhanced|Optimized|Streamlined)\s/i.test(nextClean);
+        
+        if (startsWithArticle || startsWithVerb) {
+          // This is a description line, not a project title
+          const descLine = nextClean;
+          if (descLine.length > 0) {
+            descLines.push(descLine);
+          }
+          j++;
+          continue;
+        }
+        
+        // Check for actual project line: has concatenated tech or starts with project-like pattern
+        const hasConcatenatedTech = /[a-z][A-Z]/.test(nextClean); // lowercase followed by uppercase (concatenation)
+        const nextHasTech = techKeywordsPattern.test(nextClean);
+        const nextHasCommas = nextClean.split(',').length > 3; // Multiple commas indicate tech list
+        const isNextProject = hasConcatenatedTech && nextHasTech && nextHasCommas;
+        
         if (isNextProject) {
           break;
         }
         
-        const descLine = nextLine.replace(/^•\s*/, '').trim();
-        if (descLine) {
-          descLines.push(descLine);
+        const descLine = nextClean;
+        if (descLine && descLine.length > 0) {
+          // Continuation line - append with space if doesn't start with capital
+          if (descLines.length > 0 && !descLine.match(/^[A-Z]/) && !descLine.match(/^\(/)) {
+            descLines[descLines.length - 1] += ' ' + descLine;
+          } else {
+            descLines.push(descLine);
+          }
         }
         j++;
       }

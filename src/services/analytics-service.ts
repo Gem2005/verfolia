@@ -80,8 +80,6 @@ class AnalyticsService {
       if (!response.ok) {
         throw new Error(`Failed to track view: ${response.statusText}`);
       }
-
-      console.log('✅ View tracked successfully:', { resumeId });
     } catch (error) {
       console.error('❌ Error tracking view:', error);
     }
@@ -119,13 +117,6 @@ class AnalyticsService {
       if (!response.ok) {
         throw new Error(`Failed to track interaction: ${response.statusText}`);
       }
-
-      console.log('✅ Interaction tracked successfully:', {
-        resumeId,
-        interactionType,
-        targetValue,
-        sectionName
-      });
     } catch (error) {
       console.error('❌ Error tracking interaction:', error);
     }
@@ -205,8 +196,6 @@ class AnalyticsService {
       if (!response.ok) {
         throw new Error(`Failed to track creation event: ${response.statusText}`);
       }
-
-      console.log('✅ Creation event tracked successfully:', { eventType, eventData });
     } catch (error) {
       console.error('❌ Error tracking creation event:', error);
     }
@@ -280,15 +269,12 @@ class AnalyticsService {
         const error = await response.json();
         // If session already exists (duplicate key error), that's OK
         if (error.details && error.details.includes('duplicate key')) {
-          console.log('✅ Session already exists:', sessionId);
           this.sessionInitialized = true;
         } else {
           throw new Error(`Failed to initialize session: ${response.statusText}`);
         }
       } else {
-        const result = await response.json();
         this.sessionInitialized = true;
-        console.log('✅ Session initialized:', { sessionId, isFirstTime, exists: result.exists });
       }
     } catch (error) {
       console.error('❌ Error initializing session:', error);

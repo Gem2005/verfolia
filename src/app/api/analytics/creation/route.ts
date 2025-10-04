@@ -38,8 +38,6 @@ export async function POST(req: NextRequest) {
       save_error_message: save_error_message || null,
     };
 
-    console.log('📊 Inserting event:', eventData);
-
     // Insert event record
     const { error } = await supabase
       .from('resume_creation_events')
@@ -53,7 +51,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('✅ Event tracked successfully:', event_type);
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error('Creation analytics error:', err);

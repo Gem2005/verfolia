@@ -34,9 +34,6 @@ export const TrackableLink: React.FC<TrackableLinkProps> = ({
 
       analyticsService
         .trackResumeInteraction(resumeId, interactionType, href, sectionName)
-        .then(() => {
-          console.log("✅ Link interaction tracked successfully");
-        })
         .catch((err: Error) => {
           console.error("❌ Failed to track link interaction:", err);
         });

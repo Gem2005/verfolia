@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ export default function CreateResumePage() {
   const [newSkill, setNewSkill] = useState("");
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
   const [showChoice, setShowChoice] = useState(false); // Default to false
+  const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
 
   // Analytics tracking state
   const [sessionStartTime] = useState<number>(Date.now());
@@ -54,8 +55,13 @@ export default function CreateResumePage() {
   //   }
   // }, [loading, user, router]);
 
-    // Handle prefill or show choice screen logic
+  // Handle prefill or show choice screen logic
   useEffect(() => {
+    // Skip if already loaded
+    if (prefillLoadedRef.current) {
+      return;
+    }
+
     const params = new URLSearchParams(window.location.search);
     const key = params.get("prefill");
     if (key) {
@@ -63,10 +69,34 @@ export default function CreateResumePage() {
         const raw = sessionStorage.getItem(key);
         if (raw) {
           const parsed = JSON.parse(raw);
+          
+          // Validate parsed data structure
+          if (!parsed || typeof parsed !== 'object') {
+            throw new Error('Invalid prefill data structure');
+          }
+
+          // Mark as loaded before showing toasts to prevent duplicates
+          prefillLoadedRef.current = true;
+
+          // Show success toast
+          toast.success('Resume data loaded successfully!', {
+            description: 'Your resume has been imported and is ready to edit'
+          });
+
+          // Show warnings if any
+          if (parsed.warnings && Array.isArray(parsed.warnings) && parsed.warnings.length > 0) {
+            toast.warning('Some fields may need review', {
+              description: `${parsed.warnings.length} warning(s) during parsing`,
+              duration: 5000,
+            });
+          }
+
           setResumeTitle(parsed.title || "Imported Resume");
+          
           if (parsed.markdown) {
             setMarkdown(parsed.markdown);
           }
+          
           setResumeData((prev) => ({
             ...prev,
             title: parsed.title || prev.title,
@@ -82,13 +112,25 @@ export default function CreateResumePage() {
             languages: parsed.languages || prev.languages,
             customSections: parsed.customSections || prev.customSections,
           }));
+          
           setShowChoice(false); // Prefill data exists, go to builder
+          
+          // Clean up session storage after a short delay to ensure data is loaded
+          setTimeout(() => {
+            sessionStorage.removeItem(key);
+          }, 1000);
         } else {
-          alert("The uploaded resume data couldn't be found. Please try uploading again.");
+          toast.error('Resume data not found', {
+            description: 'The uploaded resume data expired. Please try uploading again.'
+          });
           router.replace('/choice');
         }
       } catch (e) {
         console.error("Failed to prefill from parsed data", e);
+        toast.error('Failed to load resume', {
+          description: e instanceof Error ? e.message : 'Please try uploading again'
+        });
+        router.replace('/choice');
       }
     } else {
       setShowChoice(true); // No prefill data, show choice

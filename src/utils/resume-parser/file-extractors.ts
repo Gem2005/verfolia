@@ -1,14 +1,8 @@
 // This file handles extracting text from different file formats
 // We support PDF, DOCX, DOC, TXT, RTF, and ODT files
 
-import * as pdfjsLib from 'pdfjs-dist';
+import PDFParser from 'pdf2json';
 import mammoth from 'mammoth';
-import Tesseract from 'tesseract.js';
-
-// Set up the PDF worker for client-side PDF parsing
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
 
 // Main function that figures out what type of file we're dealing with and extracts the text
 export async function extractTextFromFile(file: File): Promise<string> {
@@ -41,53 +35,43 @@ export async function extractTextFromFile(file: File): Promise<string> {
   }
 }
 
-// Extract text from PDF files - this handles both regular PDFs and scanned ones
+// Extract text from PDF files
 async function extractFromPDF(file: File): Promise<string> {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const buffer = Buffer.from(arrayBuffer);
     
-    let fullText = '';
-    
-    // Go through each page and extract the text
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
+    return new Promise((resolve, reject) => {
+      const pdfParser = new (PDFParser as any)(null, 1);
       
-      // Process text items with better line break detection
-      let pageText = '';
-      let lastY = -1;
-      
-      textContent.items.forEach((item: any, index: number) => {
-        const currentY = item.transform[5]; // Y coordinate
-        const str = item.str;
-        
-        // If Y position changed significantly, it's a new line
-        if (lastY !== -1 && Math.abs(currentY - lastY) > 2) {
-          pageText += '\n';
-        } else if (index > 0 && str && !str.match(/^[.,;:!?)]/) && pageText.length > 0) {
-          // Add space between words if not punctuation
-          pageText += ' ';
-        }
-        
-        pageText += str;
-        lastY = currentY;
+      pdfParser.on('pdfParser_dataError', (errData: any) => {
+        reject(new Error(errData.parserError));
       });
       
-      fullText += pageText + '\n\n';
-    }
-    
-    // If we barely got any text, the PDF might be scanned - let's try OCR
-    if (fullText.trim().length < 100) {
-      console.log('PDF appears to be scanned, attempting OCR...');
-      fullText = await performOCR(file);
-    }
-    
-    return fullText;
+      pdfParser.on('pdfParser_dataReady', () => {
+        try {
+          const rawText = (pdfParser as any).getRawTextContent();
+          
+          // Check if we got meaningful text
+          if (!rawText || rawText.trim().length < 100) {
+            reject(new Error('PDF appears to be scanned or image-based. OCR support is currently disabled.'));
+            return;
+          }
+          
+          resolve(rawText);
+        } catch (err) {
+          reject(err);
+        }
+      });
+      
+      pdfParser.parseBuffer(buffer);
+    });
   } catch (error) {
     console.error('PDF extraction error:', error);
-    // If regular extraction fails, try OCR as a backup
-    return await performOCR(file);
+    if (error instanceof Error && error.message.includes('OCR')) {
+      throw error;
+    }
+    throw new Error('Failed to extract text from PDF. The file may be corrupted or password-protected.');
   }
 }
 
@@ -149,25 +133,6 @@ async function extractFromODT(file: File): Promise<string> {
   } catch (error) {
     console.error('ODT extraction error:', error);
     throw new Error('Failed to extract text from ODT file. Try converting to PDF or DOCX.');
-  }
-}
-
-// Use OCR (Optical Character Recognition) for scanned documents or when text extraction fails
-async function performOCR(file: File): Promise<string> {
-  try {
-    console.log('Starting OCR process...');
-    const { data: { text } } = await Tesseract.recognize(file, 'eng', {
-      logger: (m) => {
-        if (m.status === 'recognizing text') {
-          console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
-        }
-      }
-    });
-    
-    return text;
-  } catch (error) {
-    console.error('OCR error:', error);
-    throw new Error('Failed to extract text using OCR');
   }
 }
 

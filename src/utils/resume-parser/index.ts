@@ -74,7 +74,7 @@ export async function parseResume(
     // Get contact information
     const personalInfo = extractContactInfo(sections.contact || normalizedText);
     
-    if (!personalInfo.fullName) {
+    if (!personalInfo.firstName && !personalInfo.lastName) {
       warnings.push('Name not found. Please add manually.');
     }
     if (!personalInfo.email) {

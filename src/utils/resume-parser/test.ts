@@ -33,7 +33,7 @@ export async function testFullParsing() {
     console.log('╚════════════════════════════════════════════════════════╝\n');
     
     console.log('📋 PERSONAL INFO:');
-    console.log('  Name:', parsed.personalInfo.fullName || '(not found)');
+    console.log('  Name:', [parsed.personalInfo.firstName, parsed.personalInfo.lastName].filter(Boolean).join(' ') || '(not found)');
     console.log('  Email:', parsed.personalInfo.email || '(not found)');
     console.log('  Phone:', parsed.personalInfo.phone || '(not found)');
     console.log('  Location:', parsed.personalInfo.location || '(not found)');
@@ -58,7 +58,11 @@ export async function testFullParsing() {
       parsed.education.forEach((edu, i) => {
         console.log(`\n  ${i + 1}. ${edu.degree} ${edu.field ? 'in ' + edu.field : ''}`);
         console.log(`     Institution: ${edu.institution}`);
-        if (edu.graduationDate) console.log(`     Graduated: ${edu.graduationDate}`);
+        if (edu.startDate || edu.endDate) {
+          console.log(`     Period: ${edu.startDate || ''} - ${edu.endDate || ''}`);
+        } else if (edu.graduationDate) {
+          console.log(`     Graduated: ${edu.graduationDate}`);
+        }
         if (edu.gpa) console.log(`     GPA: ${edu.gpa}`);
       });
     } else {
@@ -75,7 +79,16 @@ export async function testFullParsing() {
     console.log('\n🚀 PROJECTS: (' + parsed.projects.length + ' found)');
     if (parsed.projects.length > 0) {
       parsed.projects.forEach((proj, i) => {
-        console.log(`  ${i + 1}. ${proj.name}`);
+        console.log(`\n  ${i + 1}. ${proj.name}`);
+        if (proj.technologies.length > 0) {
+          console.log(`     Technologies: ${proj.technologies.join(', ')}`);
+        }
+        if (proj.description) {
+          console.log(`     Description: ${proj.description.substring(0, 150)}...`);
+        }
+        if (proj.url) {
+          console.log(`     URL: ${proj.url}`);
+        }
       });
     } else {
       console.log('  (none found)');

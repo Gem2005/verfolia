@@ -98,8 +98,6 @@ export async function POST(req: NextRequest) {
       region: location.region,
     };
 
-    console.log('📊 Creating session with data:', sessionData);
-
     const { error } = await supabase
       .from('resume_creation_sessions')
       .insert(sessionData);
@@ -107,7 +105,6 @@ export async function POST(req: NextRequest) {
     if (error) {
       // If duplicate key error, session already exists - that's OK
       if (error.code === '23505') {
-        console.log('✅ Session already exists (duplicate prevented):', session_id);
         return NextResponse.json({ success: true, exists: true }, { status: 200 });
       }
       
@@ -118,7 +115,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('✅ Session created successfully:', session_id);
     return NextResponse.json({ success: true, exists: false }, { status: 200 });
   } catch (err) {
     console.error('Session creation error:', err);

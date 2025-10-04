@@ -32,7 +32,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log('✅ Session marked as completed:', session_id);
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (err) {
     console.error('Session completion error:', err);
