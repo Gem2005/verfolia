@@ -1,23 +1,9 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef, useState } from "react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { marked } from "marked";
-
-const loadPdfJs = async () => {
-  const pdfjs: any = await import("pdfjs-dist");
-  const workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  try {
-    // @ts-ignore
-    // no-op: rely on CDN workerSrc
-  } catch {}
-  try {
-    pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
-  } catch {}
-  return pdfjs;
-};
 
 function textToMarkdown(text: string): string {
   if (!text) return "";
@@ -37,57 +23,52 @@ function textToMarkdown(text: string): string {
 }
 
 export default function GoogleMarkdownEditor() {
-  const { data: session } = useSession();
-  const isAuthenticated = !!session?.user;
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [session, setSession] = useState<any>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      setSession(session);
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  const handleSignIn = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
   const [markdown, setMarkdown] = useState<string>(
     `# Welcome!\n\nSign in and upload a PDF resume to auto-fill.\n\n## Education\n- Degree — School (Dates)\n\n## Experience\n- Title — Company (Dates)\n  - Achievement bullet\n\n## Skills\n- JavaScript\n- React\n- Next.js\n`
   );
-  const [isParsing, setIsParsing] = useState(false);
 
   const html = useMemo(() => {
     marked.setOptions({ breaks: true, gfm: true });
     return marked.parse(markdown || "");
   }, [markdown]);
 
-  const onChooseFile = () => fileInputRef.current?.click();
-
-  const parsePdfToText = useCallback(async (file: File): Promise<string> => {
-    const pdfjs: any = await loadPdfJs();
-    const data = await file.arrayBuffer();
-    const doc = await pdfjs.getDocument({ data }).promise;
-    let full = "";
-    for (let i = 1; i <= doc.numPages; i++) {
-      const page = await doc.getPage(i);
-      const textContent = await page.getTextContent();
-      const strings = textContent.items.map((it: any) => it.str).join(" ");
-      full += strings + "\n\n";
-    }
-    return full.trim();
-  }, []);
-
-  const onFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    const file = files[0];
-    if (!file.name.toLowerCase().endsWith(".pdf")) {
-      alert("Please upload a PDF file.");
-      return;
-    }
-    setIsParsing(true);
-    try {
-      const text = await parsePdfToText(file);
-      const md = textToMarkdown(text);
-      setMarkdown(md || text || markdown);
-    } catch (err) {
-      console.error("PDF parse error:", err);
-      alert("Failed to parse PDF. Please try another file.");
-    } finally {
-      setIsParsing(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
+  const onChooseFile = () => {
+    // Redirect to proper upload flow instead
+    window.location.href = '/upload-resume';
   };
 
   return (
@@ -111,21 +92,20 @@ export default function GoogleMarkdownEditor() {
                 >
                   Upload PDF
                 </button>
-                <input ref={fileInputRef} type="file" accept="application/pdf,.pdf" onChange={onFileSelected} className="hidden" />
                 <div className="h-8 w-8 rounded-full overflow-hidden border border-white/20">
-                  {session?.user?.image ? (
-                    <Image src={session.user.image} alt="profile" width={32} height={32} />
+                  {session?.user?.user_metadata?.avatar_url ? (
+                    <Image src={session.user.user_metadata.avatar_url} alt="profile" width={32} height={32} />
                   ) : (
                     <div className="h-full w-full bg-white/10" />
                   )}
                 </div>
-                <span className="hidden sm:inline text-white/80 text-sm">{session?.user?.name || "User"}</span>
+                <span className="hidden sm:inline text-white/80 text-sm">{session?.user?.user_metadata?.full_name || session?.user?.email || "User"}</span>
               </>
             )}
 
             {!isAuthenticated ? (
               <button
-                onClick={() => signIn("google")}
+                onClick={handleSignIn}
                 className="px-4 py-2 rounded-xl border border-[#E6E6FA33] text-white hover:text-[#E6E6FA] hover:border-[#E6E6FA66]"
                 style={{ backdropFilter: "blur(12px)", background: "rgba(255,255,255,0.06)" }}
               >
@@ -133,7 +113,7 @@ export default function GoogleMarkdownEditor() {
               </button>
             ) : (
               <button
-                onClick={() => signOut()}
+                onClick={handleSignOut}
                 className="px-4 py-2 rounded-xl text-[#0B0F15] font-medium"
                 style={{ background: "#E6E6FA" }}
               >
@@ -153,7 +133,7 @@ export default function GoogleMarkdownEditor() {
             <h1 className="text-2xl font-bold text-white mb-2">Welcome</h1>
             <p className="text-white/70 mb-6">Sign in to upload a PDF resume and edit it as Markdown.</p>
             <button
-              onClick={() => signIn("google")}
+              onClick={handleSignIn}
               className="px-5 py-3 rounded-xl border border-[#E6E6FA33] text-white hover:text-[#E6E6FA] hover:border-[#E6E6FA66]"
               style={{ backdropFilter: "blur(12px)", background: "rgba(255,255,255,0.06)" }}
             >
@@ -170,7 +150,6 @@ export default function GoogleMarkdownEditor() {
               >
                 Upload PDF
               </button>
-              <input ref={fileInputRef} type="file" accept="application/pdf,.pdf" onChange={onFileSelected} className="hidden" />
             </div>
 
             <div className="sm:hidden mb-3 flex gap-2">
@@ -197,7 +176,6 @@ export default function GoogleMarkdownEditor() {
               >
                 <div className="px-4 py-2 text-white/70 border-b border-white/10 flex items-center justify-between">
                   <span>Markdown</span>
-                  {isParsing && <span className="text-xs">Parsing PDF…</span>}
                 </div>
                 <textarea
                   value={markdown}

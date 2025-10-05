@@ -1,6 +1,7 @@
 "use client";
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Users, BarChart3 } from "lucide-react";
@@ -8,10 +9,30 @@ import { ArrowRight, Sparkles, Users, BarChart3 } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 const LandingPage = () => {
-  const sessionResult: any = useSession && typeof useSession === 'function' ? useSession() : undefined;
-  const session = sessionResult?.data;
-  const status = sessionResult?.status;
-  const isAuthenticated = status === "authenticated" && !!session;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    checkAuth();
+  }, [supabase]);
+
+  const handleSignIn = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setIsAuthenticated(false);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
@@ -31,7 +52,7 @@ const LandingPage = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {!isAuthenticated ? (
               <Button 
-                onClick={() => signIn("google")} 
+                onClick={handleSignIn}
                 size="lg" 
                 className="button-enhanced text-lg px-8 py-6 h-auto"
               >
@@ -39,7 +60,7 @@ const LandingPage = () => {
                 Sign in with Google
               </Button>
           ) : (
-            <Button onClick={() => signOut()} variant="secondary" size="lg">
+            <Button onClick={handleSignOut} variant="secondary" size="lg">
               Sign out
             </Button>
           )}
