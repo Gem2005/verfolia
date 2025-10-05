@@ -94,8 +94,7 @@ export default function GoogleMarkdownEditor() {
     <div className="min-h-screen bg-noise relative">
       <header className="fixed top-0 inset-x-0 z-50">
         <div
-          className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between rounded-b-2xl border border-white/15"
-          style={{ backdropFilter: "blur(20px)", background: "rgba(255,255,255,0.06)" }}
+          className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between rounded-b-2xl border border-border/15 bg-background/50 backdrop-blur-lg"
         >
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-lg border border-white/20 flex items-center justify-center text-white/80">MD</div>

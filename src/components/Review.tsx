@@ -101,7 +101,7 @@ export const ReviewsSection = () => {
           <div className="flex -ml-4">
             {reviews.map((review) => (
               <div key={review.id} className="flex-shrink-0 w-full md:w-1/2 lg:w-1/3 pl-4">
-                <Card className="h-full bg-card/50 backdrop-blur-lg border-border/50 shadow-lg flex flex-col">
+                <Card className="card-enhanced h-full bg-card/50 backdrop-blur-lg border-border/50 shadow-lg flex flex-col">
                   <CardContent className="p-6 flex flex-col flex-grow">
                     <div className="flex items-center mb-4">
                       <Avatar className="w-12 h-12 mr-4 border-2 border-primary/20">

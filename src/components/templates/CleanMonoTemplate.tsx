@@ -164,39 +164,39 @@ export function CleanMonoTemplate({
     switch (theme) {
       case "dark-gray":
         return {
-          bg: "bg-gray-800",
-          text: "text-gray-100",
-          accent: "text-gray-300",
+          bg: "bg-gray-900",
+          text: "text-white",
+          accent: "text-blue-400",
           border: "border-gray-600",
-          cardBg: "bg-gray-700",
+          cardBg: "bg-gray-800",
           cardBorder: "border-gray-600",
           sectionBorder: "border-gray-600",
-          buttonHover: "hover:bg-gray-600",
-          badgeHover: "hover:bg-gray-600",
+          buttonHover: "hover:bg-blue-600",
+          badgeHover: "hover:bg-blue-600",
         };
       case "navy-blue":
         return {
-          bg: "bg-blue-900",
-          text: "text-blue-100",
-          accent: "text-blue-300",
-          border: "border-blue-600",
-          cardBg: "bg-blue-800",
-          cardBorder: "border-blue-600",
-          sectionBorder: "border-blue-600",
-          buttonHover: "hover:bg-blue-700",
-          badgeHover: "hover:bg-blue-700",
+          bg: "bg-slate-900",
+          text: "text-white",
+          accent: "text-cyan-400",
+          border: "border-blue-500",
+          cardBg: "bg-blue-900",
+          cardBorder: "border-blue-500",
+          sectionBorder: "border-blue-500",
+          buttonHover: "hover:bg-cyan-600",
+          badgeHover: "hover:bg-cyan-600",
         };
       case "professional":
         return {
-          bg: "bg-gray-700",
-          text: "text-gray-100",
-          accent: "text-gray-300",
-          border: "border-gray-500",
-          cardBg: "bg-gray-600",
-          cardBorder: "border-gray-500",
-          sectionBorder: "border-gray-500",
-          buttonHover: "hover:bg-gray-500",
-          badgeHover: "hover:bg-gray-500",
+          bg: "bg-slate-800",
+          text: "text-white",
+          accent: "text-emerald-400",
+          border: "border-slate-600",
+          cardBg: "bg-slate-700",
+          cardBorder: "border-slate-600",
+          sectionBorder: "border-slate-600",
+          buttonHover: "hover:bg-emerald-600",
+          badgeHover: "hover:bg-emerald-600",
         };
       case "black":
         return {
@@ -213,26 +213,26 @@ export function CleanMonoTemplate({
       case "white":
         return {
           bg: "bg-white",
-          text: "text-gray-900",
-          accent: "text-gray-600",
-          border: "border-gray-300",
-          cardBg: "bg-gray-50",
-          cardBorder: "border-gray-200",
-          sectionBorder: "border-gray-300",
-          buttonHover: "hover:bg-gray-100",
-          badgeHover: "hover:bg-gray-100",
+          text: "text-black",
+          accent: "text-blue-700",
+          border: "border-gray-400",
+          cardBg: "bg-gray-100",
+          cardBorder: "border-gray-400",
+          sectionBorder: "border-gray-400",
+          buttonHover: "hover:bg-blue-700",
+          badgeHover: "hover:bg-blue-700",
         };
       default: // light theme fallback
         return {
           bg: "bg-gray-50",
           text: "text-gray-900",
-          accent: "text-gray-600",
+          accent: "text-blue-600",
           border: "border-gray-300",
           cardBg: "bg-white",
-          cardBorder: "border-gray-200",
+          cardBorder: "border-gray-300",
           sectionBorder: "border-gray-300",
-          buttonHover: "hover:bg-gray-100",
-          badgeHover: "hover:bg-gray-100",
+          buttonHover: "hover:bg-blue-600",
+          badgeHover: "hover:bg-blue-600",
         };
     }
   };
@@ -307,9 +307,13 @@ export function CleanMonoTemplate({
   // Use the existing formatDescription utility for better formatting
 
   return (
-    <div
-      className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} font-mono`}
-    >
+    <div className={`theme-${theme}`}>
+      <div
+        className={`min-h-screen ${themeClasses.bg} font-mono`}
+        style={{
+          color: theme === "white" ? "#000000" : undefined,
+        }}
+      >
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         {/* Header */}
         <SectionViewTracker resumeId={resumeId || ""} sectionName="header">
@@ -332,7 +336,10 @@ export function CleanMonoTemplate({
                 )}
                 <div>
                   <h1
-                    className={`text-2xl sm:text-3xl lg:text-4xl font-bold ${themeClasses.text} mb-2 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
+                    className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
+                    style={{
+                      color: theme === "white" ? "#000000" : undefined,
+                    }}
                     onClick={() =>
                       trackInteraction(
                         "name_click",
@@ -346,7 +353,10 @@ export function CleanMonoTemplate({
                     {portfolioData.personalInfo.lastName}
                   </h1>
                   <p
-                    className={`text-lg sm:text-xl ${themeClasses.accent} font-medium cursor-pointer hover:text-blue-400 transition-colors duration-200`}
+                    className={`text-lg sm:text-xl font-medium cursor-pointer hover:text-blue-400 transition-colors duration-200`}
+                    style={{
+                      color: theme === "white" ? "#1d4ed8" : undefined,
+                    }}
                     onClick={() =>
                       trackInteraction(
                         "title_click",
@@ -449,7 +459,12 @@ export function CleanMonoTemplate({
                 }
                 data-trackable="about-section"
               >
-                <p className={`${themeClasses.text} leading-relaxed text-base`}>
+                <p
+                  className="leading-relaxed text-base"
+                  style={{
+                    color: theme === "white" ? "#000000" : undefined,
+                  }}
+                >
                   {portfolioData.personalInfo.about}
                 </p>
               </div>
@@ -1053,6 +1068,7 @@ export function CleanMonoTemplate({
           </p>
         </footer>
       </div>
+    </div>
     </div>
   );
 }

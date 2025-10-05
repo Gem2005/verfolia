@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
 import { createClient } from "@/utils/supabase/server";
 
 export async function login(formData: FormData) {
@@ -23,7 +22,11 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/");
+  
+  // Get returnTo parameter and redirect properly
+  const returnTo = formData.get("returnTo") as string;
+  console.log("Redirecting to:", returnTo || "/dashboard");
+  redirect(returnTo || "/dashboard");
 }
 
 export async function signup(formData: FormData) {

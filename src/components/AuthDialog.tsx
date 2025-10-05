@@ -133,7 +133,7 @@ const AuthDialog = ({
           {buttonText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md p-8">
+      <DialogContent className="card-enhanced max-w-md p-8">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold verfolia-text-gradient">
             Welcome to Verfolia
@@ -147,7 +147,7 @@ const AuthDialog = ({
         <div className="space-y-4 pt-4">
           <Button
             variant="outline"
-            className="w-full"
+            className="button-enhanced w-full"
             onClick={handleGoogleAuth}
             disabled={isLoading}
           >
@@ -187,6 +187,7 @@ const AuthDialog = ({
                       id="signin-email"
                       type="email"
                       placeholder="m@example.com"
+                      className="input-enhanced"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -197,12 +198,13 @@ const AuthDialog = ({
                     <Input
                       id="signin-password"
                       type="password"
+                      className="input-enhanced"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="button-enhanced w-full" disabled={isLoading}>
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
@@ -224,6 +226,7 @@ const AuthDialog = ({
                       id="signup-email"
                       type="email"
                       placeholder="m@example.com"
+                      className="input-enhanced"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -235,6 +238,7 @@ const AuthDialog = ({
                       id="signup-password"
                       type="password"
                       placeholder="••••••••"
+                      className="input-enhanced"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
@@ -246,12 +250,13 @@ const AuthDialog = ({
                       id="confirm-password"
                       type="password"
                       placeholder="••••••••"
+                      className="input-enhanced"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="button-enhanced w-full" disabled={isLoading}>
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}

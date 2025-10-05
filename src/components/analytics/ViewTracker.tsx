@@ -16,9 +16,7 @@ export const ViewTracker: React.FC<ViewTrackerProps> = ({ resumeId }) => {
       setIsTracking(true);
 
       try {
-        console.log("🔍 Tracking view for resume:", resumeId);
         await resumeService.trackResumeView(resumeId);
-        console.log("✅ View tracked successfully");
       } catch (error) {
         console.error("❌ Error tracking view:", error);
       }

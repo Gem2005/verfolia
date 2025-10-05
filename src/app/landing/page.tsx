@@ -1,6 +1,10 @@
 "use client";
 
 import { useSession, signIn, signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowRight, Sparkles, Users, BarChart3 } from "lucide-react";
+
 export const dynamic = "force-dynamic";
 
 const LandingPage = () => {
@@ -10,91 +14,46 @@ const LandingPage = () => {
   const isAuthenticated = status === "authenticated" && !!session;
 
   return (
-    <div>
-      <style>{`
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: #fff;
-      text-align: center;
-    }
-
-    .hero {
-      padding: 100px 20px;
-    }
-
-    h1 {
-      font-size: 3rem;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-
-    p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: 0 auto 30px;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 12px 24px;
-      margin: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .btn-dark {
-      background: #111;
-      color: #fff;
-      border: 1px solid #333;
-    }
-
-    .btn-dark:hover {
-      background: #222;
-    }
-
-    .btn-blue {
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
-      color: #fff;
-      border: none;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .btn-blue:hover {
-      opacity: 0.9;
-    }
-
-    #upload-section { display: none; }
-    #upload-section.show { display: block; }
-      `}</style>
-      <div className="hero">
-        <h1>
+    <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+      <div className="hero py-24">
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
           Build smarter.
           <br />
-          Apply faster.
+          <span className="verfolia-text-gradient">Apply faster.</span>
           <br />
           Track everything.
         </h1>
-        <p>
+        <p className="text-xl md:text-2xl max-w-3xl mx-auto mb-12 text-muted-foreground leading-relaxed">
           Verfolia is on a mission to bring transparency to your career. Build your profile, share your link, 
           and track who’s engaging with your story.
         </p>
 
-        {!isAuthenticated ? (
-          <button className="btn btn-dark" onClick={() => signIn("google")}>Sign in with Google</button>
-        ) : (
-          <button className="btn btn-dark" onClick={() => signOut()}>Sign out</button>
-        )}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          {!isAuthenticated ? (
+              <Button 
+                onClick={() => signIn("google")} 
+                size="lg" 
+                className="button-enhanced text-lg px-8 py-6 h-auto"
+              >
+                <Users className="w-5 h-5 mr-2" />
+                Sign in with Google
+              </Button>
+          ) : (
+            <Button onClick={() => signOut()} variant="secondary" size="lg">
+              Sign out
+            </Button>
+          )}
 
-        <div id="upload-section" className={isAuthenticated ? "show" : ""}>
-          <button className="btn btn-dark" onClick={() => (window.location.href = "/create-resume")}>🚀 Get Started Free</button>
-          <a href="/upload-resume" className="btn btn-blue">📄 Upload PDF</a>
-          <input type="file" id="pdf-upload" accept="application/pdf" hidden />
+          {isAuthenticated && (
+            <>
+              <Button asChild size="lg">
+                <Link href="/create-resume">🚀 Get Started Free</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/upload-resume">📄 Upload PDF</Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

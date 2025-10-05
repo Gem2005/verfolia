@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -26,13 +26,13 @@ import { ProfileHeader } from "@/components/layout/ProfileHeader";
 import "./print.css";
 
 interface PublicResumePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export default function PublicResumePage({ params }: PublicResumePageProps) {
-  const { slug } = params;
+  const { slug } = React.use(params);
   const [resume, setResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth(); // Get the currently logged-in user

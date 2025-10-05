@@ -2,26 +2,30 @@ import { Plus_Jakarta_Sans, Lora, Roboto_Mono } from "next/font/google";
 
 /**
  * Google Fonts configuration using Next.js optimization
+ * Reduced weight variants for faster loading
  */
 export const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"], // Reduced from 7 to 4 weights
   variable: "--font-sans",
   display: "swap",
+  preload: true,
 });
 
 export const lora = Lora({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"], // Reduced from 4 to 3 weights
   variable: "--font-serif",
   display: "swap",
+  preload: false, // Lazy load serif font
 });
 
 export const robotoMono = Roboto_Mono({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"], // Reduced from 5 to 3 weights
   variable: "--font-mono",
   display: "swap",
+  preload: false, // Lazy load mono font
 });
 
 /**

@@ -63,7 +63,7 @@ export const FeaturesSection = () => {
           {features.map((feature, index) => (
             <Card 
               key={feature.title}
-              className="verfolia-animate-slide-up text-center p-8 group overflow-hidden"
+              className="card-enhanced verfolia-animate-slide-up text-center p-8 group overflow-hidden"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
               <CardContent className="p-0">
@@ -87,7 +87,7 @@ export const FeaturesSection = () => {
           {additionalFeatures.map((feature, index) => (
             <Card
               key={feature.title}
-              className="verfolia-animate-slide-up text-center p-6 group"
+              className="card-enhanced verfolia-animate-slide-up text-center p-6 group"
               style={{ animationDelay: `${(index + 3) * 0.2}s` }}
             >
               <CardContent className="p-0 flex flex-col items-center">

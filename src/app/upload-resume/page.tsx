@@ -1,311 +1,182 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Upload, FileText, ArrowLeft } from "lucide-react";
-import "../create-resume/glassmorphism.css";
-import { parseResumeFromPdf } from "@/utils/pdf-parser";
-import { extractPdfText } from "@/utils/pdf-parser";
-import { ocrExtractTextFromPdf } from "@/utils/pdf-parser";
-import { useRef } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Upload, FileText, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
 
 export const dynamic = "force-dynamic";
+
+type UploadStatus = 'idle' | 'uploading' | 'parsing' | 'success' | 'error';
 
 export default function UploadResumePage() {
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
+  const [progress, setProgress] = useState(0);
+  const [fileName, setFileName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileUpload = async (file: File) => {
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a PDF file');
-      return;
-    }
-    // Optional size guard (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File too large. Please upload a PDF ≤ 10MB.');
+    // Validation
+    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type', {
+        description: 'Please upload a PDF, DOCX, or TXT file'
+      });
       return;
     }
 
-    setIsProcessing(true);
-    
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      toast.error('File too large', {
+        description: 'Please upload a file smaller than 10MB'
+      });
+      return;
+    }
+
+    setFileName(file.name);
+    setUploadStatus('uploading');
+    setProgress(10);
+
     try {
-      // Prefer server parsing to preserve formatting and section order
-      try {
-        const form = new FormData();
-        form.append('file', file);
-        const resp = await fetch('/api/parse-resume', { method: 'POST', body: form });
-        const data = await resp.json().catch(() => null);
-        if (resp.ok && data) {
-          const server = data?.parsed_resume;
-          const rawText = data?.rawText as string | undefined;
-          const markdownFromServer = data?.editor_markdown as string | undefined;
-          const savedFilename = server?.filename as string | undefined;
-          const errorReport: string[] = Array.isArray(data?.error_report) ? data.error_report : [];
-          const toMarkdown = (text: string | undefined) => {
-            if (!text) return '';
-            return text
-              .split(/\r?\n/)
-              .map((line) => {
-                const trimmed = line.trim();
-                if (/^(SUMMARY|EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|LANGUAGES|PROFILE|OBJECTIVE)\b/i.test(trimmed)) {
-                  return `## ${trimmed}`;
-                }
-                if (/^[•\-*]\s+/.test(trimmed)) {
-                  return trimmed.replace(/^[•\-*]\s+/, '- ');
-                }
-                return trimmed;
-              })
-              .join('\n');
-          };
-          const markdown = markdownFromServer || toMarkdown(rawText);
-          // If server indicates image-only / OCR needed, show guidance and stop early
-          if (!rawText && errorReport.includes('image-only — OCR needed')) {
-            // Try OCR automatically on client
-            try {
-              const ocrText = await ocrExtractTextFromPdf(file, 'eng');
-              if (ocrText && ocrText.trim().length > 20) {
-                const markdown = toMarkdown(ocrText);
-                const prefillFromOcr = {
-                  title: `Resume from ${file.name}`,
-                  personalInfo: { firstName: "", lastName: "", email: "", phone: "", location: "", summary: "", title: "", photo: "", linkedinUrl: "", githubUrl: "" },
-                  skills: [], experience: [], education: [], projects: [], certifications: [], languages: [], customSections: [],
-                  rawText: ocrText,
-                  markdown,
-                  originalFileSavedAs: savedFilename || '',
-                };
-                const sessionKey = `resume_upload_${Date.now()}`;
-                sessionStorage.setItem(sessionKey, JSON.stringify(prefillFromOcr));
-                router.push(`/create-resume?prefill=${sessionKey}`);
-                return;
-              }
-            } catch (ocrErr) {
-              console.warn('Client OCR failed:', ocrErr);
-            }
-            alert('This PDF appears to be image-only. Please run OCR (e.g., with ocrmypdf at ≥300 DPI) or upload a text-based PDF.');
-            return;
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
           }
-          const prefillFromServer = {
-            title: `Resume from ${file.name}`,
-            personalInfo: {
-              firstName: '',
-              lastName: '',
-              email: server?.email?.value || "",
-              phone: server?.phone?.value || "",
-              location: server?.address?.value || "",
-              summary: server?.summary?.value || "",
-              title: '',
-              photo: "",
-              linkedinUrl: server?.linkedin?.value || "",
-              githubUrl: server?.github?.value || "",
-            },
-            skills: (server?.skills || []).map((s: any) => (typeof s === 'string' ? s : (s?.value ?? '') )).filter(Boolean),
-            experience: (server?.experience || []).map((e: any) => ({
-              id: crypto.randomUUID(),
-              company: e.organization || "",
-              position: e.title || "",
-              startDate: e.start_date || "",
-              endDate: e.end_date || "",
-              isPresent: !!e.is_present,
-              description: Array.isArray(e.description) ? e.description.join('\n') : (e.description || ""),
-            })),
-            education: (server?.education || []).map((ed: any) => ({
-              id: crypto.randomUUID(),
-              institution: ed.school || "",
-              degree: ed.degree || "",
-              field: ed.field || "",
-              startDate: ed.start_date || "",
-              endDate: ed.end_date || "",
-              gpa: ed.gpa || "",
-            })),
-            projects: (server?.projects || []).map((p: any) => ({
-              id: crypto.randomUUID(),
-              name: p.title || p.name || "",
-              description: Array.isArray(p.description) ? p.description.join('\n') : (p.description || ""),
-              techStack: Array.isArray(p.tech_stack) ? p.tech_stack : [],
-              sourceUrl: p.source || "",
-              demoUrl: p.demo || "",
-            })),
-            certifications: server?.certifications || [],
-            languages: server?.languages || [],
-            customSections: [],
-            rawText: rawText || "",
-            markdown,
-            originalFileSavedAs: savedFilename || '',
-            parsed_resume: server,
-          };
-          const sessionKey = `resume_upload_${Date.now()}`;
-          sessionStorage.setItem(sessionKey, JSON.stringify(prefillFromServer));
-          // Save local copy of original file
-          try {
-            const blobUrl = URL.createObjectURL(file);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = `copy-${Date.now()}-${file.name}`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
-          } catch {}
-          router.push(`/create-resume?prefill=${sessionKey}`);
-          return;
-        } else if (data && Array.isArray(data.error_report) && data.error_report.length) {
-          // If specifically image-only, surface guidance and stop. Otherwise, fall back to client parsing below.
-          if (data.error_report.includes('image-only — OCR needed')) {
-            alert('This PDF appears to be image-only. Please run OCR (e.g., with ocrmypdf at ≥300 DPI) or upload a text-based PDF.');
-            return;
-          }
-          // parse-exception or other errors: continue to client fallback
-        } else if (!resp.ok) {
-          // Server failed; continue to client fallback
-        }
-      } catch (serverErr) {
-        console.warn('Server parse failed, falling back to client:', serverErr);
+          return prev + 10;
+        });
+      }, 200);
+
+      // Upload and parse
+      const formData = new FormData();
+      formData.append('file', file);
+
+      setUploadStatus('parsing');
+      setProgress(50);
+
+      const response = await fetch('/api/parse-resume', {
+        method: 'POST',
+        body: formData,
+      });
+
+      clearInterval(progressInterval);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || 'Failed to parse resume');
       }
 
-      const parsed = await parseResumeFromPdf(file);
+      const data = await response.json();
 
-      const toMarkdown = (text: string | undefined) => {
-        if (!text) return '';
-        return text
-          .split(/\r?\n/)
-          .map((line) => {
-            const trimmed = line.trim();
-            if (/^(SUMMARY|EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|LANGUAGES|PROFILE|OBJECTIVE)\b/i.test(trimmed)) {
-              return `## ${trimmed}`;
-            }
-            if (/^[•\-*]\s+/.test(trimmed)) {
-              return trimmed.replace(/^[•\-*]\s+/, '- ');
-            }
-            return trimmed;
-          })
-          .join('\n');
-      };
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to parse resume');
+      }
 
-      const prefill = {
+      setProgress(100);
+      setUploadStatus('success');
+
+      // Show success toast
+      toast.success('Resume parsed successfully!', {
+        description: 'Redirecting to editor...'
+      });
+
+      // Transform API response to prefill format
+      const parsedResume = data.data.parsed_resume;
+      const warnings = data.data.warnings || [];
+
+      // Show warnings if any
+      if (warnings.length > 0) {
+        toast.warning('Parsing completed with warnings', {
+          description: warnings.slice(0, 2).join(', ') + (warnings.length > 2 ? '...' : '')
+        });
+      }
+
+      const prefillData = {
         title: `Resume from ${file.name}`,
         personalInfo: {
-          // Split fullName into first/last if needed
-          ...((() => {
-            const pi: any = parsed?.personalInfo || {};
-            const full = (pi.fullName || "").trim();
-            const parts = full ? full.split(/\s+/) : [];
-            const first = parts.length ? parts[0] : (pi.firstName || "");
-            const last = parts.length > 1 ? parts.slice(1).join(" ") : (pi.lastName || "");
-            return { firstName: first, lastName: last };
-          })()),
-          email: (parsed as any)?.personalInfo?.email || "",
-          phone: (parsed as any)?.personalInfo?.phone || "",
-          location: (parsed as any)?.personalInfo?.location || "",
-          summary: (parsed as any)?.personalInfo?.summary || (parsed as any)?.personalInfo?.headline || "",
-          title: (parsed as any)?.personalInfo?.title || "",
-          photo: "",
-          linkedinUrl: (parsed as any)?.personalInfo?.linkedinUrl || (parsed as any)?.personalInfo?.links?.[0] || "",
-          githubUrl: (parsed as any)?.personalInfo?.githubUrl || "",
+          firstName: parsedResume.personal_info?.first_name || '',
+          lastName: parsedResume.personal_info?.last_name || '',
+          email: parsedResume.personal_info?.email || '',
+          phone: parsedResume.personal_info?.phone || '',
+          location: parsedResume.personal_info?.location || '',
+          summary: parsedResume.summary || '',
+          title: '',
+          photo: '',
+          linkedinUrl: parsedResume.personal_info?.linkedin || '',
+          githubUrl: parsedResume.personal_info?.github || '',
         },
-        skills: (parsed as any)?.skills || [],
-        experience: (parsed as any)?.experience?.map((e: any) => ({
+        skills: (parsedResume.skills || []).map((s: any) => 
+          typeof s === 'string' ? s : s.name || ''
+        ).filter(Boolean),
+        experience: (parsedResume.experience || []).map((e: any) => ({
           id: crypto.randomUUID(),
-          company: e.company || "",
-          position: e.position || e.role || "",
-          startDate: e.startDate || "",
-          endDate: e.endDate || "",
-          isPresent: !!e.isPresent,
-          description: e.description || "",
-        })) || [],
-        education: (parsed as any)?.education?.map((ed: any) => ({
+          company: e.company || '',
+          position: e.position || '',
+          startDate: e.start_date || '',
+          endDate: e.end_date || '',
+          isPresent: e.current || false,
+          description: e.description || '',
+        })),
+        education: (parsedResume.education || []).map((ed: any) => ({
           id: crypto.randomUUID(),
-          institution: ed.institution || "",
-          degree: ed.degree || "",
-          field: ed.field || "",
-          startDate: ed.startDate || "",
-          endDate: ed.endDate || "",
-          gpa: ed.gpa || ed.grade || "",
-        })) || [],
-        projects: [],
-        certifications: [],
-        languages: [],
+          institution: ed.institution || '',
+          degree: ed.degree || '',
+          field: ed.field || '',
+          startDate: ed.start_date || '',
+          endDate: ed.graduation_date || '',
+          gpa: ed.gpa || '',
+        })),
+        projects: (parsedResume.projects || []).map((p: any) => ({
+          id: crypto.randomUUID(),
+          name: p.name || '',
+          description: p.description || '',
+          techStack: p.technologies || [],
+          sourceUrl: p.url || '',
+          demoUrl: '',
+        })),
+        certifications: (parsedResume.certifications || []).map((c: any) => ({
+          id: crypto.randomUUID(),
+          name: c.name || '',
+          issuer: c.issuer || '',
+          date: c.date || '',
+          credentialId: c.credential_id || '',
+        })),
+        languages: (parsedResume.languages || []).map((l: any) => ({
+          id: crypto.randomUUID(),
+          name: l.name || '',
+          proficiency: l.proficiency || '',
+        })),
         customSections: [],
-        rawText: (parsed as any)?.text,
-        markdown: toMarkdown((parsed as any)?.text),
+        rawText: data.data.editor_markdown || '',
+        markdown: data.data.editor_markdown || '',
+        originalFilename: file.name,
+        warnings: warnings,
       };
 
+      // Store in session storage
       const sessionKey = `resume_upload_${Date.now()}`;
-      sessionStorage.setItem(sessionKey, JSON.stringify(prefill));
-      // Save local copy of original file
-      try {
-        const blobUrl = URL.createObjectURL(file);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = `copy-${Date.now()}-${file.name}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-      } catch {}
-      router.push(`/create-resume?prefill=${sessionKey}`);
-    } catch (error) {
-      console.error('Structured parse failed, attempting raw text fallback:', error);
-      try {
-        let rawText = await extractPdfText(file);
-        if (!rawText || rawText.trim().length < 10) {
-          try {
-            rawText = await ocrExtractTextFromPdf(file, 'eng');
-          } catch {}
-        }
-        const toMarkdown = (text: string | undefined) => {
-          if (!text) return '';
-          return text
-            .split(/\r?\n/)
-            .map((line) => {
-              const trimmed = line.trim();
-              if (/^(SUMMARY|EXPERIENCE|EDUCATION|SKILLS|PROJECTS|CERTIFICATIONS|LANGUAGES|PROFILE|OBJECTIVE)\b/i.test(trimmed)) {
-                return `## ${trimmed}`;
-              }
-              if (/^[•\-*]\s+/.test(trimmed)) {
-                return trimmed.replace(/^[•\-*]\s+/, '- ');
-              }
-              return trimmed;
-            })
-            .join('\n');
-        };
-        const markdown = toMarkdown(rawText);
-        const fallbackPrefill = {
-          title: `Resume from ${file.name}`,
-          personalInfo: { firstName: "", lastName: "", email: "", phone: "", location: "", summary: "", title: "", photo: "", linkedinUrl: "", githubUrl: "" },
-          skills: [],
-          experience: [],
-          education: [],
-          projects: [],
-          certifications: [],
-          languages: [],
-          customSections: [],
-          rawText,
-          markdown,
-        };
-        const sessionKey = `resume_upload_${Date.now()}`;
-        sessionStorage.setItem(sessionKey, JSON.stringify(fallbackPrefill));
-        // Save local copy of original file
-        try {
-          const blobUrl = URL.createObjectURL(file);
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = `copy-${Date.now()}-${file.name}`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(blobUrl);
-        } catch {}
+      sessionStorage.setItem(sessionKey, JSON.stringify(prefillData));
+
+      // Redirect after a short delay for better UX
+      setTimeout(() => {
         router.push(`/create-resume?prefill=${sessionKey}`);
-      } catch (fallbackErr) {
-        console.error('Raw text fallback also failed:', fallbackErr);
-        alert('Could not process this PDF. If it is image-only, please run OCR and try again.');
-      }
-    } finally {
-      setIsProcessing(false);
+      }, 500);
+
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setUploadStatus('error');
+      setProgress(0);
+      
+      toast.error('Failed to parse resume', {
+        description: error instanceof Error ? error.message : 'Please try again or contact support'
+      });
     }
   };
 
@@ -336,27 +207,35 @@ export default function UploadResumePage() {
             variant="outline" 
             onClick={() => router.back()}
             className="mb-4 glass-button"
+            disabled={uploadStatus === 'uploading' || uploadStatus === 'parsing'}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
           <h1 className="text-3xl font-bold mb-2 text-glass-white">Upload Your Resume</h1>
           <p className="text-glass-gray">
-            Upload your existing PDF resume and we'll help you create a modern, shareable profile.
+            Upload your existing resume and we'll help you create a modern, shareable profile.
           </p>
         </div>
 
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-glass-white">Upload PDF Resume</CardTitle>
+            <CardTitle className="text-glass-white">Upload Resume</CardTitle>
+            <CardDescription className="text-glass-gray">
+              Supports PDF, DOCX, and TXT files up to 10MB
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div
               className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                 isDragging 
                   ? 'border-glass-blue/70 bg-white/10' 
+                  : uploadStatus === 'error'
+                  ? 'border-red-500/50 bg-red-500/5'
+                  : uploadStatus === 'success'
+                  ? 'border-green-500/50 bg-green-500/5'
                   : 'border-white/20 hover:border-glass-blue/50'
-              }`}
+              } ${(uploadStatus === 'uploading' || uploadStatus === 'parsing') ? 'pointer-events-none' : ''}`}
               onDragOver={(e) => {
                 e.preventDefault();
                 setIsDragging(true);
@@ -367,13 +246,48 @@ export default function UploadResumePage() {
               }}
               onDrop={handleDrop}
             >
-              {isProcessing ? (
+              {uploadStatus === 'uploading' || uploadStatus === 'parsing' ? (
                 <div className="space-y-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-glass-blue mx-auto" />
-                  <p className="text-lg font-medium text-glass-white">Processing your resume...</p>
-                  <p className="text-sm text-glass-gray">
-                    This may take a few moments while we extract your information.
-                  </p>
+                  <Loader2 className="w-12 h-12 text-glass-blue mx-auto animate-spin" />
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-glass-white">
+                      {uploadStatus === 'uploading' ? 'Uploading...' : 'Parsing resume...'}
+                    </p>
+                    <p className="text-sm text-glass-gray">
+                      {fileName}
+                    </p>
+                  </div>
+                  <div className="max-w-xs mx-auto">
+                    <Progress value={progress} className="h-2" />
+                    <p className="text-xs text-glass-gray mt-2">{progress}% complete</p>
+                  </div>
+                </div>
+              ) : uploadStatus === 'success' ? (
+                <div className="space-y-4">
+                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
+                  <div>
+                    <p className="text-lg font-medium text-glass-white">Resume parsed successfully!</p>
+                    <p className="text-sm text-glass-gray mt-1">Redirecting to editor...</p>
+                  </div>
+                </div>
+              ) : uploadStatus === 'error' ? (
+                <div className="space-y-4">
+                  <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
+                  <div>
+                    <p className="text-lg font-medium text-glass-white">Upload failed</p>
+                    <p className="text-sm text-glass-gray mt-1">Please try again</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="glass-button"
+                    onClick={() => {
+                      setUploadStatus('idle');
+                      setProgress(0);
+                      setFileName('');
+                    }}
+                  >
+                    Try Again
+                  </Button>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -390,7 +304,7 @@ export default function UploadResumePage() {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept="application/pdf,.pdf"
+                      accept=".pdf,.docx,.doc,.txt"
                       onChange={handleFileSelect}
                       className="hidden"
                     />
@@ -401,11 +315,11 @@ export default function UploadResumePage() {
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <FileText className="w-4 h-4 mr-2" />
-                      Choose PDF File
+                      Choose File
                     </Button>
                   </div>
                   <p className="text-xs text-glass-gray">
-                    Supported format: PDF (Max 10MB)
+                    Supported formats: PDF, DOCX, TXT • Max size: 10MB
                   </p>
                 </div>
               )}
