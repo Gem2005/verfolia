@@ -4,11 +4,11 @@ import { createClient } from "@/utils/supabase/server";
 // Get heatmap data for resume views by hour and day of week
 export async function GET(
   req: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const { slug } = params;
+    const { slug } = await params;
 
     // Get the resume ID from the slug
     const { data: resume, error: resumeError } = await supabase
