@@ -12,6 +12,82 @@ export const dynamic = "force-dynamic";
 
 type UploadStatus = 'idle' | 'uploading' | 'parsing' | 'success' | 'error';
 
+// Type for AI-parsed resume data
+interface ParsedSkill {
+  name?: string;
+}
+
+interface ParsedExperience {
+  company?: string;
+  position?: string;
+  start_date?: string;
+  end_date?: string;
+  current?: boolean;
+  description?: string;
+}
+
+interface ParsedEducation {
+  institution?: string;
+  degree?: string;
+  field?: string;
+  start_date?: string;
+  end_date?: string;
+  gpa?: string;
+}
+
+interface ParsedProject {
+  name?: string;
+  description?: string;
+  technologies?: string[];
+  url?: string;
+}
+
+interface ParsedCertification {
+  name?: string;
+  issuer?: string;
+  date?: string;
+  url?: string;
+}
+
+interface ParsedLanguage {
+  name?: string;
+  proficiency?: string;
+}
+
+interface ParsedCustomSectionItem {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  date?: string;
+  location?: string;
+  details?: string[];
+}
+
+interface ParsedCustomSection {
+  title?: string;
+  items?: ParsedCustomSectionItem[];
+}
+
+interface ParsedResumeData {
+  personal_info?: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    linkedin?: string;
+    github?: string;
+  };
+  summary?: string;
+  skills?: (string | ParsedSkill)[];
+  experience?: ParsedExperience[];
+  education?: ParsedEducation[];
+  projects?: ParsedProject[];
+  certifications?: ParsedCertification[];
+  languages?: ParsedLanguage[];
+  custom_sections?: ParsedCustomSection[];
+}
+
 export default function UploadResumePage() {
   const router = useRouter();
   const [isDragging, setIsDragging] = useState(false);
@@ -88,7 +164,7 @@ export default function UploadResumePage() {
       });
 
       // Transform API response to prefill format
-      const parsedResume = data.data.parsed_resume;
+      const parsedResume = data.data.parsed_resume as ParsedResumeData;
       const warnings = data.data.warnings || [];
 
       // Show warnings if any
@@ -112,10 +188,10 @@ export default function UploadResumePage() {
           linkedinUrl: parsedResume.personal_info?.linkedin || '',
           githubUrl: parsedResume.personal_info?.github || '',
         },
-        skills: (parsedResume.skills || []).map((s: any) => 
+        skills: (parsedResume.skills || []).map((s: string | ParsedSkill) => 
           typeof s === 'string' ? s : s.name || ''
         ).filter(Boolean),
-        experience: (parsedResume.experience || []).map((e: any) => ({
+        experience: (parsedResume.experience || []).map((e: ParsedExperience) => ({
           id: crypto.randomUUID(),
           company: e.company || '',
           position: e.position || '',
@@ -124,16 +200,16 @@ export default function UploadResumePage() {
           isPresent: e.current || false,
           description: e.description || '',
         })),
-        education: (parsedResume.education || []).map((ed: any) => ({
+        education: (parsedResume.education || []).map((ed: ParsedEducation) => ({
           id: crypto.randomUUID(),
           institution: ed.institution || '',
           degree: ed.degree || '',
           field: ed.field || '',
           startDate: ed.start_date || '',
-          endDate: ed.graduation_date || '',
+          endDate: ed.end_date || '',
           gpa: ed.gpa || '',
         })),
-        projects: (parsedResume.projects || []).map((p: any) => ({
+        projects: (parsedResume.projects || []).map((p: ParsedProject) => ({
           id: crypto.randomUUID(),
           name: p.name || '',
           description: p.description || '',
@@ -141,19 +217,30 @@ export default function UploadResumePage() {
           sourceUrl: p.url || '',
           demoUrl: '',
         })),
-        certifications: (parsedResume.certifications || []).map((c: any) => ({
+        certifications: (parsedResume.certifications || []).map((c: ParsedCertification) => ({
           id: crypto.randomUUID(),
           name: c.name || '',
           issuer: c.issuer || '',
           date: c.date || '',
-          credentialId: c.credential_id || '',
+          url: c.url || '',
         })),
-        languages: (parsedResume.languages || []).map((l: any) => ({
+        languages: (parsedResume.languages || []).map((l: ParsedLanguage) => ({
           id: crypto.randomUUID(),
           name: l.name || '',
           proficiency: l.proficiency || '',
         })),
-        customSections: [],
+        customSections: (parsedResume.custom_sections || []).map((section: ParsedCustomSection) => ({
+          id: crypto.randomUUID(),
+          title: section.title || '',
+          items: (section.items || []).map((item: ParsedCustomSectionItem) => ({
+            title: item.title || '',
+            subtitle: item.subtitle || '',
+            description: item.description || '',
+            date: item.date || '',
+            location: item.location || '',
+            details: item.details || [],
+          })),
+        })),
         rawText: data.data.editor_markdown || '',
         markdown: data.data.editor_markdown || '',
         originalFilename: file.name,
@@ -214,7 +301,7 @@ export default function UploadResumePage() {
           </Button>
           <h1 className="text-3xl font-bold mb-2 text-glass-white">Upload Your Resume</h1>
           <p className="text-glass-gray">
-            Upload your existing resume and we'll help you create a modern, shareable profile.
+            Upload your existing resume and we&apos;ll help you create a modern, shareable profile.
           </p>
         </div>
 

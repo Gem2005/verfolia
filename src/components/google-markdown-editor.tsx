@@ -1,29 +1,13 @@
 "use client";
 
-import React, { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import { marked } from "marked";
-
-function textToMarkdown(text: string): string {
-  if (!text) return "";
-  return text
-    .split(/\r?\n/)
-    .map((line) => {
-      const trimmed = line.trim();
-      if (/^(summary|experience|education|skills|projects|certifications|languages|awards|interests|objective)\b/i.test(trimmed)) {
-        return `## ${trimmed}`;
-      }
-      if (/^[•\-*]\s+/.test(trimmed)) {
-        return trimmed.replace(/^[•\-*]\s+/, "- ");
-      }
-      return trimmed;
-    })
-    .join("\n");
-}
+import type { Session, AuthChangeEvent } from "@supabase/supabase-js";
 
 export default function GoogleMarkdownEditor() {
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const supabase = createClient();
 
@@ -35,7 +19,7 @@ export default function GoogleMarkdownEditor() {
     };
     checkAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setSession(session);
       setIsAuthenticated(!!session);
     });

@@ -2,7 +2,6 @@ import React from "react";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Award, Plus, Trash2 } from "lucide-react";
@@ -102,7 +101,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
     const newSection = {
       id: Math.random().toString(36).substring(2, 11),
       title: "",
-      description: "",
+      items: [],
     };
     setResumeData((prev) => ({
       ...prev,
@@ -112,7 +111,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
 
   const updateCustomSectionField = (
     sectionId: string,
-    field: "title" | "description",
+    field: "title",
     value: string
   ) => {
     setResumeData((prev) => ({
@@ -344,22 +343,10 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  Description <span className="text-red-500">*</span>
+                  Items <span className="text-muted-foreground text-xs">(Coming soon)</span>
                 </Label>
-                <Textarea
-                  rows={3}
-                  value={section.description}
-                  onChange={(e) => updateCustomSectionField(section.id, "description", e.target.value)}
-                  className={`input-enhanced resize-none ${validationErrors[`customSection_${section.id}_description`] ? "border-red-500" : ""}`}
-                  placeholder="Describe this section (20-100 words)"
-                />
-                {validationErrors[`customSection_${section.id}_description`] && (
-                  <p className="text-xs text-red-500">{validationErrors[`customSection_${section.id}_description`]}</p>
-                )}
                 <p className="text-xs text-muted-foreground">
-                  {section.description.trim() 
-                    ? `${section.description.trim().split(/\s+/).filter(word => word.length > 0).length} words` 
-                    : "0 words"} (20-100 words recommended)
+                  {section.items.length} item(s) - Use the prefilled data from resume upload
                 </p>
               </div>
             </div>

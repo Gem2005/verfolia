@@ -60,7 +60,14 @@ export interface ResumeData {
   customSections: Array<{
     id: string;
     title: string;
-    description: string;
+    items: Array<{
+      title?: string;
+      subtitle?: string;
+      description?: string;
+      date?: string;
+      location?: string;
+      details?: string[];
+    }>;
   }>;
 }
 export interface Step {
