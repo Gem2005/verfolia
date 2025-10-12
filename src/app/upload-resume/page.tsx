@@ -99,10 +99,10 @@ export default function UploadResumePage() {
 
   const handleFileUpload = async (file: File) => {
     // Validation
-    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
     if (!allowedTypes.includes(file.type)) {
       toast.error('Invalid file type', {
-        description: 'Please upload a PDF, DOCX, or TXT file'
+        description: 'Please upload a PDF, DOCX, or DOC file'
       });
       return;
     }
@@ -328,7 +328,7 @@ export default function UploadResumePage() {
           <CardHeader>
             <CardTitle className="text-glass-white">Upload Resume</CardTitle>
             <CardDescription className="text-glass-gray">
-              Supports PDF, DOCX, and TXT files up to 10MB
+              Supports PDF, DOCX, and DOC files up to 10MB
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -410,7 +410,7 @@ export default function UploadResumePage() {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".pdf,.docx,.doc,.txt"
+                      accept=".pdf,.docx,.doc"
                       onChange={handleFileSelect}
                       className="hidden"
                     />
@@ -425,7 +425,7 @@ export default function UploadResumePage() {
                     </Button>
                   </div>
                   <p className="text-xs text-glass-gray">
-                    Supported formats: PDF, DOCX, TXT • Max size: 10MB
+                    Supported formats: PDF, DOCX, DOC • Max size: 10MB
                   </p>
                 </div>
               )}

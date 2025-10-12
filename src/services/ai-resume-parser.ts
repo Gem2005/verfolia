@@ -86,11 +86,32 @@ async function convertDocxToPdf(buffer: Buffer): Promise<Buffer> {
 
     // Extract text from DOCX
     const result = await mammoth.extractRawText({ buffer });
-    const text = result.value;
+    let text = result.value;
 
     if (!text || text.trim().length === 0) {
       throw new Error('No text content found in DOCX file');
     }
+
+    // Sanitize text to handle special characters that WinAnsi can't encode
+    // Replace common special characters with their ASCII equivalents
+    text = text
+      .replace(/₹/g, 'Rs.') // Indian Rupee
+      .replace(/€/g, 'EUR') // Euro
+      .replace(/£/g, 'GBP') // Pound
+      .replace(/¥/g, 'JPY') // Yen
+      .replace(/[""]/g, '"') // Smart quotes
+      .replace(/['']/g, "'") // Smart apostrophes
+      .replace(/[—–]/g, '-') // Em dash and en dash
+      .replace(/…/g, '...') // Ellipsis
+      .replace(/•/g, '*') // Bullet point
+      .replace(/[\u0080-\uFFFF]/g, (char) => {
+        // Replace any remaining non-ASCII characters with space
+        // This is a fallback for any other special characters
+        const code = char.charCodeAt(0);
+        // Keep common extended ASCII (128-255) if possible
+        if (code <= 255) return char;
+        return ' ';
+      });
 
     // Create PDF from text
     const pdfDoc = await PDFDocument.create();
@@ -119,16 +140,41 @@ async function convertDocxToPdf(buffer: Buffer): Promise<Buffer> {
 
       for (const word of words) {
         const testLine = currentLine + (currentLine ? ' ' : '') + word;
-        const textWidth = font.widthOfTextAtSize(testLine, fontSize);
+        let textWidth: number;
+        
+        try {
+          textWidth = font.widthOfTextAtSize(testLine, fontSize);
+        } catch {
+          // If we can't measure the text due to encoding issues, skip this word
+          console.warn('Skipping word due to encoding issue:', word);
+          continue;
+        }
 
         if (textWidth > maxWidth && currentLine) {
-          page.drawText(currentLine, {
-            x: margin,
-            y: yPosition,
-            size: fontSize,
-            font: font,
-            color: rgb(0, 0, 0),
-          });
+          try {
+            page.drawText(currentLine, {
+              x: margin,
+              y: yPosition,
+              size: fontSize,
+              font: font,
+              color: rgb(0, 0, 0),
+            });
+          } catch {
+            // If drawing fails, sanitize the text more aggressively
+            const sanitized = currentLine.replace(/[^\x20-\x7E]/g, '');
+            try {
+              page.drawText(sanitized, {
+                x: margin,
+                y: yPosition,
+                size: fontSize,
+                font: font,
+                color: rgb(0, 0, 0),
+              });
+            } catch {
+              // Skip this line if it still can't be drawn
+              console.warn('Skipping line due to encoding issue');
+            }
+          }
           yPosition -= lineHeight;
           currentLine = word;
 
@@ -142,13 +188,30 @@ async function convertDocxToPdf(buffer: Buffer): Promise<Buffer> {
       }
 
       if (currentLine) {
-        page.drawText(currentLine, {
-          x: margin,
-          y: yPosition,
-          size: fontSize,
-          font: font,
-          color: rgb(0, 0, 0),
-        });
+        try {
+          page.drawText(currentLine, {
+            x: margin,
+            y: yPosition,
+            size: fontSize,
+            font: font,
+            color: rgb(0, 0, 0),
+          });
+        } catch {
+          // If drawing fails, sanitize the text more aggressively
+          const sanitized = currentLine.replace(/[^\x20-\x7E]/g, '');
+          try {
+            page.drawText(sanitized, {
+              x: margin,
+              y: yPosition,
+              size: fontSize,
+              font: font,
+              color: rgb(0, 0, 0),
+            });
+          } catch {
+            // Skip this line if it still can't be drawn
+            console.warn('Skipping line due to encoding issue');
+          }
+        }
         yPosition -= lineHeight;
       }
     }
