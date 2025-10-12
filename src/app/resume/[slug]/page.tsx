@@ -156,8 +156,8 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
         id: cert.id || Math.random().toString(),
         title: cert.name || "Certification",
         issuer: cert.issuer || "Issuer",
-        date: cert.issueDate || "",
-        url: cert.credentialUrl || "",
+        date: cert.date || "",
+        url: cert.url || "",
       })),
       interests: [
         ...customSections

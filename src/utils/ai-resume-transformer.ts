@@ -47,22 +47,22 @@ export function transformAIResumeToResumeData(aiData: AIResumeData): Partial<Res
       sourceUrl: proj.url || '',
       demoUrl: '', // Not extracted by AI
     })),
-    certifications: aiData.certifications.map((cert) => ({
+    certifications: (aiData.certifications || []).map((cert) => ({
       id: crypto.randomUUID(),
       name: cert.name || '',
       issuer: cert.issuer || '',
       date: cert.date || '',
       url: cert.url || '',
     })),
-    languages: aiData.languages.map((lang) => ({
+    languages: (aiData.languages || []).map((lang) => ({
       id: crypto.randomUUID(),
       name: lang.language || '',
       proficiency: lang.proficiency || '',
     })),
-    customSections: aiData.custom_sections.map((section) => ({
+    customSections: (aiData.custom_sections || []).map((section) => ({
       id: crypto.randomUUID(),
       title: section.title || '',
-      items: section.items.map((item) => ({
+      items: (section.items || []).map((item) => ({
         title: item.title || '',
         subtitle: item.subtitle || '',
         description: item.description || '',
@@ -112,16 +112,16 @@ export function formatAIResumeForAPI(aiData: AIResumeData) {
       technologies: proj.technologies,
       url: proj.url,
     })),
-    certifications: aiData.certifications.map((cert) => ({
+    certifications: (aiData.certifications || []).map((cert) => ({
       name: cert.name,
       issuer: cert.issuer,
       date: cert.date,
       url: cert.url,
     })),
-    languages: aiData.languages.map((lang) => ({
+    languages: (aiData.languages || []).map((lang) => ({
       name: lang.language,
       proficiency: lang.proficiency,
     })),
-    custom_sections: aiData.custom_sections,
+    custom_sections: (aiData.custom_sections || []),
   };
 }

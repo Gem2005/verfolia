@@ -167,6 +167,15 @@ export default function UploadResumePage() {
       const parsedResume = data.data.parsed_resume as ParsedResumeData;
       const warnings = data.data.warnings || [];
 
+      console.log('[Upload] Parsed resume data received:', {
+        hasCertifications: !!parsedResume.certifications,
+        certificationsCount: parsedResume.certifications?.length || 0,
+        hasLanguages: !!parsedResume.languages,
+        languagesCount: parsedResume.languages?.length || 0,
+        hasCustomSections: !!parsedResume.custom_sections,
+        customSectionsCount: parsedResume.custom_sections?.length || 0,
+      });
+
       // Show warnings if any
       if (warnings.length > 0) {
         toast.warning('Parsing completed with warnings', {
@@ -246,6 +255,15 @@ export default function UploadResumePage() {
         originalFilename: file.name,
         warnings: warnings,
       };
+
+      console.log('[Upload] Prefill data prepared:', {
+        certificationsCount: prefillData.certifications.length,
+        languagesCount: prefillData.languages.length,
+        customSectionsCount: prefillData.customSections.length,
+        certifications: prefillData.certifications,
+        languages: prefillData.languages,
+        customSections: prefillData.customSections,
+      });
 
       // Store in session storage
       const sessionKey = `resume_upload_${Date.now()}`;

@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Award, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
 
@@ -131,6 +132,143 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
     setResumeData((prev) => ({
       ...prev,
       customSections: prev.customSections.filter((s) => s.id !== sectionId),
+    }));
+  };
+
+  // Custom Section Items
+  const addCustomSectionItem = (sectionId: string) => {
+    const newItem = {
+      title: "",
+      subtitle: "",
+      description: "",
+      date: "",
+      location: "",
+      details: [],
+    };
+    setResumeData((prev) => ({
+      ...prev,
+      customSections: prev.customSections.map((s) =>
+        s.id === sectionId
+          ? {
+              ...s,
+              items: [...s.items, newItem],
+            }
+          : s
+      ),
+    }));
+  };
+
+  const updateCustomSectionItem = (
+    sectionId: string,
+    itemIndex: number,
+    field: "title" | "subtitle" | "description" | "date" | "location",
+    value: string
+  ) => {
+    setResumeData((prev) => ({
+      ...prev,
+      customSections: prev.customSections.map((s) =>
+        s.id === sectionId
+          ? {
+              ...s,
+              items: s.items.map((item, idx) =>
+                idx === itemIndex
+                  ? {
+                      ...item,
+                      [field]: value,
+                    }
+                  : item
+              ),
+            }
+          : s
+      ),
+    }));
+  };
+
+  const addCustomSectionItemDetail = (sectionId: string, itemIndex: number) => {
+    setResumeData((prev) => ({
+      ...prev,
+      customSections: prev.customSections.map((s) =>
+        s.id === sectionId
+          ? {
+              ...s,
+              items: s.items.map((item, idx) =>
+                idx === itemIndex
+                  ? {
+                      ...item,
+                      details: [...(item.details || []), ""],
+                    }
+                  : item
+              ),
+            }
+          : s
+      ),
+    }));
+  };
+
+  const updateCustomSectionItemDetail = (
+    sectionId: string,
+    itemIndex: number,
+    detailIndex: number,
+    value: string
+  ) => {
+    setResumeData((prev) => ({
+      ...prev,
+      customSections: prev.customSections.map((s) =>
+        s.id === sectionId
+          ? {
+              ...s,
+              items: s.items.map((item, idx) =>
+                idx === itemIndex
+                  ? {
+                      ...item,
+                      details: (item.details || []).map((detail, dIdx) =>
+                        dIdx === detailIndex ? value : detail
+                      ),
+                    }
+                  : item
+              ),
+            }
+          : s
+      ),
+    }));
+  };
+
+  const removeCustomSectionItemDetail = (
+    sectionId: string,
+    itemIndex: number,
+    detailIndex: number
+  ) => {
+    setResumeData((prev) => ({
+      ...prev,
+      customSections: prev.customSections.map((s) =>
+        s.id === sectionId
+          ? {
+              ...s,
+              items: s.items.map((item, idx) =>
+                idx === itemIndex
+                  ? {
+                      ...item,
+                      details: (item.details || []).filter((_, dIdx) => dIdx !== detailIndex),
+                    }
+                  : item
+              ),
+            }
+          : s
+      ),
+    }));
+  };
+
+  const removeCustomSectionItem = (sectionId: string, itemIndex: number) => {
+    setResumeData((prev) => ({
+      ...prev,
+      customSections: prev.customSections.map((s) =>
+        s.id === sectionId
+          ? {
+              ...s,
+              items: s.items.filter((_, idx) => idx !== itemIndex),
+            }
+          : s
+      ),
     }));
   };
 
@@ -341,13 +479,190 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  Items <span className="text-muted-foreground text-xs">(Coming soon)</span>
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  {section.items.length} item(s) - Use the prefilled data from resume upload
-                </p>
+              {/* Section Items */}
+              <div className="space-y-4 mt-4">
+                <div className="flex justify-between items-center">
+                  <Label className="text-sm font-medium">Items</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addCustomSectionItem(section.id)}
+                    className="h-8"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Item
+                  </Button>
+                </div>
+
+                {section.items.length === 0 && (
+                  <p className="text-xs text-muted-foreground italic">
+                    No items added. Click &quot;Add Item&quot; to add entries to this section.
+                  </p>
+                )}
+
+                {section.items.map((item, itemIndex) => (
+                  <div
+                    key={itemIndex}
+                    className="p-3 border rounded-md space-y-3 bg-background"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        Item {itemIndex + 1}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeCustomSectionItem(section.id, itemIndex)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium">Title</Label>
+                        <Input
+                          value={item.title || ""}
+                          onChange={(e) =>
+                            updateCustomSectionItem(
+                              section.id,
+                              itemIndex,
+                              "title",
+                              e.target.value
+                            )
+                          }
+                          className="input-enhanced h-9 text-sm"
+                          placeholder="e.g., Position or Activity Name"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium">Subtitle</Label>
+                        <Input
+                          value={item.subtitle || ""}
+                          onChange={(e) =>
+                            updateCustomSectionItem(
+                              section.id,
+                              itemIndex,
+                              "subtitle",
+                              e.target.value
+                            )
+                          }
+                          className="input-enhanced h-9 text-sm"
+                          placeholder="e.g., Organization"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium">Date</Label>
+                        <Input
+                          value={item.date || ""}
+                          onChange={(e) =>
+                            updateCustomSectionItem(
+                              section.id,
+                              itemIndex,
+                              "date",
+                              e.target.value
+                            )
+                          }
+                          className="input-enhanced h-9 text-sm"
+                          placeholder="e.g., Jan 2023 - Present"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium">Location</Label>
+                        <Input
+                          value={item.location || ""}
+                          onChange={(e) =>
+                            updateCustomSectionItem(
+                              section.id,
+                              itemIndex,
+                              "location",
+                              e.target.value
+                            )
+                          }
+                          className="input-enhanced h-9 text-sm"
+                          placeholder="e.g., New York, NY"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label className="text-xs font-medium">Description</Label>
+                      <Textarea
+                        value={item.description || ""}
+                        onChange={(e) =>
+                          updateCustomSectionItem(
+                            section.id,
+                            itemIndex,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        className="input-enhanced min-h-[60px] text-sm"
+                        placeholder="Brief description..."
+                      />
+                    </div>
+
+                    {/* Details/Bullet Points */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label className="text-xs font-medium">Details (Bullet Points)</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => addCustomSectionItemDetail(section.id, itemIndex)}
+                          className="h-6 text-xs"
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Add Detail
+                        </Button>
+                      </div>
+
+                      {(item.details || []).length === 0 && (
+                        <p className="text-xs text-muted-foreground italic">
+                          No bullet points added.
+                        </p>
+                      )}
+
+                      {(item.details || []).map((detail, detailIndex) => (
+                        <div key={detailIndex} className="flex gap-2">
+                          <Input
+                            value={detail}
+                            onChange={(e) =>
+                              updateCustomSectionItemDetail(
+                                section.id,
+                                itemIndex,
+                                detailIndex,
+                                e.target.value
+                              )
+                            }
+                            className="input-enhanced h-8 text-sm flex-1"
+                            placeholder={`Detail ${detailIndex + 1}`}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              removeCustomSectionItemDetail(section.id, itemIndex, detailIndex)
+                            }
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

@@ -199,20 +199,21 @@ You are an expert resume parser AI. Extract ALL information from this resume wit
 CRITICAL INSTRUCTIONS:
 1. Extract EVERYTHING - don't skip any sections, bullet points, or details
 2. For experience descriptions, capture ALL bullet points completely (merge them into description field)
-3. **INTERNSHIPS**: If resume has "Internship" section, include them in "experience" array
-4. **WORK EXPERIENCE SORTING**: Sort ALL experience entries (jobs + internships) by start_date in DESCENDING order (latest first)
-5. For multi-column layouts extract ALL sections
-6. For dates, use format "Month YYYY" or "YYYY" (e.g., "February 2024", "2024")
-7. Set current: true ONLY for jobs with "Present" or "Current" as end date
-8. Extract certifications, projects, skills, and languages if present
-9. For phone numbers, keep original format with country code if present
-10. For emails, extract exactly as shown
-11. For skills, extract individual skills as separate array items (not categories)
-12. **EDUCATION**: For "degree" field - extract the FULL qualification name. Examples: "Bachelor of Technology", "Master of Science", "High School Diploma", "Secondary Education Certificate". For high school/secondary education, use the education level name as degree (e.g., "High School Diploma", "Secondary Education") and leave "field" empty or specify stream if mentioned. NEVER use null or empty string for degree.
-13. **CUSTOM SECTIONS - CRITICAL**: Extract ALL sections that don't fit standard categories (Experience, Education, Skills, Projects, Certifications, Languages). MANDATORY sections to check for: Achievements, Awards, Honors, Publications, Research, Volunteer Work, Leadership, Extracurricular Activities, Activities, Community Service, Professional Memberships, Conferences, Speaking Engagements, Patents, Hobbies, Interests, References, Additional Information, Training, Workshops, or ANY other non-standard section title. If a section exists in the resume that is NOT Experience/Education/Skills/Projects/Certifications/Languages, it MUST be included in custom_sections. DO NOT skip any extra sections - extract them ALL with their complete content.
-14. **AVOID DUPLICATION BETWEEN EXPERIENCE AND CUSTOM SECTIONS**: If a position/role appears in the Work Experience section of the resume, it should ONLY go in "experience" array. If it appears in a Leadership/Activities/Extracurricular section separate from work experience, it should ONLY go in "custom_sections". Do NOT duplicate the same role in both arrays. Pay careful attention to which resume section each item belongs to.
-15. **DO NOT DUPLICATE**: Do NOT include Education, Skills, Certifications in custom_sections if they are already in their respective arrays
-16. **REMOVE HYPERLINKS**: Do NOT include text like (Try it here), (GitHub), (Link), (View), (Demo), etc. - extract only the actual content
+3. **WORK EXPERIENCE ONLY**: The "experience" array should ONLY contain items from sections explicitly titled "Work Experience", "Professional Experience", "Employment History", or "Career History". Do NOT include internships, volunteer work, leadership roles, or any other types of positions unless they are in a work experience section.
+4. **INTERNSHIPS AS CUSTOM SECTIONS**: If the resume has a separate "Internships" section (not under Work Experience), extract it as a custom section with title "Internships". Each internship should be an item with title (position), subtitle (company), date, location, and description.
+5. **WORK EXPERIENCE SORTING**: Sort work experience entries by start_date in DESCENDING order (latest first)
+6. For multi-column layouts extract ALL sections
+7. For dates, use format "Month YYYY" or "YYYY" (e.g., "February 2024", "2024")
+8. Set current: true ONLY for jobs with "Present" or "Current" as end date
+9. Extract certifications, projects, skills, and languages if present
+10. For phone numbers, keep original format with country code if present
+11. For emails, extract exactly as shown
+12. For skills, extract individual skills as separate array items (not categories)
+13. **EDUCATION**: For "degree" field - extract the FULL qualification name. Examples: "Bachelor of Technology", "Master of Science", "High School Diploma", "Secondary Education Certificate". For high school/secondary education, use the education level name as degree (e.g., "High School Diploma", "Secondary Education") and leave "field" empty or specify stream if mentioned. NEVER use null or empty string for degree.
+14. **CUSTOM SECTIONS - CRITICAL**: Extract ALL sections that don't fit the standard categories (Work Experience, Education, Skills, Projects, Certifications, Languages). This includes but is not limited to: Internships (if separate section), Achievements, Awards, Honors, Publications, Research, Volunteer Work, Leadership, Extracurricular Activities, Activities, Community Service, Professional Memberships, Conferences, Speaking Engagements, Patents, Hobbies, Interests, References, Additional Information, Training, Workshops, Courses, Competitions, or ANY other section. If a section heading exists in the resume that doesn't match the 6 standard categories, it MUST be included in custom_sections with its exact title and complete content.
+15. **PRESERVE SECTION STRUCTURE**: When extracting custom sections, preserve the original section title exactly as it appears in the resume. Each item should include all available fields: title, subtitle, description, date, location, and details (as bullet points).
+16. **DO NOT DUPLICATE**: Do NOT include Education, Skills, Certifications, or official Work Experience in custom_sections if they are already in their respective arrays.
+17. **REMOVE HYPERLINKS**: Do NOT include text like (Try it here), (GitHub), (Link), (View), (Demo), etc. - extract only the actual content
 
 RETURN JSON IN THIS EXACT STRUCTURE:
 {
@@ -424,12 +425,14 @@ EXAMPLES OF CORRECT EXTRACTION:
 CRITICAL REMINDERS:
 - For education: ALWAYS extract a proper degree name (e.g., "High School Diploma", "Bachelor of Science"). NEVER leave degree as null or empty.
 - For high school/secondary education: Use "High School Diploma" or "Secondary Education Certificate" as the degree.
-- Sort all experience entries by date (latest first).
+- Sort all work experience entries by date (latest first).
 - Remove ALL hyperlink text like (Try it here), (GitHub), (Link), (Demo), (View).
-- Combine internships into the experience array, not separate.
-- **NO DUPLICATION BETWEEN EXPERIENCE AND CUSTOM SECTIONS**: Carefully check the resume structure. If an item is listed under "Work Experience" or "Professional Experience", put it ONLY in the "experience" array. If it's listed under "Leadership & Activities", "Extracurricular Activities", or similar non-work sections, put it ONLY in "custom_sections". The same role should NEVER appear in both arrays.
-- **CUSTOM SECTIONS PRIORITY**: Scan the ENTIRE resume for ANY section that is NOT Experience, Education, Skills, Projects, Certifications, or Languages. Extract ALL such sections into custom_sections with their complete content. Common examples: Achievements, Awards, Honors, Leadership & Activities, Volunteer Work, Publications, Research, Extracurricular Activities, Professional Memberships, Conferences, Speaking Engagements, Patents, Workshops, Training, Additional Information, References, Hobbies, Interests. DO NOT SKIP ANY extra sections - they are critical resume content.
+- **INTERNSHIPS RULE**: If there's a separate "Internships" section (not under Work Experience), extract it as a custom section titled "Internships". Only include internships in "experience" array if they're explicitly under the Work Experience section.
+- **WORK EXPERIENCE STRICT RULE**: Only include items in "experience" array if they come from sections titled "Work Experience", "Professional Experience", "Employment History", or "Career History". All other employment-like sections (Internships, Volunteer Work, Leadership Roles, etc.) should go in custom_sections.
+- **CUSTOM SECTIONS ARE EVERYTHING ELSE**: ANY section heading that is NOT one of these 6 standard categories (Work Experience, Education, Skills, Projects, Certifications, Languages) MUST be extracted as a custom section. This includes: Internships, Achievements, Awards, Honors, Leadership & Activities, Volunteer Work, Publications, Research, Extracurricular Activities, Professional Memberships, Conferences, Speaking Engagements, Patents, Workshops, Training, Additional Information, References, Hobbies, Interests, Courses, Competitions, Community Service, or ANY other section heading.
+- **PRESERVE EXACT SECTION TITLES**: Use the exact section title from the resume as the custom section "title" field.
 - Custom sections should preserve detailed structure with items array for maximum flexibility.
+- If uncertain whether a section is standard or custom, default to custom_sections.
 
 Extract all data with maximum accuracy and completeness.
 `;
@@ -450,8 +453,16 @@ Extract all data with maximum accuracy and completeness.
       }
     ]);
 
-    const response = result.response.text();
+    let response = result.response.text();
     console.log('AI Response received, parsing JSON...');
+
+    // Clean up response - remove markdown code blocks if present
+    response = response.trim();
+    if (response.startsWith('```json')) {
+      response = response.replace(/^```json\s*/i, '').replace(/```\s*$/, '');
+    } else if (response.startsWith('```')) {
+      response = response.replace(/^```\s*/, '').replace(/```\s*$/, '');
+    }
 
     // Parse JSON response
     let parsedData: AIResumeData;
@@ -469,6 +480,15 @@ Extract all data with maximum accuracy and completeness.
     }
 
     console.log('✅ Resume parsed successfully with Gemini AI!');
+    console.log('[AI Parser] Raw AI Response - Custom Sections:', {
+      count: parsedData.custom_sections?.length || 0,
+      sections: parsedData.custom_sections || [],
+    });
+    console.log('[AI Parser] Raw AI Response - Languages:', {
+      count: parsedData.languages?.length || 0,
+      languages: parsedData.languages || [],
+    });
+    
     return parsedData;
   } catch (error) {
     console.error('AI Resume Parsing Error:', error);

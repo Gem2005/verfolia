@@ -62,25 +62,27 @@ export interface Certification {
   id: string;
   name: string;
   issuer: string;
-  issueDate: string;
-  expiryDate?: string;
-  credentialUrl?: string;
+  date?: string;
+  url?: string;
 }
 
 export interface Language {
+  id: string;
   name: string;
-  proficiency: string;
+  proficiency?: string;
 }
 
 export interface CustomSection {
   id: string;
   title: string;
-  items: {
-    id: string;
-    title: string;
-    description: string;
+  items: Array<{
+    title?: string;
+    subtitle?: string;
+    description?: string;
     date?: string;
-  }[];
+    location?: string;
+    details?: string[];
+  }>;
 }
 
 export interface Resume {
@@ -205,7 +207,7 @@ class ResumeService {
   }
 
   // Get all available templates
-  async getTemplates(): Promise<any[]> {
+  async getTemplates(): Promise<unknown[]> {
     const { data, error } = await this.supabase
       .from('templates')
       .select('*')
@@ -220,7 +222,7 @@ class ResumeService {
   }
 
   // Get all available themes
-  async getThemes(): Promise<any[]> {
+  async getThemes(): Promise<unknown[]> {
     const { data, error } = await this.supabase
       .from('themes')
       .select('*')
@@ -318,8 +320,26 @@ class ResumeService {
 
       if (interactionsError) throw interactionsError;
 
+      // Define types for database records
+      interface ViewRecord {
+        id: string;
+        viewed_at: string;
+        country: string | null;
+        city: string | null;
+        view_duration: number | null;
+        referrer: string | null;
+      }
+
+      interface InteractionRecord {
+        id: string;
+        clicked_at: string;
+        interaction_type: string;
+        section_name: string | null;
+        target_value: string | null;
+      }
+
       // Process views data
-      const views = viewsData?.map((view: any) => ({
+      const views = viewsData?.map((view: ViewRecord) => ({
         id: view.id,
         viewed_at: view.viewed_at,
         country: view.country,
@@ -329,7 +349,7 @@ class ResumeService {
       })) || [];
 
       // Process interactions data
-      const interactions = interactionsData?.map((interaction: any) => ({
+      const interactions = interactionsData?.map((interaction: InteractionRecord) => ({
         id: interaction.id,
         clicked_at: interaction.clicked_at,
         interaction_type: interaction.interaction_type,
@@ -338,32 +358,32 @@ class ResumeService {
       })) || [];
 
       // Calculate summary data
-      const viewsByDate = views.reduce((acc: { [key: string]: number }, view: any) => {
+      const viewsByDate = views.reduce((acc: { [key: string]: number }, view: ViewRecord) => {
         const date = new Date(view.viewed_at).toISOString().split('T')[0];
         acc[date] = (acc[date] || 0) + 1;
         return acc;
       }, {});
 
-      const viewsByCountry = views.reduce((acc: { [key: string]: number }, view: any) => {
+      const viewsByCountry = views.reduce((acc: { [key: string]: number }, view: ViewRecord) => {
         if (view.country) {
           acc[view.country] = (acc[view.country] || 0) + 1;
         }
         return acc;
       }, {});
 
-      const viewsByReferrer = views.reduce((acc: { [key: string]: number }, view: any) => {
+      const viewsByReferrer = views.reduce((acc: { [key: string]: number }, view: ViewRecord) => {
         if (view.referrer) {
           acc[view.referrer] = (acc[view.referrer] || 0) + 1;
         }
         return acc;
       }, {});
 
-      const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction: any) => {
+      const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction: InteractionRecord) => {
         acc[interaction.interaction_type] = (acc[interaction.interaction_type] || 0) + 1;
         return acc;
       }, {});
 
-      const totalViewDuration = views.reduce((sum: number, view: any) => sum + (view.view_duration || 0), 0);
+      const totalViewDuration = views.reduce((sum: number, view: ViewRecord) => sum + (view.view_duration || 0), 0);
       const avgViewDuration = views.length > 0 ? totalViewDuration / views.length : 0;
 
       // Construct and return the AnalyticsData object

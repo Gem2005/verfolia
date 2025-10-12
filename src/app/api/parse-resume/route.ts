@@ -83,6 +83,12 @@ export async function POST(request: NextRequest) {
     try {
       const rawData = await parseResumeWithAI(buffer, fileType);
       aiParsed = validateAIResumeData(rawData);
+      
+      console.log('[AI Parse] Additional sections extracted:', {
+        certificationsCount: aiParsed.data.certifications?.length || 0,
+        languagesCount: aiParsed.data.languages?.length || 0,
+        customSectionsCount: aiParsed.data.custom_sections?.length || 0,
+      });
     } catch (error) {
       console.error('[AI Parse] Failed:', error);
       throw new ParsingError(
@@ -91,13 +97,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const formattedData = formatAIResumeForAPI(aiParsed.data);
+    
+    console.log('[AI Parse] Formatted data for API:', {
+      certificationsCount: formattedData.certifications?.length || 0,
+      languagesCount: formattedData.languages?.length || 0,
+      customSectionsCount: formattedData.custom_sections?.length || 0,
+      customSections: formattedData.custom_sections,
+    });
+
     const response = {
       success: true,
       data: {
         filename: fileData.name,
         file_type: fileType,
         file_size: fileData.size,
-        parsed_resume: formatAIResumeForAPI(aiParsed.data),
+        parsed_resume: formattedData,
         editor_markdown: '',
         warnings: aiParsed.warnings || [],
         metadata: {
