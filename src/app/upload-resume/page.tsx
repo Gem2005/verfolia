@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Upload, FileText, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import { formatDateToInput } from "@/utils/date-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -204,8 +205,8 @@ export default function UploadResumePage() {
           id: crypto.randomUUID(),
           company: e.company || '',
           position: e.position || '',
-          startDate: e.start_date || '',
-          endDate: e.end_date || '',
+          startDate: formatDateToInput(e.start_date || ''),
+          endDate: formatDateToInput(e.end_date || ''),
           isPresent: e.current || false,
           description: e.description || '',
         })),
@@ -214,8 +215,8 @@ export default function UploadResumePage() {
           institution: ed.institution || '',
           degree: ed.degree || '',
           field: ed.field || '',
-          startDate: ed.start_date || '',
-          endDate: ed.end_date || '',
+          startDate: formatDateToInput(ed.start_date || ''),
+          endDate: formatDateToInput(ed.end_date || ''),
           gpa: ed.gpa || '',
         })),
         projects: (parsedResume.projects || []).map((p: ParsedProject) => ({
@@ -230,7 +231,7 @@ export default function UploadResumePage() {
           id: crypto.randomUUID(),
           name: c.name || '',
           issuer: c.issuer || '',
-          date: c.date || '',
+          date: formatDateToInput(c.date || ''),
           url: c.url || '',
         })),
         languages: (parsedResume.languages || []).map((l: ParsedLanguage) => ({
@@ -245,7 +246,7 @@ export default function UploadResumePage() {
             title: item.title || '',
             subtitle: item.subtitle || '',
             description: item.description || '',
-            date: item.date || '',
+            date: formatDateToInput(item.date || ''),
             location: item.location || '',
             details: item.details || [],
           })),

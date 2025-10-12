@@ -247,7 +247,7 @@ RETURN JSON IN THIS EXACT STRUCTURE:
       "location": "string (optional)",
       "start_date": "string (optional, format: YYYY or Month YYYY)",
       "end_date": "string (optional, format: YYYY or Month YYYY)",
-      "gpa": "string (optional, include scale if mentioned)"
+      "gpa": "string (optional, MUST include scale. Rules: If resume mentions 'GPA' or has 4.0/5.0 scale → use '/4.0' or '/5.0' (e.g., '3.8/4.0'). If mentions 'CGPA' or has 10-point scale → use '/10' (e.g., '8.5/10' or '3.8/10'). If percentage symbol or mentions 'percentage'/'percent' → add '%' (e.g., '85%' or '8%'). If letter grade → use as-is (e.g., 'A+'). NEVER return plain numbers like '3.8' or '8.5' without scale. CGPA can be any value 0-10 (e.g., 3.8/10, 8.5/10). Percentage can be 0-100 (e.g., 8%, 85%).)"
     }
   ],
   "skills": ["string"],
@@ -292,7 +292,7 @@ RETURN JSON IN THIS EXACT STRUCTURE:
 
 EXAMPLES OF CORRECT EXTRACTION:
 
-**Education (handle ALL types correctly):**
+**Education (handle ALL types correctly with proper GPA format):**
 [
   {
     "degree": "Bachelor of Technology",
@@ -304,13 +304,31 @@ EXAMPLES OF CORRECT EXTRACTION:
     "gpa": "3.8/4.0"
   },
   {
+    "degree": "Master of Science",
+    "field": "Data Science",
+    "institution": "Stanford University",
+    "location": "Stanford, CA",
+    "start_date": "2018",
+    "end_date": "2020",
+    "gpa": "8.5/10"
+  },
+  {
+    "degree": "Bachelor of Engineering",
+    "field": "Mechanical Engineering",
+    "institution": "University of Mumbai",
+    "location": "Mumbai, India",
+    "start_date": "2015",
+    "end_date": "2019",
+    "gpa": "3.8/10"
+  },
+  {
     "degree": "High School Diploma",
     "field": "Science Stream",
     "institution": "Lincoln High School",
     "location": "Portland, OR",
     "start_date": "2016",
     "end_date": "2020",
-    "gpa": "3.9/4.0"
+    "gpa": "85%"
   },
   {
     "degree": "Secondary Education Certificate",
@@ -318,9 +336,21 @@ EXAMPLES OF CORRECT EXTRACTION:
     "institution": "Springfield Secondary School",
     "location": "Illinois",
     "start_date": "2014",
-    "end_date": "2018"
+    "end_date": "2018",
+    "gpa": "8%"
   }
 ]
+
+**GPA Format Examples - ALWAYS include scale:**
+- Resume says "GPA: 3.8" → Extract as "3.8/4.0"
+- Resume says "CGPA: 8.5" → Extract as "8.5/10"
+- Resume says "CGPA: 3.8" → Extract as "3.8/10" (CGPA can be low!)
+- Resume says "Percentage: 85" → Extract as "85%"
+- Resume says "Percentage: 8" → Extract as "8%" (percentage can be low!)
+- Resume says "Grade: A+" → Extract as "A+"
+- Resume says "3.7 GPA" → Extract as "3.7/4.0"
+- Resume says "CGPA 7.5" → Extract as "7.5/10"
+- Resume says "4.5 out of 5" → Extract as "4.5/5.0"
 
 **Skills (individual items, not grouped):**
 ["Python", "JavaScript", "React", "Node.js", "Docker", "AWS", "MongoDB", "Git", "Machine Learning", "Data Analysis"]

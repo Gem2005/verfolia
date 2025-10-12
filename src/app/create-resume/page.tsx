@@ -32,6 +32,7 @@ export default function CreateResumePage() {
   const [selectedTheme, setSelectedTheme] = useState("black");
   const [selectedTemplate, setSelectedTemplate] = useState("clean-mono");
   const [showFullPreview, setShowFullPreview] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showMarkdownEditor, setShowMarkdownEditor] = useState(false);
   const [markdown, setMarkdown] = useState("");
   const [resumeTitle, setResumeTitle] = useState("");
@@ -39,6 +40,7 @@ export default function CreateResumePage() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showChoice, setShowChoice] = useState(false);
   const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
 
@@ -201,6 +203,7 @@ export default function CreateResumePage() {
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
+  const [hasAttemptedNext, setHasAttemptedNext] = useState(false); // Track if user tried to proceed
 
   const [resumeData, setResumeData] = useState<ResumeData>({
     user_id: user?.id || "",
@@ -355,6 +358,10 @@ export default function CreateResumePage() {
     }
 
     setIsTransitioning(true);
+    // Clear validation errors and reset attempt flag when changing steps
+    setValidationErrors({});
+    setHasAttemptedNext(false);
+    
     setTimeout(() => {
       setCurrentStep(step);
       setIsTransitioning(false);
@@ -430,8 +437,12 @@ export default function CreateResumePage() {
   ]);
 
   const canProceedToNext = useMemo(
-    () => validateCurrentStep(),
-    [validateCurrentStep]
+    () => {
+      // Don't show validation errors until user tries to proceed
+      if (!hasAttemptedNext) return true;
+      return validateCurrentStep();
+    },
+    [validateCurrentStep, hasAttemptedNext]
   );
 
   const renderResumePreview = () => {
@@ -963,8 +974,13 @@ export default function CreateResumePage() {
 
               {currentStep < steps.length - 1 ? (
                 <Button
-                  onClick={() => goToStep(currentStep + 1)}
-                  disabled={!canProceedToNext}
+                  onClick={() => {
+                    setHasAttemptedNext(true);
+                    if (validateCurrentStep()) {
+                      goToStep(currentStep + 1);
+                      setHasAttemptedNext(false); // Reset for next step
+                    }
+                  }}
                   className="button-enhanced bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Next

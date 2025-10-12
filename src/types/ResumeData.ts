@@ -34,9 +34,8 @@ export interface ResumeData {
     field?: string;
     startDate: string;
     endDate: string;
-    gpa?: string;
-  }>;
-  skills: string[];
+    gpa?: string; // Kept for backward compatibility, stores any grade format
+  }>;  skills: string[];
   projects: Array<{
     id: string;
     name: string;

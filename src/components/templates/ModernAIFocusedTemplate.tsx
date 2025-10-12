@@ -1,18 +1,22 @@
 "use client";
+import { useState } from "react";
 import type {
   PortfolioData,
   PortfolioTemplateProps,
 } from "@/types/PortfolioTypes";
-import { Github, Linkedin, Mail, Twitter } from "lucide-react";
+import { Github, Linkedin, Mail, Twitter, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatDateToDisplay } from "@/utils/date-utils";
+import { formatGradeDisplay } from "@/utils/grade-utils";
 
 export function ModernAIFocusedTemplate({
   data,
-  preview = false,
   theme = "black",
 }: PortfolioTemplateProps & { theme?: string }) {
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  
   // Use provided data or fallback to mock data only if no data is provided
   const portfolioData: PortfolioData =
     data && data.personalInfo && data.personalInfo.firstName
@@ -346,8 +350,8 @@ export function ModernAIFocusedTemplate({
                       {exp.company}
                     </p>
                     <p className={`text-sm ${themeClasses.accent} mb-3`}>
-                      {exp.startDate} -{" "}
-                      {exp.isPresent ? "Present" : exp.endDate}
+                      {formatDateToDisplay(exp.startDate)} -{" "}
+                      {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
                     </p>
                     {exp.description && (
                       <p className={`${themeClasses.text} leading-relaxed`}>
@@ -398,7 +402,7 @@ export function ModernAIFocusedTemplate({
                     )}
                     {edu.cgpa && (
                       <p className={`text-sm ${themeClasses.text}`}>
-                        CGPA: {edu.cgpa}
+                        {formatGradeDisplay(edu.cgpa)}
                       </p>
                     )}
                   </div>
@@ -439,7 +443,7 @@ export function ModernAIFocusedTemplate({
             </h2>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {portfolioData.projects.map((project) => (
+              {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
                 <div
                   key={project.id}
                   className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder} hover:shadow-lg transition-shadow`}
@@ -484,6 +488,26 @@ export function ModernAIFocusedTemplate({
                 </div>
               ))}
             </div>
+
+            {portfolioData.projects.length > 3 && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={() => setShowAllProjects(!showAllProjects)}
+                  variant="outline"
+                  className={`${themeClasses.text} ${themeClasses.border} hover:bg-gray-100`}
+                >
+                  {showAllProjects ? (
+                    <>
+                      View Less <ChevronUp className="ml-2 w-4 h-4 inline" />
+                    </>
+                  ) : (
+                    <>
+                      View All Projects <ChevronDown className="ml-2 w-4 h-4 inline" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </section>
         )}
 
@@ -511,7 +535,7 @@ export function ModernAIFocusedTemplate({
                     </p>
                     {cert.date && (
                       <p className={`text-sm ${themeClasses.accent} mb-3`}>
-                        Issued: {cert.date}
+                        Issued: {formatDateToDisplay(cert.date)}
                       </p>
                     )}
                     {cert.url && cert.url !== "#" && (
@@ -529,16 +553,105 @@ export function ModernAIFocusedTemplate({
             </section>
           )}
 
+        {/* Languages Section */}
+        {portfolioData.languages && portfolioData.languages.length > 0 && (
+          <section className="mb-16">
+            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>
+              Languages
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {portfolioData.languages.map((lang) => (
+                <div
+                  key={lang.id}
+                  className={`${themeClasses.cardBg} p-4 rounded-lg border ${themeClasses.cardBorder}`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className={`font-semibold ${themeClasses.text}`}>
+                      {lang.name}
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className={`${themeClasses.cardBg} ${themeClasses.text} border ${themeClasses.border}`}
+                    >
+                      {lang.proficiency}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Custom Sections */}
+        {portfolioData.customSections && portfolioData.customSections.length > 0 && (
+          <>
+            {portfolioData.customSections.map((section) => (
+              <section key={section.id} className="mb-16">
+                <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>
+                  {section.title}
+                </h2>
+                <div className="space-y-6">
+                  {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder}`}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <h3 className={`font-bold text-lg ${themeClasses.text} mb-1`}>
+                            {item.title}
+                          </h3>
+                          {item.subtitle && (
+                            <p className={`${themeClasses.accent} font-medium`}>
+                              {item.subtitle}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right ml-4">
+                          {item.date && (
+                            <p className={`text-sm ${themeClasses.accent}`}>
+                              {formatDateToDisplay(item.date)}
+                            </p>
+                          )}
+                          {item.location && (
+                            <p className={`text-sm ${themeClasses.accent}`}>
+                              {item.location}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {item.description && (
+                        <p className={`${themeClasses.text} mb-3`}>
+                          {item.description}
+                        </p>
+                      )}
+                      {item.details && item.details.length > 0 && (
+                        <ul className={`list-disc list-inside space-y-1 ${themeClasses.accent}`}>
+                          {item.details.map((detail, detailIdx) => (
+                            <li key={detailIdx}>{detail}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )) : (
+                    <p className={themeClasses.text}>No items in this section</p>
+                  )}
+                </div>
+              </section>
+            ))}
+          </>
+        )}
+
         {/* Contact Section */}
         <section className="mb-16">
           <h2
             className={`text-2xl font-bold mb-6 text-center ${themeClasses.text}`}
           >
-            Let's Connect
+            Let&apos;s Connect
           </h2>
           <div className="text-center">
             <p className={`${themeClasses.accent} mb-8 max-w-2xl mx-auto`}>
-              I'm always open to discussing new opportunities, collaborations,
+              I&apos;m always open to discussing new opportunities, collaborations,
               or just having a chat about technology and innovation.
             </p>
             {portfolioData.personalInfo.email && (

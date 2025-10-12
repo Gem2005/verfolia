@@ -153,16 +153,19 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">GPA/Grade</Label>
+                  <Label className="text-sm font-medium">GPA/CGPA/Grade</Label>
                   <Input
                     value={edu.gpa}
                     onChange={(e) => updateEducationField(edu.id, "gpa", e.target.value)}
                     className={`h-10 ${validationErrors[`education_${edu.id}_gpa`] ? "border-red-500" : ""}`}
-                    placeholder="e.g., 3.8 or 85%"
+                    placeholder="e.g., 3.8/4.0, 8.5/10, 85%, A+"
                   />
                   {validationErrors[`education_${edu.id}_gpa`] && (
                     <p className="text-xs text-red-500">{validationErrors[`education_${edu.id}_gpa`]}</p>
                   )}
+                  <p className="text-xs text-muted-foreground">
+                    Enter with scale: 3.8/4.0 (GPA), 8.5/10 (CGPA), 85%, or A+
+                  </p>
                 </div>
               </div>
             </div>

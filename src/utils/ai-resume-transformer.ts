@@ -5,6 +5,7 @@
 
 import { ResumeData } from '@/types/ResumeData';
 import { AIResumeData } from '@/services/ai-resume-parser';
+import { formatDateToInput } from './date-utils';
 
 export function transformAIResumeToResumeData(aiData: AIResumeData): Partial<ResumeData> {
   return {
@@ -24,8 +25,8 @@ export function transformAIResumeToResumeData(aiData: AIResumeData): Partial<Res
       id: crypto.randomUUID(),
       position: exp.position || '',
       company: exp.company || '',
-      startDate: exp.start_date || '',
-      endDate: exp.end_date || '',
+      startDate: formatDateToInput(exp.start_date || ''),
+      endDate: formatDateToInput(exp.end_date || ''),
       isPresent: exp.current || false,
       description: exp.description || '',
     })),
@@ -34,8 +35,8 @@ export function transformAIResumeToResumeData(aiData: AIResumeData): Partial<Res
       institution: edu.institution || '',
       degree: edu.degree || '',
       field: edu.field || '',
-      startDate: edu.start_date || '',
-      endDate: edu.end_date || '',
+      startDate: formatDateToInput(edu.start_date || ''),
+      endDate: formatDateToInput(edu.end_date || ''),
       gpa: edu.gpa || '',
     })),
     skills: aiData.skills || [],
@@ -51,7 +52,7 @@ export function transformAIResumeToResumeData(aiData: AIResumeData): Partial<Res
       id: crypto.randomUUID(),
       name: cert.name || '',
       issuer: cert.issuer || '',
-      date: cert.date || '',
+      date: formatDateToInput(cert.date || ''),
       url: cert.url || '',
     })),
     languages: (aiData.languages || []).map((lang) => ({
@@ -66,7 +67,7 @@ export function transformAIResumeToResumeData(aiData: AIResumeData): Partial<Res
         title: item.title || '',
         subtitle: item.subtitle || '',
         description: item.description || '',
-        date: item.date || '',
+        date: formatDateToInput(item.date || ''),
         location: item.location || '',
         details: item.details || [],
       })),

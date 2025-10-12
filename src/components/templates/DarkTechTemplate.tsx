@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import type {
   PortfolioData,
   PortfolioTemplateProps,
@@ -11,17 +12,21 @@ import {
   Code,
   BookOpen,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { formatDescription } from "@/utils/formatDescription";
 import { Button } from "@/components/ui/button";
+import { formatDateToDisplay } from "@/utils/date-utils";
+import { formatGradeDisplay } from "@/utils/grade-utils";
 
 export function DarkTechTemplate({
   data,
-  preview = false,
   theme = "black",
 }: PortfolioTemplateProps & { theme?: string }) {
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  
   // Use provided data or fallback to mock data only if no data is provided
   const portfolioData: PortfolioData =
     data && data.personalInfo && data.personalInfo.firstName
@@ -343,8 +348,8 @@ export function DarkTechTemplate({
                     </h3>
                     <p className="text-gray-300 mb-1">{exp.company}</p>
                     <p className="text-sm text-gray-500 mb-2">
-                      {exp.startDate} -{" "}
-                      {exp.isPresent ? "Present" : exp.endDate}
+                      {formatDateToDisplay(exp.startDate)} -{" "}
+                      {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
                     </p>
                     {exp.description && (
                       <p className="text-gray-400 text-sm leading-relaxed">
@@ -363,8 +368,8 @@ export function DarkTechTemplate({
           <section className="mb-24">
             <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {portfolioData.projects.map((project) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
                 <div
                   key={project.id}
                   className={`group relative ${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-lg overflow-hidden transition-all ${
@@ -449,15 +454,183 @@ export function DarkTechTemplate({
               ))}
             </div>
 
-            <div className="flex justify-center mt-8">
-              <Button
-                variant="outline"
-                className="border-gray-700 hover:bg-gray-800 bg-transparent"
-              >
-                VIEW ALL PROJECTS <ChevronRight className="ml-2 w-4 h-4" />
-              </Button>
+            {portfolioData.projects.length > 3 && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  variant="outline"
+                  className="border-gray-700 hover:bg-gray-800 bg-transparent"
+                  onClick={() => setShowAllProjects(!showAllProjects)}
+                >
+                  {showAllProjects ? (
+                    <>
+                      VIEW LESS <ChevronUp className="ml-2 w-4 h-4" />
+                    </>
+                  ) : (
+                    <>
+                      VIEW ALL PROJECTS <ChevronDown className="ml-2 w-4 h-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Certifications Section */}
+        {portfolioData.certifications && portfolioData.certifications.length > 0 && (
+          <section className="mb-24">
+            <h2 className="text-2xl font-bold mb-8">Certifications</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {portfolioData.certifications.map((cert) => (
+                <div
+                  key={cert.id}
+                  className={`p-5 rounded-lg border transition-all ${
+                    theme === "white"
+                      ? "border-gray-200 hover:border-blue-200"
+                      : "bg-gray-900/50 border-gray-800 hover:border-blue-500/50"
+                  }`}
+                  style={{
+                    ...(theme === "white" && {
+                      background: "rgba(255, 255, 255, 0.2)",
+                      backdropFilter: "blur(5px)",
+                      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.04)",
+                    })
+                  }}
+                >
+                  <h3 className="font-bold text-lg mb-1">{cert.title}</h3>
+                  <p className={`text-sm mb-2 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                    {cert.issuer}
+                  </p>
+                  {cert.date && (
+                    <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                      {formatDateToDisplay(cert.date)}
+                    </p>
+                  )}
+                  {cert.url && (
+                    <Link
+                      href={cert.url}
+                      target="_blank"
+                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors inline-block mt-2"
+                    >
+                      View Certificate
+                    </Link>
+                  )}
+                </div>
+              ))}
             </div>
           </section>
+        )}
+
+        {/* Languages Section */}
+        {portfolioData.languages && portfolioData.languages.length > 0 && (
+          <section className="mb-24">
+            <h2 className="text-2xl font-bold mb-8">Languages</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {portfolioData.languages.map((lang) => (
+                <div
+                  key={lang.id}
+                  className={`p-4 rounded-lg border ${
+                    theme === "white"
+                      ? "border-gray-200"
+                      : "bg-gray-900/50 border-gray-800"
+                  }`}
+                  style={{
+                    ...(theme === "white" && {
+                      background: "rgba(255, 255, 255, 0.2)",
+                      backdropFilter: "blur(5px)",
+                    })
+                  }}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">{lang.name}</span>
+                    <Badge
+                      className={`${
+                        theme === "white"
+                          ? "text-gray-600 border-gray-200"
+                          : "bg-gray-800 text-gray-300 border-gray-700"
+                      }`}
+                      style={{
+                        ...(theme === "white" && {
+                          background: "rgba(255, 255, 255, 0.4)",
+                          backdropFilter: "blur(4px)",
+                        })
+                      }}
+                    >
+                      {lang.proficiency}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Custom Sections */}
+        {portfolioData.customSections && portfolioData.customSections.length > 0 && (
+          <>
+            {portfolioData.customSections.map((section) => (
+              <section key={section.id} className="mb-24">
+                <h2 className="text-2xl font-bold mb-8">{section.title}</h2>
+                <div className="space-y-6">
+                  {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-5 rounded-lg border ${
+                        theme === "white"
+                          ? "border-gray-200"
+                          : "bg-gray-900/50 border-gray-800"
+                      }`}
+                      style={{
+                        ...(theme === "white" && {
+                          background: "rgba(255, 255, 255, 0.2)",
+                          backdropFilter: "blur(5px)",
+                        })
+                      }}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-lg">{item.title}</h3>
+                          {item.subtitle && (
+                            <p className={`text-sm ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                              {item.subtitle}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right ml-4">
+                          {item.date && (
+                            <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                              {formatDateToDisplay(item.date)}
+                            </p>
+                          )}
+                          {item.location && (
+                            <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                              {item.location}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {item.description && (
+                        <p className={`mb-3 ${theme === "white" ? "text-gray-700" : "text-gray-300"}`}>
+                          {item.description}
+                        </p>
+                      )}
+                      {item.details && item.details.length > 0 && (
+                        <ul className={`list-disc list-inside space-y-1 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                          {item.details.map((detail, detailIdx) => (
+                            <li key={detailIdx}>{detail}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )) : (
+                    <p className={theme === "white" ? "text-gray-600" : "text-gray-400"}>
+                      No items in this section
+                    </p>
+                  )}
+                </div>
+              </section>
+            ))}
+          </>
         )}
 
         {/* Education Section */}
@@ -495,9 +668,17 @@ export function DarkTechTemplate({
                     )}
                   </h3>
                   <p className="text-gray-300 mb-1">{edu.degree}</p>
-                  <p className="text-sm text-gray-500">
+                  {edu.field && (
+                    <p className="text-gray-400 mb-1 text-sm">{edu.field}</p>
+                  )}
+                  <p className="text-sm text-gray-500 mb-1">
                     {edu.startYear} - {edu.endYear}
                   </p>
+                  {edu.cgpa && (
+                    <p className="text-sm text-gray-400 font-medium">
+                      {formatGradeDisplay(edu.cgpa)}
+                    </p>
+                  )}
                 </div>
               </div>
             ))}

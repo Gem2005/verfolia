@@ -57,6 +57,23 @@ export interface PortfolioData {
     date: string;
     url: string;
   }>;
+  languages?: Array<{
+    id: string;
+    name: string;
+    proficiency?: string;
+  }>;
+  customSections?: Array<{
+    id: string;
+    title: string;
+    items: Array<{
+      title?: string;
+      subtitle?: string;
+      description?: string;
+      date?: string;
+      location?: string;
+      details?: string[];
+    }>;
+  }>;
   interests: string[];
 }
 

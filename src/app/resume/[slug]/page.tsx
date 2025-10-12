@@ -106,6 +106,12 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       : [];
     const languages = Array.isArray(resume.languages) ? resume.languages : [];
 
+    const mappedCustomSections = customSections.map((section: CustomSection) => ({
+      id: section.id || Math.random().toString(),
+      title: section.title || "Custom Section",
+      items: section.items || [],
+    }));
+
     return {
       personalInfo: {
         firstName: personalInfo.firstName || "John",
@@ -159,6 +165,12 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
         date: cert.date || "",
         url: cert.url || "",
       })),
+      languages: languages.map((lang: Language) => ({
+        id: lang.id || Math.random().toString(),
+        name: lang.name || "Language",
+        proficiency: lang.proficiency || "",
+      })),
+      customSections: mappedCustomSections,
       interests: [
         ...customSections
           .map((section: CustomSection) => section.title)

@@ -1,16 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type {
   PortfolioData,
   PortfolioTemplateProps,
 } from "@/types/PortfolioTypes";
-import { ExternalLink, Github, Linkedin, Mail, Twitter } from "lucide-react";
+import { ExternalLink, Github, Linkedin, Mail, Twitter, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { resumeService } from "@/services/resume-service";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 import { formatDescription } from "@/utils/formatDescription";
+import { formatDateToDisplay } from "@/utils/date-utils";
+import { formatGradeDisplay } from "@/utils/grade-utils";
 
 interface CleanMonoTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -19,10 +21,11 @@ interface CleanMonoTemplateProps extends PortfolioTemplateProps {
 
 export function CleanMonoTemplate({
   data,
-  preview = false,
   theme = "black",
   resumeId,
 }: CleanMonoTemplateProps) {
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  
   // Use provided data or fallback to mock data only if no data is provided
   const portfolioData: PortfolioData =
     data && data.personalInfo && data.personalInfo.firstName
@@ -239,19 +242,6 @@ export function CleanMonoTemplate({
 
   const themeClasses = getThemeClasses();
 
-  const handleViewMore = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (resumeId) {
-      resumeService.trackResumeInteraction(
-        resumeId,
-        "button_click",
-        "view_more_projects",
-        "projects"
-      );
-    }
-    console.log("View more clicked");
-  };
-
   const handleReadMore = (e: React.MouseEvent) => {
     e.preventDefault();
     if (resumeId) {
@@ -262,7 +252,6 @@ export function CleanMonoTemplate({
         "blogs"
       );
     }
-    console.log("Read more blogs clicked");
   };
 
   const handleContactClick = (method: string) => {
@@ -560,16 +549,16 @@ export function CleanMonoTemplate({
                             e.stopPropagation();
                             trackInteraction(
                               "date_click",
-                              `${exp.startDate} - ${
-                                exp.isPresent ? "Present" : exp.endDate
+                              `${formatDateToDisplay(exp.startDate)} - ${
+                                exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')
                               }`,
                               "experience"
                             );
                           }}
                           data-trackable="date-range"
                         >
-                          {exp.startDate} -{" "}
-                          {exp.isPresent ? "Present" : exp.endDate}
+                          {formatDateToDisplay(exp.startDate)} -{" "}
+                          {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
                         </p>
                         {exp.description && (
                           <div
@@ -702,7 +691,7 @@ export function CleanMonoTemplate({
                             }}
                             data-trackable="cgpa"
                           >
-                            CGPA: {edu.cgpa}
+                            {formatGradeDisplay(edu.cgpa)}
                           </p>
                         )}
                       </div>
@@ -775,12 +764,12 @@ export function CleanMonoTemplate({
                 }
                 data-trackable="projects-description"
               >
-                I've worked on a variety of projects, from simple websites to
+                I&apos;ve worked on a variety of projects, from simple websites to
                 complex web applications. Here are a few of my favorites.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {portfolioData.projects.map((project) => (
+                {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
                   <div
                     key={project.id}
                     className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer`}
@@ -888,18 +877,149 @@ export function CleanMonoTemplate({
                   </div>
                 ))}
               </div>
-              <div className="text-center mt-8">
-                <Button
-                  variant="default"
-                  onClick={handleViewMore}
-                  className={`${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} px-8 py-3 text-base transition-all duration-200 border ${themeClasses.border} rounded-lg hover:scale-105`}
-                  data-trackable="button"
-                >
-                  View All Projects
-                </Button>
+              {portfolioData.projects.length > 3 && (
+                <div className="text-center mt-8">
+                  <Button
+                    variant="default"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowAllProjects(!showAllProjects);
+                      if (resumeId) {
+                        resumeService.trackResumeInteraction(
+                          resumeId,
+                          "button_click",
+                          showAllProjects ? "view_less_projects" : "view_more_projects",
+                          "projects"
+                        );
+                      }
+                    }}
+                    className={`${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} px-8 py-3 text-base transition-all duration-200 border ${themeClasses.border} rounded-lg hover:scale-105`}
+                    data-trackable="button"
+                  >
+                    {showAllProjects ? (
+                      <>
+                        <ChevronUp className="w-4 h-4 mr-2 inline" />
+                        View Less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-4 h-4 mr-2 inline" />
+                        View All Projects
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </section>
+          </SectionViewTracker>
+        )}
+
+        {/* Certifications Section */}
+        {portfolioData.certifications && portfolioData.certifications.length > 0 && (
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="certifications">
+            <section className="mb-16" data-section="certifications">
+              <h2
+                className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+              >
+                Certifications
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {portfolioData.certifications.map((cert) => (
+                  <div
+                    key={cert.id}
+                    className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl p-6 hover:shadow-md transition-all duration-200`}
+                  >
+                    <h3 className={`font-bold text-lg mb-2 ${themeClasses.text}`}>
+                      {cert.title}
+                    </h3>
+                    <p className={`${themeClasses.accent} mb-2`}>
+                      {cert.issuer}
+                    </p>
+                    {cert.date && (
+                      <p className={`text-sm ${themeClasses.accent} mb-3`}>
+                        {formatDateToDisplay(cert.date)}
+                      </p>
+                    )}
+                    {cert.url && (
+                      <TrackableLink
+                        href={cert.url}
+                        resumeId={resumeId || ""}
+                        interactionType="certification_link_click"
+                        sectionName="certifications"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        View Certificate →
+                      </TrackableLink>
+                    )}
+                  </div>
+                ))}
               </div>
             </section>
           </SectionViewTracker>
+        )}
+
+        {/* Custom Sections */}
+        {portfolioData.customSections && portfolioData.customSections.length > 0 && (
+          <>
+            {portfolioData.customSections.map((section) => (
+              <SectionViewTracker key={section.id} resumeId={resumeId || ""} sectionName={`custom_${section.title}`}>
+                <section className="mb-16" data-section={`custom-${section.id}`}>
+                  <h2
+                    className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+                  >
+                    {section.title}
+                  </h2>
+                  <div className="space-y-6">
+                    {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl p-6`}
+                      >
+                        {item.title && (
+                          <h3 className={`font-bold text-lg mb-2 ${themeClasses.text}`}>
+                            {item.title}
+                          </h3>
+                        )}
+                        {item.subtitle && (
+                          <p className={`${themeClasses.accent} mb-2`}>
+                            {item.subtitle}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-4 text-sm mb-3">
+                          {item.date && (
+                            <span className={`${themeClasses.accent}`}>
+                              {formatDateToDisplay(item.date)}
+                            </span>
+                          )}
+                          {item.location && (
+                            <span className={`${themeClasses.accent}`}>
+                              📍 {item.location}
+                            </span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className={`${themeClasses.text} mb-3 leading-relaxed`}>
+                            {item.description}
+                          </p>
+                        )}
+                        {item.details && item.details.length > 0 && (
+                          <ul className="list-disc list-inside space-y-1">
+                            {item.details.map((detail, dIdx) => (
+                              <li key={dIdx} className={`${themeClasses.text} text-sm`}>
+                                {detail}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )) : <p className={`${themeClasses.text}`}>No items in this section</p>}
+                  </div>
+                </section>
+              </SectionViewTracker>
+            ))}
+          </>
         )}
 
         {/* Blogs Section */}
@@ -960,7 +1080,7 @@ export function CleanMonoTemplate({
           <h2
             className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
           >
-            Let's Work Together
+            Let&apos;s Work Together
           </h2>
           <div
             className={`${themeClasses.cardBg} p-8 rounded-xl shadow-sm border ${themeClasses.cardBorder}`}

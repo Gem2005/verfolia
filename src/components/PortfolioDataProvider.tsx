@@ -1,5 +1,6 @@
 import type { PortfolioData } from "@/types/PortfolioTypes";
 import type { ResumeData } from "@/types/ResumeData";
+import { formatDateToDisplay } from "@/utils/date-utils";
 
 export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
   personalInfo: {
@@ -82,9 +83,9 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           institution: edu.institution,
           degree: edu.degree,
           field: edu.field,
-          startYear: edu.startDate,
-          endYear: edu.endDate,
-          cgpa: edu.gpa || "3.8",
+          startYear: formatDateToDisplay(edu.startDate),
+          endYear: formatDateToDisplay(edu.endDate),
+          cgpa: edu.gpa || "",
         }))
       : [
           {
@@ -165,6 +166,22 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
             url: "https://scrum.org/professional-scrum-certifications",
           },
         ],
+  languages:
+    resumeData.languages.length > 0
+      ? resumeData.languages.map((lang) => ({
+          id: lang.id,
+          name: lang.name,
+          proficiency: lang.proficiency || "",
+        }))
+      : [],
+  customSections:
+    resumeData.customSections.length > 0
+      ? resumeData.customSections.map((section) => ({
+          id: section.id,
+          title: section.title,
+          items: section.items || [],
+        }))
+      : [],
   interests:
     resumeData.customSections.length > 0
       ? resumeData.customSections.map((section) => section.title)
