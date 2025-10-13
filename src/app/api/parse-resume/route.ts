@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { parseResumeWithAI, validateAIResumeData, AIResumeData } from '@/services/ai-resume-parser';
 import { formatAIResumeForAPI } from '@/utils/ai-resume-transformer';
 import { uploadResumeFile } from '@/lib/supabase-storage';
+import { createClient } from '@/utils/supabase/server';
 
 export const runtime = 'nodejs';
 
@@ -110,6 +111,8 @@ export async function POST(request: NextRequest) {
     });
 
     let uploadedFileData = null;
+    let uploadedFileRecord = null;
+    
     if (userId && resumeId) {
       try {
         uploadedFileData = await uploadResumeFile({
@@ -120,6 +123,33 @@ export async function POST(request: NextRequest) {
           mimeType: fileData.type,
         });
         console.log('[AI Parse] File uploaded to storage:', uploadedFileData.filePath);
+
+        // Save file metadata to database for tracking and reuse
+        // Use server-side Supabase client to avoid RLS issues
+        const supabase = await createClient();
+        const { data: fileRecord, error: fileError } = await supabase
+          .from('uploaded_resume_files')
+          .insert({
+            user_id: userId,
+            file_path: uploadedFileData.filePath,
+            file_url: uploadedFileData.fileUrl,
+            original_filename: fileData.name,
+            file_size_bytes: fileData.size,
+            mime_type: fileData.type,
+            parsed_data: formattedData as Record<string, unknown>,
+            is_used: false,
+          })
+          .select()
+          .single();
+
+        if (fileError) {
+          console.error('[AI Parse] Failed to save file metadata:', fileError);
+          // Don't fail the whole request - file is uploaded to storage
+        } else {
+          uploadedFileRecord = fileRecord;
+          console.log('[AI Parse] File metadata saved to database:', uploadedFileRecord.id);
+        }
+        
       } catch (uploadError) {
         console.error('[AI Parse] File upload failed:', uploadError);
       }
@@ -135,6 +165,7 @@ export async function POST(request: NextRequest) {
         editor_markdown: '',
         warnings: aiParsed.warnings || [],
         uploaded_file: uploadedFileData,
+        uploaded_file_id: uploadedFileRecord?.id, // ID for linking with resume
         metadata: {
           parsed_at: new Date().toISOString(),
           processing_time_ms: Date.now() - startTime,

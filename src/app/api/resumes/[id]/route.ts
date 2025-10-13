@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { resumeService } from "@/services/resume-service";
-import { deleteResumeFile } from "@/lib/supabase-storage";
+import { uploadedFilesService } from "@/services/uploaded-files-service";
 
 export async function GET(
   request: NextRequest,
@@ -99,10 +99,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch the resume directly using server-side client to verify ownership and get file path
+    // Fetch the resume directly using server-side client to verify ownership and get file ID
     const { data: existingResume, error: fetchError } = await supabase
       .from('resumes')
-      .select('id, user_id, uploaded_file_path')
+      .select('id, user_id, uploaded_file_id, uploaded_file_path')
       .eq('id', id)
       .single();
 
@@ -129,14 +129,18 @@ export async function DELETE(
       );
     }
 
-    // If resume has an uploaded file, delete it from storage
-    // Continue even if storage deletion fails since DB record is already gone
-    if (existingResume.uploaded_file_path) {
+    // If resume has an uploaded file tracked in our system, mark it as unused (allow reuse)
+    // This is the key change: we DON'T delete the file, we mark it as available for reuse
+    if (existingResume.uploaded_file_id) {
       try {
-        await deleteResumeFile(existingResume.uploaded_file_path);
-      } catch (storageError) {
-        console.error("Failed to delete file from storage:", storageError);
-        // Don't fail the request - DB deletion succeeded
+        await uploadedFilesService.markFileAsUnused(existingResume.uploaded_file_id);
+        console.log(
+          `[Resume Delete] Marked file ${existingResume.uploaded_file_id} as unused for potential reuse`
+        );
+      } catch (fileError) {
+        console.error('[Resume Delete] Failed to mark file as unused:', fileError);
+        // Continue - resume is already deleted from DB
+        // File will remain marked as used but orphaned (cleanup job can handle this)
       }
     }
 

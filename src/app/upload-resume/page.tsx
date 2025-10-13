@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Upload, FileText, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { formatDateToInput } from "@/utils/date-utils";
 import { useAuth } from "@/hooks/use-auth";
+import { UploadedFilesManager } from "@/components/uploaded-files-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -98,6 +100,39 @@ export default function UploadResumePage() {
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [hasExistingFiles, setHasExistingFiles] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState<"existing" | "upload">("existing");
+
+  // Check if user has existing uploaded files
+  useEffect(() => {
+    const checkExistingFiles = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await fetch('/api/uploaded-files');
+        if (response.ok) {
+          const data = await response.json();
+          const hasFiles = data.files && data.files.length > 0;
+          setHasExistingFiles(hasFiles);
+          
+          // If user has files, default to existing tab; otherwise upload tab
+          if (!hasFiles) {
+            setActiveTab("upload");
+          } else {
+            setActiveTab("existing");
+          }
+        }
+      } catch (error) {
+        console.error('Error checking existing files:', error);
+        // Default to upload tab on error
+        setActiveTab("upload");
+      }
+    };
+
+    if (user && !loading) {
+      checkExistingFiles();
+    }
+  }, [user, loading]);
 
   const handleFileUpload = async (file: File) => {
     // Validation
@@ -409,14 +444,54 @@ export default function UploadResumePage() {
             </CardContent>
           </Card>
         ) : (
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-glass-white">Upload Resume</CardTitle>
-              <CardDescription className="text-glass-gray">
-                Supports PDF, DOCX, and DOC files up to 10MB
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <>
+            {/* Tabs for Existing vs Upload New */}
+            {hasExistingFiles !== null && (
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "existing" | "upload")} className="w-full">
+                <TabsList className="card-enhanced grid w-full grid-cols-2 h-12 p-1 bg-muted/50 border border-border">
+                  <TabsTrigger 
+                    value="existing" 
+                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Use Existing
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="upload" 
+                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload New
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Existing Files Tab Content */}
+                <TabsContent value="existing" className="mt-6">
+                  <Card className="card-enhanced border border-border shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-glass-white">Your Uploaded Resumes</CardTitle>
+                      <CardDescription className="text-glass-gray">
+                        Select a previously uploaded resume to use
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div id="uploaded-files-section">
+                        <UploadedFilesManager />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Upload New Tab Content */}
+                <TabsContent value="upload" className="mt-6">
+                  <Card className="card-enhanced border border-border shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-glass-white">Upload Resume</CardTitle>
+                      <CardDescription className="text-glass-gray">
+                        Supports PDF, DOCX, and DOC files up to 10MB
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
             <div
               className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                 isDragging 
@@ -517,6 +592,10 @@ export default function UploadResumePage() {
             </div>
           </CardContent>
         </Card>
+                </TabsContent>
+              </Tabs>
+            )}
+          </>
         )}
 
         {user && (
@@ -563,11 +642,13 @@ export default function UploadResumePage() {
         )}
 
         {user && (
-          <Card className="glass-card mt-8">
-            <CardHeader>
-              <CardTitle className="text-glass-white">How It Works</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <>
+            {/* How It Works Section */}
+            <Card className="glass-card mt-8">
+              <CardHeader>
+                <CardTitle className="text-glass-white">How It Works</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
                   <span className="text-xs font-semibold text-glass-blue">1</span>
@@ -605,6 +686,7 @@ export default function UploadResumePage() {
               </div>
             </CardContent>
           </Card>
+          </>
         )}
       </div>
     </div>

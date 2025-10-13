@@ -44,6 +44,7 @@ export default function CreateResumePage() {
   const [showChoice, setShowChoice] = useState(false);
   const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
   const [uploadedFileData, setUploadedFileData] = useState<{
+    id?: string; // ID from uploaded_resume_files table
     filePath: string;
     fileUrl: string;
     fileSize: number;
@@ -102,6 +103,7 @@ export default function CreateResumePage() {
           // Store uploaded file metadata if present
           if (parsed.uploadedFile) {
             setUploadedFileData({
+              id: parsed.uploadedFileId, // NEW: Store the uploaded_file_id
               filePath: parsed.uploadedFile.filePath,
               fileUrl: parsed.uploadedFile.fileUrl,
               fileSize: parsed.uploadedFile.fileSize,
@@ -109,6 +111,18 @@ export default function CreateResumePage() {
               originalFilename: parsed.originalFilename || 'resume.pdf',
             });
             console.log('[Prefill] Stored uploaded file metadata:', parsed.uploadedFile);
+          }
+          
+          // Also check for uploadedFileId directly in sessionStorage (set by "Use This File" button)
+          const uploadedFileId = sessionStorage.getItem('uploadedFileId');
+          if (uploadedFileId) {
+            setUploadedFileData((prev) => ({
+              ...prev,
+              id: uploadedFileId,
+            }) as typeof uploadedFileData);
+            // Clean up after reading
+            sessionStorage.removeItem('uploadedFileId');
+            console.log('[Prefill] Found uploadedFileId in sessionStorage:', uploadedFileId);
           }
 
           // Show success toast
@@ -552,7 +566,11 @@ export default function CreateResumePage() {
         languages: resumeData.languages,
         custom_sections: resumeData.customSections,
         view_count: 0,
-        // Add uploaded file metadata if available
+        // Add uploaded file ID if available (links to uploaded_resume_files table)
+        ...(uploadedFileData?.id && {
+          uploaded_file_id: uploadedFileData.id,
+        }),
+        // Add uploaded file metadata if available (for backward compatibility)
         ...(uploadedFileData && {
           uploaded_file_path: uploadedFileData.filePath,
           uploaded_file_url: uploadedFileData.fileUrl,
