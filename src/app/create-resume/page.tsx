@@ -32,8 +32,6 @@ export default function CreateResumePage() {
   const [selectedTheme, setSelectedTheme] = useState("black");
   const [selectedTemplate, setSelectedTemplate] = useState("clean-mono");
   const [showFullPreview, setShowFullPreview] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [showMarkdownEditor, setShowMarkdownEditor] = useState(false);
   const [markdown, setMarkdown] = useState("");
   const [resumeTitle, setResumeTitle] = useState("");
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
@@ -801,14 +799,6 @@ export default function CreateResumePage() {
                 <ArrowLeft className="w-4 h-4" />
                 Back to Choice
                 </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowMarkdownEditor(true)}
-                className="glass-button flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
-              >
-                <PenSquare className="w-4 h-4" />
-                Markdown Editor
-              </Button>
               <Button
                 variant="outline"
                 onClick={() => {
