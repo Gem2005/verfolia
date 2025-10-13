@@ -332,17 +332,14 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">
-                    Date <span className="text-red-500">*</span>
+                    Date
                   </Label>
                   <Input
                     type="month"
                     value={cert.date}
                     onChange={(e) => updateCertificationField(cert.id, "date", e.target.value)}
-                    className={`input-enhanced h-10 ${validationErrors[`certification_${cert.id}_date`] ? "border-red-500" : ""}`}
+                    className="input-enhanced h-10"
                   />
-                  {validationErrors[`certification_${cert.id}_date`] && (
-                    <p className="text-xs text-red-500">{validationErrors[`certification_${cert.id}_date`]}</p>
-                  )}
                 </div>
 
                 <div className="space-y-2">

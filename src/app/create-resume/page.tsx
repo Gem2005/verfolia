@@ -43,6 +43,13 @@ export default function CreateResumePage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showChoice, setShowChoice] = useState(false);
   const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
+  const [uploadedFileData, setUploadedFileData] = useState<{
+    filePath: string;
+    fileUrl: string;
+    fileSize: number;
+    mimeType: string;
+    originalFilename: string;
+  } | null>(null);
 
   // Analytics tracking state
   const [sessionStartTime] = useState<number>(Date.now());
@@ -89,7 +96,20 @@ export default function CreateResumePage() {
             certificationsCount: parsed.certifications?.length || 0,
             languagesCount: parsed.languages?.length || 0,
             customSectionsCount: parsed.customSections?.length || 0,
+            hasUploadedFile: !!parsed.uploadedFile,
           });
+
+          // Store uploaded file metadata if present
+          if (parsed.uploadedFile) {
+            setUploadedFileData({
+              filePath: parsed.uploadedFile.filePath,
+              fileUrl: parsed.uploadedFile.fileUrl,
+              fileSize: parsed.uploadedFile.fileSize,
+              mimeType: parsed.mimeType || 'application/pdf',
+              originalFilename: parsed.originalFilename || 'resume.pdf',
+            });
+            console.log('[Prefill] Stored uploaded file metadata:', parsed.uploadedFile);
+          }
 
           // Show success toast
           toast.success('Resume data loaded successfully!', {
@@ -307,7 +327,6 @@ export default function CreateResumePage() {
       const prefix = `certification_${cert.id}`;
       if (!cert.name.trim()) errors[`${prefix}_name`] = "Certification name is required";
       if (!cert.issuer.trim()) errors[`${prefix}_issuer`] = "Issuer is required";
-      if (!cert.date || !cert.date.trim()) errors[`${prefix}_date`] = "Date is required";
     });
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.certifications]);
@@ -533,6 +552,15 @@ export default function CreateResumePage() {
         languages: resumeData.languages,
         custom_sections: resumeData.customSections,
         view_count: 0,
+        // Add uploaded file metadata if available
+        ...(uploadedFileData && {
+          uploaded_file_path: uploadedFileData.filePath,
+          uploaded_file_url: uploadedFileData.fileUrl,
+          original_filename: uploadedFileData.originalFilename,
+          file_size_bytes: uploadedFileData.fileSize,
+          mime_type: uploadedFileData.mimeType,
+          uploaded_at: new Date().toISOString(),
+        }),
       } as unknown as Omit<Resume, 'id' | 'created_at' | 'updated_at'>;
 
       const savedResume = await resumeService.createResume(resumePayload);

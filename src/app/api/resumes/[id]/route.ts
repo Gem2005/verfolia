@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { resumeService } from "@/services/resume-service";
+import { deleteResumeFile } from "@/lib/supabase-storage";
 
 export async function GET(
   request: NextRequest,
@@ -98,21 +99,45 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Verify user owns this resume
-    const existingResume = await resumeService.getResumeById(id);
-    if (!existingResume) {
+    // Fetch the resume directly using server-side client to verify ownership and get file path
+    const { data: existingResume, error: fetchError } = await supabase
+      .from('resumes')
+      .select('id, user_id, uploaded_file_path')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existingResume) {
+      console.error('Error fetching resume for deletion:', fetchError);
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
     }
+
     if (existingResume.user_id !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const success = await resumeService.deleteResume(id);
-    if (!success) {
+    // Delete resume from database first
+    const { error: deleteError } = await supabase
+      .from('resumes')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      console.error('Error deleting resume from database:', deleteError);
       return NextResponse.json(
-        { error: "Failed to delete resume" },
+        { error: "Failed to delete resume from database" },
         { status: 500 }
       );
+    }
+
+    // If resume has an uploaded file, delete it from storage
+    // Continue even if storage deletion fails since DB record is already gone
+    if (existingResume.uploaded_file_path) {
+      try {
+        await deleteResumeFile(existingResume.uploaded_file_path);
+      } catch (storageError) {
+        console.error("Failed to delete file from storage:", storageError);
+        // Don't fail the request - DB deletion succeeded
+      }
     }
 
     return NextResponse.json({ success: true });

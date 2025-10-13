@@ -24,7 +24,6 @@ import {
   Upload, // Added Upload icon import
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import {
   resumeService,
@@ -34,7 +33,6 @@ import { toast } from "sonner";
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
   const [resumes, setResumes] = useState<ResumeType[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
@@ -87,16 +85,30 @@ export default function Dashboard() {
   };
 
   const handleDeleteResume = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this resume?")) {
+    if (!confirm("Are you sure you want to delete this resume? This will also delete any uploaded files.")) {
       return;
     }
 
     try {
-      await resumeService.deleteResume(id);
-      toast.success("Resume deleted successfully");
-      loadResumes();
+      toast.loading("Deleting resume...");
+      
+      // Call the API endpoint to delete resume (which handles both DB and storage)
+      const response = await fetch(`/api/resumes/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        toast.dismiss();
+        toast.success("Resume and associated files deleted successfully");
+        loadResumes();
+      } else {
+        const error = await response.json();
+        toast.dismiss();
+        toast.error(error.error || "Failed to delete resume");
+      }
     } catch (error) {
       console.error("Error deleting resume:", error);
+      toast.dismiss();
       toast.error("Failed to delete resume");
     }
   };

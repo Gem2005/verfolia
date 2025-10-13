@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseResumeWithAI, validateAIResumeData, AIResumeData } from '@/services/ai-resume-parser';
 import { formatAIResumeForAPI } from '@/utils/ai-resume-transformer';
+import { uploadResumeFile } from '@/lib/supabase-storage';
 
 export const runtime = 'nodejs';
 
@@ -53,6 +54,8 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const fileData = formData.get('file');
+    const userId = formData.get('userId') as string | null;
+    const resumeId = formData.get('resumeId') as string | null;
 
     if (!fileData || !(fileData instanceof File)) {
       return NextResponse.json(
@@ -106,6 +109,22 @@ export async function POST(request: NextRequest) {
       customSections: formattedData.custom_sections,
     });
 
+    let uploadedFileData = null;
+    if (userId && resumeId) {
+      try {
+        uploadedFileData = await uploadResumeFile({
+          userId,
+          resumeId,
+          file: buffer,
+          originalFilename: fileData.name,
+          mimeType: fileData.type,
+        });
+        console.log('[AI Parse] File uploaded to storage:', uploadedFileData.filePath);
+      } catch (uploadError) {
+        console.error('[AI Parse] File upload failed:', uploadError);
+      }
+    }
+
     const response = {
       success: true,
       data: {
@@ -115,6 +134,7 @@ export async function POST(request: NextRequest) {
         parsed_resume: formattedData,
         editor_markdown: '',
         warnings: aiParsed.warnings || [],
+        uploaded_file: uploadedFileData,
         metadata: {
           parsed_at: new Date().toISOString(),
           processing_time_ms: Date.now() - startTime,

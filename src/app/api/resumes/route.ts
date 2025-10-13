@@ -44,7 +44,13 @@ export async function POST(request: NextRequest) {
       projects,
       certifications,
       languages,
-      custom_sections 
+      custom_sections,
+      uploaded_file_path,
+      uploaded_file_url,
+      original_filename,
+      file_size_bytes,
+      mime_type,
+      uploaded_at
     } = body;
 
     // Validate required fields
@@ -70,7 +76,16 @@ export async function POST(request: NextRequest) {
       certifications,
       languages,
       custom_sections, // This now correctly uses the variable from the request
-      view_count: 0 
+      view_count: 0,
+      // Include uploaded file metadata if provided
+      ...(uploaded_file_path && {
+        uploaded_file_path,
+        uploaded_file_url,
+        original_filename,
+        file_size_bytes,
+        mime_type,
+        uploaded_at
+      })
     };
 
     const { data: newResume, error } = await supabase

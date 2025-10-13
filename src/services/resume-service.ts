@@ -104,6 +104,13 @@ export interface Resume {
   view_count: number;
   created_at: string;
   updated_at: string;
+  // Uploaded file metadata
+  uploaded_file_path?: string;
+  uploaded_file_url?: string;
+  original_filename?: string;
+  file_size_bytes?: number;
+  mime_type?: string;
+  uploaded_at?: string;
 }
 
 class ResumeService {
@@ -175,19 +182,24 @@ class ResumeService {
     return data;
   }
 
-  // Delete resume
-  async deleteResume(id: string): Promise<boolean> {
-    const { error } = await this.supabase
-      .from('resumes')
-      .delete()
-      .eq('id', id);
+  // Delete resume from database only (storage deletion handled by API route)
+  async deleteResumeFromDB(id: string): Promise<boolean> {
+    try {
+      const { error } = await this.supabase
+        .from('resumes')
+        .delete()
+        .eq('id', id);
 
-    if (error) {
-      console.error('Error deleting resume:', error);
+      if (error) {
+        console.error('Error deleting resume from database:', error);
+        throw new Error(`Failed to delete resume: ${error.message}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('[Resume Service] Error in deleteResumeFromDB:', error);
       return false;
     }
-
-    return true;
   }
 
   // Get user's resumes

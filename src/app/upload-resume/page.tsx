@@ -8,6 +8,7 @@ import { Upload, FileText, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from 
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { formatDateToInput } from "@/utils/date-utils";
+import { useAuth } from "@/hooks/use-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -91,6 +92,7 @@ interface ParsedResumeData {
 
 export default function UploadResumePage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [isDragging, setIsDragging] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [progress, setProgress] = useState(0);
@@ -134,6 +136,12 @@ export default function UploadResumePage() {
       // Upload and parse
       const formData = new FormData();
       formData.append('file', file);
+      
+      if (user?.id) {
+        formData.append('userId', user.id);
+        const resumeId = crypto.randomUUID();
+        formData.append('resumeId', resumeId);
+      }
 
       setUploadStatus('parsing');
       setProgress(50);
@@ -255,6 +263,7 @@ export default function UploadResumePage() {
         markdown: data.data.editor_markdown || '',
         originalFilename: file.name,
         warnings: warnings,
+        uploadedFile: data.data.uploaded_file || null,
       };
 
       console.log('[Upload] Prefill data prepared:', {
@@ -324,14 +333,90 @@ export default function UploadResumePage() {
           </p>
         </div>
 
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="text-glass-white">Upload Resume</CardTitle>
-            <CardDescription className="text-glass-gray">
-              Supports PDF, DOCX, and DOC files up to 10MB
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        {loading ? (
+          <Card className="glass-card">
+            <CardContent className="py-12">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="w-8 h-8 animate-spin text-glass-blue" />
+                <p className="text-glass-gray">Loading...</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : !user ? (
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-glass-white">Sign In to Upload Your Resume</CardTitle>
+              <CardDescription className="text-glass-gray">
+                Sign in to upload and automatically parse your resume with AI
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="rounded-lg border border-glass-border bg-white/5 p-6">
+                <div className="flex items-start gap-4">
+                  <div className="rounded-full bg-glass-blue/20 p-3">
+                    <Upload className="w-6 h-6 text-glass-blue" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-glass-white mb-2">
+                      AI-Powered Resume Parsing
+                    </h3>
+                    <p className="text-sm text-glass-gray mb-4">
+                      Our AI will automatically extract your information from PDF, DOCX, or DOC files and create a beautiful, modern resume.
+                    </p>
+                    <ul className="space-y-2 text-sm text-glass-gray">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Extract all your experience, education, and skills
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Save your resume to your account
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Edit and customize with ease
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={() => router.push('/login?returnTo=/upload-resume')}
+                  className="flex-1 bg-glass-blue hover:bg-glass-blue/80 text-white"
+                >
+                  Sign In to Upload
+                </Button>
+                <Button 
+                  onClick={() => router.push('/create-resume')}
+                  variant="outline"
+                  className="flex-1 glass-button"
+                >
+                  Build from Scratch
+                </Button>
+              </div>
+
+              <p className="text-xs text-center text-glass-gray">
+                Don&apos;t have an account?{' '}
+                <a 
+                  href="/login?returnTo=/upload-resume" 
+                  className="text-glass-blue hover:underline"
+                >
+                  Sign up for free
+                </a>
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-glass-white">Upload Resume</CardTitle>
+              <CardDescription className="text-glass-gray">
+                Supports PDF, DOCX, and DOC files up to 10MB
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
             <div
               className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                 isDragging 
@@ -432,9 +517,10 @@ export default function UploadResumePage() {
             </div>
           </CardContent>
         </Card>
+        )}
 
-        <div className="mt-8">
-          <Card className="glass-card">
+        {user && (
+          <Card className="glass-card mt-8">
             <CardHeader>
               <CardTitle className="text-lg text-glass-white">What happens next?</CardTitle>
             </CardHeader>
@@ -474,7 +560,52 @@ export default function UploadResumePage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        )}
+
+        {user && (
+          <Card className="glass-card mt-8">
+            <CardHeader>
+              <CardTitle className="text-glass-white">How It Works</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-semibold text-glass-blue">1</span>
+                </div>
+                <div>
+                  <p className="font-medium text-glass-white">Upload Your Resume</p>
+                  <p className="text-sm text-glass-gray">
+                    We support PDF, DOCX, and DOC files up to 10MB
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-semibold text-glass-blue">2</span>
+                </div>
+                <div>
+                  <p className="font-medium text-glass-white">AI Parses Your Data</p>
+                  <p className="text-sm text-glass-gray">
+                    Our AI extracts all your information automatically
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-semibold text-glass-blue">3</span>
+                </div>
+                <div>
+                  <p className="font-medium text-glass-white">Publish & Share</p>
+                  <p className="text-sm text-glass-gray">
+                    Create your shareable profile with analytics tracking
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
