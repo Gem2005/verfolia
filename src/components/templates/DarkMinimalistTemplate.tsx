@@ -5,18 +5,28 @@ import type {
   PortfolioTemplateProps,
 } from "@/types/PortfolioTypes";
 import { ExternalLink, Github, Linkedin, Mail, Twitter, ChevronDown, ChevronUp } from "lucide-react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 import { formatDescription } from "@/utils/formatDescription";
 import { formatDateToDisplay } from "@/utils/date-utils";
 import { formatGradeDisplay } from "@/utils/grade-utils";
 
+interface DarkMinimalistTemplateProps extends PortfolioTemplateProps {
+  theme?: string;
+  resumeId?: string;
+}
+
 export function DarkMinimalistTemplate({
   data,
   theme = "black",
-}: PortfolioTemplateProps & { theme?: string }) {
+  resumeId,
+  preview = false,
+}: DarkMinimalistTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
+  
+  // Disable analytics tracking when in preview/creation mode
+  const disableTracking = preview || !resumeId;
   
   // Use provided data or fallback to mock data only if no data is provided
   const portfolioData: PortfolioData =
@@ -254,7 +264,8 @@ export function DarkMinimalistTemplate({
       >
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12 max-w-5xl">
         {/* Header */}
-        <header className="mb-12 sm:mb-14 md:mb-16 mt-6 sm:mt-8">
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="header" disableTracking={disableTracking}>
+          <header className="mb-12 sm:mb-14 md:mb-16 mt-6 sm:mt-8" data-section="header">
           <div className="flex flex-col md:flex-row items-start justify-between gap-6 md:gap-8">
             <div className="flex-1">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
@@ -292,262 +303,298 @@ export function DarkMinimalistTemplate({
             )}
           </div>
         </header>
+        </SectionViewTracker>
 
         {/* Recent Writings Section */}
         {portfolioData.blogs && portfolioData.blogs.length > 0 && (
-          <section className="mb-16">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
-                Recent Writings
-              </h2>
-              <button
-                className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-              >
-                Explore all →
-              </button>
-            </div>
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="writings" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="writings">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
+                  Recent Writings
+                </h2>
+                <button
+                  className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+                >
+                  Explore all →
+                </button>
+              </div>
 
-            <div className="space-y-6">
-              {portfolioData.blogs.map((blog) => (
-                <div key={blog.id} className="group">
-                  <div
-                    className={`flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
-                  >
-                    <Link
-                      href={blog.url || "#"}
-                      className="flex-1 group-hover:text-blue-400 transition-colors duration-200"
+              <div className="space-y-6">
+                {portfolioData.blogs.map((blog) => (
+                  <div key={blog.id} className="group">
+                    <div
+                      className={`flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
                     >
-                      <h3
-                        className={`text-xl font-semibold mb-2 ${themeClasses.text} group-hover:text-blue-400`}
+                      <TrackableLink
+                        href={blog.url || "#"}
+                        resumeId={resumeId || ""}
+                        interactionType="blog_link_click"
+                        sectionName="writings"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        disableTracking={disableTracking}
+                        className="flex-1 group-hover:text-blue-400 transition-colors duration-200"
                       >
-                        {blog.title}
-                      </h3>
-                      <p className={`${themeClasses.accent} leading-relaxed`}>
-                        {blog.summary}
-                      </p>
-                    </Link>
-                    <span
-                      className={`${themeClasses.accent} text-sm whitespace-nowrap font-medium`}
-                    >
-                      {blog.publishDate}
-                    </span>
+                        <h3
+                          className={`text-xl font-semibold mb-2 ${themeClasses.text} group-hover:text-blue-400`}
+                        >
+                          {blog.title}
+                        </h3>
+                        <p className={`${themeClasses.accent} leading-relaxed`}>
+                          {blog.summary}
+                        </p>
+                      </TrackableLink>
+                      <span
+                        className={`${themeClasses.accent} text-sm whitespace-nowrap font-medium`}
+                      >
+                        {blog.publishDate}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Projects Section */}
         {portfolioData.projects && portfolioData.projects.length > 0 && (
-          <section className="mb-16">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
-                Projects
-              </h2>
-              <button
-                className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-              >
-                View all →
-              </button>
-            </div>
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="projects" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="projects">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className={`text-3xl font-bold ${themeClasses.text}`}>
+                  Projects
+                </h2>
+                <button
+                  className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+                >
+                  View all →
+                </button>
+              </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
-                <div key={project.id} className="group">
-                  <div
-                    className={`${themeClasses.cardBg}/70 ${themeClasses.buttonHover} rounded-xl p-6 border ${themeClasses.cardBorder} hover:border-gray-700 transition-all duration-300 h-full flex flex-col`}
-                  >
-                    <h3
-                      className={`font-bold text-xl mb-3 ${themeClasses.text} group-hover:text-blue-400 transition-colors`}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
+                  <div key={project.id} className="group">
+                    <div
+                      className={`${themeClasses.cardBg}/70 ${themeClasses.buttonHover} rounded-xl p-6 border ${themeClasses.cardBorder} hover:border-gray-700 transition-all duration-300 h-full flex flex-col`}
                     >
-                      {project.name}
-                    </h3>
-                    <p
-                      className={`${themeClasses.text} mb-4 leading-relaxed flex-1`}
-                    >
-                      {project.description}
-                    </p>
-                    <div className="mb-4">
-                      {project.techStack.map((tech) => (
-                        <Badge
-                          key={tech}
-                          variant="outline"
-                          className={`mr-2 mb-2 ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white transition-colors`}
-                        >
-                          {tech}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex space-x-4 pt-2">
-                      <Link
-                        href={project.sourceUrl || "#"}
-                        className={`flex items-center gap-2 ${themeClasses.accent} hover:text-white transition-colors text-sm font-medium`}
+                      <h3
+                        className={`font-bold text-xl mb-3 ${themeClasses.text} group-hover:text-blue-400 transition-colors`}
                       >
-                        <Github className="w-4 h-4" />
-                        Source
-                      </Link>
-                      {project.demoUrl && (
-                        <Link
-                          href={project.demoUrl}
-                          className={`flex items-center gap-2 ${themeClasses.accent} hover:text-blue-400 transition-colors text-sm font-medium`}
+                        {project.name}
+                      </h3>
+                      <p
+                        className={`${themeClasses.text} mb-4 leading-relaxed flex-1`}
+                      >
+                        {project.description}
+                      </p>
+                      <div className="mb-4">
+                        {project.techStack.map((tech) => (
+                          <Badge
+                            key={tech}
+                            variant="outline"
+                            className={`mr-2 mb-2 ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white transition-colors`}
+                          >
+                            {tech}
+                          </Badge>
+                        ))}
+                      </div>
+                      <div className="flex space-x-4 pt-2">
+                        <TrackableLink
+                          href={project.sourceUrl || "#"}
+                          resumeId={resumeId || ""}
+                          interactionType="project_link_click"
+                          sectionName="projects"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          disableTracking={disableTracking}
+                          className={`flex items-center gap-2 ${themeClasses.accent} hover:text-white transition-colors text-sm font-medium`}
                         >
-                          <ExternalLink className="w-4 h-4" />
-                          Live Demo
-                        </Link>
-                      )}
+                          <Github className="w-4 h-4" />
+                          Source
+                        </TrackableLink>
+                        {project.demoUrl && (
+                          <TrackableLink
+                            href={project.demoUrl}
+                            resumeId={resumeId || ""}
+                            interactionType="project_demo_click"
+                            sectionName="projects"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            disableTracking={disableTracking}
+                            className={`flex items-center gap-2 ${themeClasses.accent} hover:text-blue-400 transition-colors text-sm font-medium`}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Live Demo
+                          </TrackableLink>
+                        )}
+                      </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+
+              {portfolioData.projects.length > 3 && (
+                <div className="flex justify-center mt-8">
+                  <Button
+                    onClick={() => setShowAllProjects(!showAllProjects)}
+                    className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+                  >
+                    {showAllProjects ? (
+                      <>
+                        View Less <ChevronUp className="ml-2 w-4 h-4 inline" />
+                      </>
+                    ) : (
+                      <>
+                        View all <ChevronDown className="ml-2 w-4 h-4 inline" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </section>
+          </SectionViewTracker>
+        )}
+
+        {/* Experience Section */}
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="experience" disableTracking={disableTracking}>
+          <section className="mb-16" data-section="experience">
+            <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+              Experience
+            </h2>
+
+            <div className="space-y-8">
+              {portfolioData.experience.map((exp) => (
+                <div key={exp.id} className="group">
+                  <div
+                    className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
+                  >
+                    <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
+                      {exp.position}
+                    </h3>
+                    <h4 className="text-lg text-blue-400 mb-2">{exp.company}</h4>
+                    <p className={`${themeClasses.accent} mb-3 font-medium`}>
+                      {formatDateToDisplay(exp.startDate)} - {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
+                    </p>
+                    {exp.description && (
+                      <div className={`${themeClasses.text}`}>
+                        {formatDescription(exp.description)}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
-
-            {portfolioData.projects.length > 3 && (
-              <div className="flex justify-center mt-8">
-                <Button
-                  onClick={() => setShowAllProjects(!showAllProjects)}
-                  className={`px-4 py-2 text-sm ${themeClasses.cardBg} ${themeClasses.text} ${themeClasses.buttonHover} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-                >
-                  {showAllProjects ? (
-                    <>
-                      View Less <ChevronUp className="ml-2 w-4 h-4 inline" />
-                    </>
-                  ) : (
-                    <>
-                      View all <ChevronDown className="ml-2 w-4 h-4 inline" />
-                    </>
-                  )}
-                </Button>
-              </div>
-            )}
           </section>
-        )}
-
-        {/* Experience Section */}
-        <section className="mb-16">
-          <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
-            Experience
-          </h2>
-
-          <div className="space-y-8">
-            {portfolioData.experience.map((exp) => (
-              <div key={exp.id} className="group">
-                <div
-                  className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
-                >
-                  <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
-                    {exp.position}
-                  </h3>
-                  <h4 className="text-lg text-blue-400 mb-2">{exp.company}</h4>
-                  <p className={`${themeClasses.accent} mb-3 font-medium`}>
-                    {formatDateToDisplay(exp.startDate)} - {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
-                  </p>
-                  {exp.description && (
-                    <div className={`${themeClasses.text}`}>
-                      {formatDescription(exp.description)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        </SectionViewTracker>
 
         {/* Education Section */}
         {portfolioData.education && portfolioData.education.length > 0 && (
-          <section className="mb-16">
-            <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
-              Education
-            </h2>
-            <div className="space-y-8">
-              {portfolioData.education.map((edu) => (
-                <div
-                  key={edu.id}
-                  className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
-                >
-                  <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
-                    {edu.institution}
-                  </h3>
-                  <h4 className="text-lg text-blue-400 mb-2">
-                    {edu.degree} {edu.field && `in ${edu.field}`}
-                  </h4>
-                  <p className={`${themeClasses.accent} mb-2 font-medium`}>
-                    {edu.startYear} - {edu.endYear}
-                  </p>
-                  {edu.cgpa && (
-                    <p className={`${themeClasses.text} text-sm`}>
-                      {formatGradeDisplay(edu.cgpa)}
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="education" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="education">
+              <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+                Education
+              </h2>
+              <div className="space-y-8">
+                {portfolioData.education.map((edu) => (
+                  <div
+                    key={edu.id}
+                    className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
+                  >
+                    <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
+                      {edu.institution}
+                    </h3>
+                    <h4 className="text-lg text-blue-400 mb-2">
+                      {edu.degree} {edu.field && `in ${edu.field}`}
+                    </h4>
+                    <p className={`${themeClasses.accent} mb-2 font-medium`}>
+                      {edu.startYear} - {edu.endYear}
                     </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+                    {edu.cgpa && (
+                      <p className={`${themeClasses.text} text-sm`}>
+                        {formatGradeDisplay(edu.cgpa)}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Certifications Section */}
         {portfolioData.certifications && portfolioData.certifications.length > 0 && (
-          <section className="mb-16">
-            <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
-              Certifications
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {portfolioData.certifications.map((cert) => (
-                <div
-                  key={cert.id}
-                  className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
-                >
-                  <h3 className={`font-bold text-lg ${themeClasses.text} mb-1`}>
-                    {cert.title}
-                  </h3>
-                  <p className="text-blue-400 mb-2">{cert.issuer}</p>
-                  {cert.date && (
-                    <p className={`${themeClasses.accent} text-sm mb-2`}>
-                      {formatDateToDisplay(cert.date)}
-                    </p>
-                  )}
-                  {cert.url && (
-                    <Link
-                      href={cert.url}
-                      target="_blank"
-                      className="text-sm text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1"
-                    >
-                      View Certificate <ExternalLink className="w-3 h-3" />
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="certifications" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="certifications">
+              <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+                Certifications
+              </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {portfolioData.certifications.map((cert) => (
+                  <div
+                    key={cert.id}
+                    className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
+                  >
+                    <h3 className={`font-bold text-lg ${themeClasses.text} mb-1`}>
+                      {cert.title}
+                    </h3>
+                    <p className="text-blue-400 mb-2">{cert.issuer}</p>
+                    {cert.date && (
+                      <p className={`${themeClasses.accent} text-sm mb-2`}>
+                        {formatDateToDisplay(cert.date)}
+                      </p>
+                    )}
+                    {cert.url && (
+                      <TrackableLink
+                        href={cert.url}
+                        resumeId={resumeId || ""}
+                        interactionType="certification_link_click"
+                        sectionName="certifications"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        disableTracking={disableTracking}
+                        className="text-sm text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1"
+                      >
+                        View Certificate <ExternalLink className="w-3 h-3" />
+                      </TrackableLink>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Languages Section */}
         {portfolioData.languages && portfolioData.languages.length > 0 && (
-          <section className="mb-16">
-            <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
-              Languages
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {portfolioData.languages.map((lang) => (
-                <div
-                  key={lang.id}
-                  className={`p-4 rounded-lg ${themeClasses.cardBg}/50 border ${themeClasses.cardBorder}`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className={`font-semibold ${themeClasses.text}`}>
-                      {lang.name}
-                    </span>
-                    <Badge
-                      variant="outline"
-                      className={`${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border}`}
-                    >
-                      {lang.proficiency}
-                    </Badge>
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="languages" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="languages">
+              <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+                Languages
+              </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {portfolioData.languages.map((lang) => (
+                  <div
+                    key={lang.id}
+                    className={`p-4 rounded-lg ${themeClasses.cardBg}/50 border ${themeClasses.cardBorder}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className={`font-semibold ${themeClasses.text}`}>
+                        {lang.name}
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className={`${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border}`}
+                      >
+                        {lang.proficiency}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Custom Sections */}
@@ -610,79 +657,105 @@ export function DarkMinimalistTemplate({
 
         {/* Skills Section */}
         {portfolioData.skills && portfolioData.skills.length > 0 && (
-          <section className="mb-16">
-            <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
-              Skills & Technologies
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {portfolioData.skills.map((skill) => (
-                <Badge
-                  key={skill}
-                  variant="outline"
-                  className={`px-4 py-2 text-base ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white hover:border-gray-600 transition-all duration-200`}
-                >
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </section>
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="skills" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="skills">
+              <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+                Skills & Technologies
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {portfolioData.skills.map((skill) => (
+                  <Badge
+                    key={skill}
+                    variant="outline"
+                    className={`px-4 py-2 text-base ${themeClasses.cardBg}/80 ${themeClasses.text} ${themeClasses.border} ${themeClasses.badgeHover} hover:text-white hover:border-gray-600 transition-all duration-200`}
+                  >
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Contact Section */}
-        <section className="mb-16">
-          <h2 className={`text-3xl font-bold mb-6 ${themeClasses.text}`}>
-            Let&apos;s Connect
-          </h2>
-          <p
-            className={`${themeClasses.text} mb-8 text-lg leading-relaxed max-w-2xl`}
-          >
-            Feel free to drop me an email or connect on social media. I&apos;m always
-            open to interesting conversations, collaboration opportunities, and
-            discussing the latest in technology and development.
-          </p>
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
+          <section className="mb-16" data-section="contact">
+            <h2 className={`text-3xl font-bold mb-6 ${themeClasses.text}`}>
+              Let&apos;s Connect
+            </h2>
+            <p
+              className={`${themeClasses.text} mb-8 text-lg leading-relaxed max-w-2xl`}
+            >
+              Feel free to drop me an email or connect on social media. I&apos;m always
+              open to interesting conversations, collaboration opportunities, and
+              discussing the latest in technology and development.
+            </p>
 
-          <div className="flex flex-wrap gap-4">
-            {portfolioData.personalInfo.social.github && (
-              <Link
-                href={portfolioData.personalInfo.social.github}
-                className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-              >
-                <Github className="w-5 h-5" />
-                <span className="font-medium">GitHub</span>
-              </Link>
-            )}
+            <div className="flex flex-wrap gap-4">
+              {portfolioData.personalInfo.social.github && (
+                <TrackableLink
+                  href={portfolioData.personalInfo.social.github}
+                  resumeId={resumeId || ""}
+                  interactionType="social_link_click"
+                  sectionName="contact"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  disableTracking={disableTracking}
+                  className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+                >
+                  <Github className="w-5 h-5" />
+                  <span className="font-medium">GitHub</span>
+                </TrackableLink>
+              )}
 
-            {portfolioData.personalInfo.email && (
-              <Link
-                href={`mailto:${portfolioData.personalInfo.email}`}
-                className="flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200 rounded-lg"
-              >
-                <Mail className="w-5 h-5" />
-                <span className="font-medium">Email</span>
-              </Link>
-            )}
+              {portfolioData.personalInfo.email && (
+                <TrackableLink
+                  href={`mailto:${portfolioData.personalInfo.email}`}
+                  resumeId={resumeId || ""}
+                  interactionType="email_click"
+                  sectionName="contact"
+                  disableTracking={disableTracking}
+                  className="flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200 rounded-lg"
+                >
+                  <Mail className="w-5 h-5" />
+                  <span className="font-medium">Email</span>
+                </TrackableLink>
+              )}
 
-            {portfolioData.personalInfo.social.twitter && (
-              <Link
-                href={portfolioData.personalInfo.social.twitter}
-                className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-              >
-                <Twitter className="w-5 h-5" />
-                <span className="font-medium">Twitter</span>
-              </Link>
-            )}
+              {portfolioData.personalInfo.social.twitter && (
+                <TrackableLink
+                  href={portfolioData.personalInfo.social.twitter}
+                  resumeId={resumeId || ""}
+                  interactionType="social_link_click"
+                  sectionName="contact"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  disableTracking={disableTracking}
+                  className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+                >
+                  <Twitter className="w-5 h-5" />
+                  <span className="font-medium">Twitter</span>
+                </TrackableLink>
+              )}
 
-            {portfolioData.personalInfo.social.linkedin && (
-              <Link
-                href={portfolioData.personalInfo.social.linkedin}
-                className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-              >
-                <Linkedin className="w-5 h-5" />
-                <span className="font-medium">LinkedIn</span>
-              </Link>
-            )}
-          </div>
-        </section>
+              {portfolioData.personalInfo.social.linkedin && (
+                <TrackableLink
+                  href={portfolioData.personalInfo.social.linkedin}
+                  resumeId={resumeId || ""}
+                  interactionType="social_link_click"
+                  sectionName="contact"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  disableTracking={disableTracking}
+                  className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
+                >
+                  <Linkedin className="w-5 h-5" />
+                  <span className="font-medium">LinkedIn</span>
+                </TrackableLink>
+              )}
+            </div>
+          </section>
+        </SectionViewTracker>
       </div>
     </div>
     </div>

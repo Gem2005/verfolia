@@ -391,7 +391,15 @@ class ResumeService {
       }, {});
 
       const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction: InteractionRecord) => {
-        acc[interaction.interaction_type] = (acc[interaction.interaction_type] || 0) + 1;
+        // For section_view, use section name; for others, use interaction type
+        let key: string;
+        if (interaction.interaction_type === 'section_view' && interaction.section_name) {
+          // Remove "custom_" prefix from section names
+          key = interaction.section_name.replace(/^custom_/i, '');
+        } else {
+          key = interaction.interaction_type;
+        }
+        acc[key] = (acc[key] || 0) + 1;
         return acc;
       }, {});
 

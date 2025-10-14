@@ -35,13 +35,23 @@ export interface InteractionType {
   count: number;
 }
 
+// Interaction type values
+export type InteractionTypeValue = 
+  | 'email_click' 
+  | 'phone_click' 
+  | 'link_click' 
+  | 'download' 
+  | 'section_view' 
+  | 'social_link_click'
+  | string; // Allow custom interaction types
+
 // Creation Analytics Types
 export interface CreationEvent {
   id: string;
   session_id: string;
   user_id?: string;
   event_type: string;
-  event_data: any;
+  event_data: Record<string, unknown>;
   step_number?: number;
   template_id?: string;
   theme_id?: string;
@@ -71,3 +81,32 @@ export interface AnalyticsData {
     viewsByReferrer: ReferrerView[];
   };
 }
+
+// Additional types for analytics components
+export interface TimeSeriesDataPoint {
+  date: string;
+  views: number;
+  interactions: number;
+  avgDuration: number;
+}
+
+export interface MetricCardProps {
+  icon: React.ReactNode;
+  title: string;
+  value: number | string;
+  change?: number;
+  data: { x: string; y: number }[];
+  color: string;
+}
+
+export interface ChartDataPoint {
+  x: string;
+  y: number;
+}
+
+export interface PaginationState {
+  currentPage: number;
+  pageSize: number;
+}
+
+export type TimeframeOption = "1" | "7" | "30" | "90";

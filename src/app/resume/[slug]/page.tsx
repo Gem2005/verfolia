@@ -14,7 +14,7 @@ import {
   type Language,
 } from "../../../services/resume-service";
 
-import { ViewTracker } from "@/components/analytics";
+import { ResumeViewTracker } from "@/components/analytics";
 import {
   CleanMonoTemplate,
   DarkMinimalistTemplate,
@@ -64,29 +64,6 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       setIsOwner(false);
     }
   }, [user, resume]);
-
-
-  // Track view duration
-  useEffect(() => {
-    // We only track views for people who are NOT the owner
-    if (!resume || isOwner) return;
-
-    const startTime = Date.now();
-
-    const trackViewDuration = () => {
-      const duration = Math.floor((Date.now() - startTime) / 1000);
-      if (duration > 0 && resume?.id) {
-        resumeService.updateViewDuration(resume.id, duration);
-      }
-    };
-
-    window.addEventListener("beforeunload", trackViewDuration);
-
-    return () => {
-      window.removeEventListener("beforeunload", trackViewDuration);
-      trackViewDuration();
-    };
-  }, [resume, isOwner]);
 
   // Convert resume data to portfolio data format
   const getPortfolioData = (resume: Resume): PortfolioData => {
@@ -251,12 +228,18 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       {/* This is the key change: only show the header if the user is the owner */}
       {isOwner && <ProfileHeader resume={resume} />}
       
-      {/* Only track the view if it's NOT the owner */}
-      {!isOwner && <ViewTracker resumeId={resume.id} />}
-      
-      <div className="resume-content">
-        {renderResumeTemplate(resume)}
-      </div>
+      {/* Only track the view if it's NOT the owner - Use new ResumeViewTracker */}
+      {!isOwner ? (
+        <ResumeViewTracker resumeId={resume.id}>
+          <div className="resume-content">
+            {renderResumeTemplate(resume)}
+          </div>
+        </ResumeViewTracker>
+      ) : (
+        <div className="resume-content">
+          {renderResumeTemplate(resume)}
+        </div>
+      )}
     </div>
   );
 }

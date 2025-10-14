@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Set workspace root to silence warning about multiple lockfiles
-  outputFileTracingRoot: require('path').join(__dirname),
   
   // Performance optimizations
   experimental: {

@@ -20,12 +20,21 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateToDisplay } from "@/utils/date-utils";
 import { formatGradeDisplay } from "@/utils/grade-utils";
+import { TrackableLink, SectionViewTracker } from "@/components/analytics";
+
+interface DarkTechTemplateProps extends PortfolioTemplateProps {
+  theme?: string;
+  resumeId?: string;
+}
 
 export function DarkTechTemplate({
   data,
   theme = "black",
-}: PortfolioTemplateProps & { theme?: string }) {
+  resumeId,
+  preview = false,
+}: DarkTechTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
+  const disableTracking = preview || !resumeId;
   
   // Use provided data or fallback to mock data only if no data is provided
   const portfolioData: PortfolioData =
@@ -211,46 +220,67 @@ export function DarkTechTemplate({
 
       <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12 relative z-10 max-w-6xl">
         {/* Header - Social Links */}
-        <header className="flex justify-center items-center space-x-6 mb-24">
-          {portfolioData.personalInfo.social.github && (
-            <Link
-              href={portfolioData.personalInfo.social.github}
-              target="_blank"
-              className={`${themeClasses.accent} hover:text-primary transition-colors`}
-            >
-              <Github className="w-6 h-6" />
-            </Link>
-          )}
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="header" disableTracking={disableTracking}>
+          <header className="flex justify-center items-center space-x-6 mb-24" data-section="header">
+            {portfolioData.personalInfo.social.github && (
+              <TrackableLink
+                href={portfolioData.personalInfo.social.github}
+                resumeId={resumeId || ""}
+                interactionType="social_link_click"
+                sectionName="header"
+                target="_blank"
+                rel="noopener noreferrer"
+                disableTracking={disableTracking}
+                className={`${themeClasses.accent} hover:text-primary transition-colors`}
+              >
+                <Github className="w-6 h-6" />
+              </TrackableLink>
+            )}
 
-          {portfolioData.personalInfo.social.linkedin && (
-            <Link
-              href={portfolioData.personalInfo.social.linkedin}
-              target="_blank"
-              className={`${themeClasses.accent} hover:text-primary transition-colors`}
-            >
-              <Linkedin className="w-6 h-6" />
-            </Link>
-          )}
+            {portfolioData.personalInfo.social.linkedin && (
+              <TrackableLink
+                href={portfolioData.personalInfo.social.linkedin}
+                resumeId={resumeId || ""}
+                interactionType="social_link_click"
+                sectionName="header"
+                target="_blank"
+                rel="noopener noreferrer"
+                disableTracking={disableTracking}
+                className={`${themeClasses.accent} hover:text-primary transition-colors`}
+              >
+                <Linkedin className="w-6 h-6" />
+              </TrackableLink>
+            )}
 
-          {portfolioData.personalInfo.social.twitter && (
-            <Link
-              href={portfolioData.personalInfo.social.twitter}
-              target="_blank"
-              className={`${themeClasses.accent} hover:text-primary transition-colors`}
-            >
-              <Twitter className="w-6 h-6" />
-            </Link>
-          )}
+            {portfolioData.personalInfo.social.twitter && (
+              <TrackableLink
+                href={portfolioData.personalInfo.social.twitter}
+                resumeId={resumeId || ""}
+                interactionType="social_link_click"
+                sectionName="header"
+                target="_blank"
+                rel="noopener noreferrer"
+                disableTracking={disableTracking}
+                className={`${themeClasses.accent} hover:text-primary transition-colors`}
+              >
+                <Twitter className="w-6 h-6" />
+              </TrackableLink>
+            )}
 
-          {portfolioData.personalInfo.email && (
-            <Link
-              href={`mailto:${portfolioData.personalInfo.email}`}
-              className={`${themeClasses.accent} hover:text-primary transition-colors`}
-            >
-              <Mail className="w-6 h-6" />
-            </Link>
-          )}
-        </header>
+            {portfolioData.personalInfo.email && (
+              <TrackableLink
+                href={`mailto:${portfolioData.personalInfo.email}`}
+                resumeId={resumeId || ""}
+                interactionType="email_click"
+                sectionName="header"
+                disableTracking={disableTracking}
+                className={`${themeClasses.accent} hover:text-primary transition-colors`}
+              >
+                <Mail className="w-6 h-6" />
+              </TrackableLink>
+            )}
+          </header>
+        </SectionViewTracker>
 
         {/* Hero Section */}
         <section className="flex flex-col-reverse md:flex-row justify-between items-center gap-8 md:gap-10 mb-16 md:mb-24">
@@ -298,271 +328,297 @@ export function DarkTechTemplate({
         </section>
 
         {/* Skills Section */}
-        <section className="mb-24">
-          <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>
-            Skills
-          </h2>
-
-          <div className="flex flex-wrap gap-3">
-            {portfolioData.skills.map((skill) => (
-              <Badge
-                key={skill}
-                className={`px-4 py-2 rounded-md border transition-colors ${
-                  theme === "white"
-                    ? "text-gray-600"
-                    : `${themeClasses.text}`
-                } ${themeClasses.border}`}
-                style={{
-                  ...(theme === "white" && {
-                    background: "rgba(255, 255, 255, 0.3)",
-                    backdropFilter: "blur(4px)",
-                    border: "1px solid rgba(0, 0, 0, 0.06)",
-                    boxShadow: "0 1px 4px rgba(0, 0, 0, 0.05)",
-                  })
-                }}
-              >
-                {skill}
-              </Badge>
-            ))}
-          </div>
-        </section>
-
-        {/* Work Experience Section */}
-        {portfolioData.experience && portfolioData.experience.length > 0 && (
-          <section className="mb-24">
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="skills" disableTracking={disableTracking}>
+          <section className="mb-24" data-section="skills">
             <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>
-              Work Experience
+              Skills
             </h2>
 
-            <div className="space-y-8">
-              {portfolioData.experience.map((exp) => (
-                <div key={exp.id} className="flex">
-                  <div className="mr-4 flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center">
-                      <Code className="w-6 h-6 text-blue-400" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg hover:text-blue-400 transition-colors">
-                      {exp.position}
-                    </h3>
-                    <p className="text-gray-300 mb-1">{exp.company}</p>
-                    <p className="text-sm text-gray-500 mb-2">
-                      {formatDateToDisplay(exp.startDate)} -{" "}
-                      {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
-                    </p>
-                    {exp.description && (
-                      <p className="text-gray-400 text-sm leading-relaxed">
-                        {exp.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
+            <div className="flex flex-wrap gap-3">
+              {portfolioData.skills.map((skill) => (
+                <Badge
+                  key={skill}
+                  className={`px-4 py-2 rounded-md border transition-colors ${
+                    theme === "white"
+                      ? "text-gray-600"
+                      : `${themeClasses.text}`
+                  } ${themeClasses.border}`}
+                  style={{
+                    ...(theme === "white" && {
+                      background: "rgba(255, 255, 255, 0.3)",
+                      backdropFilter: "blur(4px)",
+                      border: "1px solid rgba(0, 0, 0, 0.06)",
+                      boxShadow: "0 1px 4px rgba(0, 0, 0, 0.05)",
+                    })
+                  }}
+                >
+                  {skill}
+                </Badge>
               ))}
             </div>
           </section>
+        </SectionViewTracker>
+
+        {/* Work Experience Section */}
+        {portfolioData.experience && portfolioData.experience.length > 0 && (
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="experience" disableTracking={disableTracking}>
+            <section className="mb-24" data-section="experience">
+              <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>
+                Work Experience
+              </h2>
+
+              <div className="space-y-8">
+                {portfolioData.experience.map((exp) => (
+                  <div key={exp.id} className="flex">
+                    <div className="mr-4 flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center">
+                        <Code className="w-6 h-6 text-blue-400" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg hover:text-blue-400 transition-colors">
+                        {exp.position}
+                      </h3>
+                      <p className="text-gray-300 mb-1">{exp.company}</p>
+                      <p className="text-sm text-gray-500 mb-2">
+                        {formatDateToDisplay(exp.startDate)} -{" "}
+                        {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
+                      </p>
+                      {exp.description && (
+                        <p className="text-gray-400 text-sm leading-relaxed">
+                          {exp.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Featured Projects Section */}
         {portfolioData.projects && portfolioData.projects.length > 0 && (
-          <section className="mb-24">
-            <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="projects" disableTracking={disableTracking}>
+            <section className="mb-24" data-section="projects">
+              <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
-                <div
-                  key={project.id}
-                  className={`group relative ${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-lg overflow-hidden transition-all ${
-                    theme === "white" 
-                      ? "hover:border-blue-200 shadow-sm hover:shadow-md" 
-                      : "hover:border-blue-500/50"
-                  }`}
-                  style={{
-                    ...(theme === "white" && {
-                      background: "rgba(255, 255, 255, 0.25)",
-                      backdropFilter: "blur(6px)",
-                      border: "1px solid rgba(0, 0, 0, 0.08)",
-                      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
-                    })
-                  }}
-                >
-                  <div className="p-5">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-xl">{project.name}</h3>
-                    </div>
-                    <p className="text-gray-400 text-sm mb-4">
-                      {project.description}
-                    </p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
+                  <div
+                    key={project.id}
+                    className={`group relative ${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-lg overflow-hidden transition-all ${
+                      theme === "white" 
+                        ? "hover:border-blue-200 shadow-sm hover:shadow-md" 
+                        : "hover:border-blue-500/50"
+                    }`}
+                    style={{
+                      ...(theme === "white" && {
+                        background: "rgba(255, 255, 255, 0.25)",
+                        backdropFilter: "blur(6px)",
+                        border: "1px solid rgba(0, 0, 0, 0.08)",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+                      })
+                    }}
+                  >
+                    <div className="p-5">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-xl">{project.name}</h3>
+                      </div>
+                      <p className="text-gray-400 text-sm mb-4">
+                        {project.description}
+                      </p>
 
-                    <div className="flex flex-wrap gap-2 mb-5">
-                      {project.techStack.map((tech) => (
-                        <Badge
-                          key={tech}
-                          className={`text-xs transition-colors ${
-                            theme === "white"
-                              ? "text-gray-600 border-gray-100"
-                              : "bg-gray-800 text-gray-300 border-gray-700"
-                          }`}
-                          style={{
-                            ...(theme === "white" && {
-                              background: "rgba(255, 255, 255, 0.4)",
-                              backdropFilter: "blur(4px)",
-                              border: "1px solid rgba(0, 0, 0, 0.06)",
-                            })
-                          }}
-                        >
-                          {tech}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex justify-start space-x-4">
-                      {project.demoUrl && (
-                        <Link
-                          href={project.demoUrl}
-                          target="_blank"
-                          className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs px-2 py-1 h-auto"
+                      <div className="flex flex-wrap gap-2 mb-5">
+                        {project.techStack.map((tech) => (
+                          <Badge
+                            key={tech}
+                            className={`text-xs transition-colors ${
+                              theme === "white"
+                                ? "text-gray-600 border-gray-100"
+                                : "bg-gray-800 text-gray-300 border-gray-700"
+                            }`}
+                            style={{
+                              ...(theme === "white" && {
+                                background: "rgba(255, 255, 255, 0.4)",
+                                backdropFilter: "blur(4px)",
+                                border: "1px solid rgba(0, 0, 0, 0.06)",
+                              })
+                            }}
                           >
-                            Website
-                          </Button>
-                        </Link>
-                      )}
+                            {tech}
+                          </Badge>
+                        ))}
+                      </div>
 
-                      {project.sourceUrl && (
-                        <Link
-                          href={project.sourceUrl}
-                          target="_blank"
-                          className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
-                        >
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-xs px-2 py-1 h-auto"
+                      <div className="flex justify-start space-x-4">
+                        {project.demoUrl && (
+                          <TrackableLink
+                            href={project.demoUrl}
+                            resumeId={resumeId || ""}
+                            interactionType="project_demo_click"
+                            sectionName="projects"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            disableTracking={disableTracking}
+                            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
                           >
-                            Source
-                          </Button>
-                        </Link>
-                      )}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-xs px-2 py-1 h-auto"
+                            >
+                              Website
+                            </Button>
+                          </TrackableLink>
+                        )}
+
+                        {project.sourceUrl && (
+                          <TrackableLink
+                            href={project.sourceUrl}
+                            resumeId={resumeId || ""}
+                            interactionType="project_link_click"
+                            sectionName="projects"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            disableTracking={disableTracking}
+                            className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-xs px-2 py-1 h-auto"
+                            >
+                              Source
+                            </Button>
+                          </TrackableLink>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {portfolioData.projects.length > 3 && (
-              <div className="flex justify-center mt-8">
-                <Button
-                  variant="outline"
-                  className="border-gray-700 hover:bg-gray-800 bg-transparent"
-                  onClick={() => setShowAllProjects(!showAllProjects)}
-                >
-                  {showAllProjects ? (
-                    <>
-                      VIEW LESS <ChevronUp className="ml-2 w-4 h-4" />
-                    </>
-                  ) : (
-                    <>
-                      VIEW ALL PROJECTS <ChevronDown className="ml-2 w-4 h-4" />
-                    </>
-                  )}
-                </Button>
+                ))}
               </div>
-            )}
-          </section>
+
+              {portfolioData.projects.length > 3 && (
+                <div className="flex justify-center mt-8">
+                  <Button
+                    variant="outline"
+                    className="border-gray-700 hover:bg-gray-800 bg-transparent"
+                    onClick={() => setShowAllProjects(!showAllProjects)}
+                  >
+                    {showAllProjects ? (
+                      <>
+                        VIEW LESS <ChevronUp className="ml-2 w-4 h-4" />
+                      </>
+                    ) : (
+                      <>
+                        VIEW ALL PROJECTS <ChevronDown className="ml-2 w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Certifications Section */}
         {portfolioData.certifications && portfolioData.certifications.length > 0 && (
-          <section className="mb-24">
-            <h2 className="text-2xl font-bold mb-8">Certifications</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {portfolioData.certifications.map((cert) => (
-                <div
-                  key={cert.id}
-                  className={`p-5 rounded-lg border transition-all ${
-                    theme === "white"
-                      ? "border-gray-200 hover:border-blue-200"
-                      : "bg-gray-900/50 border-gray-800 hover:border-blue-500/50"
-                  }`}
-                  style={{
-                    ...(theme === "white" && {
-                      background: "rgba(255, 255, 255, 0.2)",
-                      backdropFilter: "blur(5px)",
-                      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.04)",
-                    })
-                  }}
-                >
-                  <h3 className="font-bold text-lg mb-1">{cert.title}</h3>
-                  <p className={`text-sm mb-2 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
-                    {cert.issuer}
-                  </p>
-                  {cert.date && (
-                    <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
-                      {formatDateToDisplay(cert.date)}
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="certifications" disableTracking={disableTracking}>
+            <section className="mb-24" data-section="certifications">
+              <h2 className="text-2xl font-bold mb-8">Certifications</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {portfolioData.certifications.map((cert) => (
+                  <div
+                    key={cert.id}
+                    className={`p-5 rounded-lg border transition-all ${
+                      theme === "white"
+                        ? "border-gray-200 hover:border-blue-200"
+                        : "bg-gray-900/50 border-gray-800 hover:border-blue-500/50"
+                    }`}
+                    style={{
+                      ...(theme === "white" && {
+                        background: "rgba(255, 255, 255, 0.2)",
+                        backdropFilter: "blur(5px)",
+                        boxShadow: "0 1px 6px rgba(0, 0, 0, 0.04)",
+                      })
+                    }}
+                  >
+                    <h3 className="font-bold text-lg mb-1">{cert.title}</h3>
+                    <p className={`text-sm mb-2 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                      {cert.issuer}
                     </p>
-                  )}
-                  {cert.url && (
-                    <Link
-                      href={cert.url}
-                      target="_blank"
-                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors inline-block mt-2"
-                    >
-                      View Certificate
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+                    {cert.date && (
+                      <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                        {formatDateToDisplay(cert.date)}
+                      </p>
+                    )}
+                    {cert.url && (
+                      <TrackableLink
+                        href={cert.url}
+                        resumeId={resumeId || ""}
+                        interactionType="certification_link_click"
+                        sectionName="certifications"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        disableTracking={disableTracking}
+                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors inline-block mt-2"
+                      >
+                        View Certificate
+                      </TrackableLink>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
+
 
         {/* Languages Section */}
         {portfolioData.languages && portfolioData.languages.length > 0 && (
-          <section className="mb-24">
-            <h2 className="text-2xl font-bold mb-8">Languages</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {portfolioData.languages.map((lang) => (
-                <div
-                  key={lang.id}
-                  className={`p-4 rounded-lg border ${
-                    theme === "white"
-                      ? "border-gray-200"
-                      : "bg-gray-900/50 border-gray-800"
-                  }`}
-                  style={{
-                    ...(theme === "white" && {
-                      background: "rgba(255, 255, 255, 0.2)",
-                      backdropFilter: "blur(5px)",
-                    })
-                  }}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">{lang.name}</span>
-                    <Badge
-                      className={`${
-                        theme === "white"
-                          ? "text-gray-600 border-gray-200"
-                          : "bg-gray-800 text-gray-300 border-gray-700"
-                      }`}
-                      style={{
-                        ...(theme === "white" && {
-                          background: "rgba(255, 255, 255, 0.4)",
-                          backdropFilter: "blur(4px)",
-                        })
-                      }}
-                    >
-                      {lang.proficiency}
-                    </Badge>
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="languages" disableTracking={disableTracking}>
+            <section className="mb-24" data-section="languages">
+              <h2 className="text-2xl font-bold mb-8">Languages</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {portfolioData.languages.map((lang) => (
+                  <div
+                    key={lang.id}
+                    className={`p-4 rounded-lg border ${
+                      theme === "white"
+                        ? "border-gray-200"
+                        : "bg-gray-900/50 border-gray-800"
+                    }`}
+                    style={{
+                      ...(theme === "white" && {
+                        background: "rgba(255, 255, 255, 0.2)",
+                        backdropFilter: "blur(5px)",
+                      })
+                    }}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold">{lang.name}</span>
+                      <Badge
+                        className={`${
+                          theme === "white"
+                            ? "text-gray-600 border-gray-200"
+                            : "bg-gray-800 text-gray-300 border-gray-700"
+                        }`}
+                        style={{
+                          ...(theme === "white" && {
+                            background: "rgba(255, 255, 255, 0.4)",
+                            backdropFilter: "blur(4px)",
+                          })
+                        }}
+                      >
+                        {lang.proficiency}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
         )}
 
         {/* Custom Sections */}
@@ -634,56 +690,58 @@ export function DarkTechTemplate({
         )}
 
         {/* Education Section */}
-        <section className="mb-24">
-          <h2 className="text-2xl font-bold mb-8">Education</h2>
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="education" disableTracking={disableTracking}>
+          <section className="mb-24" data-section="education">
+            <h2 className="text-2xl font-bold mb-8">Education</h2>
 
-          <div className="space-y-8">
-            {portfolioData.education.map((edu) => (
-              <div key={edu.id} className="flex">
-                <div className="mr-4 flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center">
-                    <BookOpen className="w-6 h-6 text-blue-400" />
+            <div className="space-y-8">
+              {portfolioData.education.map((edu) => (
+                <div key={edu.id} className="flex">
+                  <div className="mr-4 flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-blue-900/30 flex items-center justify-center">
+                      <BookOpen className="w-6 h-6 text-blue-400" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg hover:text-blue-400 transition-colors flex items-center">
+                      {edu.institution}
+                      {edu.institution.includes("Trident") && (
+                        <Badge 
+                          className={`ml-2 ${
+                            theme === "white" 
+                              ? "text-gray-600" 
+                              : "bg-gray-800 text-gray-300"
+                          }`}
+                          style={{
+                            ...(theme === "white" && {
+                              background: "rgba(255, 255, 255, 0.3)",
+                              backdropFilter: "blur(4px)",
+                              border: "1px solid rgba(0, 0, 0, 0.06)",
+                            })
+                          }}
+                        >
+                          <ChevronRight className="w-3 h-3 mr-1" />
+                        </Badge>
+                      )}
+                    </h3>
+                    <p className="text-gray-300 mb-1">{edu.degree}</p>
+                    {edu.field && (
+                      <p className="text-gray-400 mb-1 text-sm">{edu.field}</p>
+                    )}
+                    <p className="text-sm text-gray-500 mb-1">
+                      {edu.startYear} - {edu.endYear}
+                    </p>
+                    {edu.cgpa && (
+                      <p className="text-sm text-gray-400 font-medium">
+                        {formatGradeDisplay(edu.cgpa)}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg hover:text-blue-400 transition-colors flex items-center">
-                    {edu.institution}
-                    {edu.institution.includes("Trident") && (
-                      <Badge 
-                        className={`ml-2 ${
-                          theme === "white" 
-                            ? "text-gray-600" 
-                            : "bg-gray-800 text-gray-300"
-                        }`}
-                        style={{
-                          ...(theme === "white" && {
-                            background: "rgba(255, 255, 255, 0.3)",
-                            backdropFilter: "blur(4px)",
-                            border: "1px solid rgba(0, 0, 0, 0.06)",
-                          })
-                        }}
-                      >
-                        <ChevronRight className="w-3 h-3 mr-1" />
-                      </Badge>
-                    )}
-                  </h3>
-                  <p className="text-gray-300 mb-1">{edu.degree}</p>
-                  {edu.field && (
-                    <p className="text-gray-400 mb-1 text-sm">{edu.field}</p>
-                  )}
-                  <p className="text-sm text-gray-500 mb-1">
-                    {edu.startYear} - {edu.endYear}
-                  </p>
-                  {edu.cgpa && (
-                    <p className="text-sm text-gray-400 font-medium">
-                      {formatGradeDisplay(edu.cgpa)}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        </SectionViewTracker>
 
         {/* Recent Blog Posts */}
         {portfolioData.blogs && portfolioData.blogs.length > 0 && (
@@ -735,40 +793,52 @@ export function DarkTechTemplate({
         )}
 
         {/* Contact Section */}
-        <section className="mb-16">
-          <h2 className="text-2xl font-bold mb-6">Contact</h2>
-          <p className="text-gray-300 mb-6">
-            Always open to discussing new projects, creative ideas, or
-            opportunities to be part of your visions. Feel free to reach out!
-          </p>
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
+          <section className="mb-16" data-section="contact">
+            <h2 className="text-2xl font-bold mb-6">Contact</h2>
+            <p className="text-gray-300 mb-6">
+              Always open to discussing new projects, creative ideas, or
+              opportunities to be part of your visions. Feel free to reach out!
+            </p>
 
-          {portfolioData.personalInfo.email && (
-            <Link
-              href={`mailto:${portfolioData.personalInfo.email}`}
-              className="inline-block"
-            >
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                <Mail className="w-4 h-4 mr-2" />
-                Connect via Email
-              </Button>
-            </Link>
-          )}
-
-          {portfolioData.personalInfo.social.twitter && (
-            <Link
-              href={portfolioData.personalInfo.social.twitter}
-              className="ml-4 inline-block"
-            >
-              <Button
-                variant="outline"
-                className="border-gray-700 hover:bg-gray-800 bg-transparent"
+            {portfolioData.personalInfo.email && (
+              <TrackableLink
+                href={`mailto:${portfolioData.personalInfo.email}`}
+                resumeId={resumeId || ""}
+                interactionType="email_click"
+                sectionName="contact"
+                disableTracking={disableTracking}
+                className="inline-block"
               >
-                <Twitter className="w-4 h-4 mr-2" />
-                Connect on X
-              </Button>
-            </Link>
-          )}
-        </section>
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Connect via Email
+                </Button>
+              </TrackableLink>
+            )}
+
+            {portfolioData.personalInfo.social.twitter && (
+              <TrackableLink
+                href={portfolioData.personalInfo.social.twitter}
+                resumeId={resumeId || ""}
+                interactionType="social_link_click"
+                sectionName="contact"
+                target="_blank"
+                rel="noopener noreferrer"
+                disableTracking={disableTracking}
+                className="ml-4 inline-block"
+              >
+                <Button
+                  variant="outline"
+                  className="border-gray-700 hover:bg-gray-800 bg-transparent"
+                >
+                  <Twitter className="w-4 h-4 mr-2" />
+                  Connect on X
+                </Button>
+              </TrackableLink>
+            )}
+          </section>
+        </SectionViewTracker>
 
         {/* Footer */}
         <footer className="text-center text-gray-500 text-sm border-t border-gray-800 pt-8">

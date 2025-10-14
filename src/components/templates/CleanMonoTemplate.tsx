@@ -23,8 +23,12 @@ export function CleanMonoTemplate({
   data,
   theme = "black",
   resumeId,
+  preview = false, // Default to false for public viewing
 }: CleanMonoTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
+  
+  // Disable analytics tracking when in preview/creation mode
+  const disableTracking = preview || !resumeId;
   
   // Use provided data or fallback to mock data only if no data is provided
   const portfolioData: PortfolioData =
@@ -305,7 +309,7 @@ export function CleanMonoTemplate({
       >
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         {/* Header */}
-        <SectionViewTracker resumeId={resumeId || ""} sectionName="header">
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="header" disableTracking={disableTracking}>
           <header className="mb-16" data-section="header">
             <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8">
               <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left">
@@ -385,6 +389,7 @@ export function CleanMonoTemplate({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block"
+                    disableTracking={disableTracking}
                   >
                     <Button
                       variant="outline"
@@ -406,6 +411,7 @@ export function CleanMonoTemplate({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block"
+                    disableTracking={disableTracking}
                   >
                     <Button
                       variant="outline"
@@ -425,6 +431,7 @@ export function CleanMonoTemplate({
                     interactionType="contact_link_click"
                     sectionName="header"
                     className="inline-block"
+                    disableTracking={disableTracking}
                   >
                     <Button
                       variant="outline"
@@ -466,6 +473,7 @@ export function CleanMonoTemplate({
           <SectionViewTracker
             resumeId={resumeId || ""}
             sectionName="experience"
+            disableTracking={disableTracking}
           >
             <section className="mb-16" data-section="experience">
               <h2
@@ -587,7 +595,7 @@ export function CleanMonoTemplate({
 
         {/* Education Section */}
         {portfolioData.education && portfolioData.education.length > 0 && (
-          <SectionViewTracker resumeId={resumeId || ""} sectionName="education">
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="education" disableTracking={disableTracking}>
             <section className="mb-16" data-section="education">
               <h2
                 className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
@@ -705,7 +713,7 @@ export function CleanMonoTemplate({
 
         {/* Skills Section */}
         {portfolioData.skills && portfolioData.skills.length > 0 && (
-          <SectionViewTracker resumeId={resumeId || ""} sectionName="skills">
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="skills" disableTracking={disableTracking}>
             <section className="mb-16" data-section="skills">
               <h2
                 className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
@@ -739,7 +747,7 @@ export function CleanMonoTemplate({
 
         {/* Projects Section */}
         {portfolioData.projects && portfolioData.projects.length > 0 && (
-          <SectionViewTracker resumeId={resumeId || ""} sectionName="projects">
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="projects" disableTracking={disableTracking}>
             <section className="mb-16" data-section="projects">
               <h2
                 className={`text-2xl font-bold mb-4 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
@@ -841,6 +849,7 @@ export function CleanMonoTemplate({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-block"
+                            disableTracking={disableTracking}
                           >
                             <Button
                               size="sm"
@@ -861,6 +870,7 @@ export function CleanMonoTemplate({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-block"
+                            disableTracking={disableTracking}
                           >
                             <Button
                               size="sm"
@@ -916,7 +926,7 @@ export function CleanMonoTemplate({
 
         {/* Certifications Section */}
         {portfolioData.certifications && portfolioData.certifications.length > 0 && (
-          <SectionViewTracker resumeId={resumeId || ""} sectionName="certifications">
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="certifications" disableTracking={disableTracking}>
             <section className="mb-16" data-section="certifications">
               <h2
                 className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
@@ -949,6 +959,7 @@ export function CleanMonoTemplate({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        disableTracking={disableTracking}
                       >
                         View Certificate →
                       </TrackableLink>
@@ -964,7 +975,7 @@ export function CleanMonoTemplate({
         {portfolioData.customSections && portfolioData.customSections.length > 0 && (
           <>
             {portfolioData.customSections.map((section) => (
-              <SectionViewTracker key={section.id} resumeId={resumeId || ""} sectionName={`custom_${section.title}`}>
+              <SectionViewTracker key={section.id} resumeId={resumeId || ""} sectionName={`custom_${section.title}`} disableTracking={disableTracking}>
                 <section className="mb-16" data-section={`custom-${section.id}`}>
                   <h2
                     className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
