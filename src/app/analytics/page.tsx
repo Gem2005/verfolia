@@ -1,22 +1,44 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/use-auth";
 import { useAnalyticsData } from "@/hooks/use-analytics-data";
 import { useAnalyticsCalculations } from "@/hooks/use-analytics-calculations";
 import { AnalyticsSkeletonLoading } from "@/components/analytics/SkeletonLoading";
 import { Button } from "@/components/ui/button";
-import {
-  ResumeSelector,
-  TimeframeSelector,
-  OverviewMetricsSection,
-  AnalyticsInsightsSection,
-  ChartsGridSection,
-  DetailedDataSection,
-  EmptyState,
-} from "@/components/analytics";
+// Import only lightweight components directly to avoid pulling in charts
+import { ResumeSelector } from "@/components/analytics/ResumeSelector";
+import { TimeframeSelector } from "@/components/analytics/TimeframeSelector";
+import { OverviewMetricsSection } from "@/components/analytics/OverviewMetricsSection";
+import { AnalyticsInsightsSection } from "@/components/analytics/AnalyticsInsightsSection";
+import { EmptyState } from "@/components/analytics/EmptyState";
 import { FileQuestion, AlertCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+
+// Lazy load heavy chart sections - only load when analytics data is available
+const ChartsGridSection = dynamic(
+  () => import("@/components/analytics/ChartsGridSection").then((mod) => ({ default: mod.ChartsGridSection })),
+  {
+    loading: () => (
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="md:col-span-2 h-80 bg-gray-50 animate-pulse rounded-lg"></div>
+        <div className="md:col-span-2 h-80 bg-gray-50 animate-pulse rounded-lg"></div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
+
+const DetailedDataSection = dynamic(
+  () => import("@/components/analytics/DetailedDataSection").then((mod) => ({ default: mod.DetailedDataSection })),
+  {
+    loading: () => (
+      <div className="h-96 bg-gray-50 animate-pulse rounded-lg"></div>
+    ),
+    ssr: false,
+  }
+);
 
 export default function AnalyticsPage() {
   // Local state for refresh

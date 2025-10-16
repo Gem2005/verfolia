@@ -1,6 +1,5 @@
 import type { PortfolioData } from "@/types/PortfolioTypes";
 import type { ResumeData } from "@/types/ResumeData";
-import { formatDateToDisplay } from "@/utils/date-utils";
 
 export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
   personalInfo: {
@@ -33,6 +32,7 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           endDate: exp.endDate,
           isPresent: exp.isPresent,
           description: exp.description,
+          location: exp.location,
         }))
       : [
           {
@@ -44,6 +44,7 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
             isPresent: true,
             description:
               "Led development of scalable web applications using modern technologies. Collaborated with cross-functional teams to deliver high-quality software solutions. Mentored junior developers and implemented best practices for code quality and performance optimization.",
+            location: "San Francisco, CA",
           },
           {
             id: "exp-2",
@@ -54,6 +55,7 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
             isPresent: false,
             description:
               "Developed and maintained full-stack applications using React, Node.js, and PostgreSQL. Participated in agile development processes and contributed to system architecture decisions. Improved application performance by 40% through code optimization.",
+            location: "New York, NY",
           },
         ],
   skills:
@@ -83,9 +85,10 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           institution: edu.institution,
           degree: edu.degree,
           field: edu.field,
-          startYear: formatDateToDisplay(edu.startDate),
-          endYear: formatDateToDisplay(edu.endDate),
+          startYear: edu.startDate,
+          endYear: edu.endDate,
           cgpa: edu.gpa || "",
+          location: edu.location,
         }))
       : [
           {
@@ -96,6 +99,7 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
             startYear: "2016",
             endYear: "2020",
             cgpa: "3.8",
+            location: "Boston, MA",
           },
         ],
   projects:

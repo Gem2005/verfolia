@@ -22,6 +22,11 @@ export interface PersonalInfo {
   phone: string;
   website?: string;
   location?: string;
+  summary?: string;
+  title?: string;
+  photo?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
 }
 
 export interface Experience {
@@ -33,29 +38,32 @@ export interface Experience {
   current: boolean;
   description: string;
   technologies?: string[];
+  location?: string;
 }
 
 export interface Education {
   id: string;
-  school: string;
+  institution: string;
   degree: string;
   field: string;
   startDate: string;
   endDate?: string;
   current: boolean;
   description?: string;
+  gpa?: string;
+  location?: string;
 }
 
 export interface Project {
   id: string;
   name: string;
   description: string;
-  technologies: string[];
+  techStack: string[];
   liveUrl?: string;
   repoUrl?: string;
   startDate?: string;
   endDate?: string;
-  isLocked?: boolean; // This property was missing
+  isLocked?: boolean;
 }
 
 export interface Certification {

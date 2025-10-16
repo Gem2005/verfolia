@@ -80,3 +80,17 @@ export function formatGradeDisplay(grade: string): string {
   // Default: return as is if we can't determine the type
   return trimmedGrade;
 }
+
+/**
+ * Format degree with field for display
+ * Examples:
+ * - "B.Tech", "Computer Science" → "B.Tech in Computer Science"
+ * - "High School Diploma", "" → "High School Diploma"
+ */
+export function formatDegreeDisplay(degree: string, field?: string | null): string {
+  if (!degree || degree.trim() === '') return '';
+  const trimmedDegree = degree.trim();
+  const trimmedField = field?.trim();
+  if (trimmedField && trimmedField.length > 0) return `${trimmedDegree} in ${trimmedField}`;
+  return trimmedDegree;
+}

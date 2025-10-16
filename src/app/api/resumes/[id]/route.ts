@@ -61,6 +61,8 @@ export async function PUT(
     }
 
     const body = await request.json();
+    // Prevent client from changing slug or resetting counters
+    const { slug: _ignoreSlug, view_count: _ignoreViewCount, ...safeBody } = body || {};
 
     // Verify user owns this resume
     const existingResume = await resumeService.getResumeById(id);
@@ -71,7 +73,7 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const updatedResume = await resumeService.updateResume(id, body);
+    const updatedResume = await resumeService.updateResume(id, safeBody);
 
     return NextResponse.json(updatedResume);
   } catch (error) {

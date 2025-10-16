@@ -26,6 +26,7 @@ export interface ResumeData {
     endDate?: string;
     isPresent?: boolean;
     description: string;
+    location?: string;
   }>;
   education: Array<{
     id: string;
@@ -34,7 +35,8 @@ export interface ResumeData {
     field?: string;
     startDate: string;
     endDate: string;
-    gpa?: string; // Kept for backward compatibility, stores any grade format
+    gpa?: string;
+    location?: string;
   }>;  skills: string[];
   projects: Array<{
     id: string;

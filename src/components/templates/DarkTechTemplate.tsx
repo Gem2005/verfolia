@@ -19,7 +19,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateToDisplay } from "@/utils/date-utils";
-import { formatGradeDisplay } from "@/utils/grade-utils";
+import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 
 interface DarkTechTemplateProps extends PortfolioTemplateProps {
@@ -379,7 +379,9 @@ export function DarkTechTemplate({
                       <h3 className="font-bold text-lg hover:text-blue-400 transition-colors">
                         {exp.position}
                       </h3>
-                      <p className="text-gray-300 mb-1">{exp.company}</p>
+                      <p className="text-gray-300 mb-1">
+                        {exp.company}{exp.location && <span className="text-sm font-normal">, {exp.location}</span>}
+                      </p>
                       <p className="text-sm text-gray-500 mb-2">
                         {formatDateToDisplay(exp.startDate)} -{" "}
                         {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
@@ -704,7 +706,7 @@ export function DarkTechTemplate({
                   </div>
                   <div>
                     <h3 className="font-bold text-lg hover:text-blue-400 transition-colors flex items-center">
-                      {edu.institution}
+                      {edu.institution}{edu.location && <span className="text-base font-normal">, {edu.location}</span>}
                       {edu.institution.includes("Trident") && (
                         <Badge 
                           className={`ml-2 ${
@@ -724,12 +726,9 @@ export function DarkTechTemplate({
                         </Badge>
                       )}
                     </h3>
-                    <p className="text-gray-300 mb-1">{edu.degree}</p>
-                    {edu.field && (
-                      <p className="text-gray-400 mb-1 text-sm">{edu.field}</p>
-                    )}
+                    <p className="text-gray-300 mb-1">{formatDegreeDisplay(edu.degree, edu.field)}</p>
                     <p className="text-sm text-gray-500 mb-1">
-                      {edu.startYear} - {edu.endYear}
+                      {formatDateToDisplay(edu.startYear)} - {formatDateToDisplay(edu.endYear)}
                     </p>
                     {edu.cgpa && (
                       <p className="text-sm text-gray-400 font-medium">

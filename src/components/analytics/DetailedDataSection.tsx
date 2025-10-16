@@ -1,12 +1,28 @@
 import React from "react";
+import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CountryViewsTable } from "./CountryViewsTable";
 import { ReferrerViewsTable } from "./ReferrerViewsTable";
 import { RecentViewsTable } from "./RecentViewsTable";
-import { InteractionPieChart } from "./InteractionPieChart";
 import { InteractionsTable } from "./InteractionsTable";
-import { ReferrerBarChart } from "./ReferrerBarChart";
 import type { AnalyticsData } from "@/types/analytics";
+
+// Lazy load chart components - only load when tab is opened
+const InteractionPieChart = dynamic(
+  () => import("./InteractionPieChart").then((mod) => ({ default: mod.InteractionPieChart })),
+  { 
+    ssr: false,
+    loading: () => <div className="h-64 bg-gray-50 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+  }
+);
+
+const ReferrerBarChart = dynamic(
+  () => import("./ReferrerBarChart").then((mod) => ({ default: mod.ReferrerBarChart })),
+  { 
+    ssr: false,
+    loading: () => <div className="h-64 bg-gray-50 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+  }
+);
 
 interface DetailedDataSectionProps {
   analyticsData: AnalyticsData;

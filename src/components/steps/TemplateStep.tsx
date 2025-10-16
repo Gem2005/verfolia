@@ -1,13 +1,32 @@
 import React from "react";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, Check, X } from "lucide-react";
 import { templates, themes } from "../../../data/constants";
-import { CleanMonoTemplate } from "@/components/templates/CleanMonoTemplate";
-import { DarkMinimalistTemplate } from "@/components/templates/DarkMinimalistTemplate";
-import { DarkTechTemplate } from "@/components/templates/DarkTechTemplate";
-import { ModernAIFocusedTemplate } from "@/components/templates/ModernAIFocusedTemplate";
 import { PortfolioData } from "@/types/PortfolioTypes";
+
+// Lazy load templates - only load when previewed
+const CleanMonoTemplate = dynamic(
+  () => import("@/components/templates/CleanMonoTemplate").then((mod) => ({ default: mod.CleanMonoTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
+);
+
+const DarkMinimalistTemplate = dynamic(
+  () => import("@/components/templates/DarkMinimalistTemplate").then((mod) => ({ default: mod.DarkMinimalistTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
+);
+
+const DarkTechTemplate = dynamic(
+  () => import("@/components/templates/DarkTechTemplate").then((mod) => ({ default: mod.DarkTechTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
+);
+
+const ModernAIFocusedTemplate = dynamic(
+  () => import("@/components/templates/ModernAIFocusedTemplate").then((mod) => ({ default: mod.ModernAIFocusedTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
+);
 
 interface TemplateStepProps {
   selectedTemplate: string;
@@ -54,12 +73,16 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
         theme: selectedTheme,
       };
 
+      // Template component wrapper with proper typing
+      type TemplateProps = {
+        preview?: boolean;
+        data: PortfolioData;
+        theme?: string;
+        resumeId?: string;
+      };
+
       const templateWrapper = (
-        Component: React.ComponentType<{
-          preview: boolean;
-          data: PortfolioData;
-          theme?: string;
-        }>
+        Component: React.ComponentType<TemplateProps>
       ) => (
         <div className="w-full h-full scale-[0.15] origin-top-left transform transition-transform duration-200 overflow-hidden">
           <div className="w-[800px] h-[1000px]">
@@ -94,10 +117,11 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
         <div className="aspect-[4/5] bg-muted/20 flex items-center justify-center p-2">
           <div className="w-full h-full overflow-hidden rounded-lg bg-background shadow-sm relative">
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-              <img
+              <Image
                 src={getPreviewImage()}
                 alt={`${template.name} preview`}
-                className="w-full h-full object-cover object-top transition-opacity duration-200"
+                fill
+                className="object-cover object-top transition-opacity duration-200"
                 onLoad={(e) => {
                   const target = e.target as HTMLImageElement;
                   const loadingDiv = target.parentElement?.querySelector(
@@ -116,6 +140,7 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
                     fallbackDiv.style.display = "block";
                   }
                 }}
+                unoptimized
               />
               <div className="loading-placeholder absolute inset-0 flex items-center justify-center bg-gray-100">
                 <div className="text-gray-400 text-sm">

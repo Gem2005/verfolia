@@ -35,7 +35,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({
 
   const updateEducationField = (
     educationId: string,
-    field: "institution" | "degree" | "field" | "startDate" | "endDate" | "gpa",
+    field: "institution" | "degree" | "field" | "startDate" | "endDate" | "gpa" | "location",
     value: string
   ) => {
     setResumeData((prev) => ({
@@ -126,6 +126,19 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                   className="h-10"
                   placeholder="e.g., Computer Science"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Location</Label>
+                <Input
+                  value={edu.location || ""}
+                  onChange={(e) => updateEducationField(edu.id, "location", e.target.value)}
+                  className="h-10"
+                  placeholder="e.g., Cambridge, MA"
+                />
+                <p className="text-xs text-muted-foreground">
+                  City and state/country where the institution is located
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

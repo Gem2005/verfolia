@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 import { formatDescription } from "@/utils/formatDescription";
 import { formatDateToDisplay } from "@/utils/date-utils";
-import { formatGradeDisplay } from "@/utils/grade-utils";
+import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
 
 interface DarkMinimalistTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -473,7 +473,9 @@ export function DarkMinimalistTemplate({
                     <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
                       {exp.position}
                     </h3>
-                    <h4 className="text-lg text-blue-400 mb-2">{exp.company}</h4>
+                    <h4 className="text-lg text-blue-400 mb-2">
+                      {exp.company}{exp.location && <span className="text-base font-normal">, {exp.location}</span>}
+                    </h4>
                     <p className={`${themeClasses.accent} mb-3 font-medium`}>
                       {formatDateToDisplay(exp.startDate)} - {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
                     </p>
@@ -503,13 +505,13 @@ export function DarkMinimalistTemplate({
                     className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
                   >
                     <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
-                      {edu.institution}
+                      {edu.institution}{edu.location && <span className="text-base font-normal">, {edu.location}</span>}
                     </h3>
                     <h4 className="text-lg text-blue-400 mb-2">
-                      {edu.degree} {edu.field && `in ${edu.field}`}
+                      {formatDegreeDisplay(edu.degree, edu.field)}
                     </h4>
                     <p className={`${themeClasses.accent} mb-2 font-medium`}>
-                      {edu.startYear} - {edu.endYear}
+                      {formatDateToDisplay(edu.startYear)} - {formatDateToDisplay(edu.endYear)}
                     </p>
                     {edu.cgpa && (
                       <p className={`${themeClasses.text} text-sm`}>

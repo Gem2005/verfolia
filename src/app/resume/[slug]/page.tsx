@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -14,16 +15,17 @@ import {
   type Language,
 } from "../../../services/resume-service";
 
-import { ResumeViewTracker } from "@/components/analytics";
-import {
-  CleanMonoTemplate,
-  DarkMinimalistTemplate,
-  DarkTechTemplate,
-  ModernAIFocusedTemplate,
-} from "@/components/templates";
+// Import only the tracking component - avoid importing chart components
+import { ResumeViewTracker } from "@/components/analytics/ResumeViewTracker";
 import type { PortfolioData } from "@/types/PortfolioTypes";
 import { ProfileHeader } from "@/components/layout/ProfileHeader";
 import "./print.css";
+
+// Lazy load the template renderer - it will load only the specific template needed
+const DynamicTemplateRenderer = dynamic(
+  () => import("@/components/templates/DynamicTemplateRenderer").then((mod) => ({ default: mod.DynamicTemplateRenderer })),
+  { loading: () => <div className="flex items-center justify-center min-h-screen">Loading template...</div> }
+);
 
 interface PublicResumePageProps {
   params: Promise<{
@@ -93,16 +95,16 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       personalInfo: {
         firstName: personalInfo.firstName || "John",
         lastName: personalInfo.lastName || "Doe",
-        title: "Professional",
+        title: personalInfo.title || resume.title || "Professional",
         email: personalInfo.email || "contact@example.com",
         phone: personalInfo.phone || "+1 (555) 123-4567",
         location: personalInfo.location || "Location",
-        about: "Professional",
-        photo: "/professional-headshot.png",
+        about: personalInfo.summary || "Professional summary",
+        photo: personalInfo.photo || "/professional-headshot.png",
         social: {
-          github: personalInfo.website || "",
+          github: personalInfo.githubUrl || personalInfo.website || "",
           twitter: "",
-          linkedin: personalInfo.website || "",
+          linkedin: personalInfo.linkedinUrl || personalInfo.website || "",
           portfolio: personalInfo.website || "",
         },
       },
@@ -114,22 +116,24 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
         endDate: exp.endDate || "",
         isPresent: !exp.endDate || exp.endDate === "",
         description: exp.description || "Job description",
+        location: exp.location || "",
       })),
       skills: skills.filter((skill: string) => skill && skill.trim()),
       education: education.map((edu: Education) => ({
         id: edu.id || Math.random().toString(),
-        institution: edu.school || "Institution",
+        institution: edu.institution || "Institution",
         degree: edu.degree || "Degree",
         field: edu.field || "",
         startYear: edu.startDate || "",
         endYear: edu.endDate || "",
-        cgpa: "",
+        cgpa: edu.gpa || "",
+        location: edu.location || "",
       })),
       projects: projects.map((proj: Project) => ({
         id: proj.id || Math.random().toString(),
         name: proj.name || "Project",
         description: proj.description || "Project description",
-        techStack: proj.technologies || [],
+        techStack: proj.techStack || [],
         sourceUrl: proj.repoUrl || "",
         demoUrl: proj.liveUrl || "",
         isLocked: proj.isLocked || false,
@@ -164,42 +168,15 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
 
   const renderResumeTemplate = (resume: Resume) => {
     const portfolioData = getPortfolioData(resume);
-    const templateProps = {
-      preview: false,
-      data: portfolioData,
-      theme: resume.theme_id || "black",
-      resumeId: resume.id,
-    };
 
-    try {
-      switch (resume.template_id) {
-        case "clean-mono":
-          return <CleanMonoTemplate {...templateProps} />;
-        case "dark-minimalist":
-          return <DarkMinimalistTemplate {...templateProps} />;
-        case "dark-tech":
-          return <DarkTechTemplate {...templateProps} />;
-        case "modern-ai-focused":
-          return <ModernAIFocusedTemplate {...templateProps} />;
-        default:
-          return <CleanMonoTemplate {...templateProps} />;
-      }
-    } catch (error) {
-      console.error("Error rendering template:", error);
-      return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Resume Display Error
-            </h2>
-            <p className="text-gray-600 mb-4">
-              There was an issue displaying this resume.
-            </p>
-            <CleanMonoTemplate {...templateProps} />
-          </div>
-        </div>
-      );
-    }
+    return (
+      <DynamicTemplateRenderer
+        templateId={resume.template_id || "clean-mono"}
+        data={portfolioData}
+        theme={resume.theme_id || "black"}
+        resumeId={resume.id}
+      />
+    );
   };
 
   if (loading) {

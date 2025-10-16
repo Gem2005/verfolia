@@ -12,7 +12,7 @@ import { resumeService } from "@/services/resume-service";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 import { formatDescription } from "@/utils/formatDescription";
 import { formatDateToDisplay } from "@/utils/date-utils";
-import { formatGradeDisplay } from "@/utils/grade-utils";
+import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
 
 interface CleanMonoTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -549,7 +549,7 @@ export function CleanMonoTemplate({
                           }}
                           data-trackable="company-name"
                         >
-                          {exp.company}
+                          {exp.company}{exp.location && <span className="text-sm font-normal">, {exp.location}</span>}
                         </p>
                         <p
                           className={`text-sm ${themeClasses.accent} mb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
@@ -649,20 +649,6 @@ export function CleanMonoTemplate({
                           onClick={(e) => {
                             e.stopPropagation();
                             trackInteraction(
-                              "degree_click",
-                              edu.degree,
-                              "education"
-                            );
-                          }}
-                          data-trackable="degree-title"
-                        >
-                          {edu.degree}
-                        </h3>
-                        <p
-                          className={`text-base ${themeClasses.accent} font-medium mb-1 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            trackInteraction(
                               "institution_click",
                               edu.institution,
                               "education"
@@ -670,7 +656,21 @@ export function CleanMonoTemplate({
                           }}
                           data-trackable="institution-name"
                         >
-                          {edu.institution}
+                          {edu.institution}{edu.location && <span className="text-base font-normal">, {edu.location}</span>}
+                        </h3>
+                        <p
+                          className={`text-base ${themeClasses.accent} font-medium mb-1 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            trackInteraction(
+                              "degree_click",
+                              edu.degree,
+                              "education"
+                            );
+                          }}
+                          data-trackable="degree-title"
+                        >
+                          {formatDegreeDisplay(edu.degree, edu.field)}
                         </p>
                         <p
                           className={`text-sm ${themeClasses.accent} mb-2 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
@@ -678,13 +678,13 @@ export function CleanMonoTemplate({
                             e.stopPropagation();
                             trackInteraction(
                               "education_date_click",
-                              `${edu.startYear} - ${edu.endYear}`,
+                              `${formatDateToDisplay(edu.startYear)} - ${formatDateToDisplay(edu.endYear)}`,
                               "education"
                             );
                           }}
                           data-trackable="education-dates"
                         >
-                          {edu.startYear} - {edu.endYear}
+                          {formatDateToDisplay(edu.startYear)} - {formatDateToDisplay(edu.endYear)}
                         </p>
                         {edu.cgpa && (
                           <p

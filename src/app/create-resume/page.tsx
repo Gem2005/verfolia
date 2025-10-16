@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import dynamicImport from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { resumeService, type Resume } from "@/services/resume-service";
 import { analyticsService } from "@/services/analytics-service";
 import { storageHelpers } from "@/utils/storage";
-import { CleanMonoTemplate, DarkMinimalistTemplate, DarkTechTemplate, ModernAIFocusedTemplate } from "@/components/templates";
 import { ResumeData } from "@/types/ResumeData";
 import { validateEmail, validatePhone, validateUrl, validateWordCount, validateGPA, validateDateRange, validateSkill, validateProficiency } from "../../utils/validation";
 import { steps, templates } from "../../../data/constants";
@@ -21,6 +21,27 @@ import { EducationStep } from "../../components/steps/EducationStep";
 import { SkillsStep } from "../../components/steps/SkillsStep";
 import { ProjectsStep } from "../../components/steps/ProjectsStep";
 import { AdditionalStep } from "../../components/steps/AdditionalStep";
+
+// Lazy load templates - only load when preview is shown
+const CleanMonoTemplate = dynamicImport(
+  () => import("@/components/templates/CleanMonoTemplate").then((mod) => ({ default: mod.CleanMonoTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
+
+const DarkMinimalistTemplate = dynamicImport(
+  () => import("@/components/templates/DarkMinimalistTemplate").then((mod) => ({ default: mod.DarkMinimalistTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
+
+const DarkTechTemplate = dynamicImport(
+  () => import("@/components/templates/DarkTechTemplate").then((mod) => ({ default: mod.DarkTechTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
+
+const ModernAIFocusedTemplate = dynamicImport(
+  () => import("@/components/templates/ModernAIFocusedTemplate").then((mod) => ({ default: mod.ModernAIFocusedTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +83,7 @@ export default function CreateResumePage() {
   //   }
   // }, [loading, user, router]);
 
-  // Handle prefill or show choice screen logic
+  // Handle prefill or edit mode or show choice screen logic
   useEffect(() => {
     // Skip if already loaded
     if (prefillLoadedRef.current) {
@@ -70,6 +91,124 @@ export default function CreateResumePage() {
     }
 
     const params = new URLSearchParams(window.location.search);
+    
+    // Check for edit mode first
+    const editId = params.get("edit");
+    if (editId && user) {
+      // Mark as loaded to prevent duplicate loads
+      prefillLoadedRef.current = true;
+      
+      // Load existing resume for editing
+      const loadResumeForEdit = async () => {
+        try {
+          toast.loading("Loading resume for editing...");
+          const resume = await resumeService.getResumeById(editId);
+          
+          if (!resume) {
+            toast.error("Resume not found");
+            router.replace("/dashboard");
+            return;
+          }
+          
+          // Check if user owns this resume
+          if (resume.user_id !== user.id) {
+            toast.error("You don't have permission to edit this resume");
+            router.replace("/dashboard");
+            return;
+          }
+          
+          toast.dismiss();
+          toast.success("Resume loaded successfully!", {
+            description: "You can now edit your resume"
+          });
+          
+          // Populate form with existing resume data
+          setResumeTitle(resume.title);
+          setSelectedTemplate(resume.template_id);
+          setSelectedTheme(resume.theme_id);
+          
+          setResumeData((prev) => ({
+            ...prev,
+            user_id: resume.user_id,
+            title: resume.title,
+            template_id: Number(templates.findIndex(t => t.id === resume.template_id)) || 0,
+            theme_id: Number(resume.theme_id) || 0,
+            is_public: resume.is_public,
+            slug: resume.slug,
+            personalInfo: {
+              firstName: resume.personal_info.firstName || "",
+              lastName: resume.personal_info.lastName || "",
+              email: resume.personal_info.email || "",
+              phone: resume.personal_info.phone || "",
+              location: resume.personal_info.location || "",
+              summary: resume.personal_info.summary || "",
+              title: resume.personal_info.title || "",
+              photo: resume.personal_info.photo || "",
+              linkedinUrl: resume.personal_info.linkedinUrl || "",
+              githubUrl: resume.personal_info.githubUrl || "",
+            },
+            experience: resume.experience.map(exp => ({
+              id: exp.id,
+              position: exp.position,
+              company: exp.company,
+              startDate: exp.startDate,
+              endDate: exp.endDate || "",
+              isPresent: exp.current,
+              description: exp.description,
+              location: exp.location || "",
+            })),
+            education: resume.education.map(edu => ({
+              id: edu.id,
+              institution: edu.institution,
+              degree: edu.degree,
+              field: edu.field || "",
+              startDate: edu.startDate,
+              endDate: edu.endDate || "",
+              gpa: edu.gpa || "",
+              location: edu.location || "",
+            })),
+            skills: resume.skills || [],
+            projects: resume.projects.map(proj => ({
+              id: proj.id,
+              name: proj.name,
+              description: proj.description,
+              techStack: proj.techStack || [],
+              sourceUrl: proj.repoUrl || "",
+              demoUrl: proj.liveUrl || "",
+            })),
+            certifications: resume.certifications.map(cert => ({
+              id: cert.id,
+              name: cert.name,
+              issuer: cert.issuer,
+              date: cert.date || "",
+              url: cert.url || "",
+            })),
+            languages: resume.languages.map(lang => ({
+              id: lang.id,
+              name: lang.name,
+              proficiency: lang.proficiency || "",
+            })),
+            customSections: resume.custom_sections || [],
+          }));
+          
+          // Store the resume ID for updating instead of creating
+          sessionStorage.setItem("editingResumeId", editId);
+          
+          setShowChoice(false);
+        } catch (error) {
+          console.error("Error loading resume for editing:", error);
+          toast.error("Failed to load resume", {
+            description: error instanceof Error ? error.message : "Please try again"
+          });
+          router.replace("/dashboard");
+        }
+      };
+      
+      loadResumeForEdit();
+      return; // Exit early to prevent prefill logic
+    }
+    
+    // Check for prefill mode
     const key = params.get("prefill");
     if (key) {
       try {
@@ -180,7 +319,7 @@ export default function CreateResumePage() {
     } else {
       setShowChoice(true); // No prefill data, show choice
     }
-  }, [router]);
+  }, [router, user]);
 
   // Analytics tracking useEffects
   useEffect(() => {
@@ -545,25 +684,66 @@ export default function CreateResumePage() {
     }
 
     setSaving(true);
-    toast.loading("Saving your resume...");
+    
+    // Check if we're in edit mode
+    const editingResumeId = sessionStorage.getItem("editingResumeId");
+    const isEditMode = !!editingResumeId;
+    
+    toast.loading(isEditMode ? "Updating your resume..." : "Saving your resume...");
 
     try {
       const resumePayload = {
         user_id: user.id,
         title: resumeTitle,
-        slug: '', // Will be generated by backend
         template_id: selectedTemplate,
         theme_id: selectedTheme,
         is_public: false,
         personal_info: resumeData.personalInfo,
-        experience: resumeData.experience,
-        education: resumeData.education,
+        experience: resumeData.experience.map(exp => ({
+          id: exp.id,
+          company: exp.company,
+          position: exp.position,
+          startDate: exp.startDate,
+          endDate: exp.endDate,
+          current: exp.isPresent || false,
+          description: exp.description,
+          technologies: [],
+          location: exp.location || "",
+        })),
+        education: resumeData.education.map(edu => ({
+          id: edu.id,
+          institution: edu.institution,
+          degree: edu.degree,
+          field: edu.field || "",
+          startDate: edu.startDate,
+          endDate: edu.endDate,
+          current: false,
+          description: "",
+          gpa: edu.gpa,
+          location: edu.location || "",
+        })),
         skills: resumeData.skills,
-        projects: resumeData.projects,
-        certifications: resumeData.certifications,
-        languages: resumeData.languages,
+        projects: resumeData.projects.map(proj => ({
+          id: proj.id,
+          name: proj.name,
+          description: proj.description,
+          techStack: proj.techStack || [],
+          liveUrl: proj.demoUrl,
+          repoUrl: proj.sourceUrl,
+        })),
+        certifications: resumeData.certifications.map(cert => ({
+          id: cert.id,
+          name: cert.name,
+          issuer: cert.issuer,
+          date: cert.date,
+          url: cert.url,
+        })),
+        languages: resumeData.languages.map(lang => ({
+          id: lang.id,
+          name: lang.name,
+          proficiency: lang.proficiency,
+        })),
         custom_sections: resumeData.customSections,
-        view_count: 0,
         // Add uploaded file ID if available (links to uploaded_resume_files table)
         ...(uploadedFileData?.id && {
           uploaded_file_id: uploadedFileData.id,
@@ -579,7 +759,15 @@ export default function CreateResumePage() {
         }),
       } as unknown as Omit<Resume, 'id' | 'created_at' | 'updated_at'>;
 
-      const savedResume = await resumeService.createResume(resumePayload);
+      let savedResume;
+      
+      if (isEditMode) {
+        // Update existing resume
+        savedResume = await resumeService.updateResume(editingResumeId, resumePayload);
+      } else {
+        // Create new resume
+        savedResume = await resumeService.createResume(resumePayload);
+      }
 
       if (savedResume && savedResume.slug) {
         // Track successful save
@@ -591,13 +779,20 @@ export default function CreateResumePage() {
         // Clear creation session
         await analyticsService.clearCreationSession();
         
+        // Clear edit mode session storage
+        if (isEditMode) {
+          sessionStorage.removeItem("editingResumeId");
+        }
+        
         // Clear temporary data
         try {
           sessionStorage.removeItem('resumeData');
         } catch {}
         
         toast.dismiss();
-        toast.success("Resume saved successfully! Redirecting to your dashboard...");
+        toast.success(
+          isEditMode ? "Resume updated successfully! Redirecting to your dashboard..." : "Resume saved successfully! Redirecting to your dashboard..."
+        );
         router.push(`/dashboard?fromSave=true`);
       } else {
         throw new Error("Failed to save resume or receive a valid response.");

@@ -8,7 +8,7 @@ import { Github, Linkedin, Mail, Twitter, ChevronDown, ChevronUp } from "lucide-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateToDisplay } from "@/utils/date-utils";
-import { formatGradeDisplay } from "@/utils/grade-utils";
+import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 
 interface ModernAIFocusedTemplateProps extends PortfolioTemplateProps {
@@ -373,7 +373,7 @@ export function ModernAIFocusedTemplate({
                         {exp.position}
                       </h3>
                       <p className={`${themeClasses.accent} font-medium mb-2`}>
-                        {exp.company}
+                        {exp.company}{exp.location && <span className="text-sm font-normal">, {exp.location}</span>}
                       </p>
                       <p className={`text-sm ${themeClasses.accent} mb-3`}>
                         {formatDateToDisplay(exp.startDate)} -{" "}
@@ -415,19 +415,14 @@ export function ModernAIFocusedTemplate({
                       <h3
                         className={`font-bold text-lg ${themeClasses.text} mb-1`}
                       >
-                        {edu.degree}
+                        {edu.institution}{edu.location && <span className="text-base font-normal">, {edu.location}</span>}
                       </h3>
                       <p className={`${themeClasses.accent} font-medium mb-2`}>
-                        {edu.institution}
+                        {formatDegreeDisplay(edu.degree, edu.field)}
                       </p>
-                      <p className={`text-sm ${themeClasses.accent} mb-2`}>
-                        {edu.startYear} - {edu.endYear}
+                      <p className={`text-sm ${themeClasses.text} mb-2`}>
+                        {formatDateToDisplay(edu.startYear)} - {formatDateToDisplay(edu.endYear)}
                       </p>
-                      {edu.field && (
-                        <p className={`text-sm ${themeClasses.text} mb-1`}>
-                          Field: {edu.field}
-                        </p>
-                      )}
                       {edu.cgpa && (
                         <p className={`text-sm ${themeClasses.text}`}>
                           {formatGradeDisplay(edu.cgpa)}

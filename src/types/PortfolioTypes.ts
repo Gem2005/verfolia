@@ -23,6 +23,7 @@ export interface PortfolioData {
     endDate?: string;
     isPresent?: boolean;
     description: string;
+    location?: string;
   }>;
   skills: string[];
   education: Array<{
@@ -33,6 +34,7 @@ export interface PortfolioData {
     startYear: string;
     endYear: string;
     cgpa: string;
+    location?: string;
   }>;
   projects: Array<{
     id: string;

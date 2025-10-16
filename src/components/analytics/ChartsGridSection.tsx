@@ -1,7 +1,23 @@
 import React from "react";
-import { CombinedTimeSeriesChart } from "./CombinedTimeSeriesChart";
-import { CountryStackedChart } from "./CountryStackedChart";
+import dynamic from "next/dynamic";
 import type { AnalyticsCalculations } from "@/hooks/use-analytics-calculations";
+
+// Lazy load heavy chart components
+const CombinedTimeSeriesChart = dynamic(
+  () => import("./CombinedTimeSeriesChart").then((mod) => ({ default: mod.CombinedTimeSeriesChart })),
+  { 
+    ssr: false,
+    loading: () => <div className="h-80 bg-gray-50 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+  }
+);
+
+const CountryStackedChart = dynamic(
+  () => import("./CountryStackedChart").then((mod) => ({ default: mod.CountryStackedChart })),
+  { 
+    ssr: false,
+    loading: () => <div className="h-80 bg-gray-50 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+  }
+);
 
 interface ChartsGridSectionProps {
   calculations: AnalyticsCalculations;
