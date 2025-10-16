@@ -36,97 +36,8 @@ export function DarkTechTemplate({
   const [showAllProjects, setShowAllProjects] = useState(false);
   const disableTracking = preview || !resumeId;
   
-  // Use provided data or fallback to mock data only if no data is provided
-  const portfolioData: PortfolioData =
-    data && data.personalInfo && data.personalInfo.firstName
-      ? data
-      : {
-          personalInfo: {
-            firstName: "John",
-            lastName: "Doe",
-            title: "Software Engineer",
-            email: "john.doe@example.com",
-            phone: "+1234567890",
-            location: "Remote",
-            about:
-              "I enjoy building modern web applications and exploring new technologies.",
-            photo:
-              "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
-            social: {
-              github: "",
-              twitter: "",
-              linkedin: "",
-              portfolio: "",
-            },
-          },
-          experience: [
-            {
-              id: "exp1",
-              position: "Senior Full Stack Developer",
-              company: "TechFusion",
-              startDate: "Jan 2022",
-              isPresent: true,
-              description:
-                "Building modern web applications using React, Next.js and Node.js",
-            },
-            {
-              id: "exp2",
-              position: "Frontend Developer",
-              company: "WebCraft Solutions",
-              startDate: "Mar 2020",
-              endDate: "Dec 2021",
-              description:
-                "Developed responsive user interfaces for enterprise clients",
-            },
-          ],
-          skills: [
-            "React.js",
-            "Next.js",
-            "Node.js",
-            "TypeScript",
-            "MongoDB",
-            "JavaScript",
-            "Go",
-            "T-SQL",
-          ],
-          education: [
-            {
-              id: "edu1",
-              institution: "Trident Academy of Technology",
-              degree: "B.Tech in Computer Science and Information Technology",
-              startYear: "2020",
-              endYear: "2024",
-              cgpa: "8.5",
-            },
-            {
-              id: "edu2",
-              institution: "Netaji Subhas Memorial City College",
-              degree: "Higher Secondary",
-              startYear: "2019",
-              endYear: "2021",
-              cgpa: "85%",
-            },
-          ],
-          projects: [],
-          blogs: [
-            {
-              id: "blog1",
-              title: "Is Computer Science Saturated?",
-              summary: "Examining the state of the CS field in 2024",
-              publishDate: "2024-06-18",
-              url: "#",
-            },
-            {
-              id: "blog2",
-              title: "How to use Cursor AI IDE Pro for Free?",
-              summary: "Tips and tricks for maximizing the free tier",
-              publishDate: "2023-04-05",
-              url: "#",
-            },
-          ],
-          certifications: [],
-          interests: ["Open Source", "Web Development", "AI/ML"],
-        };
+  // Use provided data only; do not fallback to mock defaults
+  const portfolioData: PortfolioData = data;
 
   // Theme configuration
   const getThemeClasses = () => {
@@ -182,7 +93,7 @@ export function DarkTechTemplate({
       case "white":
         return {
           bg: "bg-white",
-          text: "text-black",
+          text: "text-gray-900",
           accent: "text-blue-700",
           border: "border-gray-400",
           cardBg: "bg-gray-100",
@@ -209,7 +120,7 @@ export function DarkTechTemplate({
   const themeClasses = getThemeClasses();
 
   return (
-    <div className={`theme-${theme}`}>
+    <div className={`template-sandbox ${preview ? 'preview-sandbox' : ''} theme-${theme}`}>
       <div
         className={`min-h-screen ${themeClasses.bg} font-sans`}
       >
@@ -376,7 +287,7 @@ export function DarkTechTemplate({
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-bold text-lg hover:text-blue-400 transition-colors">
+                      <h3 className={`font-bold text-lg ${themeClasses.text} hover:text-blue-400 transition-colors`}>
                         {exp.position}
                       </h3>
                       <p className="text-gray-300 mb-1">
@@ -403,7 +314,7 @@ export function DarkTechTemplate({
         {portfolioData.projects && portfolioData.projects.length > 0 && (
           <SectionViewTracker resumeId={resumeId || ""} sectionName="projects" disableTracking={disableTracking}>
             <section className="mb-24" data-section="projects">
-              <h2 className="text-2xl font-bold mb-8">Featured Projects</h2>
+              <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>Featured Projects</h2>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
@@ -425,7 +336,7 @@ export function DarkTechTemplate({
                   >
                     <div className="p-5">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-xl">{project.name}</h3>
+                        <h3 className={`font-bold text-xl ${themeClasses.text}`}>{project.name}</h3>
                       </div>
                       <p className="text-gray-400 text-sm mb-4">
                         {project.description}
@@ -528,7 +439,7 @@ export function DarkTechTemplate({
         {portfolioData.certifications && portfolioData.certifications.length > 0 && (
           <SectionViewTracker resumeId={resumeId || ""} sectionName="certifications" disableTracking={disableTracking}>
             <section className="mb-24" data-section="certifications">
-              <h2 className="text-2xl font-bold mb-8">Certifications</h2>
+              <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>Certifications</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {portfolioData.certifications.map((cert) => (
                   <div
@@ -546,7 +457,7 @@ export function DarkTechTemplate({
                       })
                     }}
                   >
-                    <h3 className="font-bold text-lg mb-1">{cert.title}</h3>
+                    <h3 className={`font-bold text-lg mb-1 ${themeClasses.text}`}>{cert.title}</h3>
                     <p className={`text-sm mb-2 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
                       {cert.issuer}
                     </p>
@@ -581,7 +492,7 @@ export function DarkTechTemplate({
         {portfolioData.languages && portfolioData.languages.length > 0 && (
           <SectionViewTracker resumeId={resumeId || ""} sectionName="languages" disableTracking={disableTracking}>
             <section className="mb-24" data-section="languages">
-              <h2 className="text-2xl font-bold mb-8">Languages</h2>
+              <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>Languages</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {portfolioData.languages.map((lang) => (
                   <div
@@ -628,7 +539,7 @@ export function DarkTechTemplate({
           <>
             {portfolioData.customSections.map((section) => (
               <section key={section.id} className="mb-24">
-                <h2 className="text-2xl font-bold mb-8">{section.title}</h2>
+                <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>{section.title}</h2>
                 <div className="space-y-6">
                   {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
                     <div
@@ -647,7 +558,7 @@ export function DarkTechTemplate({
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg">{item.title}</h3>
+                          <h3 className={`font-bold text-lg ${themeClasses.text}`}>{item.title}</h3>
                           {item.subtitle && (
                             <p className={`text-sm ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
                               {item.subtitle}
@@ -694,7 +605,7 @@ export function DarkTechTemplate({
         {/* Education Section */}
         <SectionViewTracker resumeId={resumeId || ""} sectionName="education" disableTracking={disableTracking}>
           <section className="mb-24" data-section="education">
-            <h2 className="text-2xl font-bold mb-8">Education</h2>
+            <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>Education</h2>
 
             <div className="space-y-8">
               {portfolioData.education.map((edu) => (
@@ -705,7 +616,7 @@ export function DarkTechTemplate({
                     </div>
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg hover:text-blue-400 transition-colors flex items-center">
+                    <h3 className={`font-bold text-lg ${themeClasses.text} hover:text-blue-400 transition-colors flex items-center`}>
                       {edu.institution}{edu.location && <span className="text-base font-normal">, {edu.location}</span>}
                       {edu.institution.includes("Trident") && (
                         <Badge 
@@ -745,7 +656,7 @@ export function DarkTechTemplate({
         {/* Recent Blog Posts */}
         {portfolioData.blogs && portfolioData.blogs.length > 0 && (
           <section className="mb-24">
-            <h2 className="text-2xl font-bold mb-8">Recent Blog Posts</h2>
+            <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>Recent Blog Posts</h2>
 
             <div className="space-y-6">
               {portfolioData.blogs.map((blog) => (
@@ -794,7 +705,7 @@ export function DarkTechTemplate({
         {/* Contact Section */}
         <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
           <section className="mb-16" data-section="contact">
-            <h2 className="text-2xl font-bold mb-6">Contact</h2>
+            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>Contact</h2>
             <p className="text-gray-300 mb-6">
               Always open to discussing new projects, creative ideas, or
               opportunities to be part of your visions. Feel free to reach out!

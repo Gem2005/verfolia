@@ -77,7 +77,7 @@ export const AnalyticsShowcaseSection = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 size="lg"
-                className="bg-gradient-primary text-white shadow-glow hover:shadow-large transition-all duration-200"
+                className="bg-gradient-primary text-primary-foreground shadow-glow hover:shadow-large transition-all duration-200"
                 asChild
               >
                 <Link href="/analytics">

@@ -250,7 +250,7 @@ export default function Navbar() {
                 <div className="space-y-3">
                   <Button
                     asChild
-                    className="w-full rounded-xl bg-gradient-primary text-white shadow-glow"
+                    className="w-full rounded-xl bg-gradient-primary text-primary-foreground shadow-glow"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Link href="/dashboard">Dashboard</Link>
@@ -270,7 +270,7 @@ export default function Navbar() {
                 <div className="space-y-3">
                   <Button
                     asChild
-                    className="w-full rounded-xl bg-gradient-primary text-white shadow-glow"
+                    className="w-full rounded-xl bg-gradient-primary text-primary-foreground shadow-glow"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Link href="/choice">Get Started</Link>

@@ -190,7 +190,7 @@ export default function Dashboard() {
   return (
     <AppLayout>
         <div className="glass-bg min-h-screen">
-          <div className="container mx-auto px-8 pt-28 pb-32">
+          <div className="container mx-auto px-8 pt-28 pb-32 animate-fade-in">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
               <div className="space-y-2">

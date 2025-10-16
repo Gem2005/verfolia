@@ -28,154 +28,8 @@ export function DarkMinimalistTemplate({
   // Disable analytics tracking when in preview/creation mode
   const disableTracking = preview || !resumeId;
   
-  // Use provided data or fallback to mock data only if no data is provided
-  const portfolioData: PortfolioData =
-    data && data.personalInfo && data.personalInfo.firstName
-      ? data
-      : {
-          personalInfo: {
-            firstName: "Alex",
-            lastName: "Chen",
-            title: "Senior Full Stack Developer & Blockchain Engineer",
-            email: "alex.chen@example.com",
-            phone: "+1 (555) 123-4567", // Added missing required field
-            location: "San Francisco, CA", // Added missing required field
-            about:
-              "Passionate developer focused on building scalable web applications and decentralized solutions. I specialize in modern JavaScript frameworks, blockchain technology, and creating seamless user experiences.",
-            photo:
-              "https://api.dicebear.com/7.x/adventurer/svg?seed=Alex%20Chen",
-            social: {
-              github: "",
-              twitter: "",
-              linkedin: "",
-              portfolio: "",
-            },
-          },
-          experience: [
-            {
-              id: "exp1",
-              position: "Senior Full Stack Developer",
-              company: "TechFlow Solutions",
-              startDate: "Jan 2024",
-              isPresent: true,
-              description:
-                "Leading development of enterprise-grade financial applications using React, Node.js, and blockchain technologies. Architected microservices handling $10M+ in daily transactions.",
-            },
-            {
-              id: "exp2",
-              position: "Frontend Developer",
-              company: "InnovateLab Inc.",
-              startDate: "Jun 2022",
-              endDate: "Dec 2023",
-              description:
-                "Built responsive web applications using React, TypeScript, and modern CSS frameworks. Improved application performance by 40% through code optimization.",
-            },
-            {
-              id: "exp3",
-              position: "Blockchain Developer",
-              company: "CryptoVentures",
-              startDate: "Mar 2021",
-              endDate: "May 2022",
-              description:
-                "Developed smart contracts and DeFi protocols on Ethereum and Solana. Created automated trading bots and yield farming strategies.",
-            },
-          ],
-          skills: [
-            "TypeScript",
-            "React",
-            "Node.js",
-            "Python",
-            "Rust",
-            "Solana",
-            "Ethereum",
-            "DeFi",
-            "Smart Contracts",
-            "PostgreSQL",
-            "MongoDB",
-            "AWS",
-            "Docker",
-            "GraphQL",
-          ],
-          education: [
-            {
-              id: "edu1",
-              institution: "Stanford University",
-              degree: "Master of Science",
-              field: "Computer Science", // Keeping this field for display purposes
-              startYear: "2019",
-              endYear: "2021",
-              cgpa: "3.9", // Added missing required field
-            },
-            {
-              id: "edu2",
-              institution: "UC Berkeley",
-              degree: "Bachelor of Science",
-              field: "Computer Engineering", // Keeping this field for display purposes
-              startYear: "2015",
-              endYear: "2019",
-              cgpa: "3.8", // Added missing required field
-            },
-          ],
-          projects: [],
-          blogs: [
-            {
-              id: "blog1",
-              title: "Building Scalable DeFi Applications",
-              summary:
-                "A comprehensive guide to architecting decentralized finance applications that can handle millions of users and transactions.",
-              publishDate: "15 Dec 2024",
-              url: "https://blog.alexchen.dev/scalable-defi-apps",
-            },
-            {
-              id: "blog2",
-              title: "The Future of Web3 Development",
-              summary:
-                "Exploring emerging trends in blockchain technology and how they're shaping the next generation of web applications.",
-              publishDate: "28 Nov 2024",
-              url: "https://blog.alexchen.dev/future-web3-development",
-            },
-            {
-              id: "blog3",
-              title: "Optimizing React Performance at Scale",
-              summary:
-                "Advanced techniques for building high-performance React applications that remain fast as they grow in complexity.",
-              publishDate: "10 Nov 2024",
-              url: "https://blog.alexchen.dev/react-performance-optimization",
-            },
-            {
-              id: "blog4",
-              title: "Smart Contract Security Best Practices",
-              summary:
-                "Essential security patterns and common vulnerabilities to avoid when developing smart contracts for production.",
-              publishDate: "22 Oct 2024",
-              url: "https://blog.alexchen.dev/smart-contract-security",
-            },
-          ],
-          // Added missing required properties
-          certifications: [
-            {
-              id: "cert1",
-              title: "AWS Certified Solutions Architect",
-              issuer: "Amazon Web Services",
-              date: "Feb 2023",
-              url: "https://aws.amazon.com/certification/",
-            },
-            {
-              id: "cert2",
-              title: "Certified Blockchain Developer",
-              issuer: "Blockchain Council",
-              date: "Oct 2022",
-              url: "https://www.blockchain-council.org/",
-            },
-          ],
-          interests: [
-            "Blockchain Technology",
-            "Open Source",
-            "Machine Learning",
-            "Japanese Language",
-            "Formula 1",
-          ],
-        };
+  // Use provided data only; do not fallback to mock defaults
+  const portfolioData: PortfolioData = data;
 
   // Theme configuration
   const getThemeClasses = () => {
@@ -458,38 +312,40 @@ export function DarkMinimalistTemplate({
         )}
 
         {/* Experience Section */}
-        <SectionViewTracker resumeId={resumeId || ""} sectionName="experience" disableTracking={disableTracking}>
-          <section className="mb-16" data-section="experience">
-            <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
-              Experience
-            </h2>
+        {portfolioData.experience && portfolioData.experience.length > 0 && (
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="experience" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="experience">
+              <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+                Experience
+              </h2>
 
-            <div className="space-y-8">
-              {portfolioData.experience.map((exp) => (
-                <div key={exp.id} className="group">
-                  <div
-                    className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
-                  >
-                    <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
-                      {exp.position}
-                    </h3>
-                    <h4 className="text-lg text-blue-400 mb-2">
-                      {exp.company}{exp.location && <span className="text-base font-normal">, {exp.location}</span>}
-                    </h4>
-                    <p className={`${themeClasses.accent} mb-3 font-medium`}>
-                      {formatDateToDisplay(exp.startDate)} - {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
-                    </p>
-                    {exp.description && (
-                      <div className={`${themeClasses.text}`}>
-                        {formatDescription(exp.description)}
-                      </div>
-                    )}
+              <div className="space-y-8">
+                {portfolioData.experience.map((exp) => (
+                  <div key={exp.id} className="group">
+                    <div
+                      className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
+                    >
+                      <h3 className={`font-bold text-xl ${themeClasses.text} mb-2`}>
+                        {exp.position}
+                      </h3>
+                      <h4 className="text-lg text-blue-400 mb-2">
+                        {exp.company}{exp.location && <span className="text-base font-normal">, {exp.location}</span>}
+                      </h4>
+                      <p className={`${themeClasses.accent} mb-3 font-medium`}>
+                        {formatDateToDisplay(exp.startDate)} - {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
+                      </p>
+                      {exp.description && (
+                        <div className={`${themeClasses.text}`}>
+                          {formatDescription(exp.description)}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </SectionViewTracker>
+                ))}
+              </div>
+            </section>
+          </SectionViewTracker>
+        )}
 
         {/* Education Section */}
         {portfolioData.education && portfolioData.education.length > 0 && (

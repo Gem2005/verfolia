@@ -38,7 +38,7 @@ export const TestimonialsSection = () => {
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-primary rounded-full mr-3 flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-primary-foreground font-semibold text-sm">
                     SC
                   </span>
                 </div>
@@ -69,7 +69,7 @@ export const TestimonialsSection = () => {
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-primary rounded-full mr-3 flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-primary-foreground font-semibold text-sm">
                     MJ
                   </span>
                 </div>
@@ -100,7 +100,7 @@ export const TestimonialsSection = () => {
               </p>
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-gradient-primary rounded-full mr-3 flex items-center justify-center">
-                  <span className="text-white font-semibold text-sm">
+                  <span className="text-primary-foreground font-semibold text-sm">
                     ER
                   </span>
                 </div>

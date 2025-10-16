@@ -639,7 +639,7 @@ export default function CreateResumePage() {
     })();
 
     return (
-      <div className={`${themeClass} template-wrapper`}>
+      <div className={`preview-sandbox ${themeClass} template-wrapper`}>
         {templateComponent}
       </div>
     );

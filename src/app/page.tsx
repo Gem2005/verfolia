@@ -12,7 +12,7 @@ import {
 const HomePage = () => {
   return (
     <AppLayout>
-      <div className="min-h-screen bg-background font-jakarta">
+      <div className="min-h-screen bg-background font-jakarta animate-fade-in">
         <HeroSection />
         <FeaturesOverviewSection />
         <ResumeBuilderShowcaseSection />

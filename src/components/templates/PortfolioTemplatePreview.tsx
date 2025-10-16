@@ -32,7 +32,7 @@ export function PortfolioTemplatePreview({
 
         <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <Link
-            href={`/portfolio/templates/${slug}`}
+            href={`/portfolio/templates/${slug}?preview=true`}
             target="_blank"
             className="flex items-center justify-center gap-2 w-full py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           >

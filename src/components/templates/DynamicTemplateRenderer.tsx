@@ -29,30 +29,36 @@ interface DynamicTemplateRendererProps {
   data: PortfolioData;
   theme?: string;
   resumeId?: string;
+  preview?: boolean;
 }
 
 export function DynamicTemplateRenderer({ 
   templateId, 
   data, 
   theme, 
-  resumeId 
+  resumeId,
+  preview = false,
 }: DynamicTemplateRendererProps) {
   const templateProps = {
     data,
     theme,
     resumeId,
+    preview,
   };
 
-  // Only render the specific template needed
-  switch (templateId) {
-    case "dark-minimalist":
-      return <DarkMinimalistTemplate {...templateProps} />;
-    case "dark-tech":
-      return <DarkTechTemplate {...templateProps} />;
-    case "modern-ai-focused":
-      return <ModernAIFocusedTemplate {...templateProps} />;
-    case "clean-mono":
-    default:
-      return <CleanMonoTemplate {...templateProps} />;
-  }
+  const content = (() => {
+    switch (templateId) {
+      case "dark-minimalist":
+        return <DarkMinimalistTemplate {...templateProps} />;
+      case "dark-tech":
+        return <DarkTechTemplate {...templateProps} />;
+      case "modern-ai-focused":
+        return <ModernAIFocusedTemplate {...templateProps} />;
+      case "clean-mono":
+      default:
+        return <CleanMonoTemplate {...templateProps} />;
+    }
+  })();
+
+  return preview ? <div className="preview-sandbox">{content}</div> : content;
 }

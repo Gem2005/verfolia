@@ -268,7 +268,7 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
               </Button>
             </div>
             <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-              <div className="scale-75 origin-top">
+              <div className="preview-sandbox scale-75 origin-top">
                 {(() => {
                   const templateProps = {
                     preview: true as const,
