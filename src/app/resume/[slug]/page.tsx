@@ -98,7 +98,7 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
         photo: personalInfo.photo || "",
         social: {
           github: personalInfo.githubUrl || "",
-          twitter: personalInfo.twitterUrl || "",
+          twitter:"",
           linkedin: personalInfo.linkedinUrl || "",
           portfolio: personalInfo.website || "",
         },

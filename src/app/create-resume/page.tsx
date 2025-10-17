@@ -288,8 +288,17 @@ export default function CreateResumePage() {
               ...prev.personalInfo,
               ...parsed.personalInfo,
             },
-            experience: parsed.experience || prev.experience,
-            education: parsed.education || prev.education,
+            experience: (parsed.experience || []).map((exp: any) => ({
+              ...exp,
+              startDate: exp.startDate || "",
+              endDate: exp.endDate || "",
+              isPresent: exp.current,
+            })),
+            education: (parsed.education || []).map((edu: any) => ({
+              ...edu,
+              startDate: edu.startDate || "",
+              endDate: edu.endDate || "",
+            })),
             skills: parsed.skills || prev.skills,
             projects: parsed.projects || prev.projects,
             certifications: parsed.certifications || prev.certifications,
@@ -697,7 +706,7 @@ export default function CreateResumePage() {
         title: resumeTitle,
         template_id: selectedTemplate,
         theme_id: selectedTheme,
-        is_public: false,
+        is_public: resumeData.is_public,
         personal_info: resumeData.personalInfo,
         experience: resumeData.experience.map(exp => ({
           id: exp.id,

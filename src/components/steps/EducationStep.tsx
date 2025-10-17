@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
+import { formatDateToInput } from "@/utils/date-utils";
 
 interface EducationStepProps {
   resumeData: ResumeData;
@@ -146,7 +147,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                   <Label className="text-sm font-medium">Start Date</Label>
                   <Input
                     type="month"
-                    value={edu.startDate}
+                    value={formatDateToInput(edu.startDate)}
                     onChange={(e) => updateEducationField(edu.id, "startDate", e.target.value)}
                     className="h-10"
                   />
@@ -156,7 +157,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                   <Label className="text-sm font-medium">End Date</Label>
                   <Input
                     type="month"
-                    value={edu.endDate}
+                    value={formatDateToInput(edu.endDate)}
                     onChange={(e) => updateEducationField(edu.id, "endDate", e.target.value)}
                     className={`h-10 ${validationErrors[`education_${edu.id}_endDate`] ? "border-red-500" : ""}`}
                   />

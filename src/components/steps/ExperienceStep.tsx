@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Briefcase, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
+import { formatDateToInput } from "@/utils/date-utils";
 
 interface ExperienceStepProps {
   resumeData: ResumeData;
@@ -152,7 +153,7 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                   </Label>
                   <Input
                     type="month"
-                    value={exp.startDate}
+                    value={formatDateToInput(exp.startDate)}
                     onChange={(e) => updateExperienceField(exp.id, "startDate", e.target.value)}
                     className={`h-10 ${validationErrors[`experience_${exp.id}_startDate`] ? "border-red-500" : ""}`}
                   />
@@ -179,7 +180,7 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                       </Label>
                       <Input
                         type="month"
-                        value={exp.endDate}
+                        value={formatDateToInput(exp.endDate || "")}
                         onChange={(e) => updateExperienceField(exp.id, "endDate", e.target.value)}
                         className={`h-10 ${validationErrors[`experience_${exp.id}_endDate`] ? "border-red-500" : ""}`}
                       />
