@@ -4,7 +4,7 @@ import type {
   PortfolioData,
   PortfolioTemplateProps,
 } from "@/types/PortfolioTypes";
-import { ExternalLink, Github, Linkedin, Mail, Twitter, ChevronDown, ChevronUp } from "lucide-react";
+import { ExternalLink, Github, Linkedin, Mail, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
@@ -577,22 +577,6 @@ export function DarkMinimalistTemplate({
                 >
                   <Mail className="w-5 h-5" />
                   <span className="font-medium">Email</span>
-                </TrackableLink>
-              )}
-
-              {portfolioData.personalInfo.social.twitter && (
-                <TrackableLink
-                  href={portfolioData.personalInfo.social.twitter}
-                  resumeId={resumeId || ""}
-                  interactionType="social_link_click"
-                  sectionName="contact"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  disableTracking={disableTracking}
-                  className={`flex items-center gap-3 px-6 py-3 ${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} hover:text-white transition-all duration-200 rounded-lg border ${themeClasses.border} hover:border-gray-600`}
-                >
-                  <Twitter className="w-5 h-5" />
-                  <span className="font-medium">Twitter</span>
                 </TrackableLink>
               )}
 

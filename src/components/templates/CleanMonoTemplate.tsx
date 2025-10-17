@@ -189,9 +189,9 @@ export function CleanMonoTemplate({
                   </TrackableLink>
                 )}
 
-                {portfolioData.personalInfo.social.twitter && (
+                {portfolioData.personalInfo.social.linkedin && (
                   <TrackableLink
-                    href={portfolioData.personalInfo.social.twitter}
+                    href={portfolioData.personalInfo.social.linkedin}
                     resumeId={resumeId || ""}
                     interactionType="social_link_click"
                     sectionName="header"
@@ -205,8 +205,8 @@ export function CleanMonoTemplate({
                       size="default"
                       className="rounded-lg border-2 hover:bg-blue-500 hover:text-white transition-all duration-200 bg-transparent border-blue-500 text-blue-500 hover:scale-105"
                     >
-                      <Twitter className="w-4 h-4 mr-2" />
-                      Twitter
+                      <Linkedin className="w-4 h-4 mr-2" />
+                      LinkedIn
                     </Button>
                   </TrackableLink>
                 )}
