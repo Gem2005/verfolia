@@ -1,19 +1,18 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import dynamicImport from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { X, ArrowLeft, ArrowRight, Eye, Check, PenSquare, Save, Download } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { resumeService } from "@/services/resume-service";
+import { resumeService, type Resume } from "@/services/resume-service";
 import { analyticsService } from "@/services/analytics-service";
 import { storageHelpers } from "@/utils/storage";
-import { CleanMonoTemplate, DarkMinimalistTemplate, DarkTechTemplate, ModernAIFocusedTemplate } from "@/components/templates";
-import type { PortfolioData } from "@/types/PortfolioTypes";
 import { ResumeData } from "@/types/ResumeData";
 import { validateEmail, validatePhone, validateUrl, validateWordCount, validateGPA, validateDateRange, validateSkill, validateProficiency } from "../../utils/validation";
-import { steps, templates, themes } from "../../../data/constants";
+import { steps, templates } from "../../../data/constants";
 import { getPortfolioData } from "../../components/PortfolioDataProvider";
 import { TemplateStep } from "../../components/steps/TemplateStep";
 import { PersonalInfoStep } from "../../components/steps/PersonalInfoStep";
@@ -22,6 +21,27 @@ import { EducationStep } from "../../components/steps/EducationStep";
 import { SkillsStep } from "../../components/steps/SkillsStep";
 import { ProjectsStep } from "../../components/steps/ProjectsStep";
 import { AdditionalStep } from "../../components/steps/AdditionalStep";
+
+// Lazy load templates - only load when preview is shown
+const CleanMonoTemplate = dynamicImport(
+  () => import("@/components/templates/CleanMonoTemplate").then((mod) => ({ default: mod.CleanMonoTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
+
+const DarkMinimalistTemplate = dynamicImport(
+  () => import("@/components/templates/DarkMinimalistTemplate").then((mod) => ({ default: mod.DarkMinimalistTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
+
+const DarkTechTemplate = dynamicImport(
+  () => import("@/components/templates/DarkTechTemplate").then((mod) => ({ default: mod.DarkTechTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
+
+const ModernAIFocusedTemplate = dynamicImport(
+  () => import("@/components/templates/ModernAIFocusedTemplate").then((mod) => ({ default: mod.ModernAIFocusedTemplate })),
+  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
+);
 
 export const dynamic = "force-dynamic";
 
@@ -33,15 +53,23 @@ export default function CreateResumePage() {
   const [selectedTheme, setSelectedTheme] = useState("black");
   const [selectedTemplate, setSelectedTemplate] = useState("clean-mono");
   const [showFullPreview, setShowFullPreview] = useState(false);
-  const [showMarkdownEditor, setShowMarkdownEditor] = useState(false);
   const [markdown, setMarkdown] = useState("");
   const [resumeTitle, setResumeTitle] = useState("");
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
-  const [showChoice, setShowChoice] = useState(false); // Default to false
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [showChoice, setShowChoice] = useState(false);
   const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
+  const [uploadedFileData, setUploadedFileData] = useState<{
+    id?: string; // ID from uploaded_resume_files table
+    filePath: string;
+    fileUrl: string;
+    fileSize: number;
+    mimeType: string;
+    originalFilename: string;
+  } | null>(null);
 
   // Analytics tracking state
   const [sessionStartTime] = useState<number>(Date.now());
@@ -55,7 +83,7 @@ export default function CreateResumePage() {
   //   }
   // }, [loading, user, router]);
 
-  // Handle prefill or show choice screen logic
+  // Handle prefill or edit mode or show choice screen logic
   useEffect(() => {
     // Skip if already loaded
     if (prefillLoadedRef.current) {
@@ -63,6 +91,124 @@ export default function CreateResumePage() {
     }
 
     const params = new URLSearchParams(window.location.search);
+    
+    // Check for edit mode first
+    const editId = params.get("edit");
+    if (editId && user) {
+      // Mark as loaded to prevent duplicate loads
+      prefillLoadedRef.current = true;
+      
+      // Load existing resume for editing
+      const loadResumeForEdit = async () => {
+        try {
+          toast.loading("Loading resume for editing...");
+          const resume = await resumeService.getResumeById(editId);
+          
+          if (!resume) {
+            toast.error("Resume not found");
+            router.replace("/dashboard");
+            return;
+          }
+          
+          // Check if user owns this resume
+          if (resume.user_id !== user.id) {
+            toast.error("You don't have permission to edit this resume");
+            router.replace("/dashboard");
+            return;
+          }
+          
+          toast.dismiss();
+          toast.success("Resume loaded successfully!", {
+            description: "You can now edit your resume"
+          });
+          
+          // Populate form with existing resume data
+          setResumeTitle(resume.title);
+          setSelectedTemplate(resume.template_id);
+          setSelectedTheme(resume.theme_id);
+          
+          setResumeData((prev) => ({
+            ...prev,
+            user_id: resume.user_id,
+            title: resume.title,
+            template_id: Number(templates.findIndex(t => t.id === resume.template_id)) || 0,
+            theme_id: Number(resume.theme_id) || 0,
+            is_public: resume.is_public,
+            slug: resume.slug,
+            personalInfo: {
+              firstName: resume.personal_info.firstName || "",
+              lastName: resume.personal_info.lastName || "",
+              email: resume.personal_info.email || "",
+              phone: resume.personal_info.phone || "",
+              location: resume.personal_info.location || "",
+              summary: resume.personal_info.summary || "",
+              title: resume.personal_info.title || "",
+              photo: resume.personal_info.photo || "",
+              linkedinUrl: resume.personal_info.linkedinUrl || "",
+              githubUrl: resume.personal_info.githubUrl || "",
+            },
+            experience: resume.experience.map(exp => ({
+              id: exp.id,
+              position: exp.position,
+              company: exp.company,
+              startDate: exp.startDate,
+              endDate: exp.endDate || "",
+              isPresent: exp.current,
+              description: exp.description,
+              location: exp.location || "",
+            })),
+            education: resume.education.map(edu => ({
+              id: edu.id,
+              institution: edu.institution,
+              degree: edu.degree,
+              field: edu.field || "",
+              startDate: edu.startDate,
+              endDate: edu.endDate || "",
+              gpa: edu.gpa || "",
+              location: edu.location || "",
+            })),
+            skills: resume.skills || [],
+            projects: resume.projects.map(proj => ({
+              id: proj.id,
+              name: proj.name,
+              description: proj.description,
+              techStack: proj.techStack || [],
+              sourceUrl: proj.repoUrl || "",
+              demoUrl: proj.liveUrl || "",
+            })),
+            certifications: resume.certifications.map(cert => ({
+              id: cert.id,
+              name: cert.name,
+              issuer: cert.issuer,
+              date: cert.date || "",
+              url: cert.url || "",
+            })),
+            languages: resume.languages.map(lang => ({
+              id: lang.id,
+              name: lang.name,
+              proficiency: lang.proficiency || "",
+            })),
+            customSections: resume.custom_sections || [],
+          }));
+          
+          // Store the resume ID for updating instead of creating
+          sessionStorage.setItem("editingResumeId", editId);
+          
+          setShowChoice(false);
+        } catch (error) {
+          console.error("Error loading resume for editing:", error);
+          toast.error("Failed to load resume", {
+            description: error instanceof Error ? error.message : "Please try again"
+          });
+          router.replace("/dashboard");
+        }
+      };
+      
+      loadResumeForEdit();
+      return; // Exit early to prevent prefill logic
+    }
+    
+    // Check for prefill mode
     const key = params.get("prefill");
     if (key) {
       try {
@@ -77,6 +223,44 @@ export default function CreateResumePage() {
 
           // Mark as loaded before showing toasts to prevent duplicates
           prefillLoadedRef.current = true;
+
+          console.log('[Prefill] Loaded resume data:', {
+            title: parsed.title,
+            hasPersonalInfo: !!parsed.personalInfo,
+            experienceCount: parsed.experience?.length || 0,
+            educationCount: parsed.education?.length || 0,
+            skillsCount: parsed.skills?.length || 0,
+            projectsCount: parsed.projects?.length || 0,
+            certificationsCount: parsed.certifications?.length || 0,
+            languagesCount: parsed.languages?.length || 0,
+            customSectionsCount: parsed.customSections?.length || 0,
+            hasUploadedFile: !!parsed.uploadedFile,
+          });
+
+          // Store uploaded file metadata if present
+          if (parsed.uploadedFile) {
+            setUploadedFileData({
+              id: parsed.uploadedFileId, // NEW: Store the uploaded_file_id
+              filePath: parsed.uploadedFile.filePath,
+              fileUrl: parsed.uploadedFile.fileUrl,
+              fileSize: parsed.uploadedFile.fileSize,
+              mimeType: parsed.mimeType || 'application/pdf',
+              originalFilename: parsed.originalFilename || 'resume.pdf',
+            });
+            console.log('[Prefill] Stored uploaded file metadata:', parsed.uploadedFile);
+          }
+          
+          // Also check for uploadedFileId directly in sessionStorage (set by "Use This File" button)
+          const uploadedFileId = sessionStorage.getItem('uploadedFileId');
+          if (uploadedFileId) {
+            setUploadedFileData((prev) => ({
+              ...prev,
+              id: uploadedFileId,
+            }) as typeof uploadedFileData);
+            // Clean up after reading
+            sessionStorage.removeItem('uploadedFileId');
+            console.log('[Prefill] Found uploadedFileId in sessionStorage:', uploadedFileId);
+          }
 
           // Show success toast
           toast.success('Resume data loaded successfully!', {
@@ -104,8 +288,17 @@ export default function CreateResumePage() {
               ...prev.personalInfo,
               ...parsed.personalInfo,
             },
-            experience: parsed.experience || prev.experience,
-            education: parsed.education || prev.education,
+            experience: (parsed.experience || []).map((exp: any) => ({
+              ...exp,
+              startDate: exp.startDate || "",
+              endDate: exp.endDate || "",
+              isPresent: exp.current,
+            })),
+            education: (parsed.education || []).map((edu: any) => ({
+              ...edu,
+              startDate: edu.startDate || "",
+              endDate: edu.endDate || "",
+            })),
             skills: parsed.skills || prev.skills,
             projects: parsed.projects || prev.projects,
             certifications: parsed.certifications || prev.certifications,
@@ -135,7 +328,7 @@ export default function CreateResumePage() {
     } else {
       setShowChoice(true); // No prefill data, show choice
     }
-  }, [router]);
+  }, [router, user]);
 
   // Analytics tracking useEffects
   useEffect(() => {
@@ -163,8 +356,6 @@ export default function CreateResumePage() {
   // Track session end on page unload
   useEffect(() => {
     const handleBeforeUnload = () => {
-      const totalTimeOnPage = Date.now() - sessionStartTime;
-      
       // Track final step time
       const currentStepStartTime = stepStartTimes[currentStep];
       if (currentStepStartTime) {
@@ -192,6 +383,7 @@ export default function CreateResumePage() {
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
   }>({});
+  const [hasAttemptedNext, setHasAttemptedNext] = useState(false); // Track if user tried to proceed
 
   const [resumeData, setResumeData] = useState<ResumeData>({
     user_id: user?.id || "",
@@ -295,7 +487,6 @@ export default function CreateResumePage() {
       const prefix = `certification_${cert.id}`;
       if (!cert.name.trim()) errors[`${prefix}_name`] = "Certification name is required";
       if (!cert.issuer.trim()) errors[`${prefix}_issuer`] = "Issuer is required";
-      if (!cert.date || !cert.date.trim()) errors[`${prefix}_date`] = "Date is required";
     });
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.certifications]);
@@ -316,8 +507,19 @@ export default function CreateResumePage() {
     resumeData.customSections.forEach((section) => {
       const prefix = `customSection_${section.id}`;
       if (!section.title.trim()) errors[`${prefix}_title`] = "Section title is required";
-      if (!section.description.trim()) errors[`${prefix}_description`] = "Section description is required";
-      else if (!validateWordCount(section.description, 20, 100)) errors[`${prefix}_description`] = "Description should be between 20 and 100 words";
+      
+      // Validate items if present
+      if (section.items && section.items.length > 0) {
+        section.items.forEach((item, index) => {
+          const itemPrefix = `${prefix}_item_${index}`;
+          // At least one of title or description should be present
+          if (!item.title?.trim() && !item.description?.trim()) {
+            errors[itemPrefix] = "Item must have a title or description";
+          }
+        });
+      } else {
+        errors[`${prefix}_items`] = "Section must have at least one item";
+      }
     });
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.customSections]);
@@ -335,6 +537,10 @@ export default function CreateResumePage() {
     }
 
     setIsTransitioning(true);
+    // Clear validation errors and reset attempt flag when changing steps
+    setValidationErrors({});
+    setHasAttemptedNext(false);
+    
     setTimeout(() => {
       setCurrentStep(step);
       setIsTransitioning(false);
@@ -410,8 +616,12 @@ export default function CreateResumePage() {
   ]);
 
   const canProceedToNext = useMemo(
-    () => validateCurrentStep(),
-    [validateCurrentStep]
+    () => {
+      // Don't show validation errors until user tries to proceed
+      if (!hasAttemptedNext) return true;
+      return validateCurrentStep();
+    },
+    [validateCurrentStep, hasAttemptedNext]
   );
 
   const renderResumePreview = () => {
@@ -438,7 +648,7 @@ export default function CreateResumePage() {
     })();
 
     return (
-      <div className={`${themeClass} template-wrapper`}>
+      <div className={`preview-sandbox ${themeClass} template-wrapper`}>
         {templateComponent}
       </div>
     );
@@ -469,7 +679,7 @@ export default function CreateResumePage() {
         const returnUrl = encodeURIComponent('/create-resume?action=save');
         router.push(`/login?returnTo=${returnUrl}`);
         return;
-      } catch (e) {
+      } catch {
         toast.error("Please log in to save your resume.");
         router.push('/login?returnTo=/create-resume');
         return;
@@ -483,7 +693,12 @@ export default function CreateResumePage() {
     }
 
     setSaving(true);
-    toast.loading("Saving your resume...");
+    
+    // Check if we're in edit mode
+    const editingResumeId = sessionStorage.getItem("editingResumeId");
+    const isEditMode = !!editingResumeId;
+    
+    toast.loading(isEditMode ? "Updating your resume..." : "Saving your resume...");
 
     try {
       const resumePayload = {
@@ -491,18 +706,77 @@ export default function CreateResumePage() {
         title: resumeTitle,
         template_id: selectedTemplate,
         theme_id: selectedTheme,
-        is_public: false,
+        is_public: resumeData.is_public,
         personal_info: resumeData.personalInfo,
-        experience: resumeData.experience,
-        education: resumeData.education,
+        experience: resumeData.experience.map(exp => ({
+          id: exp.id,
+          company: exp.company,
+          position: exp.position,
+          startDate: exp.startDate,
+          endDate: exp.endDate,
+          current: exp.isPresent || false,
+          description: exp.description,
+          technologies: [],
+          location: exp.location || "",
+        })),
+        education: resumeData.education.map(edu => ({
+          id: edu.id,
+          institution: edu.institution,
+          degree: edu.degree,
+          field: edu.field || "",
+          startDate: edu.startDate,
+          endDate: edu.endDate,
+          current: false,
+          description: "",
+          gpa: edu.gpa,
+          location: edu.location || "",
+        })),
         skills: resumeData.skills,
-        projects: resumeData.projects,
-        certifications: resumeData.certifications,
-        languages: resumeData.languages,
+        projects: resumeData.projects.map(proj => ({
+          id: proj.id,
+          name: proj.name,
+          description: proj.description,
+          techStack: proj.techStack || [],
+          liveUrl: proj.demoUrl,
+          repoUrl: proj.sourceUrl,
+        })),
+        certifications: resumeData.certifications.map(cert => ({
+          id: cert.id,
+          name: cert.name,
+          issuer: cert.issuer,
+          date: cert.date,
+          url: cert.url,
+        })),
+        languages: resumeData.languages.map(lang => ({
+          id: lang.id,
+          name: lang.name,
+          proficiency: lang.proficiency,
+        })),
         custom_sections: resumeData.customSections,
-      };
+        // Add uploaded file ID if available (links to uploaded_resume_files table)
+        ...(uploadedFileData?.id && {
+          uploaded_file_id: uploadedFileData.id,
+        }),
+        // Add uploaded file metadata if available (for backward compatibility)
+        ...(uploadedFileData && {
+          uploaded_file_path: uploadedFileData.filePath,
+          uploaded_file_url: uploadedFileData.fileUrl,
+          original_filename: uploadedFileData.originalFilename,
+          file_size_bytes: uploadedFileData.fileSize,
+          mime_type: uploadedFileData.mimeType,
+          uploaded_at: new Date().toISOString(),
+        }),
+      } as unknown as Omit<Resume, 'id' | 'created_at' | 'updated_at'>;
 
-      const savedResume = await resumeService.createResume(resumePayload as any);
+      let savedResume;
+      
+      if (isEditMode) {
+        // Update existing resume
+        savedResume = await resumeService.updateResume(editingResumeId, resumePayload);
+      } else {
+        // Create new resume
+        savedResume = await resumeService.createResume(resumePayload);
+      }
 
       if (savedResume && savedResume.slug) {
         // Track successful save
@@ -514,13 +788,20 @@ export default function CreateResumePage() {
         // Clear creation session
         await analyticsService.clearCreationSession();
         
+        // Clear edit mode session storage
+        if (isEditMode) {
+          sessionStorage.removeItem("editingResumeId");
+        }
+        
         // Clear temporary data
         try {
           sessionStorage.removeItem('resumeData');
         } catch {}
         
         toast.dismiss();
-        toast.success("Resume saved successfully! Redirecting to your dashboard...");
+        toast.success(
+          isEditMode ? "Resume updated successfully! Redirecting to your dashboard..." : "Resume saved successfully! Redirecting to your dashboard..."
+        );
         router.push(`/dashboard?fromSave=true`);
       } else {
         throw new Error("Failed to save resume or receive a valid response.");
@@ -608,10 +889,12 @@ export default function CreateResumePage() {
                   certifications: parsed.certifications,
                   languages: parsed.languages,
                   custom_sections: parsed.customSections,
-                };
+                  slug: '',
+                  view_count: 0,
+                } as unknown as Omit<Resume, 'id' | 'created_at' | 'updated_at'>;
 
                 console.log('Saving resume payload:', resumePayload);
-                const savedResume = await resumeService.createResume(resumePayload as any);
+                const savedResume = await resumeService.createResume(resumePayload);
 
                 if (savedResume && savedResume.slug) {
                   // Track successful auto-save
@@ -722,14 +1005,6 @@ export default function CreateResumePage() {
                 </Button>
               <Button
                 variant="outline"
-                onClick={() => setShowMarkdownEditor(true)}
-                className="glass-button flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
-              >
-                <PenSquare className="w-4 h-4" />
-                Markdown Editor
-              </Button>
-              <Button
-                variant="outline"
                 onClick={() => {
                   try {
                     const exportPayload = {
@@ -786,7 +1061,10 @@ export default function CreateResumePage() {
           <div className="card-enhanced rounded-2xl p-8 shadow-lg border border-border/50 bg-background/80 backdrop-blur-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                {(() => { const Icon = steps[currentStep].icon as any; return Icon ? <Icon className="w-6 h-6 text-primary" /> : null; })()}
+                {(() => { 
+                  const Icon = steps[currentStep].icon as React.ComponentType<{ className?: string }>;
+                  return Icon ? <Icon className="w-6 h-6 text-primary" /> : null; 
+                })()}
                 {steps[currentStep].title}
               </h2>
               <span className="text-sm text-muted-foreground px-4 py-2 rounded-full font-semibold border border-border/50 bg-muted/50">
@@ -936,8 +1214,13 @@ export default function CreateResumePage() {
 
               {currentStep < steps.length - 1 ? (
                 <Button
-                  onClick={() => goToStep(currentStep + 1)}
-                  disabled={!canProceedToNext}
+                  onClick={() => {
+                    setHasAttemptedNext(true);
+                    if (validateCurrentStep()) {
+                      goToStep(currentStep + 1);
+                      setHasAttemptedNext(false); // Reset for next step
+                    }
+                  }}
                   className="button-enhanced bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Next

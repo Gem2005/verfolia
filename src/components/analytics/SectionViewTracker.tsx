@@ -6,6 +6,11 @@ interface SectionViewTrackerProps {
   sectionName: string;
   children: React.ReactNode;
   className?: string;
+  /**
+   * Disable tracking for preview/creation contexts
+   * Set to true when template is being used in create-resume page or preview mode
+   */
+  disableTracking?: boolean;
 }
 
 export const SectionViewTracker: React.FC<SectionViewTrackerProps> = ({
@@ -13,13 +18,18 @@ export const SectionViewTracker: React.FC<SectionViewTrackerProps> = ({
   sectionName,
   children,
   className,
+  disableTracking = false,
 }) => {
   // Use Intersection Observer to track when a section becomes visible
   const sectionRef = React.useRef<HTMLDivElement | null>(null);
   const [hasBeenViewed, setHasBeenViewed] = React.useState(false);
 
   React.useEffect(() => {
-    if (!sectionRef.current || hasBeenViewed) return;
+    // Skip tracking if disabled (e.g., in creation/preview mode)
+    if (disableTracking || !sectionRef.current || hasBeenViewed) return;
+
+    // Skip tracking if no valid resumeId (indicates preview/creation mode)
+    if (!resumeId || resumeId === '') return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -57,7 +67,7 @@ export const SectionViewTracker: React.FC<SectionViewTrackerProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [resumeId, sectionName, hasBeenViewed]);
+  }, [resumeId, sectionName, hasBeenViewed, disableTracking]);
 
   return (
     <div
@@ -66,6 +76,7 @@ export const SectionViewTracker: React.FC<SectionViewTrackerProps> = ({
       data-analytics="section-tracker"
       data-resume-id={resumeId}
       data-section-name={sectionName}
+      data-tracking-disabled={disableTracking}
     >
       {children}
     </div>

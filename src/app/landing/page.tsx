@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Users, BarChart3 } from "lucide-react";
+import { Users } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 

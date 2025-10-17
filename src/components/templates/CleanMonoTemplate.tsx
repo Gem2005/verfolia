@@ -1,16 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type {
   PortfolioData,
   PortfolioTemplateProps,
 } from "@/types/PortfolioTypes";
-import { ExternalLink, Github, Linkedin, Mail, Twitter } from "lucide-react";
+import { ExternalLink, Github, Linkedin, Mail, Twitter, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { resumeService } from "@/services/resume-service";
+// tracking disabled in templates (analytics handled elsewhere)
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 import { formatDescription } from "@/utils/formatDescription";
+import { formatDateToDisplay } from "@/utils/date-utils";
+import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
 
 interface CleanMonoTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -19,145 +21,17 @@ interface CleanMonoTemplateProps extends PortfolioTemplateProps {
 
 export function CleanMonoTemplate({
   data,
-  preview = false,
   theme = "black",
   resumeId,
+  preview = false, // Default to false for public viewing
 }: CleanMonoTemplateProps) {
-  // Use provided data or fallback to mock data only if no data is provided
-  const portfolioData: PortfolioData =
-    data && data.personalInfo && data.personalInfo.firstName
-      ? data
-      : {
-          personalInfo: {
-            firstName: "John",
-            lastName: "Doe",
-            title: "Full Stack Developer",
-            email: "john.doe@example.com",
-            phone: "+1 234-567-8901",
-            location: "San Francisco, CA, USA",
-            about:
-              "Passionate developer who loves building clean, accessible and performant web apps. Enjoys hackathons, open-source, and learning new stacks.",
-            photo:
-              "https://api.dicebear.com/7.x/adventurer/svg?seed=John%20Doe",
-            social: {
-              github: "",
-              twitter: "",
-              linkedin: "",
-              portfolio: "",
-            },
-          },
-          experience: [
-            {
-              id: "exp1",
-              position: "Blockchain and Software Developer",
-              company: "Neural Labs",
-              startDate: "August 2023",
-              isPresent: true,
-              description:
-                "Working on blockchain solutions, building smart contracts, and integrating decentralized applications with front-end frameworks.",
-            },
-            {
-              id: "exp2",
-              position: "Social Media and Relations",
-              company: "Crypto Union",
-              startDate: "July 2022",
-              endDate: "January 2023",
-              description:
-                "Managed social media presence, boosted community engagement by 30%, and organized 5+ crypto-related webinars and AMA sessions.",
-            },
-            {
-              id: "exp3",
-              position: "Solana Development Intern",
-              company: "TerraFirm",
-              startDate: "July 2022",
-              endDate: "August 2022",
-              description:
-                "Developed Solana smart contracts, deployed NFT collections, and optimized gas usage for decentralized apps.",
-            },
-          ],
-          skills: [
-            "React",
-            "TypeScript",
-            "Next.js",
-            "Node.js",
-            "Solidity",
-            "Rust",
-            "Solana",
-            "Ethers.js",
-            "Web3",
-            "Tailwind CSS",
-            "Git",
-            "Docker",
-          ],
-          education: [
-            {
-              id: "edu1",
-              institution: "Himalayan Institute of Technology",
-              degree: "Bachelor's in Computer Science and Engineering",
-              startYear: "2019",
-              endYear: "2023",
-              cgpa: "8.7 / 10",
-            },
-          ],
-          certifications: [
-            {
-              id: "cert1",
-              title: "Ethereum Developer Bootcamp",
-              issuer: "Consensys Academy",
-              date: "June 2023",
-              url: "#",
-            },
-            {
-              id: "cert2",
-              title: "Rust Programming Language",
-              issuer: "Udemy",
-              date: "March 2023",
-              url: "#",
-            },
-          ],
-          projects: [],
-          blogs: [
-            {
-              id: "blog1",
-              title: "Understanding PDAs, Seeds and Bumps in Solana",
-              summary:
-                "PDAs (Program Derived Addresses) are fundamental for beginners. Learn everything about PDAs and program ownership.",
-              publishDate: "Feb 2023",
-              url: "#",
-            },
-            {
-              id: "blog2",
-              title: "Learning Memory Management, Structs and Enums in Rust",
-              summary:
-                "Understanding Rust's memory management and data structures.",
-              publishDate: "Jan 2023",
-              url: "#",
-            },
-            {
-              id: "blog3",
-              title: "Custom Transactions and Instructions in Solana",
-              summary:
-                "Learn about custom transactions and instructions in Solana.",
-              publishDate: "Dec 2022",
-              url: "#",
-            },
-            {
-              id: "blog4",
-              title: "Next.js Performance Optimization Tips",
-              summary:
-                "Practical strategies to optimize performance in Next.js apps.",
-              publishDate: "Nov 2022",
-              url: "#",
-            },
-          ],
-          interests: [
-            "Hackathons",
-            "Open Source",
-            "Blockchain",
-            "AI & ML",
-            "Gaming",
-          ],
-        };
+  const [showAllProjects, setShowAllProjects] = useState(false);
+  
+  // Disable analytics tracking when in preview/creation mode
+  const disableTracking = preview || !resumeId;
+  
+  // Use provided data only; do not fallback to mock defaults
+  const portfolioData: PortfolioData = data;
 
   // Theme configuration
   const getThemeClasses = () => {
@@ -213,7 +87,7 @@ export function CleanMonoTemplate({
       case "white":
         return {
           bg: "bg-white",
-          text: "text-black",
+          text: "text-gray-900",
           accent: "text-blue-700",
           border: "border-gray-400",
           cardBg: "bg-gray-100",
@@ -239,84 +113,14 @@ export function CleanMonoTemplate({
 
   const themeClasses = getThemeClasses();
 
-  const handleViewMore = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (resumeId) {
-      resumeService.trackResumeInteraction(
-        resumeId,
-        "button_click",
-        "view_more_projects",
-        "projects"
-      );
-    }
-    console.log("View more clicked");
-  };
-
-  const handleReadMore = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (resumeId) {
-      resumeService.trackResumeInteraction(
-        resumeId,
-        "button_click",
-        "read_more_blogs",
-        "blogs"
-      );
-    }
-    console.log("Read more blogs clicked");
-  };
-
-  const handleContactClick = (method: string) => {
-    if (resumeId) {
-      resumeService.trackResumeInteraction(
-        resumeId,
-        "contact_click",
-        method,
-        "contact"
-      );
-    }
-  };
-
-  const handleSkillClick = (skill: string) => {
-    if (resumeId) {
-      resumeService.trackResumeInteraction(
-        resumeId,
-        "skill_click",
-        skill,
-        "skills"
-      );
-    }
-  };
-
-  const handlePhotoClick = () => {
-    if (resumeId) {
-      resumeService.trackResumeInteraction(
-        resumeId,
-        "photo_click",
-        "profile_photo",
-        "header"
-      );
-    }
-  };
-
-  const trackInteraction = (type: string, value?: string, section?: string) => {
-    if (resumeId) {
-      resumeService.trackResumeInteraction(resumeId, type, value, section);
-    }
-  };
-
-  // Use the existing formatDescription utility for better formatting
+  // click tracking disabled across template
 
   return (
-    <div className={`theme-${theme}`}>
-      <div
-        className={`min-h-screen ${themeClasses.bg} font-mono`}
-        style={{
-          color: theme === "white" ? "#000000" : undefined,
-        }}
-      >
+    <div className={`template-sandbox ${preview ? 'preview-sandbox' : ''} theme-${theme}`}>
+      <div className={`min-h-screen ${themeClasses.bg} font-mono`}>
       <div className="container mx-auto px-6 py-12 max-w-4xl">
         {/* Header */}
-        <SectionViewTracker resumeId={resumeId || ""} sectionName="header">
+        <SectionViewTracker resumeId={resumeId || ""} sectionName="header" disableTracking={disableTracking}>
           <header className="mb-16" data-section="header">
             <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8">
               <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left">
@@ -329,41 +133,23 @@ export function CleanMonoTemplate({
                       }
                       alt={`${portfolioData.personalInfo.firstName} ${portfolioData.personalInfo.lastName}`}
                       className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 ${themeClasses.border} shadow-sm cursor-pointer hover:scale-105 transition-transform duration-200`}
-                      onClick={handlePhotoClick}
+                      // click disabled
                       data-trackable="profile-photo"
                     />
                   </div>
                 )}
                 <div>
                   <h1
-                    className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                    style={{
-                      color: theme === "white" ? "#000000" : undefined,
-                    }}
-                    onClick={() =>
-                      trackInteraction(
-                        "name_click",
-                        `${portfolioData.personalInfo.firstName} ${portfolioData.personalInfo.lastName}`,
-                        "header"
-                      )
-                    }
+                    className={`text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 cursor-pointer ${themeClasses.text} hover:text-blue-600 transition-colors duration-200`}
+                    onClick={() => {}}
                     data-trackable="name"
                   >
                     {portfolioData.personalInfo.firstName}{" "}
                     {portfolioData.personalInfo.lastName}
                   </h1>
                   <p
-                    className={`text-lg sm:text-xl font-medium cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                    style={{
-                      color: theme === "white" ? "#1d4ed8" : undefined,
-                    }}
-                    onClick={() =>
-                      trackInteraction(
-                        "title_click",
-                        portfolioData.personalInfo.title,
-                        "header"
-                      )
-                    }
+                    className={`text-lg sm:text-xl font-medium cursor-pointer ${themeClasses.text} hover:text-blue-700 transition-colors duration-200`}
+                    onClick={() => {}}
                     data-trackable="title"
                   >
                     {portfolioData.personalInfo.title}
@@ -371,16 +157,10 @@ export function CleanMonoTemplate({
                   {portfolioData.personalInfo.location && (
                     <p
                       className={`text-sm ${themeClasses.accent} mt-1 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                      onClick={() =>
-                        trackInteraction(
-                          "location_click",
-                          portfolioData.personalInfo.location,
-                          "header"
-                        )
-                      }
+                      onClick={() => {}}
                       data-trackable="location"
                     >
-                      📍 {portfolioData.personalInfo.location}
+                      {portfolioData.personalInfo.location}
                     </p>
                   )}
                 </div>
@@ -396,6 +176,7 @@ export function CleanMonoTemplate({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block"
+                    disableTracking={disableTracking}
                   >
                     <Button
                       variant="outline"
@@ -408,23 +189,24 @@ export function CleanMonoTemplate({
                   </TrackableLink>
                 )}
 
-                {portfolioData.personalInfo.social.twitter && (
+                {portfolioData.personalInfo.social.linkedin && (
                   <TrackableLink
-                    href={portfolioData.personalInfo.social.twitter}
+                    href={portfolioData.personalInfo.social.linkedin}
                     resumeId={resumeId || ""}
                     interactionType="social_link_click"
                     sectionName="header"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block"
+                    disableTracking={disableTracking}
                   >
                     <Button
                       variant="outline"
                       size="default"
                       className="rounded-lg border-2 hover:bg-blue-500 hover:text-white transition-all duration-200 bg-transparent border-blue-500 text-blue-500 hover:scale-105"
                     >
-                      <Twitter className="w-4 h-4 mr-2" />
-                      Twitter
+                      <Linkedin className="w-4 h-4 mr-2" />
+                      LinkedIn
                     </Button>
                   </TrackableLink>
                 )}
@@ -436,12 +218,13 @@ export function CleanMonoTemplate({
                     interactionType="contact_link_click"
                     sectionName="header"
                     className="inline-block"
+                    disableTracking={disableTracking}
                   >
                     <Button
                       variant="outline"
                       size="default"
                       className="rounded-lg border-2 hover:bg-red-500 hover:text-white transition-all duration-200 bg-transparent border-red-500 text-red-500 hover:scale-105"
-                      onClick={() => handleContactClick("email")}
+                      // click disabled
                     >
                       <Mail className="w-4 h-4 mr-2" />
                       Contact
@@ -454,17 +237,9 @@ export function CleanMonoTemplate({
             {portfolioData.personalInfo.about && (
               <div
                 className={`mt-8 p-6 ${themeClasses.cardBg} rounded-xl shadow-sm border ${themeClasses.cardBorder} hover:shadow-md transition-all duration-200 cursor-pointer`}
-                onClick={() =>
-                  trackInteraction("about_click", "about_section", "header")
-                }
                 data-trackable="about-section"
               >
-                <p
-                  className="leading-relaxed text-base"
-                  style={{
-                    color: theme === "white" ? "#000000" : undefined,
-                  }}
-                >
+                <p className={`leading-relaxed text-base ${themeClasses.text}`}>
                   {portfolioData.personalInfo.about}
                 </p>
               </div>
@@ -477,17 +252,11 @@ export function CleanMonoTemplate({
           <SectionViewTracker
             resumeId={resumeId || ""}
             sectionName="experience"
+            disableTracking={disableTracking}
           >
             <section className="mb-16" data-section="experience">
               <h2
                 className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                onClick={() =>
-                  trackInteraction(
-                    "section_header_click",
-                    "experience",
-                    "experience"
-                  )
-                }
               >
                 Work Experience
               </h2>
@@ -497,13 +266,6 @@ export function CleanMonoTemplate({
                   <div
                     key={exp.id}
                     className={`${themeClasses.cardBg} p-6 rounded-xl shadow-sm border ${themeClasses.cardBorder} hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]`}
-                    onClick={() =>
-                      trackInteraction(
-                        "experience_click",
-                        exp.position,
-                        "experience"
-                      )
-                    }
                     data-trackable="experience-item"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start gap-4">
@@ -512,11 +274,6 @@ export function CleanMonoTemplate({
                           className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm cursor-pointer hover:scale-110 transition-transform duration-200"
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "company_logo_click",
-                              exp.company,
-                              "experience"
-                            );
                           }}
                           data-trackable="company-logo"
                         >
@@ -530,11 +287,6 @@ export function CleanMonoTemplate({
                           className={`font-bold text-lg ${themeClasses.text} mb-1 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "position_click",
-                              exp.position,
-                              "experience"
-                            );
                           }}
                           data-trackable="position-title"
                         >
@@ -544,43 +296,26 @@ export function CleanMonoTemplate({
                           className={`text-base ${themeClasses.accent} font-medium mb-1 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "company_click",
-                              exp.company,
-                              "experience"
-                            );
                           }}
                           data-trackable="company-name"
                         >
-                          {exp.company}
+                          {exp.company}{exp.location && <span className="text-sm font-normal">, {exp.location}</span>}
                         </p>
                         <p
                           className={`text-sm ${themeClasses.accent} mb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "date_click",
-                              `${exp.startDate} - ${
-                                exp.isPresent ? "Present" : exp.endDate
-                              }`,
-                              "experience"
-                            );
                           }}
                           data-trackable="date-range"
                         >
-                          {exp.startDate} -{" "}
-                          {exp.isPresent ? "Present" : exp.endDate}
+                          {formatDateToDisplay(exp.startDate)} -{" "}
+                          {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
                         </p>
                         {exp.description && (
                           <div
                             className={`${themeClasses.text} cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              trackInteraction(
-                                "description_click",
-                                exp.description.substring(0, 50),
-                                "experience"
-                              );
                             }}
                             data-trackable="job-description"
                           >
@@ -598,17 +333,10 @@ export function CleanMonoTemplate({
 
         {/* Education Section */}
         {portfolioData.education && portfolioData.education.length > 0 && (
-          <SectionViewTracker resumeId={resumeId || ""} sectionName="education">
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="education" disableTracking={disableTracking}>
             <section className="mb-16" data-section="education">
               <h2
                 className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                onClick={() =>
-                  trackInteraction(
-                    "section_header_click",
-                    "education",
-                    "education"
-                  )
-                }
               >
                 Education
               </h2>
@@ -618,13 +346,6 @@ export function CleanMonoTemplate({
                   <div
                     key={edu.id}
                     className={`${themeClasses.cardBg} p-6 rounded-xl shadow-sm border ${themeClasses.cardBorder} hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]`}
-                    onClick={() =>
-                      trackInteraction(
-                        "education_click",
-                        edu.degree,
-                        "education"
-                      )
-                    }
                     data-trackable="education-item"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start gap-4">
@@ -633,11 +354,6 @@ export function CleanMonoTemplate({
                           className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center shadow-sm cursor-pointer hover:scale-110 transition-transform duration-200"
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "institution_logo_click",
-                              edu.institution,
-                              "education"
-                            );
                           }}
                           data-trackable="institution-logo"
                         >
@@ -651,58 +367,38 @@ export function CleanMonoTemplate({
                           className={`font-bold text-lg ${themeClasses.text} mb-1 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "degree_click",
-                              edu.degree,
-                              "education"
-                            );
                           }}
-                          data-trackable="degree-title"
+                          data-trackable="institution-name"
                         >
-                          {edu.degree}
+                          {edu.institution}{edu.location && <span className="text-base font-normal">, {edu.location}</span>}
                         </h3>
                         <p
                           className={`text-base ${themeClasses.accent} font-medium mb-1 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "institution_click",
-                              edu.institution,
-                              "education"
-                            );
                           }}
-                          data-trackable="institution-name"
+                          data-trackable="degree-title"
                         >
-                          {edu.institution}
+                          {formatDegreeDisplay(edu.degree, edu.field)}
                         </p>
                         <p
                           className={`text-sm ${themeClasses.accent} mb-2 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            trackInteraction(
-                              "education_date_click",
-                              `${edu.startYear} - ${edu.endYear}`,
-                              "education"
-                            );
                           }}
                           data-trackable="education-dates"
                         >
-                          {edu.startYear} - {edu.endYear}
+                          {formatDateToDisplay(edu.startYear)} - {formatDateToDisplay(edu.endYear)}
                         </p>
                         {edu.cgpa && (
                           <p
                             className={`text-sm ${themeClasses.text} font-medium cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              trackInteraction(
-                                "cgpa_click",
-                                edu.cgpa,
-                                "education"
-                              );
                             }}
                             data-trackable="cgpa"
                           >
-                            CGPA: {edu.cgpa}
+                            {formatGradeDisplay(edu.cgpa)}
                           </p>
                         )}
                       </div>
@@ -716,13 +412,10 @@ export function CleanMonoTemplate({
 
         {/* Skills Section */}
         {portfolioData.skills && portfolioData.skills.length > 0 && (
-          <SectionViewTracker resumeId={resumeId || ""} sectionName="skills">
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="skills" disableTracking={disableTracking}>
             <section className="mb-16" data-section="skills">
               <h2
                 className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                onClick={() =>
-                  trackInteraction("section_header_click", "skills", "skills")
-                }
               >
                 Skills & Technologies
               </h2>
@@ -736,7 +429,7 @@ export function CleanMonoTemplate({
                       key={skill}
                       variant="outline"
                       className={`text-sm px-4 py-2 ${themeClasses.cardBg} ${themeClasses.badgeHover} hover:text-white transition-all duration-200 border-2 font-medium ${themeClasses.border} ${themeClasses.text} cursor-pointer hover:scale-105`}
-                      onClick={() => handleSkillClick(skill)}
+                      // click disabled
                       data-trackable="skill-badge"
                     >
                       {skill}
@@ -750,47 +443,27 @@ export function CleanMonoTemplate({
 
         {/* Projects Section */}
         {portfolioData.projects && portfolioData.projects.length > 0 && (
-          <SectionViewTracker resumeId={resumeId || ""} sectionName="projects">
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="projects" disableTracking={disableTracking}>
             <section className="mb-16" data-section="projects">
               <h2
                 className={`text-2xl font-bold mb-4 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3 cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                onClick={() =>
-                  trackInteraction(
-                    "section_header_click",
-                    "projects",
-                    "projects"
-                  )
-                }
               >
                 Featured Projects
               </h2>
               <p
                 className={`${themeClasses.accent} mb-8 text-base leading-relaxed cursor-pointer hover:text-blue-400 transition-colors duration-200`}
-                onClick={() =>
-                  trackInteraction(
-                    "description_click",
-                    "projects_intro",
-                    "projects"
-                  )
-                }
+                onClick={() => {}}
                 data-trackable="projects-description"
               >
-                I've worked on a variety of projects, from simple websites to
+                I&apos;ve worked on a variety of projects, from simple websites to
                 complex web applications. Here are a few of my favorites.
               </p>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {portfolioData.projects.map((project) => (
+                {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
                   <div
                     key={project.id}
                     className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer`}
-                    onClick={() =>
-                      trackInteraction(
-                        "project_click",
-                        project.name,
-                        "projects"
-                      )
-                    }
                     data-trackable="project-card"
                   >
                     <div className="p-6">
@@ -798,11 +471,6 @@ export function CleanMonoTemplate({
                         className={`font-bold text-xl mb-3 ${themeClasses.text} cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          trackInteraction(
-                            "project_title_click",
-                            project.name,
-                            "projects"
-                          );
                         }}
                         data-trackable="project-title"
                       >
@@ -812,11 +480,6 @@ export function CleanMonoTemplate({
                         className={`${themeClasses.text} mb-4 leading-relaxed cursor-pointer hover:text-blue-400 transition-colors duration-200`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          trackInteraction(
-                            "project_description_click",
-                            project.description.substring(0, 50),
-                            "projects"
-                          );
                         }}
                         data-trackable="project-description"
                       >
@@ -830,11 +493,6 @@ export function CleanMonoTemplate({
                             className={`text-xs px-3 py-1 ${themeClasses.cardBg} ${themeClasses.text} font-medium border ${themeClasses.border} cursor-pointer hover:scale-105 transition-transform duration-200`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              trackInteraction(
-                                "tech_stack_click",
-                                tech,
-                                "projects"
-                              );
                             }}
                             data-trackable="tech-badge"
                           >
@@ -852,6 +510,7 @@ export function CleanMonoTemplate({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-block"
+                            disableTracking={disableTracking}
                           >
                             <Button
                               size="sm"
@@ -872,6 +531,7 @@ export function CleanMonoTemplate({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-block"
+                            disableTracking={disableTracking}
                           >
                             <Button
                               size="sm"
@@ -888,18 +548,143 @@ export function CleanMonoTemplate({
                   </div>
                 ))}
               </div>
-              <div className="text-center mt-8">
-                <Button
-                  variant="default"
-                  onClick={handleViewMore}
-                  className={`${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} px-8 py-3 text-base transition-all duration-200 border ${themeClasses.border} rounded-lg hover:scale-105`}
-                  data-trackable="button"
-                >
-                  View All Projects
-                </Button>
+              {portfolioData.projects.length > 3 && (
+                <div className="text-center mt-8">
+                  <Button
+                    variant="default"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowAllProjects(!showAllProjects);
+                      // tracking disabled
+                    }}
+                    className={`${themeClasses.cardBg} ${themeClasses.buttonHover} ${themeClasses.text} px-8 py-3 text-base transition-all duration-200 border ${themeClasses.border} rounded-lg hover:scale-105`}
+                    data-trackable="button"
+                  >
+                    {showAllProjects ? (
+                      <>
+                        <ChevronUp className="w-4 h-4 mr-2 inline" />
+                        View Less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-4 h-4 mr-2 inline" />
+                        View All Projects
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </section>
+          </SectionViewTracker>
+        )}
+
+        {/* Certifications Section */}
+        {portfolioData.certifications && portfolioData.certifications.length > 0 && (
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="certifications" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="certifications">
+              <h2
+                className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+              >
+                Certifications
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {portfolioData.certifications.map((cert) => (
+                  <div
+                    key={cert.id}
+                    className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl p-6 hover:shadow-md transition-all duration-200`}
+                  >
+                    <h3 className={`font-bold text-lg mb-2 ${themeClasses.text}`}>
+                      {cert.title}
+                    </h3>
+                    <p className={`${themeClasses.accent} mb-2`}>
+                      {cert.issuer}
+                    </p>
+                    {cert.date && (
+                      <p className={`text-sm ${themeClasses.accent} mb-3`}>
+                        {formatDateToDisplay(cert.date)}
+                      </p>
+                    )}
+                    {cert.url && (
+                      <TrackableLink
+                        href={cert.url}
+                        resumeId={resumeId || ""}
+                        interactionType="certification_link_click"
+                        sectionName="certifications"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                        disableTracking={disableTracking}
+                      >
+                        View Certificate →
+                      </TrackableLink>
+                    )}
+                  </div>
+                ))}
               </div>
             </section>
           </SectionViewTracker>
+        )}
+
+        {/* Custom Sections */}
+        {portfolioData.customSections && portfolioData.customSections.length > 0 && (
+          <>
+            {portfolioData.customSections.map((section) => (
+              <SectionViewTracker key={section.id} resumeId={resumeId || ""} sectionName={`custom_${section.title}`} disableTracking={disableTracking}>
+                <section className="mb-16" data-section={`custom-${section.id}`}>
+                  <h2
+                    className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+                  >
+                    {section.title}
+                  </h2>
+                  <div className="space-y-6">
+                    {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-xl p-6`}
+                      >
+                        {item.title && (
+                          <h3 className={`font-bold text-lg mb-2 ${themeClasses.text}`}>
+                            {item.title}
+                          </h3>
+                        )}
+                        {item.subtitle && (
+                          <p className={`${themeClasses.accent} mb-2`}>
+                            {item.subtitle}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-4 text-sm mb-3">
+                          {item.date && (
+                            <span className={`${themeClasses.accent}`}>
+                              {formatDateToDisplay(item.date)}
+                            </span>
+                          )}
+                          {item.location && (
+                            <span className={`${themeClasses.accent}`}>
+                              {item.location}
+                            </span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className={`${themeClasses.text} mb-3 leading-relaxed`}>
+                            {item.description}
+                          </p>
+                        )}
+                        {item.details && item.details.length > 0 && (
+                          <ul className="list-disc list-inside space-y-1">
+                            {item.details.map((detail, dIdx) => (
+                              <li key={dIdx} className={`${themeClasses.text} text-sm`}>
+                                {detail}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )) : <p className={`${themeClasses.text}`}>No items in this section</p>}
+                  </div>
+                </section>
+              </SectionViewTracker>
+            ))}
+          </>
         )}
 
         {/* Blogs Section */}
@@ -946,7 +731,7 @@ export function CleanMonoTemplate({
             <div className="text-center mt-8">
               <Button
                 variant="outline"
-                onClick={handleReadMore}
+                // click disabled
                 className={`border-2 ${themeClasses.buttonHover} hover:text-white px-8 py-3 text-base transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
               >
                 View All Blog Posts
@@ -960,7 +745,7 @@ export function CleanMonoTemplate({
           <h2
             className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
           >
-            Let's Work Together
+            Let&apos;s Work Together
           </h2>
           <div
             className={`${themeClasses.cardBg} p-8 rounded-xl shadow-sm border ${themeClasses.cardBorder}`}

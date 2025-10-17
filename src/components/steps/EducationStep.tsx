@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
+import { formatDateToInput } from "@/utils/date-utils";
 
 interface EducationStepProps {
   resumeData: ResumeData;
@@ -35,7 +36,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({
 
   const updateEducationField = (
     educationId: string,
-    field: "institution" | "degree" | "field" | "startDate" | "endDate" | "gpa",
+    field: "institution" | "degree" | "field" | "startDate" | "endDate" | "gpa" | "location",
     value: string
   ) => {
     setResumeData((prev) => ({
@@ -128,12 +129,25 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Location</Label>
+                <Input
+                  value={edu.location || ""}
+                  onChange={(e) => updateEducationField(edu.id, "location", e.target.value)}
+                  className="h-10"
+                  placeholder="e.g., Cambridge, MA"
+                />
+                <p className="text-xs text-muted-foreground">
+                  City and state/country where the institution is located
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Start Date</Label>
                   <Input
                     type="month"
-                    value={edu.startDate}
+                    value={formatDateToInput(edu.startDate)}
                     onChange={(e) => updateEducationField(edu.id, "startDate", e.target.value)}
                     className="h-10"
                   />
@@ -143,7 +157,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                   <Label className="text-sm font-medium">End Date</Label>
                   <Input
                     type="month"
-                    value={edu.endDate}
+                    value={formatDateToInput(edu.endDate)}
                     onChange={(e) => updateEducationField(edu.id, "endDate", e.target.value)}
                     className={`h-10 ${validationErrors[`education_${edu.id}_endDate`] ? "border-red-500" : ""}`}
                   />
@@ -153,16 +167,19 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">GPA/Grade</Label>
+                  <Label className="text-sm font-medium">GPA/CGPA/Grade</Label>
                   <Input
                     value={edu.gpa}
                     onChange={(e) => updateEducationField(edu.id, "gpa", e.target.value)}
                     className={`h-10 ${validationErrors[`education_${edu.id}_gpa`] ? "border-red-500" : ""}`}
-                    placeholder="e.g., 3.8 or 85%"
+                    placeholder="e.g., 3.8/4.0, 8.5/10, 85%, A+"
                   />
                   {validationErrors[`education_${edu.id}_gpa`] && (
                     <p className="text-xs text-red-500">{validationErrors[`education_${edu.id}_gpa`]}</p>
                   )}
+                  <p className="text-xs text-muted-foreground">
+                    Enter with scale: 3.8/4.0 (GPA), 8.5/10 (CGPA), 85%, or A+
+                  </p>
                 </div>
               </div>
             </div>

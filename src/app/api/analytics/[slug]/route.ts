@@ -22,7 +22,7 @@ export async function GET(
     }
 
     // Get engagement metrics
-    let metrics: any = {};
+    let metrics: Record<string, unknown> = {};
     try {
       const { data, error } = await supabase.rpc(
         "get_resume_engagement_metrics",
@@ -42,7 +42,7 @@ export async function GET(
     }
 
     // Get views over time (last 30 days)
-    let viewsOverTime: any[] = [];
+    let viewsOverTime: Array<Record<string, unknown>> = [];
     try {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -65,7 +65,7 @@ export async function GET(
     }
 
     // Get geographic distribution
-    let geoDistribution: any[] = [];
+    let geoDistribution: Array<Record<string, unknown>> = [];
     try {
       // First try the RPC function
       const { data, error } = await supabase.rpc(
@@ -94,7 +94,7 @@ export async function GET(
         } else if (viewData) {
           // Process the data to group by country
           const countryMap: Record<string, number> = {};
-          viewData.forEach((view: any) => {
+          viewData.forEach((view: { country?: string }) => {
             const country = view.country || "Unknown";
             countryMap[country] = (countryMap[country] || 0) + 1;
           });
@@ -117,7 +117,7 @@ export async function GET(
     }
 
     // Get device analytics
-    let deviceAnalytics: any[] = [];
+    let deviceAnalytics: Array<Record<string, unknown>> = [];
     try {
       const { data, error } = await supabase.rpc("get_device_analytics", {
         p_resume_id: resume.id,
@@ -134,7 +134,7 @@ export async function GET(
     }
 
     // Get referrer analytics
-    let referrerAnalytics: any[] = [];
+    let referrerAnalytics: Array<Record<string, unknown>> = [];
     try {
       const { data, error } = await supabase.rpc("get_referrer_analytics", {
         p_resume_id: resume.id,
@@ -151,7 +151,7 @@ export async function GET(
     }
 
     // Get section popularity
-    let sectionPopularity: any[] = [];
+    let sectionPopularity: Array<Record<string, unknown>> = [];
     try {
       const { data, error } = await supabase.rpc("get_section_popularity", {
         p_resume_id: resume.id,

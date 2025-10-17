@@ -11,6 +11,11 @@ interface TrackableLinkProps {
   children: React.ReactNode;
   target?: string;
   rel?: string;
+  /**
+   * Disable tracking for preview/creation contexts
+   * Set to true when template is being used in create-resume page or preview mode
+   */
+  disableTracking?: boolean;
 }
 
 export const TrackableLink: React.FC<TrackableLinkProps> = ({
@@ -22,8 +27,14 @@ export const TrackableLink: React.FC<TrackableLinkProps> = ({
   className,
   target,
   rel,
+  disableTracking = false,
 }) => {
   const handleClick = () => {
+    // Skip tracking if disabled or no valid resumeId
+    if (disableTracking || !resumeId || resumeId === '') {
+      return;
+    }
+
     try {
       console.log("🔗 Tracking link click:", {
         resumeId,
@@ -56,6 +67,7 @@ export const TrackableLink: React.FC<TrackableLinkProps> = ({
       data-resume-id={resumeId}
       data-interaction-type={interactionType}
       data-section-name={sectionName}
+      data-tracking-disabled={disableTracking}
     >
       {children}
     </Link>

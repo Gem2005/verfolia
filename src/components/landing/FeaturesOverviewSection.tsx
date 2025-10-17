@@ -32,7 +32,7 @@ export const FeaturesOverviewSection = () => {
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
-                <FileText className="w-6 h-6 text-white" />
+                <FileText className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 Profile Builder
@@ -49,7 +49,7 @@ export const FeaturesOverviewSection = () => {
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
-                <BarChart3 className="w-6 h-6 text-white" />
+                <BarChart3 className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 Real-time Analytics
@@ -66,7 +66,7 @@ export const FeaturesOverviewSection = () => {
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
-                <Brain className="w-6 h-6 text-white" />
+                <Brain className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 AI Cover Letters{" "}
@@ -86,7 +86,7 @@ export const FeaturesOverviewSection = () => {
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
-                <Share2 className="w-6 h-6 text-white" />
+                <Share2 className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 Easy Sharing
@@ -102,7 +102,7 @@ export const FeaturesOverviewSection = () => {
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
-                <Shield className="w-6 h-6 text-white" />
+                <Shield className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 Privacy First
@@ -120,7 +120,7 @@ export const FeaturesOverviewSection = () => {
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
               <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
-                <Target className="w-6 h-6 text-white" />
+                <Target className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 Career Insights{" "}

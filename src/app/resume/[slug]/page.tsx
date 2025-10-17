@@ -108,68 +108,70 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
 
     return {
       personalInfo: {
-        firstName: personalInfo.firstName || "John",
-        lastName: personalInfo.lastName || "Doe",
-        title: "Professional",
-        email: personalInfo.email || "contact@example.com",
-        phone: personalInfo.phone || "+1 (555) 123-4567",
-        location: personalInfo.location || "Location",
-        about: "Professional",
-        photo: "/professional-headshot.png",
-        social: {
-          github: personalInfo.website || "",
-          twitter: "",
-          linkedin: personalInfo.website || "",
-          portfolio: personalInfo.website || "",
-        },
+      firstName: personalInfo.firstName || "",
+      lastName: personalInfo.lastName || "",
+      title: personalInfo.title || "",
+      email: personalInfo.email || "",
+      phone: personalInfo.phone || "+",
+      location: personalInfo.location || "",
+      about: personalInfo.summary || "",
+      photo: personalInfo.photo || "",
+      social: {
+        github: personalInfo.githubUrl || "",
+        twitter: "",
+        linkedin: personalInfo.linkedinUrl || "",
+        portfolio: personalInfo.website || "",
+      },
       },
       experience: experience.map((exp: Experience) => ({
-        id: exp.id || Math.random().toString(),
-        position: exp.position || "Position",
-        company: exp.company || "Company",
-        startDate: exp.startDate || "",
-        endDate: exp.endDate || "",
-        isPresent: !exp.endDate || exp.endDate === "",
-        description: exp.description || "Job description",
+      id: exp.id || Math.random().toString(),
+      position: exp.position || "",
+      company: exp.company || "",
+      startDate: exp.startDate || "",
+      endDate: exp.endDate || "",
+      isPresent: exp.current || false,
+      description: exp.description || "",
+      location: exp.location || "",
       })),
       skills: skills.filter((skill: string) => skill && skill.trim()),
       education: education.map((edu: Education) => ({
-        id: edu.id || Math.random().toString(),
-        institution: edu.school || "Institution",
-        degree: edu.degree || "Degree",
-        field: edu.field || "",
-        startYear: edu.startDate || "",
-        endYear: edu.endDate || "",
-        cgpa: "",
+      id: edu.id || Math.random().toString(),
+      institution: edu.institution || "",
+      degree: edu.degree || "",
+      field: edu.field || "",
+      startYear: edu.startDate || "",
+      endYear: edu.endDate || "",
+      cgpa: edu.gpa || "",
+      location: edu.location || "",
       })),
       projects: projects.map((proj: Project) => ({
-        id: proj.id || Math.random().toString(),
-        name: proj.name || "Project",
-        description: proj.description || "Project description",
-        techStack: proj.technologies || [],
-        sourceUrl: proj.repoUrl || "",
-        demoUrl: proj.liveUrl || "",
-        isLocked: proj.isLocked || false,
+      id: proj.id || Math.random().toString(),
+      name: proj.name || "",
+      description: proj.description || "",
+      techStack: proj.techStack || [],
+      sourceUrl: proj.repoUrl || "",
+      demoUrl: proj.liveUrl || "",
+      isLocked: proj.isLocked || false,
       })),
       blogs: [],
       certifications: certifications.map((cert: Certification) => ({
-        id: cert.id || Math.random().toString(),
-        title: cert.name || "Certification",
-        issuer: cert.issuer || "Issuer",
-        date: cert.issueDate || "",
-        url: cert.credentialUrl || "",
+      id: cert.id || Math.random().toString(),
+      title: cert.name || "",
+      issuer: cert.issuer || "",
+      date: cert.date || "",
+      url: cert.url || "",
       })),
-      interests: [
-        ...customSections
-          .map((section: CustomSection) => section.title)
-          .filter((title: string) => title && title.trim()),
-        ...languages
-          .map(
-            (lang: Language) =>
-              `${lang.name} (${lang.proficiency || "Proficient"})`
-          )
-          .filter((lang: string) => lang && lang.trim()),
-      ],
+      languages: languages.map((lang: Language) => ({
+      id: lang.id || Math.random().toString(),
+      name: lang.name || "",
+      proficiency: lang.proficiency || "",
+      })),
+      customSections: customSections.map((section: CustomSection) => ({
+      id: section.id || Math.random().toString(),
+      title: section.title || "",
+      items: section.items || [],
+      })),
+      interests: [],
     };
   };
 
@@ -248,4 +250,3 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     </div>
   );
 }
-

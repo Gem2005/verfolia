@@ -44,13 +44,13 @@ export async function GET(
       .map(() => Array(24).fill(0));
 
     // Fill in the grid with actual data
-    heatmapData.forEach((item: any) => {
+    heatmapData.forEach((item: { day_of_week: number; hour_of_day: number; view_count: number }) => {
       heatmapGrid[item.day_of_week][item.hour_of_day] = item.view_count;
     });
 
     // Find the maximum view count for normalization
     const maxViewCount = Math.max(
-      ...heatmapData.map((item: any) => item.view_count)
+      ...heatmapData.map((item: { view_count: number }) => item.view_count)
     );
 
     return NextResponse.json({

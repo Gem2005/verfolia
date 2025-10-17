@@ -23,6 +23,7 @@ export interface PortfolioData {
     endDate?: string;
     isPresent?: boolean;
     description: string;
+    location?: string;
   }>;
   skills: string[];
   education: Array<{
@@ -33,6 +34,7 @@ export interface PortfolioData {
     startYear: string;
     endYear: string;
     cgpa: string;
+    location?: string;
   }>;
   projects: Array<{
     id: string;
@@ -56,6 +58,23 @@ export interface PortfolioData {
     issuer: string;
     date: string;
     url: string;
+  }>;
+  languages?: Array<{
+    id: string;
+    name: string;
+    proficiency?: string;
+  }>;
+  customSections?: Array<{
+    id: string;
+    title: string;
+    items: Array<{
+      title?: string;
+      subtitle?: string;
+      description?: string;
+      date?: string;
+      location?: string;
+      details?: string[];
+    }>;
   }>;
   interests: string[];
 }

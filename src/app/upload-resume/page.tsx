@@ -1,31 +1,145 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Upload, FileText, ArrowLeft, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import { formatDateToInput } from "@/utils/date-utils";
+import { useAuth } from "@/hooks/use-auth";
+import { UploadedFilesManager } from "@/components/uploaded-files-manager";
 
 export const dynamic = "force-dynamic";
 
 type UploadStatus = 'idle' | 'uploading' | 'parsing' | 'success' | 'error';
 
+// Type for AI-parsed resume data
+interface ParsedSkill {
+  name?: string;
+}
+
+interface ParsedExperience {
+  company?: string;
+  position?: string;
+  start_date?: string;
+  end_date?: string;
+  current?: boolean;
+  description?: string;
+}
+
+interface ParsedEducation {
+  institution?: string;
+  degree?: string;
+  field?: string;
+  start_date?: string;
+  end_date?: string;
+  gpa?: string;
+}
+
+interface ParsedProject {
+  name?: string;
+  description?: string;
+  technologies?: string[];
+  url?: string;
+}
+
+interface ParsedCertification {
+  name?: string;
+  issuer?: string;
+  date?: string;
+  url?: string;
+}
+
+interface ParsedLanguage {
+  name?: string;
+  proficiency?: string;
+}
+
+interface ParsedCustomSectionItem {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  date?: string;
+  location?: string;
+  details?: string[];
+}
+
+interface ParsedCustomSection {
+  title?: string;
+  items?: ParsedCustomSectionItem[];
+}
+
+interface ParsedResumeData {
+  personal_info?: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    linkedin?: string;
+    github?: string;
+  };
+  summary?: string;
+  skills?: (string | ParsedSkill)[];
+  experience?: ParsedExperience[];
+  education?: ParsedEducation[];
+  projects?: ParsedProject[];
+  certifications?: ParsedCertification[];
+  languages?: ParsedLanguage[];
+  custom_sections?: ParsedCustomSection[];
+}
+
 export default function UploadResumePage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [isDragging, setIsDragging] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [hasExistingFiles, setHasExistingFiles] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState<"existing" | "upload">("existing");
+
+  // Check if user has existing uploaded files
+  useEffect(() => {
+    const checkExistingFiles = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await fetch('/api/uploaded-files');
+        if (response.ok) {
+          const data = await response.json();
+          const hasFiles = data.files && data.files.length > 0;
+          setHasExistingFiles(hasFiles);
+          
+          // If user has files, default to existing tab; otherwise upload tab
+          if (!hasFiles) {
+            setActiveTab("upload");
+          } else {
+            setActiveTab("existing");
+          }
+        }
+      } catch (error) {
+        console.error('Error checking existing files:', error);
+        // Default to upload tab on error
+        setActiveTab("upload");
+      }
+    };
+
+    if (user && !loading) {
+      checkExistingFiles();
+    }
+  }, [user, loading]);
 
   const handleFileUpload = async (file: File) => {
     // Validation
-    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
     if (!allowedTypes.includes(file.type)) {
       toast.error('Invalid file type', {
-        description: 'Please upload a PDF, DOCX, or TXT file'
+        description: 'Please upload a PDF, DOCX, or DOC file'
       });
       return;
     }
@@ -57,6 +171,12 @@ export default function UploadResumePage() {
       // Upload and parse
       const formData = new FormData();
       formData.append('file', file);
+      
+      if (user?.id) {
+        formData.append('userId', user.id);
+        const resumeId = crypto.randomUUID();
+        formData.append('resumeId', resumeId);
+      }
 
       setUploadStatus('parsing');
       setProgress(50);
@@ -88,8 +208,17 @@ export default function UploadResumePage() {
       });
 
       // Transform API response to prefill format
-      const parsedResume = data.data.parsed_resume;
+      const parsedResume = data.data.parsed_resume as ParsedResumeData;
       const warnings = data.data.warnings || [];
+
+      console.log('[Upload] Parsed resume data received:', {
+        hasCertifications: !!parsedResume.certifications,
+        certificationsCount: parsedResume.certifications?.length || 0,
+        hasLanguages: !!parsedResume.languages,
+        languagesCount: parsedResume.languages?.length || 0,
+        hasCustomSections: !!parsedResume.custom_sections,
+        customSectionsCount: parsedResume.custom_sections?.length || 0,
+      });
 
       // Show warnings if any
       if (warnings.length > 0) {
@@ -112,28 +241,28 @@ export default function UploadResumePage() {
           linkedinUrl: parsedResume.personal_info?.linkedin || '',
           githubUrl: parsedResume.personal_info?.github || '',
         },
-        skills: (parsedResume.skills || []).map((s: any) => 
+        skills: (parsedResume.skills || []).map((s: string | ParsedSkill) => 
           typeof s === 'string' ? s : s.name || ''
         ).filter(Boolean),
-        experience: (parsedResume.experience || []).map((e: any) => ({
+        experience: (parsedResume.experience || []).map((e: ParsedExperience) => ({
           id: crypto.randomUUID(),
           company: e.company || '',
           position: e.position || '',
-          startDate: e.start_date || '',
-          endDate: e.end_date || '',
+          startDate: formatDateToInput(e.start_date || ''),
+          endDate: formatDateToInput(e.end_date || ''),
           isPresent: e.current || false,
           description: e.description || '',
         })),
-        education: (parsedResume.education || []).map((ed: any) => ({
+        education: (parsedResume.education || []).map((ed: ParsedEducation) => ({
           id: crypto.randomUUID(),
           institution: ed.institution || '',
           degree: ed.degree || '',
           field: ed.field || '',
-          startDate: ed.start_date || '',
-          endDate: ed.graduation_date || '',
+          startDate: formatDateToInput(ed.start_date || ''),
+          endDate: formatDateToInput(ed.end_date || ''),
           gpa: ed.gpa || '',
         })),
-        projects: (parsedResume.projects || []).map((p: any) => ({
+        projects: (parsedResume.projects || []).map((p: ParsedProject) => ({
           id: crypto.randomUUID(),
           name: p.name || '',
           description: p.description || '',
@@ -141,24 +270,45 @@ export default function UploadResumePage() {
           sourceUrl: p.url || '',
           demoUrl: '',
         })),
-        certifications: (parsedResume.certifications || []).map((c: any) => ({
+        certifications: (parsedResume.certifications || []).map((c: ParsedCertification) => ({
           id: crypto.randomUUID(),
           name: c.name || '',
           issuer: c.issuer || '',
-          date: c.date || '',
-          credentialId: c.credential_id || '',
+          date: formatDateToInput(c.date || ''),
+          url: c.url || '',
         })),
-        languages: (parsedResume.languages || []).map((l: any) => ({
+        languages: (parsedResume.languages || []).map((l: ParsedLanguage) => ({
           id: crypto.randomUUID(),
           name: l.name || '',
           proficiency: l.proficiency || '',
         })),
-        customSections: [],
+        customSections: (parsedResume.custom_sections || []).map((section: ParsedCustomSection) => ({
+          id: crypto.randomUUID(),
+          title: section.title || '',
+          items: (section.items || []).map((item: ParsedCustomSectionItem) => ({
+            title: item.title || '',
+            subtitle: item.subtitle || '',
+            description: item.description || '',
+            date: formatDateToInput(item.date || ''),
+            location: item.location || '',
+            details: item.details || [],
+          })),
+        })),
         rawText: data.data.editor_markdown || '',
         markdown: data.data.editor_markdown || '',
         originalFilename: file.name,
         warnings: warnings,
+        uploadedFile: data.data.uploaded_file || null,
       };
+
+      console.log('[Upload] Prefill data prepared:', {
+        certificationsCount: prefillData.certifications.length,
+        languagesCount: prefillData.languages.length,
+        customSectionsCount: prefillData.customSections.length,
+        certifications: prefillData.certifications,
+        languages: prefillData.languages,
+        customSections: prefillData.customSections,
+      });
 
       // Store in session storage
       const sessionKey = `resume_upload_${Date.now()}`;
@@ -214,18 +364,134 @@ export default function UploadResumePage() {
           </Button>
           <h1 className="text-3xl font-bold mb-2 text-glass-white">Upload Your Resume</h1>
           <p className="text-glass-gray">
-            Upload your existing resume and we'll help you create a modern, shareable profile.
+            Upload your existing resume and we&apos;ll help you create a modern, shareable profile.
           </p>
         </div>
 
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="text-glass-white">Upload Resume</CardTitle>
-            <CardDescription className="text-glass-gray">
-              Supports PDF, DOCX, and TXT files up to 10MB
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        {loading ? (
+          <Card className="glass-card">
+            <CardContent className="py-12">
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="w-8 h-8 animate-spin text-glass-blue" />
+                <p className="text-glass-gray">Loading...</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : !user ? (
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-glass-white">Sign In to Upload Your Resume</CardTitle>
+              <CardDescription className="text-glass-gray">
+                Sign in to upload and automatically parse your resume with AI
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="rounded-lg border border-glass-border bg-white/5 p-6">
+                <div className="flex items-start gap-4">
+                  <div className="rounded-full bg-glass-blue/20 p-3">
+                    <Upload className="w-6 h-6 text-glass-blue" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-glass-white mb-2">
+                      AI-Powered Resume Parsing
+                    </h3>
+                    <p className="text-sm text-glass-gray mb-4">
+                      Our AI will automatically extract your information from PDF, DOCX, or DOC files and create a beautiful, modern resume.
+                    </p>
+                    <ul className="space-y-2 text-sm text-glass-gray">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Extract all your experience, education, and skills
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Save your resume to your account
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Edit and customize with ease
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={() => router.push('/login?returnTo=/upload-resume')}
+                  className="flex-1 bg-glass-blue hover:bg-glass-blue/80 text-white"
+                >
+                  Sign In to Upload
+                </Button>
+                <Button 
+                  onClick={() => router.push('/create-resume')}
+                  variant="outline"
+                  className="flex-1 glass-button"
+                >
+                  Build from Scratch
+                </Button>
+              </div>
+
+              <p className="text-xs text-center text-glass-gray">
+                Don&apos;t have an account?{' '}
+                <a 
+                  href="/login?returnTo=/upload-resume" 
+                  className="text-glass-blue hover:underline"
+                >
+                  Sign up for free
+                </a>
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {/* Tabs for Existing vs Upload New */}
+            {hasExistingFiles !== null && (
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "existing" | "upload")} className="w-full">
+                <TabsList className="card-enhanced grid w-full grid-cols-2 h-12 p-1 bg-muted/50 border border-border">
+                  <TabsTrigger 
+                    value="existing" 
+                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    Use Existing
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="upload" 
+                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload New
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* Existing Files Tab Content */}
+                <TabsContent value="existing" className="mt-6">
+                  <Card className="card-enhanced border border-border shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-glass-white">Your Uploaded Resumes</CardTitle>
+                      <CardDescription className="text-glass-gray">
+                        Select a previously uploaded resume to use
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div id="uploaded-files-section">
+                        <UploadedFilesManager />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Upload New Tab Content */}
+                <TabsContent value="upload" className="mt-6">
+                  <Card className="card-enhanced border border-border shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-glass-white">Upload Resume</CardTitle>
+                      <CardDescription className="text-glass-gray">
+                        Supports PDF, DOCX, and DOC files up to 10MB
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
             <div
               className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                 isDragging 
@@ -304,7 +570,7 @@ export default function UploadResumePage() {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".pdf,.docx,.doc,.txt"
+                      accept=".pdf,.docx,.doc"
                       onChange={handleFileSelect}
                       className="hidden"
                     />
@@ -319,16 +585,21 @@ export default function UploadResumePage() {
                     </Button>
                   </div>
                   <p className="text-xs text-glass-gray">
-                    Supported formats: PDF, DOCX, TXT • Max size: 10MB
+                    Supported formats: PDF, DOCX, DOC • Max size: 10MB
                   </p>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
+                </TabsContent>
+              </Tabs>
+            )}
+          </>
+        )}
 
-        <div className="mt-8">
-          <Card className="glass-card">
+        {user && (
+          <Card className="glass-card mt-8">
             <CardHeader>
               <CardTitle className="text-lg text-glass-white">What happens next?</CardTitle>
             </CardHeader>
@@ -368,7 +639,55 @@ export default function UploadResumePage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        )}
+
+        {user && (
+          <>
+            {/* How It Works Section */}
+            <Card className="glass-card mt-8">
+              <CardHeader>
+                <CardTitle className="text-glass-white">How It Works</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-semibold text-glass-blue">1</span>
+                </div>
+                <div>
+                  <p className="font-medium text-glass-white">Upload Your Resume</p>
+                  <p className="text-sm text-glass-gray">
+                    We support PDF, DOCX, and DOC files up to 10MB
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-semibold text-glass-blue">2</span>
+                </div>
+                <div>
+                  <p className="font-medium text-glass-white">AI Parses Your Data</p>
+                  <p className="text-sm text-glass-gray">
+                    Our AI extracts all your information automatically
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-xs font-semibold text-glass-blue">3</span>
+                </div>
+                <div>
+                  <p className="font-medium text-glass-white">Publish & Share</p>
+                  <p className="text-sm text-glass-gray">
+                    Create your shareable profile with analytics tracking
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { storageHelpers } from '@/utils/storage';
+import { trackView, trackInteraction } from './analytics/client-tracking';
+import { getOrCreateSessionId } from '@/lib/analytics/session-manager';
+import type { InteractionTypeValue } from '@/types/analytics';
 
 // Interface for creation analytics events
 interface CreationEventData {
@@ -44,7 +47,8 @@ class AnalyticsService {
 
   private getSessionId(): string {
     if (!this.sessionId) {
-      this.sessionId = this.generateSessionId();
+      // Use new session manager for consistency
+      this.sessionId = getOrCreateSessionId();
     }
     return this.sessionId;
   }
@@ -56,36 +60,58 @@ class AnalyticsService {
     return this.creationSessionId;
   }
 
+  /**
+   * Track a resume view using the new client-tracking service
+   */
   async trackResumeView(resumeId: string): Promise<void> {
     try {
       const sessionId = this.getSessionId();
       const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : '';
       const referrer = typeof document !== 'undefined' ? document.referrer : '';
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/track-analytics`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          resumeId,
-          sessionId,
-          event: 'view',
-          userAgent,
-          referrer
-        }),
+      // Use new client-tracking service
+      await trackView({
+        resumeId,
+        sessionId,
+        userAgent,
+        referrer
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to track view: ${response.statusText}`);
-      }
     } catch (error) {
       console.error('❌ Error tracking view:', error);
     }
   }
 
+  /**
+   * Track a resume interaction using the new client-tracking service
+   */
   async trackResumeInteraction(
+    resumeId: string,
+    interactionType: InteractionTypeValue,
+    targetValue?: string,
+    sectionName?: string
+  ): Promise<void> {
+    try {
+      const sessionId = this.getSessionId();
+      const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : '';
+
+      // Use new client-tracking service
+      await trackInteraction({
+        resumeId,
+        sessionId,
+        interactionType,
+        targetValue,
+        sectionName,
+        userAgent
+      });
+    } catch (error) {
+      console.error('❌ Error tracking interaction:', error);
+    }
+  }
+
+  /**
+   * @deprecated Legacy method - use trackResumeInteraction directly
+   */
+  async trackResumeInteractionLegacy(
     resumeId: string,
     interactionType: string,
     targetValue?: string,

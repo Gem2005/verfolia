@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Briefcase, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
+import { formatDateToInput } from "@/utils/date-utils";
 
 interface ExperienceStepProps {
   resumeData: ResumeData;
@@ -43,7 +44,8 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
       | "startDate"
       | "endDate"
       | "isPresent"
-      | "description",
+      | "description"
+      | "location",
     value: string | boolean
   ) => {
     setResumeData((prev) => ({
@@ -129,6 +131,21 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">
+                  Location
+                </Label>
+                <Input
+                  value={exp.location || ""}
+                  onChange={(e) => updateExperienceField(exp.id, "location", e.target.value)}
+                  className="h-10"
+                  placeholder="e.g., San Francisco, CA or Remote"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Where this position is/was based
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">
@@ -136,7 +153,7 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                   </Label>
                   <Input
                     type="month"
-                    value={exp.startDate}
+                    value={formatDateToInput(exp.startDate)}
                     onChange={(e) => updateExperienceField(exp.id, "startDate", e.target.value)}
                     className={`h-10 ${validationErrors[`experience_${exp.id}_startDate`] ? "border-red-500" : ""}`}
                   />
@@ -163,7 +180,7 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                       </Label>
                       <Input
                         type="month"
-                        value={exp.endDate}
+                        value={formatDateToInput(exp.endDate || "")}
                         onChange={(e) => updateExperienceField(exp.id, "endDate", e.target.value)}
                         className={`h-10 ${validationErrors[`experience_${exp.id}_endDate`] ? "border-red-500" : ""}`}
                       />

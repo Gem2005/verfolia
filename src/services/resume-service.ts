@@ -22,6 +22,11 @@ export interface PersonalInfo {
   phone: string;
   website?: string;
   location?: string;
+  summary?: string;
+  title?: string;
+  photo?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
 }
 
 export interface Experience {
@@ -33,54 +38,59 @@ export interface Experience {
   current: boolean;
   description: string;
   technologies?: string[];
+  location?: string;
 }
 
 export interface Education {
   id: string;
-  school: string;
+  institution: string;
   degree: string;
   field: string;
   startDate: string;
   endDate?: string;
   current: boolean;
   description?: string;
+  gpa?: string;
+  location?: string;
 }
 
 export interface Project {
   id: string;
   name: string;
   description: string;
-  technologies: string[];
+  techStack: string[];
   liveUrl?: string;
   repoUrl?: string;
   startDate?: string;
   endDate?: string;
-  isLocked?: boolean; // This property was missing
+  isLocked?: boolean;
 }
 
 export interface Certification {
   id: string;
   name: string;
   issuer: string;
-  issueDate: string;
-  expiryDate?: string;
-  credentialUrl?: string;
+  date?: string;
+  url?: string;
 }
 
 export interface Language {
+  id: string;
   name: string;
-  proficiency: string;
+  proficiency?: string;
 }
 
 export interface CustomSection {
   id: string;
   title: string;
-  items: {
-    id: string;
-    title: string;
-    description: string;
+  items: Array<{
+    title?: string;
+    subtitle?: string;
+    description?: string;
     date?: string;
-  }[];
+    location?: string;
+    details?: string[];
+  }>;
 }
 
 export interface Resume {
@@ -102,6 +112,13 @@ export interface Resume {
   view_count: number;
   created_at: string;
   updated_at: string;
+  // Uploaded file metadata
+  uploaded_file_path?: string;
+  uploaded_file_url?: string;
+  original_filename?: string;
+  file_size_bytes?: number;
+  mime_type?: string;
+  uploaded_at?: string;
 }
 
 class ResumeService {
@@ -173,19 +190,24 @@ class ResumeService {
     return data;
   }
 
-  // Delete resume
-  async deleteResume(id: string): Promise<boolean> {
-    const { error } = await this.supabase
-      .from('resumes')
-      .delete()
-      .eq('id', id);
+  // Delete resume from database only (storage deletion handled by API route)
+  async deleteResumeFromDB(id: string): Promise<boolean> {
+    try {
+      const { error } = await this.supabase
+        .from('resumes')
+        .delete()
+        .eq('id', id);
 
-    if (error) {
-      console.error('Error deleting resume:', error);
+      if (error) {
+        console.error('Error deleting resume from database:', error);
+        throw new Error(`Failed to delete resume: ${error.message}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('[Resume Service] Error in deleteResumeFromDB:', error);
       return false;
     }
-
-    return true;
   }
 
   // Get user's resumes
@@ -205,7 +227,7 @@ class ResumeService {
   }
 
   // Get all available templates
-  async getTemplates(): Promise<any[]> {
+  async getTemplates(): Promise<unknown[]> {
     const { data, error } = await this.supabase
       .from('templates')
       .select('*')
@@ -220,7 +242,7 @@ class ResumeService {
   }
 
   // Get all available themes
-  async getThemes(): Promise<any[]> {
+  async getThemes(): Promise<unknown[]> {
     const { data, error } = await this.supabase
       .from('themes')
       .select('*')
@@ -318,8 +340,26 @@ class ResumeService {
 
       if (interactionsError) throw interactionsError;
 
+      // Define types for database records
+      interface ViewRecord {
+        id: string;
+        viewed_at: string;
+        country: string | null;
+        city: string | null;
+        view_duration: number | null;
+        referrer: string | null;
+      }
+
+      interface InteractionRecord {
+        id: string;
+        clicked_at: string;
+        interaction_type: string;
+        section_name: string | null;
+        target_value: string | null;
+      }
+
       // Process views data
-      const views = viewsData?.map((view: any) => ({
+      const views = viewsData?.map((view: ViewRecord) => ({
         id: view.id,
         viewed_at: view.viewed_at,
         country: view.country,
@@ -329,7 +369,7 @@ class ResumeService {
       })) || [];
 
       // Process interactions data
-      const interactions = interactionsData?.map((interaction: any) => ({
+      const interactions = interactionsData?.map((interaction: InteractionRecord) => ({
         id: interaction.id,
         clicked_at: interaction.clicked_at,
         interaction_type: interaction.interaction_type,
@@ -338,32 +378,40 @@ class ResumeService {
       })) || [];
 
       // Calculate summary data
-      const viewsByDate = views.reduce((acc: { [key: string]: number }, view: any) => {
+      const viewsByDate = views.reduce((acc: { [key: string]: number }, view: ViewRecord) => {
         const date = new Date(view.viewed_at).toISOString().split('T')[0];
         acc[date] = (acc[date] || 0) + 1;
         return acc;
       }, {});
 
-      const viewsByCountry = views.reduce((acc: { [key: string]: number }, view: any) => {
+      const viewsByCountry = views.reduce((acc: { [key: string]: number }, view: ViewRecord) => {
         if (view.country) {
           acc[view.country] = (acc[view.country] || 0) + 1;
         }
         return acc;
       }, {});
 
-      const viewsByReferrer = views.reduce((acc: { [key: string]: number }, view: any) => {
+      const viewsByReferrer = views.reduce((acc: { [key: string]: number }, view: ViewRecord) => {
         if (view.referrer) {
           acc[view.referrer] = (acc[view.referrer] || 0) + 1;
         }
         return acc;
       }, {});
 
-      const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction: any) => {
-        acc[interaction.interaction_type] = (acc[interaction.interaction_type] || 0) + 1;
+      const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction: InteractionRecord) => {
+        // For section_view, use section name; for others, use interaction type
+        let key: string;
+        if (interaction.interaction_type === 'section_view' && interaction.section_name) {
+          // Remove "custom_" prefix from section names
+          key = interaction.section_name.replace(/^custom_/i, '');
+        } else {
+          key = interaction.interaction_type;
+        }
+        acc[key] = (acc[key] || 0) + 1;
         return acc;
       }, {});
 
-      const totalViewDuration = views.reduce((sum: number, view: any) => sum + (view.view_duration || 0), 0);
+      const totalViewDuration = views.reduce((sum: number, view: ViewRecord) => sum + (view.view_duration || 0), 0);
       const avgViewDuration = views.length > 0 ? totalViewDuration / views.length : 0;
 
       // Construct and return the AnalyticsData object

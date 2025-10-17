@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { resumeService } from '@/services/resume-service';
+import { uploadedFilesService } from '@/services/uploaded-files-service';
 
 // Helper function to create a unique, URL-friendly slug from a title
 function createSlug(title: string): string {
@@ -44,7 +45,14 @@ export async function POST(request: NextRequest) {
       projects,
       certifications,
       languages,
-      custom_sections 
+      custom_sections,
+      uploaded_file_path,
+      uploaded_file_url,
+      original_filename,
+      file_size_bytes,
+      mime_type,
+      uploaded_at,
+      uploaded_file_id, // NEW: ID from uploaded_resume_files table
     } = body;
 
     // Validate required fields
@@ -70,7 +78,18 @@ export async function POST(request: NextRequest) {
       certifications,
       languages,
       custom_sections, // This now correctly uses the variable from the request
-      view_count: 0 
+      view_count: 0,
+      // Link to uploaded file if provided
+      ...(uploaded_file_id && { uploaded_file_id }),
+      // Include uploaded file metadata if provided (for backward compatibility)
+      ...(uploaded_file_path && {
+        uploaded_file_path,
+        uploaded_file_url,
+        original_filename,
+        file_size_bytes,
+        mime_type,
+        uploaded_at
+      })
     };
 
     const { data: newResume, error } = await supabase
@@ -82,6 +101,22 @@ export async function POST(request: NextRequest) {
     if (error) {
         console.error('Database insert error:', error);
         throw new Error(error.message);
+    }
+
+    // If uploaded_file_id was provided, mark the file as used
+    if (uploaded_file_id && newResume) {
+      try {
+        await uploadedFilesService.associateFileWithResume(
+          uploaded_file_id,
+          newResume.id
+        );
+        console.log(
+          `[Resume Create] Associated file ${uploaded_file_id} with resume ${newResume.id}`
+        );
+      } catch (fileError) {
+        console.error('[Resume Create] Failed to associate file:', fileError);
+        // Don't fail the request - resume was created successfully
+      }
     }
 
     return NextResponse.json(newResume, { status: 201 });
