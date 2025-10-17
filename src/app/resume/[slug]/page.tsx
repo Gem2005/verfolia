@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -15,17 +14,16 @@ import {
   type Language,
 } from "../../../services/resume-service";
 
-// Import only the tracking component - avoid importing chart components
-import { ResumeViewTracker } from "@/components/analytics/ResumeViewTracker";
+import { ViewTracker } from "@/components/analytics";
+import {
+  CleanMonoTemplate,
+  DarkMinimalistTemplate,
+  DarkTechTemplate,
+  ModernAIFocusedTemplate,
+} from "@/components/templates";
 import type { PortfolioData } from "@/types/PortfolioTypes";
 import { ProfileHeader } from "@/components/layout/ProfileHeader";
 import "./print.css";
-
-// Lazy load the template renderer - it will load only the specific template needed
-const DynamicTemplateRenderer = dynamic(
-  () => import("@/components/templates/DynamicTemplateRenderer").then((mod) => ({ default: mod.DynamicTemplateRenderer })),
-  { loading: () => <div className="flex items-center justify-center min-h-screen">Loading template...</div> }
-);
 
 interface PublicResumePageProps {
   params: Promise<{
@@ -67,101 +65,154 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     }
   }, [user, resume]);
 
-  // Convert resume data to portfolio data format (no default placeholder values)
+
+  // Track view duration
+  useEffect(() => {
+    // We only track views for people who are NOT the owner
+    if (!resume || isOwner) return;
+
+    const startTime = Date.now();
+
+    const trackViewDuration = () => {
+      const duration = Math.floor((Date.now() - startTime) / 1000);
+      if (duration > 0 && resume?.id) {
+        resumeService.updateViewDuration(resume.id, duration);
+      }
+    };
+
+    window.addEventListener("beforeunload", trackViewDuration);
+
+    return () => {
+      window.removeEventListener("beforeunload", trackViewDuration);
+      trackViewDuration();
+    };
+  }, [resume, isOwner]);
+
+  // Convert resume data to portfolio data format
   const getPortfolioData = (resume: Resume): PortfolioData => {
+    // This function remains mostly the same
     const personalInfo = resume.personal_info || {};
-    const experience = Array.isArray(resume.experience) ? resume.experience : [];
+    const experience = Array.isArray(resume.experience)
+      ? resume.experience
+      : [];
     const education = Array.isArray(resume.education) ? resume.education : [];
     const skills = Array.isArray(resume.skills) ? resume.skills : [];
     const projects = Array.isArray(resume.projects) ? resume.projects : [];
-    const certifications = Array.isArray(resume.certifications) ? resume.certifications : [];
-    const customSections = Array.isArray(resume.custom_sections) ? resume.custom_sections : [];
+    const certifications = Array.isArray(resume.certifications)
+      ? resume.certifications
+      : [];
+    const customSections = Array.isArray(resume.custom_sections)
+      ? resume.custom_sections
+      : [];
     const languages = Array.isArray(resume.languages) ? resume.languages : [];
-
-    const mappedCustomSections = customSections
-      .map((section: CustomSection) => ({
-        id: section.id || Math.random().toString(),
-        title: section.title || "",
-        items: Array.isArray(section.items) ? section.items : [],
-      }))
-      .filter((section) => section.title || (section.items && section.items.length > 0));
 
     return {
       personalInfo: {
-        firstName: personalInfo.firstName || "",
-        lastName: personalInfo.lastName || "",
-        title: personalInfo.title || resume.title || "",
-        email: personalInfo.email || "",
-        phone: personalInfo.phone || "",
-        location: personalInfo.location || "",
-        about: personalInfo.summary || "",
-        photo: personalInfo.photo || "",
-        social: {
-          github: personalInfo.githubUrl || "",
-          twitter:"",
-          linkedin: personalInfo.linkedinUrl || "",
-          portfolio: personalInfo.website || "",
-        },
+      firstName: personalInfo.firstName || "",
+      lastName: personalInfo.lastName || "",
+      title: personalInfo.title || "",
+      email: personalInfo.email || "",
+      phone: personalInfo.phone || "+",
+      location: personalInfo.location || "",
+      about: personalInfo.summary || "",
+      photo: personalInfo.photo || "",
+      social: {
+        github: personalInfo.githubUrl || "",
+        twitter: "",
+        linkedin: personalInfo.linkedinUrl || "",
+        portfolio: personalInfo.website || "",
+      },
       },
       experience: experience.map((exp: Experience) => ({
-        id: exp.id || Math.random().toString(),
-        position: exp.position || "",
-        company: exp.company || "",
-        startDate: exp.startDate || "",
-        endDate: exp.endDate || "",
-        isPresent: !exp.endDate || exp.endDate === "",
-        description: exp.description || "",
-        location: exp.location || "",
-      })).filter((exp) => exp.position || exp.company || exp.description),
-      skills: skills.filter((skill: string) => !!(skill && skill.trim())),
+      id: exp.id || Math.random().toString(),
+      position: exp.position || "",
+      company: exp.company || "",
+      startDate: exp.startDate || "",
+      endDate: exp.endDate || "",
+      isPresent: exp.current || false,
+      description: exp.description || "",
+      location: exp.location || "",
+      })),
+      skills: skills.filter((skill: string) => skill && skill.trim()),
       education: education.map((edu: Education) => ({
-        id: edu.id || Math.random().toString(),
-        institution: edu.institution || "",
-        degree: edu.degree || "",
-        field: edu.field || "",
-        startYear: edu.startDate || "",
-        endYear: edu.endDate || "",
-        cgpa: edu.gpa || "",
-        location: edu.location || "",
-      })).filter((edu) => edu.institution || edu.degree || edu.field),
+      id: edu.id || Math.random().toString(),
+      institution: edu.institution || "",
+      degree: edu.degree || "",
+      field: edu.field || "",
+      startYear: edu.startDate || "",
+      endYear: edu.endDate || "",
+      cgpa: edu.gpa || "",
+      location: edu.location || "",
+      })),
       projects: projects.map((proj: Project) => ({
-        id: proj.id || Math.random().toString(),
-        name: proj.name || "",
-        description: proj.description || "",
-        techStack: Array.isArray(proj.techStack) ? proj.techStack : [],
-        sourceUrl: proj.repoUrl || "",
-        demoUrl: proj.liveUrl || "",
-        isLocked: !!proj.isLocked,
-      })).filter((proj) => proj.name || proj.description || (proj.techStack && proj.techStack.length > 0)),
-      blogs: Array.isArray((resume as any).blogs) ? (resume as any).blogs : [],
+      id: proj.id || Math.random().toString(),
+      name: proj.name || "",
+      description: proj.description || "",
+      techStack: proj.techStack || [],
+      sourceUrl: proj.repoUrl || "",
+      demoUrl: proj.liveUrl || "",
+      isLocked: proj.isLocked || false,
+      })),
+      blogs: [],
       certifications: certifications.map((cert: Certification) => ({
-        id: cert.id || Math.random().toString(),
-        title: cert.name || "",
-        issuer: cert.issuer || "",
-        date: cert.date || "",
-        url: cert.url || "",
-      })).filter((cert) => cert.title || cert.issuer || cert.url),
+      id: cert.id || Math.random().toString(),
+      title: cert.name || "",
+      issuer: cert.issuer || "",
+      date: cert.date || "",
+      url: cert.url || "",
+      })),
       languages: languages.map((lang: Language) => ({
-        id: lang.id || Math.random().toString(),
-        name: lang.name || "",
-        proficiency: lang.proficiency || "",
-      })).filter((lang) => lang.name),
-      customSections: mappedCustomSections,
-      interests: Array.isArray((resume as any).interests) ? (resume as any).interests : [],
+      id: lang.id || Math.random().toString(),
+      name: lang.name || "",
+      proficiency: lang.proficiency || "",
+      })),
+      customSections: customSections.map((section: CustomSection) => ({
+      id: section.id || Math.random().toString(),
+      title: section.title || "",
+      items: section.items || [],
+      })),
+      interests: [],
     };
   };
 
   const renderResumeTemplate = (resume: Resume) => {
     const portfolioData = getPortfolioData(resume);
+    const templateProps = {
+      preview: false,
+      data: portfolioData,
+      theme: resume.theme_id || "black",
+      resumeId: resume.id,
+    };
 
-    return (
-      <DynamicTemplateRenderer
-        templateId={resume.template_id || "clean-mono"}
-        data={portfolioData}
-        theme={resume.theme_id || "black"}
-        resumeId={resume.id}
-      />
-    );
+    try {
+      switch (resume.template_id) {
+        case "clean-mono":
+          return <CleanMonoTemplate {...templateProps} />;
+        case "dark-minimalist":
+          return <DarkMinimalistTemplate {...templateProps} />;
+        case "dark-tech":
+          return <DarkTechTemplate {...templateProps} />;
+        case "modern-ai-focused":
+          return <ModernAIFocusedTemplate {...templateProps} />;
+        default:
+          return <CleanMonoTemplate {...templateProps} />;
+      }
+    } catch (error) {
+      console.error("Error rendering template:", error);
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Resume Display Error
+            </h2>
+            <p className="text-gray-600 mb-4">
+              There was an issue displaying this resume.
+            </p>
+            <CleanMonoTemplate {...templateProps} />
+          </div>
+        </div>
+      );
+    }
   };
 
   if (loading) {
@@ -190,19 +241,12 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       {/* This is the key change: only show the header if the user is the owner */}
       {isOwner && <ProfileHeader resume={resume} />}
       
-      {/* Only track the view if it's NOT the owner - Use new ResumeViewTracker */}
-      {!isOwner ? (
-        <ResumeViewTracker resumeId={resume.id}>
-          <div className="resume-content">
-            {renderResumeTemplate(resume)}
-          </div>
-        </ResumeViewTracker>
-      ) : (
-        <div className="resume-content">
-          {renderResumeTemplate(resume)}
-        </div>
-      )}
+      {/* Only track the view if it's NOT the owner */}
+      {!isOwner && <ViewTracker resumeId={resume.id} />}
+      
+      <div className="resume-content">
+        {renderResumeTemplate(resume)}
+      </div>
     </div>
   );
 }
-
