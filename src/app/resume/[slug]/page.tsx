@@ -35,8 +35,8 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
   const { slug } = React.use(params);
   const [resume, setResume] = useState<Resume | null>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth(); // Get the currently logged-in user
-  const [isOwner, setIsOwner] = useState(false); // State to check if viewer is owner
+  const { user, loading: authLoading } = useAuth(); // Get the currently logged-in user and auth state
+  const [isOwner, setIsOwner] = useState<boolean | null>(null); // null = checking, true/false = determined
 
   useEffect(() => {
     const loadResume = async () => {
@@ -55,38 +55,21 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     loadResume();
   }, [slug]);
 
-  // This is a new block of code.
-  // It checks if the logged-in user's ID matches the resume's creator ID.
+  // Check if the logged-in user is the owner of this resume
+  // This determines whether to show ProfileHeader and analytics tracking
   useEffect(() => {
+    // Wait for both auth and resume to be loaded
+    if (authLoading || loading) {
+      return; // Still loading, don't determine ownership yet
+    }
+
     if (user && resume) {
       setIsOwner(user.id === resume.user_id);
     } else {
+      // No user logged in, definitely not the owner
       setIsOwner(false);
     }
-  }, [user, resume]);
-
-
-  // Track view duration
-  useEffect(() => {
-    // We only track views for people who are NOT the owner
-    if (!resume || isOwner) return;
-
-    const startTime = Date.now();
-
-    const trackViewDuration = () => {
-      const duration = Math.floor((Date.now() - startTime) / 1000);
-      if (duration > 0 && resume?.id) {
-        resumeService.updateViewDuration(resume.id, duration);
-      }
-    };
-
-    window.addEventListener("beforeunload", trackViewDuration);
-
-    return () => {
-      window.removeEventListener("beforeunload", trackViewDuration);
-      trackViewDuration();
-    };
-  }, [resume, isOwner]);
+  }, [user, resume, authLoading, loading]);
 
   // Convert resume data to portfolio data format
   const getPortfolioData = (resume: Resume): PortfolioData => {
@@ -182,6 +165,7 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       data: portfolioData,
       theme: resume.theme_id || "black",
       resumeId: resume.id,
+      disableTracking: isOwner === true, // Disable tracking if the owner is viewing (convert to boolean)
     };
 
     try {
@@ -215,7 +199,8 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
     }
   };
 
-  if (loading) {
+  // Show loading state while checking auth or loading resume
+  if (loading || authLoading || isOwner === null) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse space-y-4 text-center">
@@ -241,7 +226,7 @@ export default function PublicResumePage({ params }: PublicResumePageProps) {
       {/* This is the key change: only show the header if the user is the owner */}
       {isOwner && <ProfileHeader resume={resume} />}
       
-      {/* Only track the view if it's NOT the owner */}
+      {/* Only track the view if it's NOT the owner - isOwner is guaranteed to be boolean here */}
       {!isOwner && <ViewTracker resumeId={resume.id} />}
       
       <div className="resume-content">

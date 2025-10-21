@@ -1,5 +1,6 @@
 import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { formatDurationDetailed } from "@/utils/time-formatters";
 
 interface PerformanceMetricProps {
   label: string;
@@ -21,10 +22,8 @@ export function PerformanceMetric({
       case "percentage":
         return `${val.toFixed(1)}%`;
       case "duration":
-        if (val < 60) return `${Math.round(val)}s`;
-        const minutes = Math.floor(val / 60);
-        const seconds = Math.round(val % 60);
-        return `${minutes}m ${seconds}s`;
+        // Use our professional time formatter
+        return formatDurationDetailed(val);
       case "number":
       default:
         return val.toLocaleString();

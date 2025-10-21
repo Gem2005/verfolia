@@ -73,12 +73,6 @@ async function sendToEdgeFunction(
   retryCount = 0
 ): Promise<void> {
   try {
-    console.log(`📡 [Analytics] Sending ${eventType} to edge function...`, {
-      url: EDGE_FUNCTION_URL,
-      hasAuth: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      payload
-    });
-    
     const response = await fetch(EDGE_FUNCTION_URL, {
       method: 'POST',
       headers: {
@@ -94,38 +88,16 @@ async function sendToEdgeFunction(
     }
 
     const result = await response.json();
-
-    // Success - always log for visibility
-    const logData: Record<string, unknown> = {
-      resumeId: payload.resumeId,
-      sessionId: payload.sessionId,
-    };
-    
-    if (eventType === 'interaction') {
-      logData.interactionType = payload.interactionType;
-    }
-    
-    if (payload.viewDuration !== undefined) {
-      logData.viewDuration = payload.viewDuration;
-    }
-    
-    console.log(`✅ [Analytics] Successfully tracked ${eventType}:`, logData);
-    
     return result;
-  } catch (error) {
-    console.error(`[Analytics] Error tracking ${eventType}:`, error);
-
-    // Retry logic
+  } catch {
+    // Silent retry logic
     if (retryCount < MAX_RETRIES) {
       const delay = RETRY_DELAY * Math.pow(2, retryCount); // Exponential backoff
-      console.log(`[Analytics] Retrying in ${delay}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
-      
       await new Promise(resolve => setTimeout(resolve, delay));
       return sendToEdgeFunction(payload, eventType, retryCount + 1);
     }
 
-    // Max retries reached - log but don't throw (don't break UI)
-    console.error(`[Analytics] Failed to track ${eventType} after ${MAX_RETRIES} retries`);
+    // Max retries reached - fail silently to avoid breaking UI
   }
 }
 

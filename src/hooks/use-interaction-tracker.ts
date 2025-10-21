@@ -13,8 +13,6 @@ export function useInteractionTracker(resumeId: string, sessionId: string) {
       targetValue?: string,
       sectionName?: string
     ) => {
-      console.log(`👆 [Interaction] Tracking: ${interactionType}${targetValue ? ` (${targetValue})` : ''}`);
-      
       trackInteraction({
         resumeId,
         sessionId,

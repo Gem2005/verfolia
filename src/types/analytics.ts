@@ -42,6 +42,8 @@ export type InteractionTypeValue =
   | 'link_click' 
   | 'download' 
   | 'section_view' 
+  | 'section_click'
+  | 'section_view_duration'
   | 'social_link_click'
   | string; // Allow custom interaction types
 

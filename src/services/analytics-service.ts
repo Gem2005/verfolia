@@ -61,13 +61,52 @@ class AnalyticsService {
   }
 
   /**
+   * Get referrer with fallbacks for better tracking
+   */
+  private getReferrer(): string {
+    if (typeof window === 'undefined') return '';
+    
+    // 1. Try document.referrer first (works for external referrers)
+    if (document.referrer && document.referrer !== '') {
+      return document.referrer;
+    }
+    
+    // 2. Check URL parameters for utm_source or ref
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source');
+    const ref = params.get('ref') || params.get('referrer');
+    
+    if (utmSource) {
+      return `utm_source:${utmSource}`;
+    }
+    
+    if (ref) {
+      return `ref:${ref}`;
+    }
+    
+    // 3. Check session/local storage for previous page (internal navigation)
+    const previousPage = sessionStorage.getItem('previousPage');
+    if (previousPage && previousPage !== window.location.href) {
+      return `internal:${previousPage}`;
+    }
+    
+    // 4. Default to 'direct' if no referrer found
+    return 'direct';
+  }
+
+  /**
    * Track a resume view using the new client-tracking service
    */
   async trackResumeView(resumeId: string): Promise<void> {
     try {
       const sessionId = this.getSessionId();
       const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : '';
-      const referrer = typeof document !== 'undefined' ? document.referrer : '';
+      const referrer = this.getReferrer();
+
+      // Store current page for next navigation
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('previousPage', window.location.href);
+      }
 
       // Use new client-tracking service
       await trackView({
@@ -171,8 +210,6 @@ class AnalyticsService {
       if (!response.ok) {
         throw new Error(`Failed to update view duration: ${response.statusText}`);
       }
-
-      console.log('✅ View duration updated successfully:', { resumeId, duration });
     } catch (error) {
       console.error('❌ Error updating view duration:', error);
     }

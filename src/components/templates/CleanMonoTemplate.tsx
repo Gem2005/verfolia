@@ -24,11 +24,12 @@ export function CleanMonoTemplate({
   theme = "black",
   resumeId,
   preview = false, // Default to false for public viewing
+  disableTracking: disableTrackingProp,
 }: CleanMonoTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
   
-  // Disable analytics tracking when in preview/creation mode
-  const disableTracking = preview || !resumeId;
+  // Use prop if provided, otherwise fallback to preview mode check
+  const disableTracking = disableTrackingProp ?? (preview || !resumeId);
   
   // Use provided data only; do not fallback to mock defaults
   const portfolioData: PortfolioData = data;
@@ -629,7 +630,12 @@ export function CleanMonoTemplate({
         {portfolioData.customSections && portfolioData.customSections.length > 0 && (
           <>
             {portfolioData.customSections.map((section) => (
-              <SectionViewTracker key={section.id} resumeId={resumeId || ""} sectionName={`custom_${section.title}`} disableTracking={disableTracking}>
+              <SectionViewTracker 
+                key={section.id} 
+                resumeId={resumeId || ""} 
+                sectionName={`custom_${section.title.toLowerCase().replace(/\s+/g, '_')}`} 
+                disableTracking={disableTracking}
+              >
                 <section className="mb-16" data-section={`custom-${section.id}`}>
                   <h2
                     className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}

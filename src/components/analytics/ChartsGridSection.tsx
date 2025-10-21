@@ -19,6 +19,14 @@ const CountryStackedChart = dynamic(
   }
 );
 
+const SectionDurationChart = dynamic(
+  () => import("./SectionDurationChart").then((mod) => ({ default: mod.SectionDurationChart })),
+  { 
+    ssr: false,
+    loading: () => <div className="h-80 bg-gray-50 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+  }
+);
+
 interface ChartsGridSectionProps {
   calculations: AnalyticsCalculations;
 }
@@ -32,6 +40,14 @@ export function ChartsGridSection({ calculations }: ChartsGridSectionProps) {
           title="Activity Trends"
         />
       </div>
+
+      {calculations.sectionDurations && calculations.sectionDurations.length > 0 && (
+        <div className="md:col-span-2">
+          <SectionDurationChart
+            data={calculations.sectionDurations}
+          />
+        </div>
+      )}
 
       {calculations.stackedCountries.length > 0 && (
         <div className="md:col-span-2">

@@ -22,11 +22,12 @@ export function DarkMinimalistTemplate({
   theme = "black",
   resumeId,
   preview = false,
+  disableTracking: disableTrackingProp,
 }: DarkMinimalistTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
   
-  // Disable analytics tracking when in preview/creation mode
-  const disableTracking = preview || !resumeId;
+  // Use prop if provided, otherwise fallback to preview mode check
+  const disableTracking = disableTrackingProp ?? (preview || !resumeId);
   
   // Use provided data only; do not fallback to mock defaults
   const portfolioData: PortfolioData = data;
@@ -459,12 +460,18 @@ export function DarkMinimalistTemplate({
         {portfolioData.customSections && portfolioData.customSections.length > 0 && (
           <>
             {portfolioData.customSections.map((section) => (
-              <section key={section.id} className="mb-16">
-                <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
-                  {section.title}
-                </h2>
-                <div className="space-y-6">
-                  {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+              <SectionViewTracker 
+                key={section.id} 
+                resumeId={resumeId || ""} 
+                sectionName={`custom_${section.title.toLowerCase().replace(/\s+/g, '_')}`}
+                disableTracking={disableTracking}
+              >
+                <section className="mb-16">
+                  <h2 className={`text-3xl font-bold mb-8 ${themeClasses.text}`}>
+                    {section.title}
+                  </h2>
+                  <div className="space-y-6">
+                    {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
                     <div
                       key={idx}
                       className={`p-6 rounded-xl ${themeClasses.cardBg}/50 ${themeClasses.buttonHover}/80 transition-all duration-300 border ${themeClasses.cardBorder} hover:border-gray-700`}
@@ -509,6 +516,7 @@ export function DarkMinimalistTemplate({
                   )}
                 </div>
               </section>
+              </SectionViewTracker>
             ))}
           </>
         )}

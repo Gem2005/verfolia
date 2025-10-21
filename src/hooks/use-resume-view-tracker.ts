@@ -16,17 +16,10 @@ export function useResumeViewTracker(resumeId: string) {
   // Get or create session ID (persists for 30 minutes)
   const sessionId = useMemo(() => getOrCreateSessionId(), []);
 
-  console.log('🎯 [useResumeViewTracker] Hook called', { resumeId, sessionId: sessionId.substring(0, 8) + '...' });
-
   // Track initial view on mount
   useEffect(() => {
     const initView = async () => {
       try {
-        console.log('🚀 [ResumeViewTracker] Initiating view tracking...', {
-          resumeId,
-          sessionId
-        });
-        
         await trackView({
           resumeId,
           sessionId,
@@ -43,14 +36,10 @@ export function useResumeViewTracker(resumeId: string) {
   }, [resumeId, sessionId]);
 
   // Track duration updates (every 15 seconds)
-  console.log('🎯 [useResumeViewTracker] About to call useViewDuration');
   useViewDuration(resumeId, sessionId);
-  console.log('🎯 [useResumeViewTracker] useViewDuration called');
 
   // Get interaction tracker
   const { trackInteraction } = useInteractionTracker(resumeId, sessionId);
-
-  console.log('🎯 [useResumeViewTracker] Returning values');
 
   return {
     sessionId,

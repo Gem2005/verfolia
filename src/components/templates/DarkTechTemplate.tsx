@@ -32,9 +32,11 @@ export function DarkTechTemplate({
   theme = "black",
   resumeId,
   preview = false,
+  disableTracking: disableTrackingProp,
 }: DarkTechTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
-  const disableTracking = preview || !resumeId;
+  // Use prop if provided, otherwise fallback to preview mode check
+  const disableTracking = disableTrackingProp ?? (preview || !resumeId);
   
   // Use provided data only; do not fallback to mock defaults
   const portfolioData: PortfolioData = data;
@@ -538,10 +540,16 @@ export function DarkTechTemplate({
         {portfolioData.customSections && portfolioData.customSections.length > 0 && (
           <>
             {portfolioData.customSections.map((section) => (
-              <section key={section.id} className="mb-24">
-                <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>{section.title}</h2>
-                <div className="space-y-6">
-                  {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+              <SectionViewTracker 
+                key={section.id} 
+                resumeId={resumeId || ""} 
+                sectionName={`custom_${section.title.toLowerCase().replace(/\s+/g, '_')}`}
+                disableTracking={disableTracking}
+              >
+                <section className="mb-24">
+                  <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>{section.title}</h2>
+                  <div className="space-y-6">
+                    {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
                     <div
                       key={idx}
                       className={`p-5 rounded-lg border ${
@@ -598,6 +606,7 @@ export function DarkTechTemplate({
                   )}
                 </div>
               </section>
+              </SectionViewTracker>
             ))}
           </>
         )}

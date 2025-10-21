@@ -83,4 +83,5 @@ export interface PortfolioTemplateProps {
   data: PortfolioData;
   preview?: boolean;
   theme?: string;
+  disableTracking?: boolean; // Disable analytics tracking (e.g., when owner is viewing)
 }
