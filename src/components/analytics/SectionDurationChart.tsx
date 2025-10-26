@@ -17,13 +17,13 @@ interface SectionDurationChartProps {
 }
 
 const COLORS = [
-  "#8b5cf6", // Purple
-  "#3b82f6", // Blue
-  "#10b981", // Green
-  "#f59e0b", // Amber
-  "#ef4444", // Red
-  "#ec4899", // Pink
-  "#6366f1", // Indigo
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+  "hsl(var(--primary))",
+  "hsl(var(--secondary))",
 ];
 
 export function SectionDurationChart({ data }: SectionDurationChartProps) {

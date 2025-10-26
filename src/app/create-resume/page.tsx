@@ -998,7 +998,7 @@ export default function CreateResumePage() {
                 <Button
                 variant="outline"
                 onClick={() => router.push('/choice')}
-                className="glass-button flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
+                className=" flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
                 >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Choice
@@ -1032,7 +1032,7 @@ export default function CreateResumePage() {
                     console.error('JSON export failed', e);
                   }
                 }}
-                className="glass-button flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
+                className=" flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
               >
                 <Download className="w-4 h-4" />
                 Export JSON
@@ -1206,7 +1206,7 @@ export default function CreateResumePage() {
                 onClick={() => goToStep(currentStep - 1)}
                 disabled={currentStep === 0}
                 variant="outline"
-                className="glass-button border-border/50 hover:bg-muted/50"
+                className=" border-border/50 hover:bg-muted/50"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Previous
@@ -1262,7 +1262,7 @@ export default function CreateResumePage() {
                 onClick={() => setShowFullPreview(true)}
                 variant="outline"
                 size="lg"
-                  className="glass-button border-border/50 hover:bg-muted/50 px-6 py-3"
+                  className=" border-border/50 hover:bg-muted/50 px-6 py-3"
               >
                 <Eye className="w-5 h-5 mr-2" />
                 Full Screen

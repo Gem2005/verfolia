@@ -193,10 +193,10 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
 
   return (
     <>
-      <Card className="glass-step-card border-0 shadow-sm">
+      <Card className="bg-card border-0 shadow-sm">
         <CardHeader className="pb-6">
-          <CardTitle className="text-xl text-glass-primary">Choose a Template</CardTitle>
-          <p className="text-sm text-glass-secondary leading-relaxed">
+          <CardTitle className="text-xl text-foreground">Choose a Template</CardTitle>
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Select a design that best fits your professional style
           </p>
         </CardHeader>
@@ -297,3 +297,4 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
     </>
   );
 };
+

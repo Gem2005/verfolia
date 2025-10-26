@@ -24,7 +24,7 @@ export const ResumeBuilderShowcaseSection = () => {
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
               Our intuitive identity builder allows you to import your
               existing documents or start from scratch. We help you create a
-              clean, modern profile that's optimized to show your unique
+              clean, modern profile that&#39;s optimized to show your unique
               value and gets noticed for all the right reasons.
             </p>
 
@@ -47,7 +47,7 @@ export const ResumeBuilderShowcaseSection = () => {
               ))}
             </div>
 
-            <Button variant="outline" size="lg" className="glass-button">
+            <Button variant="default" size="lg">
               <Link
                 href="/login"
                 className="flex flex-row justify-center items-center"
@@ -60,7 +60,7 @@ export const ResumeBuilderShowcaseSection = () => {
 
           <div className="order-1 lg:order-2">
             <div className="relative">
-              <div className="glass-effect p-8 rounded-3xl shadow-large">
+              <div className="bg-card/50 backdrop-blur-sm p-8 rounded-3xl shadow-large">
                 <div className="aspect-[4/5] bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl flex items-center justify-center">
                   <div className="text-center">
                     <FileText className="w-16 h-16 text-primary mx-auto mb-4" />

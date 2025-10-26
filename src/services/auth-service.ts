@@ -1,5 +1,4 @@
 import { createClient } from "@/utils/supabase/client";
-import { useAuthStore } from "@/stores/auth-store";
 import { User, Session } from '@supabase/supabase-js';
 
 export interface AuthResponse {
@@ -24,9 +23,6 @@ class AuthService {
       });
 
       if (error) throw error;
-
-      // Update store
-      useAuthStore.getState().setUser(data.user);
 
       return { user: data.user, error: null };
     } catch (error: unknown) {
@@ -101,9 +97,6 @@ class AuthService {
       const { error } = await this.supabase.auth.signOut();
       if (error) throw error;
 
-      // Update store
-      useAuthStore.getState().setUser(null);
-
       return { error: null };
     } catch (error: unknown) {
       const message =
@@ -119,9 +112,6 @@ class AuthService {
         error,
       } = await this.supabase.auth.getUser();
       if (error) throw error;
-
-      // Update store
-      useAuthStore.getState().setUser(user);
 
       return { user, error: null };
     } catch (error: unknown) {
@@ -167,9 +157,6 @@ class AuthService {
       const { data, error } = await this.supabase.auth.updateUser(updates);
       
       if (error) throw error;
-
-      // Update store
-      useAuthStore.getState().setUser(data.user);
 
       return { user: data.user, error: null };
     } catch (error: unknown) {

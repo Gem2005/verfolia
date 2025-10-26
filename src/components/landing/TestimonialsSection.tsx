@@ -37,7 +37,7 @@ export const TestimonialsSection = () => {
                 engaging with my profile."
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-primary rounded-full mr-3 flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary rounded-full mr-3 flex items-center justify-center">
                   <span className="text-primary-foreground font-semibold text-sm">
                     SC
                   </span>
@@ -68,7 +68,7 @@ export const TestimonialsSection = () => {
                 interest levels."
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-primary rounded-full mr-3 flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary rounded-full mr-3 flex items-center justify-center">
                   <span className="text-primary-foreground font-semibold text-sm">
                     MJ
                   </span>
@@ -99,7 +99,7 @@ export const TestimonialsSection = () => {
                 profile!"
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-primary rounded-full mr-3 flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary rounded-full mr-3 flex items-center justify-center">
                   <span className="text-primary-foreground font-semibold text-sm">
                     ER
                   </span>

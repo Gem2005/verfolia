@@ -105,7 +105,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName" className="text-sm font-medium text-glass-primary">
+            <Label htmlFor="lastName" className="text-sm font-medium text-foreground">
               Last Name <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -120,7 +120,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   },
                 }))
               }
-              className={`glass-input h-11 ${
+              className={` h-11 ${
                 validationErrors.lastName ? "border-red-500" : ""
               }`}
               placeholder="Enter your last name"
@@ -135,7 +135,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-glass-primary">
+            <Label htmlFor="email" className="text-sm font-medium text-foreground">
               Email <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -151,7 +151,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   },
                 }))
               }
-              className={`glass-input h-11 ${
+              className={` h-11 ${
                 validationErrors.email ? "border-red-500" : ""
               }`}
               placeholder="your.email@example.com"
@@ -161,7 +161,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium text-glass-primary">
+            <Label htmlFor="phone" className="text-sm font-medium text-foreground">
               Phone
             </Label>
             <Input
@@ -176,7 +176,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   },
                 }))
               }
-              className={`glass-input h-11 ${
+              className={` h-11 ${
                 validationErrors.phone ? "border-red-500" : ""
               }`}
               placeholder="Enter your phone number"
@@ -189,7 +189,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
         {/* Current Designation */}
         <div className="space-y-2">
-          <Label htmlFor="title" className="text-sm font-medium text-glass-primary">
+          <Label htmlFor="title" className="text-sm font-medium text-foreground">
             Current Designation <span className="text-red-500">*</span>
           </Label>
           <Input
@@ -204,7 +204,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                 },
               }))
             }
-            className={`glass-input h-11 ${
+            className={` h-11 ${
               validationErrors.title ? "border-red-500" : ""
             }`}
             placeholder="e.g., Senior Software Engineer, Marketing Manager"
@@ -218,7 +218,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="location" className="text-sm font-medium text-glass-primary">
+          <Label htmlFor="location" className="text-sm font-medium text-foreground">
             Location
           </Label>
           <Input
@@ -246,7 +246,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="summary" className="text-sm font-medium text-glass-primary">
+          <Label htmlFor="summary" className="text-sm font-medium text-foreground">
             Professional Summary
           </Label>
           <Textarea
@@ -285,7 +285,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="linkedin" className="text-sm font-medium text-glass-primary">
+            <Label htmlFor="linkedin" className="text-sm font-medium text-foreground">
               LinkedIn URL
             </Label>
             <Input
@@ -312,7 +312,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="github" className="text-sm font-medium text-glass-primary">
+            <Label htmlFor="github" className="text-sm font-medium text-foreground">
               GitHub URL
             </Label>
             <Input
@@ -343,3 +343,4 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     </Card>
   );
 };
+

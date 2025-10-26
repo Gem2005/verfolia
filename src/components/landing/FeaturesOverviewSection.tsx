@@ -31,7 +31,7 @@ export const FeaturesOverviewSection = () => {
           {/* Feature Cards */}
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                 <FileText className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
@@ -48,7 +48,7 @@ export const FeaturesOverviewSection = () => {
 
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                 <BarChart3 className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
@@ -65,12 +65,12 @@ export const FeaturesOverviewSection = () => {
 
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Brain className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 AI Cover Letters{" "}
-                <Badge className="mb-4 bg-green-500 text-white">
+                <Badge variant="secondary" className="mb-4">
                   Comming Soon..
                 </Badge>
               </CardTitle>
@@ -85,7 +85,7 @@ export const FeaturesOverviewSection = () => {
 
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Share2 className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
@@ -101,7 +101,7 @@ export const FeaturesOverviewSection = () => {
 
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Shield className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
@@ -110,7 +110,7 @@ export const FeaturesOverviewSection = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Your data is encrypted and secure. We've built Verfolia beta
+                Your data is encrypted and secure. We&apos;ve built Verfolia beta
                 with advanced privacy controls so you can manage your
                 information and share your profile with confidence.
               </p>
@@ -119,12 +119,12 @@ export const FeaturesOverviewSection = () => {
 
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-200">
                 <Target className="w-6 h-6 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl font-semibold">
                 Career Insights{" "}
-                <Badge className="mb-4 bg-green-500 text-white">
+                <Badge variant="secondary" className="mb-4">
                   Comming Soon..
                 </Badge>
               </CardTitle>

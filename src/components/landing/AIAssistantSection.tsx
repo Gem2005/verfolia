@@ -25,7 +25,7 @@ export const AIAssistantSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                 <Brain className="w-8 h-8 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl">Smart Cover Letters</CardTitle>
@@ -40,7 +40,7 @@ export const AIAssistantSection = () => {
 
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                 <Target className="w-8 h-8 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl">Job Matching</CardTitle>
@@ -55,7 +55,7 @@ export const AIAssistantSection = () => {
 
           <Card className="card-enhanced group transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-4">
-              <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
+              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-200">
                 <MessageSquare className="w-8 h-8 text-primary-foreground" />
               </div>
               <CardTitle className="text-xl">Interview Prep</CardTitle>

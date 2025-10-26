@@ -180,7 +180,7 @@ export const ProjectsStep: React.FC<ProjectsStepProps> = ({
                             const newStack = proj.techStack.filter((_, i) => i !== index);
                             updateProjectField(proj.id, "techStack", newStack);
                           }}
-                          className="h-3 w-3 p-0 hover:bg-transparent text-glass-blue hover:text-red-600"
+                          className="h-3 w-3 p-0 hover:bg-transparent text-primary hover:text-red-600"
                         >
                           <X className="h-2 w-2" />
                         </Button>
@@ -231,3 +231,4 @@ export const ProjectsStep: React.FC<ProjectsStepProps> = ({
     </Card>
   );
 };
+

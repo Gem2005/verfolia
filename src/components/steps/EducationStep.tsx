@@ -193,3 +193,4 @@ export const EducationStep: React.FC<EducationStepProps> = ({
     </Card>
   );
 };
+

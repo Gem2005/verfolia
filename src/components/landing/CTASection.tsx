@@ -25,7 +25,7 @@ export const CTASection = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button
               size="lg"
-              className="text-lg px-8 py-4 h-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow hover:shadow-large hover:scale-105 transition-all duration-200"
+              className="text-lg px-8 py-4 h-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-large hover:scale-105 transition-all duration-200"
               asChild
             >
               <Link href="/create-resume">
@@ -37,7 +37,7 @@ export const CTASection = () => {
             <Button
               variant="outline"
               size="lg"
-              className="text-lg px-8 py-4 h-auto glass-effect hover:bg-muted/50 transition-all duration-200"
+              className="text-lg px-8 py-4 h-auto bg-card/50 backdrop-blur-sm hover:bg-muted/50 transition-all duration-200"
             >
               Talk to Sales
             </Button>

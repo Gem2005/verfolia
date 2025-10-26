@@ -28,7 +28,7 @@ export const ProfileHeader = ({ resume }: ProfileHeaderProps) => {
             <Share2 className="w-4 h-4 mr-2" />
             Share Link
           </Button>
-          <Button asChild variant="outline" size="sm" className="shining-glass-effect">
+          <Button asChild variant="outline" size="sm">
             <Link href={`/analytics?resumeId=${resume.id}`}>
               <BarChart3 className="w-4 h-4 mr-2" />
               Analytics

@@ -109,7 +109,7 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => removeSkillAtIndex(index)}
-                      className="h-4 w-4 p-0 hover:bg-transparent text-glass-blue hover:text-red-600"
+                      className="h-4 w-4 p-0 hover:bg-transparent text-primary hover:text-red-600"
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -136,3 +136,4 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({
     </Card>
   );
 };
+

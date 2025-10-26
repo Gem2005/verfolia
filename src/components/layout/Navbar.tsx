@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -159,7 +159,8 @@ export default function Navbar() {
                   <Button
                     size="sm"
                     asChild
-                    className="glass-button rounded-xl hover:bg-primary hover:text-primary-foreground"
+                    variant="default"
+                    className="rounded-xl"
                   >
                     <Link href="/choice">Get Started</Link>
                   </Button>
@@ -250,7 +251,8 @@ export default function Navbar() {
                 <div className="space-y-3">
                   <Button
                     asChild
-                    className="w-full rounded-xl bg-gradient-primary text-primary-foreground shadow-glow"
+                    variant="default"
+                    className="w-full rounded-xl"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Link href="/dashboard">Dashboard</Link>
@@ -270,7 +272,8 @@ export default function Navbar() {
                 <div className="space-y-3">
                   <Button
                     asChild
-                    className="w-full rounded-xl bg-gradient-primary text-primary-foreground shadow-glow"
+                    variant="default"
+                    className="w-full rounded-xl"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Link href="/choice">Get Started</Link>

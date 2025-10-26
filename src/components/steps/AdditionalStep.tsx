@@ -675,8 +675,8 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-2 mb-6">
-        <Award className="w-6 h-6 text-glass-blue" />
-        <h2 className="text-2xl font-bold text-glass-primary">Additional Information</h2>
+        <Award className="w-6 h-6 text-primary" />
+        <h2 className="text-2xl font-bold text-foreground">Additional Information</h2>
       </div>
       
       {renderCertificationsSection()}
@@ -685,3 +685,4 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
     </div>
   );
 };
+

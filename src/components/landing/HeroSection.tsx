@@ -33,18 +33,18 @@ export const HeroSection = () => {
           {/* Subtitle */}
           <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-10 leading-relaxed max-w-3xl mx-auto">
             Verfolia is on a mission to bring transparency to your career.
-            Build your profile, share your link, and track who's engaging
-            with your story. It's time to stop feeling invisible and start
-            knowing you've been seen.
+            Build your profile, share your link, and track who&#39;s engaging
+            with your story. It&#39;s time to stop feeling invisible and start
+            knowing you&#39;ve been seen.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Button
               asChild
-              variant="outline"
+              variant="default"
               size="lg"
-              className="glass-button text-lg px-8 py-4 h-auto transition-all duration-200"
+              className="text-lg px-8 py-4 h-auto transition-all duration-200"
             >
               <Link href="/choice">
                 <Rocket className="w-5 h-5 mr-2" />

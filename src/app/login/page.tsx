@@ -250,8 +250,8 @@ export default function LoginPage() {
 
   if (loading || isAuthenticated) {
     return (
-      <div className="min-h-screen glass-bg flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-glass-blue" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -286,7 +286,7 @@ export default function LoginPage() {
                 <div className="space-y-4">
                     <Button 
                         variant="outline" 
-                        className="glass-button w-full h-12 text-base font-medium transition-all duration-200 hover:scale-[1.02]" 
+                        className="w-full h-12 text-base font-medium transition-all duration-200 hover:scale-[1.02]" 
                         onClick={handleGoogleAuth} 
                         disabled={isLoading}
                     >

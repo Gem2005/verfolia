@@ -13,7 +13,7 @@ export const AnalyticsShowcaseSection = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="order-1 lg:order-1">
             <div className="relative">
-              <div className="glass-effect p-8 rounded-3xl shadow-large">
+              <div className="bg-card/50 backdrop-blur-sm p-8 rounded-3xl shadow-large">
                 <div className="aspect-[4/3] bg-gradient-to-br from-primary/5 to-primary/10 rounded-2xl flex items-center justify-center">
                   <div className="text-center">
                     <BarChart3 className="w-16 h-16 text-primary mx-auto mb-4" />
@@ -47,7 +47,7 @@ export const AnalyticsShowcaseSection = () => {
               Analytics & Insights
             </Badge>
             <h2 className="text-3xl sm:text-5xl font-bold mb-6 text-balance">
-              Know you've been seen, every single time.
+              Know you&apos;ve been seen, every single time.
             </h2>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
               Verfolia ends the guesswork. Our real-time analytics turn your
@@ -77,7 +77,8 @@ export const AnalyticsShowcaseSection = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 size="lg"
-                className="bg-gradient-primary text-primary-foreground shadow-glow hover:shadow-large transition-all duration-200"
+                variant="default"
+                className="transition-all duration-200"
                 asChild
               >
                 <Link href="/analytics">
@@ -85,7 +86,7 @@ export const AnalyticsShowcaseSection = () => {
                   <BarChart3 className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" className="glass-button">
+              <Button variant="outline" size="lg">
                 See Demo
               </Button>
             </div>

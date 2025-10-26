@@ -350,55 +350,55 @@ export default function UploadResumePage() {
   };
 
   return (
-    <div className="glass-bg min-h-screen">
+    <div className="bg-background min-h-screen">
       <div className="container mx-auto max-w-4xl py-10">
         <div className="mb-8">
           <Button 
             variant="outline" 
             onClick={() => router.back()}
-            className="mb-4 glass-button"
+            className="mb-4 "
             disabled={uploadStatus === 'uploading' || uploadStatus === 'parsing'}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold mb-2 text-glass-white">Upload Your Resume</h1>
-          <p className="text-glass-gray">
+          <h1 className="text-3xl font-bold mb-2 text-bg-background">Upload Your Resume</h1>
+          <p className="text-text-muted-foreground">
             Upload your existing resume and we&apos;ll help you create a modern, shareable profile.
           </p>
         </div>
 
         {loading ? (
-          <Card className="glass-card">
+          <Card className="bg-card">
             <CardContent className="py-12">
               <div className="flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-glass-blue" />
-                <p className="text-glass-gray">Loading...</p>
+                <Loader2 className="w-8 h-8 animate-spin text-text-primary" />
+                <p className="text-text-muted-foreground">Loading...</p>
               </div>
             </CardContent>
           </Card>
         ) : !user ? (
-          <Card className="glass-card">
+          <Card className="bg-card">
             <CardHeader>
-              <CardTitle className="text-glass-white">Sign In to Upload Your Resume</CardTitle>
-              <CardDescription className="text-glass-gray">
+              <CardTitle className="text-bg-background">Sign In to Upload Your Resume</CardTitle>
+              <CardDescription className="text-text-muted-foreground">
                 Sign in to upload and automatically parse your resume with AI
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="rounded-lg border border-glass-border bg-white/5 p-6">
+              <div className="rounded-lg border border-border bg-white/5 p-6">
                 <div className="flex items-start gap-4">
-                  <div className="rounded-full bg-glass-blue/20 p-3">
-                    <Upload className="w-6 h-6 text-glass-blue" />
+                  <div className="rounded-full bg-text-primary/20 p-3">
+                    <Upload className="w-6 h-6 text-text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-glass-white mb-2">
+                    <h3 className="font-semibold text-bg-background mb-2">
                       AI-Powered Resume Parsing
                     </h3>
-                    <p className="text-sm text-glass-gray mb-4">
+                    <p className="text-sm text-text-muted-foreground mb-4">
                       Our AI will automatically extract your information from PDF, DOCX, or DOC files and create a beautiful, modern resume.
                     </p>
-                    <ul className="space-y-2 text-sm text-glass-gray">
+                    <ul className="space-y-2 text-sm text-text-muted-foreground">
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
                         Extract all your experience, education, and skills
@@ -419,24 +419,24 @@ export default function UploadResumePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
                   onClick={() => router.push('/login?returnTo=/upload-resume')}
-                  className="flex-1 bg-glass-blue hover:bg-glass-blue/80 text-white"
+                  className="flex-1 bg-text-primary hover:bg-text-primary/80 text-white"
                 >
                   Sign In to Upload
                 </Button>
                 <Button 
                   onClick={() => router.push('/create-resume')}
                   variant="outline"
-                  className="flex-1 glass-button"
+                  className="flex-1 "
                 >
                   Build from Scratch
                 </Button>
               </div>
 
-              <p className="text-xs text-center text-glass-gray">
+              <p className="text-xs text-center text-text-muted-foreground">
                 Don&apos;t have an account?{' '}
                 <a 
                   href="/login?returnTo=/upload-resume" 
-                  className="text-glass-blue hover:underline"
+                  className="text-text-primary hover:underline"
                 >
                   Sign up for free
                 </a>
@@ -469,8 +469,8 @@ export default function UploadResumePage() {
                 <TabsContent value="existing" className="mt-6">
                   <Card className="card-enhanced border border-border shadow-lg">
                     <CardHeader>
-                      <CardTitle className="text-glass-white">Your Uploaded Resumes</CardTitle>
-                      <CardDescription className="text-glass-gray">
+                      <CardTitle className="text-bg-background">Your Uploaded Resumes</CardTitle>
+                      <CardDescription className="text-text-muted-foreground">
                         Select a previously uploaded resume to use
                       </CardDescription>
                     </CardHeader>
@@ -486,8 +486,8 @@ export default function UploadResumePage() {
                 <TabsContent value="upload" className="mt-6">
                   <Card className="card-enhanced border border-border shadow-lg">
                     <CardHeader>
-                      <CardTitle className="text-glass-white">Upload Resume</CardTitle>
-                      <CardDescription className="text-glass-gray">
+                      <CardTitle className="text-bg-background">Upload Resume</CardTitle>
+                      <CardDescription className="text-text-muted-foreground">
                         Supports PDF, DOCX, and DOC files up to 10MB
                       </CardDescription>
                     </CardHeader>
@@ -495,12 +495,12 @@ export default function UploadResumePage() {
             <div
               className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
                 isDragging 
-                  ? 'border-glass-blue/70 bg-white/10' 
+                  ? 'border-text-primary/70 bg-white/10' 
                   : uploadStatus === 'error'
                   ? 'border-red-500/50 bg-red-500/5'
                   : uploadStatus === 'success'
                   ? 'border-green-500/50 bg-green-500/5'
-                  : 'border-white/20 hover:border-glass-blue/50'
+                  : 'border-white/20 hover:border-text-primary/50'
               } ${(uploadStatus === 'uploading' || uploadStatus === 'parsing') ? 'pointer-events-none' : ''}`}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -514,38 +514,38 @@ export default function UploadResumePage() {
             >
               {uploadStatus === 'uploading' || uploadStatus === 'parsing' ? (
                 <div className="space-y-4">
-                  <Loader2 className="w-12 h-12 text-glass-blue mx-auto animate-spin" />
+                  <Loader2 className="w-12 h-12 text-text-primary mx-auto animate-spin" />
                   <div className="space-y-2">
-                    <p className="text-lg font-medium text-glass-white">
+                    <p className="text-lg font-medium text-bg-background">
                       {uploadStatus === 'uploading' ? 'Uploading...' : 'Parsing resume...'}
                     </p>
-                    <p className="text-sm text-glass-gray">
+                    <p className="text-sm text-text-muted-foreground">
                       {fileName}
                     </p>
                   </div>
                   <div className="max-w-xs mx-auto">
                     <Progress value={progress} className="h-2" />
-                    <p className="text-xs text-glass-gray mt-2">{progress}% complete</p>
+                    <p className="text-xs text-text-muted-foreground mt-2">{progress}% complete</p>
                   </div>
                 </div>
               ) : uploadStatus === 'success' ? (
                 <div className="space-y-4">
                   <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
                   <div>
-                    <p className="text-lg font-medium text-glass-white">Resume parsed successfully!</p>
-                    <p className="text-sm text-glass-gray mt-1">Redirecting to editor...</p>
+                    <p className="text-lg font-medium text-bg-background">Resume parsed successfully!</p>
+                    <p className="text-sm text-text-muted-foreground mt-1">Redirecting to editor...</p>
                   </div>
                 </div>
               ) : uploadStatus === 'error' ? (
                 <div className="space-y-4">
                   <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
                   <div>
-                    <p className="text-lg font-medium text-glass-white">Upload failed</p>
-                    <p className="text-sm text-glass-gray mt-1">Please try again</p>
+                    <p className="text-lg font-medium text-bg-background">Upload failed</p>
+                    <p className="text-sm text-text-muted-foreground mt-1">Please try again</p>
                   </div>
                   <Button
                     variant="outline"
-                    className="glass-button"
+                    className=""
                     onClick={() => {
                       setUploadStatus('idle');
                       setProgress(0);
@@ -558,13 +558,13 @@ export default function UploadResumePage() {
               ) : (
                 <div className="space-y-4">
                   <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center bg-white/10">
-                    <Upload className="w-8 h-8 text-glass-blue" />
+                    <Upload className="w-8 h-8 text-text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 text-glass-white">
+                    <h3 className="text-lg font-semibold mb-2 text-bg-background">
                       Drag and drop your resume here
                     </h3>
-                    <p className="text-glass-gray mb-4">
+                    <p className="text-text-muted-foreground mb-4">
                       or click to browse files
                     </p>
                     <input
@@ -577,14 +577,14 @@ export default function UploadResumePage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="cursor-pointer glass-button"
+                      className="cursor-pointer "
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <FileText className="w-4 h-4 mr-2" />
                       Choose File
                     </Button>
                   </div>
-                  <p className="text-xs text-glass-gray">
+                  <p className="text-xs text-text-muted-foreground">
                     Supported formats: PDF, DOCX, DOC • Max size: 10MB
                   </p>
                 </div>
@@ -599,40 +599,40 @@ export default function UploadResumePage() {
         )}
 
         {user && (
-          <Card className="glass-card mt-8">
+          <Card className="bg-card mt-8">
             <CardHeader>
-              <CardTitle className="text-lg text-glass-white">What happens next?</CardTitle>
+              <CardTitle className="text-lg text-bg-background">What happens next?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-glass-blue">1</span>
+                  <span className="text-xs font-semibold text-text-primary">1</span>
                 </div>
                 <div>
-                  <p className="font-medium text-glass-white">AI Analysis</p>
-                  <p className="text-sm text-glass-gray">
+                  <p className="font-medium text-bg-background">AI Analysis</p>
+                  <p className="text-sm text-text-muted-foreground">
                     Our AI will extract and organize your information
                   </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-glass-blue">2</span>
+                  <span className="text-xs font-semibold text-text-primary">2</span>
                 </div>
                 <div>
-                  <p className="font-medium text-glass-white">Review & Edit</p>
-                  <p className="text-sm text-glass-gray">
+                  <p className="font-medium text-bg-background">Review & Edit</p>
+                  <p className="text-sm text-text-muted-foreground">
                     Review the extracted data and make any necessary adjustments
                   </p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-glass-blue">3</span>
+                  <span className="text-xs font-semibold text-text-primary">3</span>
                 </div>
                 <div>
-                  <p className="font-medium text-glass-white">Publish & Share</p>
-                  <p className="text-sm text-glass-gray">
+                  <p className="font-medium text-bg-background">Publish & Share</p>
+                  <p className="text-sm text-text-muted-foreground">
                     Create your shareable profile with analytics tracking
                   </p>
                 </div>
@@ -644,18 +644,18 @@ export default function UploadResumePage() {
         {user && (
           <>
             {/* How It Works Section */}
-            <Card className="glass-card mt-8">
+            <Card className="bg-card mt-8">
               <CardHeader>
-                <CardTitle className="text-glass-white">How It Works</CardTitle>
+                <CardTitle className="text-bg-background">How It Works</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-glass-blue">1</span>
+                  <span className="text-xs font-semibold text-text-primary">1</span>
                 </div>
                 <div>
-                  <p className="font-medium text-glass-white">Upload Your Resume</p>
-                  <p className="text-sm text-glass-gray">
+                  <p className="font-medium text-bg-background">Upload Your Resume</p>
+                  <p className="text-sm text-text-muted-foreground">
                     We support PDF, DOCX, and DOC files up to 10MB
                   </p>
                 </div>
@@ -663,11 +663,11 @@ export default function UploadResumePage() {
 
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-glass-blue">2</span>
+                  <span className="text-xs font-semibold text-text-primary">2</span>
                 </div>
                 <div>
-                  <p className="font-medium text-glass-white">AI Parses Your Data</p>
-                  <p className="text-sm text-glass-gray">
+                  <p className="font-medium text-bg-background">AI Parses Your Data</p>
+                  <p className="text-sm text-text-muted-foreground">
                     Our AI extracts all your information automatically
                   </p>
                 </div>
@@ -675,11 +675,11 @@ export default function UploadResumePage() {
 
               <div className="flex items-start space-x-3">
                 <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-glass-blue">3</span>
+                  <span className="text-xs font-semibold text-text-primary">3</span>
                 </div>
                 <div>
-                  <p className="font-medium text-glass-white">Publish & Share</p>
-                  <p className="text-sm text-glass-gray">
+                  <p className="font-medium text-bg-background">Publish & Share</p>
+                  <p className="text-sm text-text-muted-foreground">
                     Create your shareable profile with analytics tracking
                   </p>
                 </div>
@@ -692,3 +692,4 @@ export default function UploadResumePage() {
     </div>
   );
 }
+
