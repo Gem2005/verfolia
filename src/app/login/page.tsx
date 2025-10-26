@@ -9,11 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { login, signup, signInWithGoogle } from "./actions";
+import { signup, signInWithGoogle, resetPassword, sendMagicLink, resendConfirmation } from "./actions";
 import { useAuth } from "@/hooks/use-auth";
-import { AppLayout } from "@/components/layout/app-layout"; // Import AppLayout
+import { AppLayout } from "@/components/layout/app-layout";
 import { storageHelpers } from "@/utils/storage";
+import { createClient } from "@/utils/supabase/client";
 
 // SVG for Google Icon
 const GoogleIcon = () => (
@@ -23,7 +25,7 @@ const GoogleIcon = () => (
 );
 
 export default function LoginPage() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, checkAuth } = useAuth();
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +35,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showMagicLink, setShowMagicLink] = useState(false);
+  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
@@ -72,6 +78,7 @@ export default function LoginPage() {
     setEmail("");
     setPassword("");
     setConfirmPassword("");
+    setFullName("");
     setMessage(null);
   }
 
@@ -80,44 +87,94 @@ export default function LoginPage() {
     setIsLoading(true);
     setMessage(null);
     
-    const formData = new FormData();
-    formData.append("email", email);
-    formData.append("password", password);
-    
-    // Add returnTo parameter if it exists
-    const params = new URLSearchParams(window.location.search);
-    const returnTo = params.get('returnTo');
-    if (returnTo) {
-      formData.append("returnTo", returnTo);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error("Login error:", error.message);
+        
+        // Provide helpful error messages
+        if (error.message.includes("Invalid login credentials")) {
+          setMessage({ 
+            type: "error", 
+            text: "Invalid email or password. Please check your credentials or sign up if you don't have an account." 
+          });
+        } else if (error.message.includes("Email not confirmed")) {
+          setMessage({ 
+            type: "error", 
+            text: "Please confirm your email address before signing in. Check your inbox for the confirmation link." 
+          });
+        } else {
+          setMessage({ type: "error", text: error.message });
+        }
+        setIsLoading(false);
+      } else {
+        // Login successful - use router for smooth navigation
+        const params = new URLSearchParams(window.location.search);
+        const returnTo = params.get('returnTo') || '/dashboard';
+        
+        // Force auth state to update immediately
+        await checkAuth();
+        
+        // Use Next.js router for client-side navigation (no page refresh)
+        router.push(returnTo);
+      }
+    } catch (err) {
+      console.error("Unexpected login error:", err);
+      setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
+      setIsLoading(false);
     }
-    
-    const result = await login(formData);
-    if (result?.error) {
-      setMessage({ type: "error", text: result.error });
-    }
-    setIsLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
+    
+    if (!fullName.trim()) {
+      setMessage({ type: "error", text: "Please enter your full name." });
+      return;
+    }
+    
     if (password !== confirmPassword) {
       setMessage({ type: "error", text: "Passwords do not match." });
       return;
     }
+    
     setIsLoading(true);
     const formData = new FormData();
     formData.append("email", email);
     formData.append("password", password);
     formData.append("confirmPassword", confirmPassword);
+    formData.append("fullName", fullName);
+    
+    console.log("Submitting signup form...");
     const result = await signup(formData);
+    console.log("Signup result:", result);
+    
     if (result?.error) {
       setMessage({ type: "error", text: result.error });
-    } else {
+      // If email exists, switch to sign-in tab after showing message
+      if (result.emailExists) {
+        setTimeout(() => {
+          setActiveTab("signin");
+          setPassword("");
+          setConfirmPassword("");
+          setFullName("");
+        }, 2500);
+      }
+    } else if (result?.success) {
       setMessage({ type: "success", text: "Success! Please check your email to confirm your account." });
       setEmail("");
       setPassword("");
       setConfirmPassword("");
+      setFullName("");
+    } else {
+      console.error("Unexpected signup response:", result);
+      setMessage({ type: "error", text: "An unexpected error occurred. Please try again." });
     }
     setIsLoading(false);
   };
@@ -133,6 +190,63 @@ export default function LoginPage() {
     await signInWithGoogle(returnTo || '/dashboard');
     setIsLoading(false);
   }
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    setIsLoading(true);
+    
+    const formData = new FormData();
+    formData.append("email", email);
+    
+    const result = await resetPassword(formData);
+    if (result?.error) {
+      setMessage({ type: "error", text: result.error });
+    } else {
+      setMessage({ type: "success", text: "Password reset link sent! Please check your email." });
+      setShowForgotPassword(false);
+      setEmail("");
+    }
+    setIsLoading(false);
+  };
+
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    setIsLoading(true);
+    
+    const formData = new FormData();
+    formData.append("email", email);
+    
+    const result = await sendMagicLink(formData);
+    if (result?.error) {
+      setMessage({ type: "error", text: result.error });
+    } else {
+      setMessage({ type: "success", text: "Magic link sent! Please check your email." });
+      setShowMagicLink(false);
+      setEmail("");
+    }
+    setIsLoading(false);
+  };
+
+  const handleResendConfirmation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+    setIsLoading(true);
+    
+    const formData = new FormData();
+    formData.append("email", email);
+    
+    const result = await resendConfirmation(formData);
+    if (result?.error) {
+      setMessage({ type: "error", text: result.error });
+    } else {
+      setMessage({ type: "success", text: "Confirmation email resent! Please check your inbox." });
+      setShowResendConfirmation(false);
+      setEmail("");
+    }
+    setIsLoading(false);
+  };
 
   if (loading || isAuthenticated) {
     return (
@@ -242,6 +356,22 @@ export default function LoginPage() {
                                             required 
                                             className="input-enhanced h-12 border-border" 
                                         />
+                                        <div className="flex justify-between items-center text-sm mt-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowForgotPassword(true)}
+                                                className="text-primary hover:underline"
+                                            >
+                                                Forgot password?
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowMagicLink(true)}
+                                                className="text-primary hover:underline"
+                                            >
+                                                Use magic link
+                                            </button>
+                                        </div>
                                     </div>
                                     <Button 
                                         type="submit" 
@@ -261,6 +391,20 @@ export default function LoginPage() {
                         <Card className="card-enhanced border border-border shadow-lg">
                             <CardContent className="pt-6 space-y-4">
                                 <form onSubmit={handleSignUp} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="signup-fullname" className="text-foreground font-medium">
+                                            Full Name
+                                        </Label>
+                                        <Input 
+                                            id="signup-fullname" 
+                                            type="text" 
+                                            placeholder="Enter your full name" 
+                                            value={fullName} 
+                                            onChange={(e) => setFullName(e.target.value)} 
+                                            required 
+                                            className="input-enhanced h-12 border-border" 
+                                        />
+                                    </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="signup-email" className="text-foreground font-medium">
                                             Email Address
@@ -311,6 +455,15 @@ export default function LoginPage() {
                                         {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                                         Create Account
                                     </Button>
+                                    <div className="text-center text-sm mt-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowResendConfirmation(true)}
+                                            className="text-primary hover:underline"
+                                        >
+                                            Resend confirmation email
+                                        </button>
+                                    </div>
                                 </form>
                             </CardContent>
                         </Card>
@@ -331,6 +484,126 @@ export default function LoginPage() {
                     </p>
                 </div>
             </div>
+
+            {/* Forgot Password Modal */}
+            <Dialog open={showForgotPassword} onOpenChange={setShowForgotPassword}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Reset Password</DialogTitle>
+                        <DialogDescription>
+                            Enter your email address and we&apos;ll send you a link to reset your password.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleForgotPassword} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="forgot-email">Email Address</Label>
+                            <Input
+                                id="forgot-email"
+                                type="email"
+                                placeholder="Enter your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="h-12"
+                            />
+                        </div>
+                        <div className="flex gap-3">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowForgotPassword(false)}
+                                className="flex-1"
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit" className="flex-1" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Send Reset Link
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Magic Link Modal */}
+            <Dialog open={showMagicLink} onOpenChange={setShowMagicLink}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Sign in with Magic Link</DialogTitle>
+                        <DialogDescription>
+                            Enter your email address and we&apos;ll send you a magic link to sign in without a password.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleMagicLink} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="magic-email">Email Address</Label>
+                            <Input
+                                id="magic-email"
+                                type="email"
+                                placeholder="Enter your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="h-12"
+                            />
+                        </div>
+                        <div className="flex gap-3">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowMagicLink(false)}
+                                className="flex-1"
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit" className="flex-1" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Send Magic Link
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Resend Confirmation Modal */}
+            <Dialog open={showResendConfirmation} onOpenChange={setShowResendConfirmation}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Resend Confirmation Email</DialogTitle>
+                        <DialogDescription>
+                            Enter your email address and we&apos;ll resend the confirmation email.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleResendConfirmation} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="resend-email">Email Address</Label>
+                            <Input
+                                id="resend-email"
+                                type="email"
+                                placeholder="Enter your email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                className="h-12"
+                            />
+                        </div>
+                        <div className="flex gap-3">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowResendConfirmation(false)}
+                                className="flex-1"
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit" className="flex-1" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Resend Email
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     </AppLayout>
   );

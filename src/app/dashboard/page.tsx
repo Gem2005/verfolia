@@ -32,10 +32,15 @@ import {
 import { toast } from "sonner";
 
 export default function Dashboard() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, checkAuth } = useAuth();
   const [resumes, setResumes] = useState<ResumeType[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+
+  // Force auth check on mount (important after server-side redirect from login)
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   // Check for success message from create-resume page
   useEffect(() => {

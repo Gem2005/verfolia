@@ -12,6 +12,7 @@ export function useAuth() {
   const loading = useAuthLoading();
   const isInitialized = useAuthInitialized();
   const signOut = useAuthStore((state) => state.signOut);
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
   return {
     user,
@@ -19,5 +20,6 @@ export function useAuth() {
     loading,
     isInitialized,
     signOut,
+    checkAuth,
   };
 }
