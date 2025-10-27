@@ -64,15 +64,15 @@ export default function Navbar() {
         <div className={`mx-auto transition-all duration-300 px-4 sm:px-6 lg:px-8 ${
           scrolled ? 'max-w-7xl' : 'max-w-full'
         }`}>
-          <div className={`flex items-center justify-between transition-all duration-300 rounded-2xl ${
+          <div className={`flex items-center justify-between gap-2 transition-all duration-300 rounded-2xl ${
             scrolled 
-              ? 'px-6 py-3 navbar-scrolled card-enhanced border-border/80 shadow-md' 
-              : 'px-6 py-3 navbar-glass'
+              ? 'px-3 sm:px-4 lg:px-6 py-2 sm:py-3 navbar-scrolled card-enhanced border-border/80 shadow-md' 
+              : 'px-3 sm:px-4 lg:px-6 py-2 sm:py-3 navbar-glass'
           }`}>
             {/* Logo Section */}
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-3 group">
-                <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-xl shadow-glow group-hover:scale-105 transition-transform duration-200">
+            <div className="flex items-center flex-shrink-0">
+              <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group">
+                <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded-xl shadow-glow group-hover:scale-105 transition-transform duration-200 flex-shrink-0">
                   <Image
                     src="/Logo.png"
                     alt="Verfolia Logo"
@@ -82,7 +82,7 @@ export default function Navbar() {
                   />
                   <div className="absolute inset-0 gradient-primary rounded-xl opacity-0 group-hover:opacity-20 transition-opacity duration-200" />
                 </div>
-                <span className="text-foreground text-2xl font-bold tracking-tight font-jakarta">
+                <span className="text-foreground text-lg sm:text-xl lg:text-2xl font-bold tracking-tight font-jakarta">
                   Verfolia
                 </span>
               </Link>
@@ -113,26 +113,28 @@ export default function Navbar() {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center space-x-3">
-              <ThemeToggle />
+            <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
+              <div className="hidden sm:block">
+                <ThemeToggle />
+              </div>
 
               {loading ? (
                 // Show loading state
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-20 animate-pulse rounded-xl bg-muted/30"></div>
-                  <div className="h-10 w-24 animate-pulse rounded-xl bg-muted/30"></div>
+                <div className="hidden sm:flex items-center gap-2 lg:gap-3">
+                  <div className="h-8 w-16 lg:h-10 lg:w-20 animate-pulse rounded-xl bg-muted/30"></div>
+                  <div className="h-8 w-20 lg:h-10 lg:w-24 animate-pulse rounded-xl bg-muted/30"></div>
                 </div>
               ) : isAuthenticated ? (
                 // Show authenticated user options
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground hidden md:block font-jakarta">
+                <div className="hidden sm:flex items-center gap-2 lg:gap-3">
+                  <span className="text-xs lg:text-sm text-muted-foreground hidden md:block font-jakarta truncate max-w-[120px] lg:max-w-none">
                     {user?.email}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
                     asChild
-                    className="hidden sm:flex rounded-xl"
+                    className="hidden md:flex rounded-xl text-xs lg:text-sm"
                   >
                     <Link href="/dashboard">Dashboard</Link>
                   </Button>
@@ -140,19 +142,19 @@ export default function Navbar() {
                     variant="ghost"
                     size="sm"
                     onClick={handleSignOut}
-                    className="rounded-xl"
+                    className="rounded-xl text-xs lg:text-sm"
                   >
                     Sign Out
                   </Button>
                 </div>
               ) : (
                 // Show non-authenticated user options
-                <div className="flex items-center space-x-3">
+                <div className="hidden sm:flex items-center gap-2 lg:gap-3">
                   <Button
                     variant="ghost"
                     size="sm"
                     asChild
-                    className="hidden sm:flex rounded-xl"
+                    className="hidden md:flex rounded-xl text-xs lg:text-sm"
                   >
                     <Link href="/login">Sign in</Link>
                   </Button>
@@ -160,7 +162,7 @@ export default function Navbar() {
                     size="sm"
                     asChild
                     variant="default"
-                    className="rounded-xl"
+                    className="rounded-xl text-xs lg:text-sm px-3 lg:px-4"
                   >
                     <Link href="/choice">Get Started</Link>
                   </Button>
@@ -170,12 +172,12 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                className="lg:hidden p-1.5 sm:p-2 rounded-lg hover:bg-muted/50 transition-colors flex-shrink-0"
               >
                 {mobileMenuOpen ? (
-                  <X className="h-5 w-5" />
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 ) : (
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 )}
               </button>
             </div>
@@ -246,7 +248,13 @@ export default function Navbar() {
             </div>
 
             {/* Bottom Action */}
-            <div className="p-6 border-t border-border/50">
+            <div className="p-6 border-t border-border/50 space-y-4">
+              {/* Theme Toggle for Mobile */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
+              
               {isAuthenticated ? (
                 <div className="space-y-3">
                   <Button

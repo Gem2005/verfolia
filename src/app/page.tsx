@@ -1,7 +1,6 @@
 import { AppLayout } from "@/components/layout/app-layout";
 import {
   HeroSection,
-  FeaturesOverviewSection,
   ResumeBuilderShowcaseSection,
   AnalyticsShowcaseSection,
   AIAssistantSection,
@@ -29,7 +28,6 @@ const HomePage = () => {
         {/* Content */}
         <div className="relative z-20">
           <HeroSection />
-          <FeaturesOverviewSection />
           <ResumeBuilderShowcaseSection />
           <AnalyticsShowcaseSection />
           <AIAssistantSection />

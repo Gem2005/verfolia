@@ -10,29 +10,29 @@ import { BeamsUpstream } from "@/components/ui/beams-upstream";
 
 export const HeroSection = () => {
   return (
-    <section className="relative pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-32 lg:pb-24 overflow-hidden">
+    <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Animated Beams Background - Only in Hero */}
       <BeamsUpstream className="absolute inset-0 z-0 opacity-70 dark:opacity-40" />
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        <div className="max-w-5xl mx-auto">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
+        <div className="max-w-6xl mx-auto flex flex-col justify-center items-center h-full">
           {/* Announcement Badge - bounces in */}
-          <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md border-2 border-primary/40 rounded-full px-4 py-2 sm:px-6 sm:py-3 mb-6 sm:mb-8 shadow-lg shadow-primary/20 animate-bounce-in hover-glow cursor-pointer">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-primary animate-pulse" />
-            <span className="text-xs sm:text-sm font-bold text-primary">
+          <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md border-2 border-primary/40 rounded-full px-4 py-2 sm:px-6 sm:py-3 mb-10 shadow-lg shadow-primary/20 animate-bounce-in hover-glow cursor-pointer">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse" />
+            <span className="text-xs sm:text-sm lg:text-base font-bold text-primary">
               Beta Version — Early Access
             </span>
           </div>
 
-          {/* Main Headline - slides up with stagger */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-8xl font-extrabold mb-6 sm:mb-8 lg:mb-10 text-balance leading-[1.25] stagger-children">
-            <span className="gradient-text-enhanced block mb-2 sm:mb-3 lg:mb-4 hover-text-gradient">Build smarter.</span>
-            <span className="text-foreground block mb-2 sm:mb-3 lg:mb-4 hover:text-primary transition-colors duration-300">Apply faster.</span>
-            <span className="gradient-text-enhanced block pb-2 sm:pb-3 lg:pb-4 hover-text-gradient">Track everything.</span>
+          {/* Main Headline - slides up with stagger - Using clamp for fluid scaling */}
+          <h1 className="font-extrabold text-balance leading-[1.15] stagger-children mb-10" style={{ fontSize: 'clamp(2rem, 7vw + 0.5rem, 4.5rem)' }}>
+            <span className="gradient-text-enhanced block mb-2 hover-text-gradient">Build smarter.</span>
+            <span className="text-foreground block mb-2 hover:text-primary transition-colors duration-300">Apply faster.</span>
+            <span className="gradient-text-enhanced block hover-text-gradient">Track everything.</span>
           </h1>
 
-          {/* Subtitle - fades and slides up */}
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground mb-8 sm:mb-10 lg:mb-12 leading-relaxed max-w-3xl mx-auto animate-slide-up-fade animation-delay-400 hover:text-foreground transition-colors duration-300 px-4 sm:px-0">
+          {/* Subtitle - fades and slides up - Using clamp for fluid scaling */}
+          <p className="text-muted-foreground leading-relaxed max-w-4xl mx-auto animate-slide-up-fade animation-delay-400 hover:text-foreground transition-colors duration-300 px-4 sm:px-6 lg:px-0 mb-10" style={{ fontSize: 'clamp(0.875rem, 1.5vw + 0.25rem, 1.25rem)', lineHeight: '1.6' }}>
             Verfolia is on a mission to bring transparency to your career.
             Build your profile, share your link, and track who&#39;s engaging
             with your story. It&#39;s time to stop feeling invisible and start
@@ -40,14 +40,15 @@ export const HeroSection = () => {
           </p>
 
           {/* CTA Buttons - zoom in */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-10 sm:mb-12 lg:mb-16 animate-zoom-in animation-delay-500 px-4 sm:px-0">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-zoom-in animation-delay-500 px-4 sm:px-0 mb-10">
             <Button
               asChild
               size="lg"
-              className="group text-base sm:text-lg px-6 sm:px-8 lg:px-10 py-5 sm:py-6 h-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-500 hover-lift w-full sm:w-auto"
+              className="group px-6 sm:px-8 lg:px-10 py-4 sm:py-5 lg:py-6 h-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-500 hover-lift w-full sm:w-auto"
+              style={{ fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)' }}
             >
               <Link href="/choice">
-                <Rocket className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:rotate-45 group-hover:scale-125 transition-all duration-500" />
+                <Rocket className="w-5 h-5 sm:w-6 sm:h-6 mr-2 group-hover:rotate-45 group-hover:scale-125 transition-all duration-500" />
                 Get Started Free
               </Link>
             </Button>
@@ -55,20 +56,21 @@ export const HeroSection = () => {
               asChild
               size="lg"
               variant="outline"
-              className="text-base sm:text-lg px-6 sm:px-8 lg:px-10 py-5 sm:py-6 h-auto glass-card border-2 hover:border-primary/50 hover:bg-primary/5 hover:scale-110 transition-all duration-500 hover-lift w-full sm:w-auto"
+              className="px-6 sm:px-8 lg:px-10 py-4 sm:py-5 lg:py-6 h-auto glass-card border-2 hover:border-primary/50 hover:bg-primary/5 hover:scale-105 transition-all duration-500 hover-lift w-full sm:w-auto"
+              style={{ fontSize: 'clamp(0.875rem, 1.5vw, 1.125rem)' }}
             >
               <Link href="/upload-resume">
-                <Upload className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:translate-y-[-4px] transition-transform duration-300" />
+                <Upload className="w-5 h-5 sm:w-6 sm:h-6 mr-2 group-hover:translate-y-[-4px] transition-transform duration-300" />
                 Upload Resume
               </Link>
             </Button>
           </div>
 
           {/* Trust Indicators - staggered fade in */}
-          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 lg:gap-8 text-sm text-muted-foreground stagger-children px-4 sm:px-0">
-            <div className="flex items-center gap-2 px-3 sm:px-4 py-2 glass-card rounded-full hover-lift hover:border-emerald-500/30 border border-transparent transition-all duration-300 cursor-pointer">
-              <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-500 group-hover:scale-125 transition-transform duration-300" />
-              <span className="text-xs sm:text-sm font-medium hover:text-foreground transition-colors duration-300">AI-powered resume builder</span>
+          <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-muted-foreground stagger-children px-4 sm:px-0">
+            <div className="flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 glass-card rounded-full hover-lift hover:border-emerald-500/30 border border-transparent transition-all duration-300 cursor-pointer">
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 group-hover:scale-125 transition-transform duration-300" />
+              <span className="font-medium hover:text-foreground transition-colors duration-300" style={{ fontSize: 'clamp(0.75rem, 1.2vw, 0.875rem)' }}>AI-powered resume builder</span>
             </div>
           </div>
         </div>

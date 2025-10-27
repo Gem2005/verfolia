@@ -31,12 +31,16 @@ const VenomBeam: React.FC<VenomBeamProps> = ({ children, className = "" }) => {
     if (!ctx) return;
 
     const resizeCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
+      // Get the parent container's dimensions
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      
+      const rect = parent.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       
-      // Set display size (CSS pixels)
-      canvas.style.width = rect.width + 'px';
-      canvas.style.height = rect.height + 'px';
+      // Set display size to match parent (CSS pixels)
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
       
       // Set actual size in memory (scaled for retina)
       canvas.width = rect.width * dpr;
@@ -68,10 +72,22 @@ const VenomBeam: React.FC<VenomBeamProps> = ({ children, className = "" }) => {
       }, 100);
     };
 
+    // Use ResizeObserver to watch for parent size changes
+    const resizeObserver = new ResizeObserver(() => {
+      handleResize();
+    });
+
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement);
+    }
+
     window.addEventListener("resize", handleResize);
 
     const initParticles = () => {
-      const rect = canvas.getBoundingClientRect();
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      
+      const rect = parent.getBoundingClientRect();
       particlesRef.current = [];
       for (let i = 0; i < 80; i++) {
         particlesRef.current.push({
@@ -99,7 +115,10 @@ const VenomBeam: React.FC<VenomBeamProps> = ({ children, className = "" }) => {
     canvas.addEventListener("mousemove", handleMouseMove);
 
     const animate = () => {
-      const rect = canvas.getBoundingClientRect();
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      
+      const rect = parent.getBoundingClientRect();
       const displayWidth = rect.width;
       const displayHeight = rect.height;
       
@@ -201,6 +220,7 @@ const VenomBeam: React.FC<VenomBeamProps> = ({ children, className = "" }) => {
     animate();
 
     return () => {
+      resizeObserver.disconnect();
       window.removeEventListener("resize", handleResize);
       canvas.removeEventListener("mousemove", handleMouseMove);
       if (resizeTimeout) clearTimeout(resizeTimeout);

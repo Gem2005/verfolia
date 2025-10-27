@@ -72,7 +72,7 @@ export const BeamsUpstream = React.memo(
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
+          preserveAspectRatio="xMidYMid slice"
         >
           <rect width="100%" height="100%" fill="url(#backgroundGradient)" opacity="0.1" />
           
