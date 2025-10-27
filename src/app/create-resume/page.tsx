@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import dynamicImport from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { X, ArrowLeft, ArrowRight, Eye, Check, PenSquare, Save, Download } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { X, ArrowLeft, ArrowRight, Eye, Check, Save, Download } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService, type Resume } from "@/services/resume-service";
 import { analyticsService } from "@/services/analytics-service";
@@ -22,26 +22,11 @@ import { SkillsStep } from "../../components/steps/SkillsStep";
 import { ProjectsStep } from "../../components/steps/ProjectsStep";
 import { AdditionalStep } from "../../components/steps/AdditionalStep";
 
-// Lazy load templates - only load when preview is shown
-const CleanMonoTemplate = dynamicImport(
-  () => import("@/components/templates/CleanMonoTemplate").then((mod) => ({ default: mod.CleanMonoTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
-);
-
-const DarkMinimalistTemplate = dynamicImport(
-  () => import("@/components/templates/DarkMinimalistTemplate").then((mod) => ({ default: mod.DarkMinimalistTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
-);
-
-const DarkTechTemplate = dynamicImport(
-  () => import("@/components/templates/DarkTechTemplate").then((mod) => ({ default: mod.DarkTechTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
-);
-
-const ModernAIFocusedTemplate = dynamicImport(
-  () => import("@/components/templates/ModernAIFocusedTemplate").then((mod) => ({ default: mod.ModernAIFocusedTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-100 h-screen" /> }
-);
+// Import templates directly instead of lazy loading
+import { CleanMonoTemplate } from "@/components/templates/CleanMonoTemplate";
+import { DarkMinimalistTemplate } from "@/components/templates/DarkMinimalistTemplate";
+import { DarkTechTemplate } from "@/components/templates/DarkTechTemplate";
+import { ModernAIFocusedTemplate } from "@/components/templates/ModernAIFocusedTemplate";
 
 export const dynamic = "force-dynamic";
 
@@ -57,11 +42,13 @@ export default function CreateResumePage() {
   const [resumeTitle, setResumeTitle] = useState("");
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isTemplateLoading, setIsTemplateLoading] = useState(false);
   const [newSkill, setNewSkill] = useState("");
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showChoice, setShowChoice] = useState(false);
   const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
+  const draftRestoredRef = useRef(false); // Track if draft has been restored
   const [uploadedFileData, setUploadedFileData] = useState<{
     id?: string; // ID from uploaded_resume_files table
     filePath: string;
@@ -313,20 +300,35 @@ export default function CreateResumePage() {
             sessionStorage.removeItem(key);
           }, 1000);
         } else {
-          toast.error('Resume data not found', {
-            description: 'The uploaded resume data expired. Please try uploading again.'
-          });
-          router.replace('/choice');
+          // Check if there's a draft before redirecting
+          const savedDraft = sessionStorage.getItem('create-resume-draft');
+          if (!savedDraft) {
+            toast.error('Resume data not found', {
+              description: 'The uploaded resume data expired. Please try uploading again.'
+            });
+            router.replace('/choice');
+          }
         }
       } catch (e) {
         console.error("Failed to prefill from parsed data", e);
-        toast.error('Failed to load resume', {
-          description: e instanceof Error ? e.message : 'Please try uploading again'
-        });
-        router.replace('/choice');
+        // Check if there's a draft before redirecting
+        const savedDraft = sessionStorage.getItem('create-resume-draft');
+        if (!savedDraft) {
+          toast.error('Failed to load resume', {
+            description: e instanceof Error ? e.message : 'Please try uploading again'
+          });
+          router.replace('/choice');
+        }
       }
     } else {
-      setShowChoice(true); // No prefill data, show choice
+      // Check if there's a draft in sessionStorage before redirecting
+      const savedDraft = sessionStorage.getItem('create-resume-draft');
+      if (!savedDraft) {
+        // No prefill data and no draft, show choice or redirect
+        setShowChoice(true);
+      } else {
+        console.log('Draft found in sessionStorage, staying on page');
+      }
     }
   }, [router, user]);
 
@@ -379,6 +381,22 @@ export default function CreateResumePage() {
     }
   }, [user?.id, pageViewTracked]);
 
+  // Handle ESC key to close full screen preview
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (showFullPreview) {
+          setShowFullPreview(false);
+        } else if (previewTemplate) {
+          setPreviewTemplate(null);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleEscKey);
+    return () => window.removeEventListener('keydown', handleEscKey);
+  }, [showFullPreview, previewTemplate]);
+
   // Validation state
   const [validationErrors, setValidationErrors] = useState<{
     [key: string]: string;
@@ -413,6 +431,59 @@ export default function CreateResumePage() {
     languages: [],
     customSections: [],
   });
+
+  // Auto-restore resume data from sessionStorage FIRST (before auto-save runs)
+  useEffect(() => {
+    if (prefillLoadedRef.current || draftRestoredRef.current) return; // Skip if already loaded
+    
+    try {
+      const savedDraft = sessionStorage.getItem('create-resume-draft');
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        
+        console.log('Restoring resume draft from session...', parsed);
+        
+        // Restore all state
+        if (parsed.resumeData) setResumeData(parsed.resumeData);
+        if (parsed.resumeTitle) setResumeTitle(parsed.resumeTitle);
+        if (parsed.selectedTemplate) setSelectedTemplate(parsed.selectedTemplate);
+        if (parsed.selectedTheme) setSelectedTheme(parsed.selectedTheme);
+        if (typeof parsed.currentStep === 'number') setCurrentStep(parsed.currentStep);
+        if (parsed.uploadedFileData) setUploadedFileData(parsed.uploadedFileData);
+        
+        draftRestoredRef.current = true;
+        console.log('✅ Resume draft restored from session');
+      }
+    } catch (error) {
+      console.error('Failed to restore draft:', error);
+    }
+  }, []); // Only run once on mount
+
+  // Auto-save resume data to sessionStorage on every change (but skip initial empty save)
+  useEffect(() => {
+    // Skip the very first save to prevent overwriting restored data
+    if (!draftRestoredRef.current && !prefillLoadedRef.current) {
+      // Mark as restored so future changes will save
+      draftRestoredRef.current = true;
+      return;
+    }
+
+    const dataToSave = {
+      resumeData,
+      resumeTitle,
+      selectedTemplate,
+      selectedTheme,
+      currentStep,
+      uploadedFileData,
+    };
+    
+    try {
+      sessionStorage.setItem('create-resume-draft', JSON.stringify(dataToSave));
+      console.log('💾 Draft auto-saved');
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+    }
+  }, [resumeData, resumeTitle, selectedTemplate, selectedTheme, currentStep, uploadedFileData]);
 
   const validatePersonalInfo = useCallback(() => {
     const errors: { [key: string]: string } = {};
@@ -552,13 +623,25 @@ export default function CreateResumePage() {
 
   // Enhanced template and theme selection handlers with analytics
   const handleTemplateSelect = (templateId: string) => {
-    setSelectedTemplate(templateId);
-    analyticsService.trackTemplateSelection(templateId, currentStep);
+    setIsTemplateLoading(true);
+    // Small delay to ensure loading state is visible before state change
+    setTimeout(() => {
+      setSelectedTemplate(templateId);
+      analyticsService.trackTemplateSelection(templateId, currentStep);
+      // Keep loading state for smooth transition
+      setTimeout(() => setIsTemplateLoading(false), 600);
+    }, 100);
   };
 
   const handleThemeSelect = (themeId: string) => {
-    setSelectedTheme(themeId);
-    analyticsService.trackThemeSelection(themeId, currentStep);
+    setIsTemplateLoading(true);
+    // Small delay to ensure loading state is visible before state change
+    setTimeout(() => {
+      setSelectedTheme(themeId);
+      analyticsService.trackThemeSelection(themeId, currentStep);
+      // Keep loading state for smooth transition
+      setTimeout(() => setIsTemplateLoading(false), 600);
+    }, 100);
   };
 
   const validateCurrentStep = useCallback(() => {
@@ -625,6 +708,18 @@ export default function CreateResumePage() {
   );
 
   const renderResumePreview = () => {
+    // Show loading state prominently
+    if (isTemplateLoading) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-background">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+            <p className="text-base font-medium text-foreground">Loading template...</p>
+          </div>
+        </div>
+      );
+    }
+
     const templateProps = {
       preview: true,
       data: getPortfolioData(resumeData),
@@ -632,23 +727,27 @@ export default function CreateResumePage() {
     };
 
     const themeClass = `theme-${selectedTheme}`;
+    
+    // Use key to force complete remount when template/theme changes
+    const templateKey = `${currentTemplate.layout}-${selectedTheme}`;
+    
     const templateComponent = (() => {
       switch (currentTemplate.layout) {
         case "clean-mono":
-          return <CleanMonoTemplate {...templateProps} />;
+          return <CleanMonoTemplate key={templateKey} {...templateProps} />;
         case "dark-minimalist":
-          return <DarkMinimalistTemplate {...templateProps} />;
+          return <DarkMinimalistTemplate key={templateKey} {...templateProps} />;
         case "dark-tech":
-          return <DarkTechTemplate {...templateProps} />;
+          return <DarkTechTemplate key={templateKey} {...templateProps} />;
         case "modern-ai-focused":
-          return <ModernAIFocusedTemplate {...templateProps} />;
+          return <ModernAIFocusedTemplate key={templateKey} {...templateProps} />;
         default:
-          return <CleanMonoTemplate {...templateProps} />;
+          return <CleanMonoTemplate key={templateKey} {...templateProps} />;
       }
     })();
 
     return (
-      <div className={`preview-sandbox ${themeClass} template-wrapper`}>
+      <div key={templateKey} className={`preview-sandbox ${themeClass} template-wrapper w-full bg-background`}>
         {templateComponent}
       </div>
     );
@@ -793,9 +892,10 @@ export default function CreateResumePage() {
           sessionStorage.removeItem("editingResumeId");
         }
         
-        // Clear temporary data
+        // Clear temporary data including draft
         try {
           sessionStorage.removeItem('resumeData');
+          sessionStorage.removeItem('create-resume-draft');
         } catch {}
         
         toast.dismiss();
@@ -960,255 +1060,317 @@ export default function CreateResumePage() {
 
   return (
     <div 
-      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background to-muted/20" 
+      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/10" 
       data-page="create-resume"
     >
-      {/* Enhanced Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-primary/10 to-accent/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-accent/10 to-primary/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-primary/5 to-accent/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '4s'}}></div>
-        
-        {/* Decorative elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl blur-xl animate-float"></div>
-        <div className="absolute bottom-20 right-20 w-24 h-24 bg-gradient-to-br from-accent/20 to-primary/20 rounded-3xl blur-xl animate-float" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-gradient-to-br from-primary/30 to-accent/30 rounded-2xl blur-lg animate-float" style={{animationDelay: '3s'}}></div>
+      {/* Subtle Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
       </div>
       
-      <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
-        {/* Enhanced Header */}
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-4">
-                <div className="card-enhanced w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg border border-border/50 bg-gradient-to-br from-primary/10 to-accent/10">
-                  <PenSquare className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-5xl font-bold text-foreground">
-                    Create Resume
-                  </h1>
-                  <p className="text-muted-foreground text-xl font-medium">
-                    Build your professional resume with real-time preview
-                  </p>
-                </div>
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 max-w-[1800px] relative z-10 h-screen flex flex-col">
+        {/* Compact Header - Desktop */}
+        <div className="hidden lg:flex items-center justify-between mb-6 flex-shrink-0 gap-2">
+          <div className="flex items-center gap-4 min-w-0 flex-1">
+            <Button
+              variant="ghost"
+              onClick={() => router.push('/choice')}
+              className="text-muted-foreground hover:text-foreground shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Back
+            </Button>
+            <div className="h-8 w-px bg-border shrink-0"></div>
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold text-foreground truncate">Create Resume</h1>
+              <p className="text-sm text-muted-foreground truncate">
+                Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                try {
+                  const exportPayload = {
+                    title: resumeTitle || "My Resume",
+                    personalInfo: resumeData.personalInfo,
+                    experience: resumeData.experience,
+                    education: resumeData.education,
+                    skills: resumeData.skills,
+                    projects: resumeData.projects,
+                    certifications: resumeData.certifications,
+                    languages: resumeData.languages,
+                    customSections: resumeData.customSections,
+                    markdown,
+                  };
+                  const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = `resume-${Date.now()}.json`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  URL.revokeObjectURL(url);
+                } catch (e) {
+                  console.error('JSON export failed', e);
+                }
+              }}
+              className="gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="gap-2 bg-primary hover:bg-primary/90 border border-primary"
+            >
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Resume
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Header with Progress */}
+        <div className="lg:hidden flex-shrink-0 mb-4">
+          <div className="flex items-center justify-between mb-3 gap-2">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/choice')}
+                className="text-muted-foreground hover:text-foreground shrink-0"
+              >
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
+                <span className="hidden sm:inline">Back</span>
+              </Button>
+              <div className="h-6 sm:h-8 w-px bg-border shrink-0"></div>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base sm:text-lg font-bold text-foreground truncate">Create Resume</h1>
+                <p className="text-xs text-muted-foreground truncate">
+                  Step {currentStep + 1}: {steps[currentStep].title}
+                </p>
               </div>
             </div>
-          <div className="flex items-center gap-4">
-                <Button
-                variant="outline"
-                onClick={() => router.push('/choice')}
-                className=" flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
-                >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Choice
-                </Button>
+            <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="outline"
-                onClick={() => {
-                  try {
-                    const exportPayload = {
-                      title: resumeTitle || "My Resume",
-                      personalInfo: resumeData.personalInfo,
-                      experience: resumeData.experience,
-                      education: resumeData.education,
-                      skills: resumeData.skills,
-                      projects: resumeData.projects,
-                      certifications: resumeData.certifications,
-                      languages: resumeData.languages,
-                      customSections: resumeData.customSections,
-                      markdown,
-                    };
-                    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `resume-${Date.now()}.json`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                  } catch (e) {
-                    console.error('JSON export failed', e);
-                  }
-                }}
-                className=" flex items-center gap-2 px-6 py-3 border-border/50 hover:bg-muted/50"
+                size="sm"
+                onClick={() => setShowFullPreview(true)}
+                className="gap-1"
               >
-                <Download className="w-4 h-4" />
-                Export JSON
+                <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Preview</span>
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={saving}
-                className="button-enhanced flex items-center gap-2 px-8 py-3 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground"
+                size="sm"
+                className="bg-primary hover:bg-primary/90 gap-1 border border-primary"
               >
                 {saving ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current" />
-                    Saving...
+                    <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-current" />
+                    <span className="hidden sm:inline">Saving...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-5 h-5" />
-                    Save Resume
+                    <Save className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Save</span>
                   </>
                 )}
               </Button>
             </div>
           </div>
-
-          {/* Enhanced Progress Indicator */}
-          <div className="card-enhanced rounded-2xl p-8 shadow-lg border border-border/50 bg-background/80 backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                {(() => { 
-                  const Icon = steps[currentStep].icon as React.ComponentType<{ className?: string }>;
-                  return Icon ? <Icon className="w-6 h-6 text-primary" /> : null; 
-                })()}
-                {steps[currentStep].title}
-              </h2>
-              <span className="text-sm text-muted-foreground px-4 py-2 rounded-full font-semibold border border-border/50 bg-muted/50">
-                Step {currentStep + 1} of {steps.length}
+          
+          {/* Overall Progress Bar - Mobile Only */}
+          <div className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-medium text-foreground">
+                Overall Progress
+              </span>
+              <span className="text-xs font-semibold text-primary">
+                {Math.round(((currentStep + 1) / steps.length) * 100)}%
               </span>
             </div>
-            <div className="relative">
-              {/* Progress Line Container */}
-              <div className="absolute top-7 left-0 right-0 flex items-center px-7">
-                <div className="flex-1 h-1 bg-border/50 rounded-full relative">
-                  {/* Progress Fill */}
-                  <div 
-                    className="absolute left-0 top-0 h-1 bg-primary rounded-full transition-all duration-700 ease-out"
-                    style={{ 
-                      width: `${(currentStep / (steps.length - 1)) * 100}%` 
-                    }}
-                  ></div>
-                </div>
-              </div>
-              
-              {/* Steps */}
-              <div className="flex justify-between relative z-10">
-                {steps.map((step, index) => {
-                  const Icon = step.icon;
-                  const isActive = index === currentStep;
-                  const isCompleted = index < currentStep;
-                  
-                  return (
-                    <div key={step.id} className="flex flex-col items-center">
-                      {/* Step Circle */}
-                      <button
-                        onClick={() => goToStep(step.id)}
-                        className={`w-14 h-14 rounded-full flex items-center justify-center font-bold transition-all duration-300 border-2 relative ${
-                          isActive
-                            ? "text-primary-foreground bg-primary border-primary shadow-lg cursor-pointer transform scale-110"
-                            : isCompleted
-                            ? "text-primary-foreground bg-primary border-primary cursor-pointer hover:scale-105 shadow-md"
-                            : "text-muted-foreground bg-background border-border hover:bg-muted/50 cursor-pointer hover:scale-105"
-                        }`}
-                      >
-                        {isCompleted ? (
-                          <Check className="w-5 h-5" />
-                        ) : (
-                          <Icon className="w-5 h-5" />
-                        )}
-                      </button>
-                      
-                      {/* Step Label */}
-                      <span className={`mt-3 text-xs font-medium text-center max-w-20 leading-tight transition-colors duration-300 ${
-                        isActive 
-                          ? "text-primary font-semibold" 
-                          : isCompleted 
-                          ? "text-foreground" 
-                          : "text-muted-foreground"
-                      }`}>
-                        {step.title}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <Progress 
+              value={((currentStep + 1) / steps.length) * 100}
+              variant="default"
+              className="h-2 bg-white/20 border-white/30"
+              indicatorClassName="bg-white"
+            />
           </div>
         </div>
 
-        {/* Glassmorphism Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Form Section */}
-          <div className="space-y-8">
-            <div
-              className={`transition-all duration-300 ${
-                isTransitioning ? "opacity-0" : "opacity-100"
-              }`}
-            >
-              {currentStep === 0 && (
-                <TemplateStep
-                  selectedTemplate={selectedTemplate}
-                  selectedTheme={selectedTheme}
-                  onTemplateSelect={handleTemplateSelect}
-                  onThemeSelect={handleThemeSelect}
-                  getPortfolioData={() => getPortfolioData(resumeData)}
-                  previewTemplate={previewTemplate}
-                  setPreviewTemplate={setPreviewTemplate}
-                />
-              )}
-              {currentStep === 1 && (
-                <PersonalInfoStep
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  resumeTitle={resumeTitle}
-                  setResumeTitle={setResumeTitle}
-                  validationErrors={validationErrors}
-                />
-              )}
-              {currentStep === 2 && (
-                <ExperienceStep
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  validationErrors={validationErrors}
-                />
-              )}
-              {currentStep === 3 && (
-                <EducationStep
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  validationErrors={validationErrors}
-                />
-              )}
-              {currentStep === 4 && (
-                <SkillsStep
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  newSkill={newSkill}
-                  setNewSkill={setNewSkill}
-                  validationErrors={validationErrors}
-                />
-              )}
-              {currentStep === 5 && (
-                <ProjectsStep
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  newTech={newTech}
-                  setNewTech={setNewTech}
-                  validationErrors={validationErrors}
-                />
-              )}
-              {currentStep === 6 && (
-                <AdditionalStep
-                  resumeData={resumeData}
-                  setResumeData={setResumeData}
-                  validationErrors={validationErrors}
-                />
-              )}
+        {/* Full-Width Progress Steps Bar - Desktop Only */}
+        <div className="hidden lg:block flex-shrink-0 mb-6 bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-6">
+          <div className="flex items-center justify-between gap-3">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = index === currentStep;
+              const isCompleted = index < currentStep;
+              
+              // Progress bar shows the connection between THIS step and the NEXT step
+              // If we've completed this step (moved past it), the bar is 100%
+              // If we're currently on this step, the bar is 50%
+              // If we haven't reached this step yet, the bar is 0%
+              const getProgressBarValue = () => {
+                if (index < currentStep) return 100; // Completed steps show full progress
+                if (index === currentStep) return 50; // Current step shows half progress
+                return 0; // Future steps show no progress
+              };
+              
+              const progressValue = getProgressBarValue();
+              
+              return (
+                <React.Fragment key={step.id}>
+                  <button
+                    onClick={() => goToStep(step.id)}
+                    className={`flex flex-col items-center gap-2 transition-all group ${
+                      isActive ? "" : isCompleted ? "" : "opacity-50"
+                    }`}
+                  >
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                        isActive
+                          ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                          : isCompleted
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground group-hover:bg-muted/80"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <Icon className="w-5 h-5" />
+                      )}
+                    </div>
+                    <span
+                      className={`text-xs font-medium text-center whitespace-nowrap ${
+                        isActive
+                          ? "text-foreground"
+                          : isCompleted
+                          ? "text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {step.title}
+                    </span>
+                  </button>
+                  {index < steps.length - 1 && (
+                    <div className="flex-1 flex items-center px-3 -mt-6">
+                      <Progress 
+                        key={`progress-${index}-${currentStep}`}
+                        value={progressValue}
+                        variant="default"
+                        className="h-2 bg-white/20 border-white/30"
+                        indicatorClassName="bg-white"
+                      />
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Main Content - Split Layout */}
+        <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[480px_1fr] gap-4 sm:gap-6 overflow-hidden">
+          {/* Left Panel - Form/Steps */}
+          <div className="flex flex-col h-full overflow-hidden order-2 lg:order-1">
+            {/* Form Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6">
+              <div
+                className={`transition-all duration-300 ${
+                  isTransitioning ? "opacity-0" : "opacity-100"
+                }`}
+              >
+                {currentStep === 0 && (
+                  <TemplateStep
+                    selectedTemplate={selectedTemplate}
+                    selectedTheme={selectedTheme}
+                    onTemplateSelect={handleTemplateSelect}
+                    onThemeSelect={handleThemeSelect}
+                    getPortfolioData={() => getPortfolioData(resumeData)}
+                    previewTemplate={previewTemplate}
+                    setPreviewTemplate={setPreviewTemplate}
+                    isLoading={isTemplateLoading}
+                  />
+                )}
+                {currentStep === 1 && (
+                  <PersonalInfoStep
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                    resumeTitle={resumeTitle}
+                    setResumeTitle={setResumeTitle}
+                    validationErrors={validationErrors}
+                  />
+                )}
+                {currentStep === 2 && (
+                  <ExperienceStep
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                    validationErrors={validationErrors}
+                  />
+                )}
+                {currentStep === 3 && (
+                  <EducationStep
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                    validationErrors={validationErrors}
+                  />
+                )}
+                {currentStep === 4 && (
+                  <SkillsStep
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                    newSkill={newSkill}
+                    setNewSkill={setNewSkill}
+                    validationErrors={validationErrors}
+                  />
+                )}
+                {currentStep === 5 && (
+                  <ProjectsStep
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                    newTech={newTech}
+                    setNewTech={setNewTech}
+                    validationErrors={validationErrors}
+                  />
+                )}
+                {currentStep === 6 && (
+                  <AdditionalStep
+                    resumeData={resumeData}
+                    setResumeData={setResumeData}
+                    validationErrors={validationErrors}
+                  />
+                )}
+              </div>
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex justify-between">
+            {/* Navigation Buttons - Fixed at bottom */}
+            <div className="flex-shrink-0 mt-3 sm:mt-4 flex justify-between gap-2 sm:gap-4">
               <Button
                 onClick={() => goToStep(currentStep - 1)}
                 disabled={currentStep === 0}
                 variant="outline"
-                className=" border-border/50 hover:bg-muted/50"
+                className="flex-1"
+                size="sm"
               >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 Previous
               </Button>
 
@@ -1218,28 +1380,30 @@ export default function CreateResumePage() {
                     setHasAttemptedNext(true);
                     if (validateCurrentStep()) {
                       goToStep(currentStep + 1);
-                      setHasAttemptedNext(false); // Reset for next step
+                      setHasAttemptedNext(false);
                     }
                   }}
-                  className="button-enhanced bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="flex-1 bg-primary hover:bg-primary/90 border border-primary"
+                  size="sm"
                 >
                   Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
                 </Button>
               ) : (
                 <Button
                   onClick={handleSave}
                   disabled={saving || !canProceedToNext}
-                  className="button-enhanced bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="flex-1 bg-primary hover:bg-primary/90 border border-primary"
+                  size="sm"
                 >
                   {saving ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                      <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-current mr-1 sm:mr-2" />
                       Saving...
                     </>
                   ) : (
                     <>
-                      <Check className="w-4 h-4 mr-2" />
+                      <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Save Resume
                     </>
                   )}
@@ -1248,94 +1412,138 @@ export default function CreateResumePage() {
             </div>
           </div>
 
-          {/* Enhanced Preview Section */}
-          <div className="sticky top-4 space-y-6">
-            <div className="card-enhanced rounded-2xl p-8 shadow-lg border border-border/50 bg-background/80 backdrop-blur-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-border/50 bg-primary/10">
-                    <Eye className="w-5 h-5 text-primary" />
-                  </div>
-                  Live Preview
-                </h2>
+          {/* Right Panel - Preview (Desktop only) */}
+          <div className="hidden lg:flex flex-col h-full overflow-hidden bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50 rounded-xl p-4 xl:p-6 order-1 lg:order-2">
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 xl:w-3 xl:h-3 rounded-full bg-red-500"></div>
+                  <div className="w-2.5 h-2.5 xl:w-3 xl:h-3 rounded-full bg-yellow-500"></div>
+                  <div className="w-2.5 h-2.5 xl:w-3 xl:h-3 rounded-full bg-green-500"></div>
+                </div>
+                <h3 className="font-semibold text-sm xl:text-base text-foreground ml-2 xl:ml-4 truncate">{resumeTitle || "Resume Preview"}</h3>
+              </div>
               <Button
                 onClick={() => setShowFullPreview(true)}
                 variant="outline"
-                size="lg"
-                  className=" border-border/50 hover:bg-muted/50 px-6 py-3"
+                size="sm"
+                className="gap-1 xl:gap-2 shrink-0"
               >
-                <Eye className="w-5 h-5 mr-2" />
+                <Eye className="w-4 h-4" />
                 Full Screen
               </Button>
-              </div>
-              <p className="text-muted-foreground text-lg font-medium">
-                See how your resume looks in real-time as you make changes
-              </p>
             </div>
 
-            <div className="card-enhanced rounded-2xl overflow-hidden shadow-lg border border-border/50 bg-background/50 backdrop-blur-sm">
-              <div className="p-6 border-b border-border/50 bg-muted/30">
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <div className="w-4 h-4 bg-red-500 rounded-full shadow-sm"></div>
-                  <div className="w-4 h-4 bg-yellow-500 rounded-full shadow-sm"></div>
-                  <div className="w-4 h-4 bg-green-500 rounded-full shadow-sm"></div>
-                  <span className="ml-6 font-bold text-lg text-foreground">Resume Preview</span>
-                </div>
-              </div>
-              <div className="p-8 bg-background/30">
+            {/* Preview Container */}
+            <div className="flex-1 overflow-auto bg-muted/30">
+              <div className="w-full h-full flex items-start justify-center p-4">
                 <div
-                  className="relative overflow-hidden mx-auto shadow-lg rounded-xl border border-border/50 bg-background"
-                  style={{
-                    width: "100%",
-                    height: "0",
-                    paddingBottom: "141.4%", // A4 aspect ratio (1:1.414)
-                  }}
+                  className="relative bg-background shadow-2xl w-full"
+                  style={
+                    isTemplateLoading
+                      ? {
+                          minHeight: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }
+                      : {
+                          minHeight: "fit-content",
+                        }
+                  }
                 >
-                  <div
-                    className="absolute top-0 left-0"
-                    style={{
-                      width: "250%",
-                      height: "250%",
-                      transform: "scale(0.4)",
-                      transformOrigin: "top left",
-                    }}
-                  >
-                    {renderResumePreview()}
-                  </div>
+                  {renderResumePreview()}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Full Preview Modal */}
+        {/* Full Screen Preview Modal */}
         {showFullPreview && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="card-enhanced rounded-3xl max-w-7xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-border bg-background">
-              <div className="p-8 border-b border-border flex justify-between items-center bg-muted/30">
-                <div>
-                  <h2 className="text-3xl font-bold text-foreground flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-border bg-primary/10">
-                      <Eye className="w-5 h-5 text-primary" />
-                    </div>
-                    Resume Preview
-                  </h2>
-                  <p className="text-lg text-muted-foreground mt-2">
-                    Full-size preview of your professional resume
-                  </p>
-                </div>
+          <div className="fixed inset-0 bg-black z-50 flex flex-col">
+            {/* Navigation Bar - Fixed on top with high z-index */}
+            <div className="flex-shrink-0 h-12 sm:h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 sm:px-6 relative z-50 shadow-sm">
+              <h2 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white truncate">
+                {resumeTitle || "Resume Preview"}
+              </h2>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 hidden lg:block">Press ESC to close</span>
                 <Button
                   variant="ghost"
+                  size="sm"
                   onClick={() => setShowFullPreview(false)}
-                  className="h-12 w-12 p-0 border border-border hover:bg-muted/50 rounded-xl transition-all duration-300"
+                  className="h-9 w-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="p-8 overflow-auto max-h-[calc(95vh-140px)] bg-background/50">
-                <div className="card-enhanced rounded-2xl shadow-lg p-12 mx-auto max-w-5xl border border-border bg-background">
-                  {renderResumePreview()}
-                </div>
+            </div>
+
+            {/* Full Screen Preview Content - No constraints, just overflow scroll */}
+            <div className="flex-1 overflow-auto">
+              <div className="min-h-full p-2 sm:p-4">
+                {isTemplateLoading ? (
+                  <div className="w-full h-screen flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-2 border-white mx-auto mb-4"></div>
+                      <p className="text-xs sm:text-sm text-gray-400">Loading template...</p>
+                    </div>
+                  </div>
+                ) : (
+                  renderResumePreview()
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Template Preview Modal - Rendered at page level */}
+        {previewTemplate && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex flex-col">
+            {/* Navigation Bar */}
+            <div className="flex-shrink-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 relative z-50 shadow-sm">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                {templates.find((t) => t.id === previewTemplate)?.name} Preview
+              </h3>
+              
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Press ESC to close</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPreviewTemplate(null)}
+                  className="h-9 w-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Template Preview Content */}
+            <div className="flex-1 overflow-auto">
+              <div className="min-h-full">
+                {(() => {
+                  const templateProps = {
+                    preview: true as const,
+                    data: getPortfolioData(resumeData),
+                    theme: selectedTheme,
+                  };
+
+                  switch (previewTemplate) {
+                    case "clean-mono":
+                      return <CleanMonoTemplate {...templateProps} />;
+                    case "dark-minimalist":
+                      return <DarkMinimalistTemplate {...templateProps} />;
+                    case "dark-tech":
+                      return <DarkTechTemplate {...templateProps} />;
+                    case "modern-ai-focused":
+                      return <ModernAIFocusedTemplate {...templateProps} />;
+                    default:
+                      return <CleanMonoTemplate {...templateProps} />;
+                  }
+                })()}
               </div>
             </div>
           </div>

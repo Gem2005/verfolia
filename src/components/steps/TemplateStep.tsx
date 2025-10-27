@@ -1,32 +1,16 @@
 import React from "react";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, Check, X } from "lucide-react";
+import { Eye, Check } from "lucide-react";
 import { templates, themes } from "../../../data/constants";
 import { PortfolioData } from "@/types/PortfolioTypes";
 
-// Lazy load templates - only load when previewed
-const CleanMonoTemplate = dynamic(
-  () => import("@/components/templates/CleanMonoTemplate").then((mod) => ({ default: mod.CleanMonoTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
-
-const DarkMinimalistTemplate = dynamic(
-  () => import("@/components/templates/DarkMinimalistTemplate").then((mod) => ({ default: mod.DarkMinimalistTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
-
-const DarkTechTemplate = dynamic(
-  () => import("@/components/templates/DarkTechTemplate").then((mod) => ({ default: mod.DarkTechTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
-
-const ModernAIFocusedTemplate = dynamic(
-  () => import("@/components/templates/ModernAIFocusedTemplate").then((mod) => ({ default: mod.ModernAIFocusedTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
+// Import templates directly to prevent flashing
+import { CleanMonoTemplate } from "@/components/templates/CleanMonoTemplate";
+import { DarkMinimalistTemplate } from "@/components/templates/DarkMinimalistTemplate";
+import { DarkTechTemplate } from "@/components/templates/DarkTechTemplate";
+import { ModernAIFocusedTemplate } from "@/components/templates/ModernAIFocusedTemplate";
 
 interface TemplateStepProps {
   selectedTemplate: string;
@@ -36,6 +20,7 @@ interface TemplateStepProps {
   getPortfolioData: () => PortfolioData;
   previewTemplate: string | null;
   setPreviewTemplate: (templateId: string | null) => void;
+  isLoading: boolean;
 }
 
 export const TemplateStep: React.FC<TemplateStepProps> = ({
@@ -46,6 +31,7 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
   getPortfolioData,
   previewTemplate,
   setPreviewTemplate,
+  isLoading,
 }) => {
   const TemplatePreview = ({
     template,
@@ -107,7 +93,7 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
 
     return (
       <div
-        className={`relative rounded-xl border-2 transition-all duration-200 cursor-pointer overflow-hidden hover:shadow-lg ${
+        className={`relative rounded-xl border-2 transition-all duration-200 cursor-pointer overflow-hidden hover:shadow-lg will-change-transform ${
           selectedTemplate === template.id
             ? "ring-2 ring-primary border-primary shadow-md"
             : "border-border hover:border-muted-foreground/30"
@@ -121,14 +107,20 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
                 src={getPreviewImage()}
                 alt={`${template.name} preview`}
                 fill
-                className="object-cover object-top transition-opacity duration-200"
+                className="object-cover object-top"
+                priority={true}
+                quality={90}
                 onLoad={(e) => {
                   const target = e.target as HTMLImageElement;
+                  target.style.opacity = "1";
                   const loadingDiv = target.parentElement?.querySelector(
                     ".loading-placeholder"
                   ) as HTMLElement;
                   if (loadingDiv) {
-                    loadingDiv.style.display = "none";
+                    loadingDiv.style.opacity = "0";
+                    setTimeout(() => {
+                      loadingDiv.style.display = "none";
+                    }, 200);
                   }
                 }}
                 onError={(e) => {
@@ -140,9 +132,10 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
                     fallbackDiv.style.display = "block";
                   }
                 }}
+                style={{ opacity: 0, transition: "opacity 200ms" }}
                 unoptimized
               />
-              <div className="loading-placeholder absolute inset-0 flex items-center justify-center bg-gray-100">
+              <div className="loading-placeholder absolute inset-0 flex items-center justify-center bg-gray-100 transition-opacity duration-200">
                 <div className="text-gray-400 text-sm">
                   Loading preview...
                 </div>
@@ -201,7 +194,7 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
           </p>
         </CardHeader>
         <CardContent className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 max-[400px]:grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
             {templates.map((template) => (
               <TemplatePreview key={template.id} template={template} />
             ))}
@@ -250,50 +243,6 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
           </div>
         </CardContent>
       </Card>
-
-      {previewTemplate && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold">
-                {templates.find((t) => t.id === previewTemplate)?.name}{" "}
-                Preview
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setPreviewTemplate(null)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-              <div className="preview-sandbox scale-75 origin-top">
-                {(() => {
-                  const templateProps = {
-                    preview: true as const,
-                    data: getPortfolioData(),
-                    theme: selectedTheme,
-                  };
-
-                  switch (previewTemplate) {
-                    case "clean-mono":
-                      return <CleanMonoTemplate {...templateProps} />;
-                    case "dark-minimalist":
-                      return <DarkMinimalistTemplate {...templateProps} />;
-                    case "dark-tech":
-                      return <DarkTechTemplate {...templateProps} />;
-                    case "modern-ai-focused":
-                      return <ModernAIFocusedTemplate {...templateProps} />;
-                    default:
-                      return <CleanMonoTemplate {...templateProps} />;
-                  }
-                })()}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
