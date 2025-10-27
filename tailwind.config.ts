@@ -142,6 +142,14 @@ const config = {
           from: { backgroundPosition: "0% 50%" },
           to: { backgroundPosition: "100% 50%" },
         },
+        "canopy-x": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(calc(-100% - var(--gap)))" },
+        },
+        "canopy-y": {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(calc(-100% - var(--gap)))" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -150,6 +158,8 @@ const config = {
         "slide-up": "slide-up 0.5s ease-out",
         float: "float 3s ease-in-out infinite alternate",
         shimmer: "shimmer 3s linear infinite",
+        "canopy-horizontal": "canopy-x var(--duration) infinite linear",
+        "canopy-vertical": "canopy-y var(--duration) linear infinite",
       },
     },
   },

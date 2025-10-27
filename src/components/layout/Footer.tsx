@@ -2,11 +2,17 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Instagram, Linkedin, Twitter, FileText, Book } from "lucide-react";
+import VenomBeam from "@/components/ui/venom-beam";
 
 function Footer() {
   return (
-    <footer className="bg-background border-t border-border">
-      <div className="container mx-auto px-6 py-12">
+    <footer className="bg-background border-t border-border relative overflow-hidden min-h-[500px] sm:min-h-[400px]">
+      {/* VenomBeam Background */}
+      <div className="absolute inset-0 pointer-events-none opacity-60 dark:opacity-50">
+        <VenomBeam />
+      </div>
+      
+      <div className="container mx-auto px-6 py-12 relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
