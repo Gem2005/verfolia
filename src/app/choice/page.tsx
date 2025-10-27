@@ -21,36 +21,68 @@ export default function ChoicePage() {
   };
 
   return (
-    <div className="bg-background min-h-screen">
-      <div className="container mx-auto max-w-4xl py-10">
-        <h1 className="text-3xl font-bold mb-6 text-bg-background">How would you like to start?</h1>
-        <p className="text-text-muted-foreground mb-8">
-          Upload your existing PDF resume or build a new profile from scratch. You can save your progress when you're ready.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="bg-card hover:border-text-primary transition-colors">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-bg-background">
-                <Upload className="w-5 h-5 text-text-primary" /> Upload PDF Resume
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/10">
+      {/* Subtle Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16 max-w-5xl relative z-10">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground">
+            How would you like to start?
+          </h1>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
+            Upload your existing PDF resume or build a new profile from scratch. You can save your progress when you&apos;re ready.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+          {/* Upload PDF Card */}
+          <Card className="bg-background/80 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-foreground text-xl sm:text-2xl">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                </div>
+                Upload PDF Resume
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-text-muted-foreground">
-                We'll parse your PDF and prefill the editor for you.
+            <CardContent className="space-y-4 sm:space-y-6">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                We&apos;ll parse your PDF and prefill the editor for you.
               </p>
-              <Button onClick={() => handleSelect("upload")} className="">Upload PDF</Button>
+              <Button 
+                onClick={() => handleSelect("upload")} 
+                className="w-full bg-primary hover:bg-primary/90 border border-primary"
+                size="lg"
+              >
+                Upload PDF
+              </Button>
             </CardContent>
           </Card>
 
-          <Card className="bg-card hover:border-text-primary transition-colors">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-bg-background">
-                <PenSquare className="w-5 h-5 text-text-primary" /> Build From Scratch
+          {/* Build From Scratch Card */}
+          <Card className="bg-background/80 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-3 text-foreground text-xl sm:text-2xl">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <PenSquare className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                </div>
+                Build From Scratch
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-text-muted-foreground">Start with a clean slate using our guided editor.</p>
-              <Button variant="outline" onClick={() => handleSelect("create")} className="">
+            <CardContent className="space-y-4 sm:space-y-6">
+              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                Start with a clean slate using our guided editor.
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={() => handleSelect("create")}
+                className="w-full"
+                size="lg"
+              >
                 Start Building
               </Button>
             </CardContent>

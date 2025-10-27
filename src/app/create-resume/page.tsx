@@ -47,6 +47,7 @@ export default function CreateResumePage() {
   const [newTech, setNewTech] = useState<{ [key: string]: string }>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showChoice, setShowChoice] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
   const draftRestoredRef = useRef(false); // Track if draft has been restored
   const [uploadedFileData, setUploadedFileData] = useState<{
@@ -84,6 +85,7 @@ export default function CreateResumePage() {
     if (editId && user) {
       // Mark as loaded to prevent duplicate loads
       prefillLoadedRef.current = true;
+      setIsEditMode(true);
       
       // Load existing resume for editing
       const loadResumeForEdit = async () => {
@@ -193,6 +195,10 @@ export default function CreateResumePage() {
       
       loadResumeForEdit();
       return; // Exit early to prevent prefill logic
+    } else {
+      // Not in edit mode - clear any existing edit session
+      sessionStorage.removeItem("editingResumeId");
+      setIsEditMode(false);
     }
     
     // Check for prefill mode
@@ -275,13 +281,13 @@ export default function CreateResumePage() {
               ...prev.personalInfo,
               ...parsed.personalInfo,
             },
-            experience: (parsed.experience || []).map((exp: any) => ({
+            experience: (parsed.experience || []).map((exp: { startDate?: string; endDate?: string; current?: boolean; [key: string]: unknown }) => ({
               ...exp,
               startDate: exp.startDate || "",
               endDate: exp.endDate || "",
               isPresent: exp.current,
             })),
-            education: (parsed.education || []).map((edu: any) => ({
+            education: (parsed.education || []).map((edu: { startDate?: string; endDate?: string; [key: string]: unknown }) => ({
               ...edu,
               startDate: edu.startDate || "",
               endDate: edu.endDate || "",
@@ -435,6 +441,31 @@ export default function CreateResumePage() {
   // Auto-restore resume data from sessionStorage FIRST (before auto-save runs)
   useEffect(() => {
     if (prefillLoadedRef.current || draftRestoredRef.current) return; // Skip if already loaded
+    
+    // Check if we're in edit mode via URL params
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get("edit");
+    const prefillKey = params.get("prefill");
+    
+    // Check sessionStorage for edit mode
+    const editingResumeId = sessionStorage.getItem('editingResumeId');
+    
+    // Only set edit mode if we have an edit param OR editingResumeId matches
+    if (editId || editingResumeId) {
+      setIsEditMode(true);
+    } else {
+      // Clear edit mode and draft if no edit param and no prefill
+      setIsEditMode(false);
+      if (editingResumeId) {
+        sessionStorage.removeItem('editingResumeId');
+      }
+      // Clear draft when creating new resume (unless coming from prefill/upload)
+      if (!prefillKey) {
+        sessionStorage.removeItem('create-resume-draft');
+        draftRestoredRef.current = true; // Mark as restored to prevent auto-save from running
+        return; // Exit early, don't restore any data
+      }
+    }
     
     try {
       const savedDraft = sessionStorage.getItem('create-resume-draft');
@@ -1075,7 +1106,7 @@ export default function CreateResumePage() {
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <Button
               variant="ghost"
-              onClick={() => router.push('/choice')}
+              onClick={() => router.back()}
               className="text-muted-foreground hover:text-foreground shrink-0"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
@@ -1083,7 +1114,9 @@ export default function CreateResumePage() {
             </Button>
             <div className="h-8 w-px bg-border shrink-0"></div>
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-foreground truncate">Create Resume</h1>
+              <h1 className="text-2xl font-bold text-foreground truncate">
+                {isEditMode ? 'Edit Resume' : 'Create Resume'}
+              </h1>
               <p className="text-sm text-muted-foreground truncate">
                 Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
               </p>
@@ -1132,12 +1165,12 @@ export default function CreateResumePage() {
               {saving ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
-                  Saving...
+                  {isEditMode ? 'Updating...' : 'Saving...'}
                 </>
               ) : (
                 <>
                   <Save className="w-4 h-4" />
-                  Save Resume
+                  {isEditMode ? 'Update Resume' : 'Save Resume'}
                 </>
               )}
             </Button>
@@ -1151,7 +1184,7 @@ export default function CreateResumePage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push('/choice')}
+                onClick={() => router.back()}
                 className="text-muted-foreground hover:text-foreground shrink-0"
               >
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
@@ -1159,7 +1192,9 @@ export default function CreateResumePage() {
               </Button>
               <div className="h-6 sm:h-8 w-px bg-border shrink-0"></div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-base sm:text-lg font-bold text-foreground truncate">Create Resume</h1>
+                <h1 className="text-base sm:text-lg font-bold text-foreground truncate">
+                  {isEditMode ? 'Edit Resume' : 'Create Resume'}
+                </h1>
                 <p className="text-xs text-muted-foreground truncate">
                   Step {currentStep + 1}: {steps[currentStep].title}
                 </p>
@@ -1184,12 +1219,12 @@ export default function CreateResumePage() {
                 {saving ? (
                   <>
                     <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-current" />
-                    <span className="hidden sm:inline">Saving...</span>
+                    <span className="hidden sm:inline">{isEditMode ? 'Updating...' : 'Saving...'}</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">Save</span>
+                    <span className="hidden sm:inline">{isEditMode ? 'Update' : 'Save'}</span>
                   </>
                 )}
               </Button>
@@ -1399,12 +1434,12 @@ export default function CreateResumePage() {
                   {saving ? (
                     <>
                       <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-current mr-1 sm:mr-2" />
-                      Saving...
+                      {isEditMode ? 'Updating...' : 'Saving...'}
                     </>
                   ) : (
                     <>
                       <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                      Save Resume
+                      {isEditMode ? 'Update Resume' : 'Save Resume'}
                     </>
                   )}
                 </Button>

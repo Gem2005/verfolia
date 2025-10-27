@@ -273,10 +273,18 @@ export function UploadedFilesManager() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Uploads</CardTitle>
-          <CardDescription>Loading...</CardDescription>
+      <Card className="bg-background/80 backdrop-blur-sm border-border/50">
+        <CardHeader className="pb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-foreground text-lg sm:text-xl mb-2">
+                Your Uploaded Resumes
+              </CardTitle>
+              <CardDescription className="text-muted-foreground text-sm sm:text-base">
+                Loading your files...
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -288,28 +296,33 @@ export function UploadedFilesManager() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Recent Uploads</CardTitle>
-            <CardDescription>
+    <Card className="bg-background/80 backdrop-blur-sm border-border/50">
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div className="flex-1">
+            <CardTitle className="text-foreground text-lg sm:text-xl mb-2">
+              Your Uploaded Resumes
+            </CardTitle>
+            <CardDescription className="text-muted-foreground text-sm sm:text-base">
               {files.length === 0
-                ? 'No uploaded files yet'
+                ? 'No uploaded files yet. Upload a resume to get started.'
                 : stats
                 ? `${stats.total} file${stats.total !== 1 ? 's' : ''} (${stats.used} used, ${stats.unused} available) • ${formatTotalSize(stats.totalSize)} total`
                 : `${files.length} file${files.length !== 1 ? 's' : ''}`}
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchFiles}
-            disabled={loading}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
+          {files.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchFiles}
+              disabled={loading}
+              className="shrink-0"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
@@ -323,15 +336,15 @@ export function UploadedFilesManager() {
             {files.map((file) => (
               <div
                 key={file.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border rounded-lg hover:bg-accent transition-colors gap-3"
               >
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <FileText className="w-10 h-10 text-muted-foreground flex-shrink-0" />
+                <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                  <FileText className="w-8 h-8 sm:w-10 sm:h-10 text-muted-foreground flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate" title={file.original_filename}>
+                    <p className="font-medium truncate text-sm sm:text-base" title={file.original_filename}>
                       {file.original_filename}
                     </p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1 flex-wrap">
+                    <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground mt-1 flex-wrap">
                       <span>{formatFileSize(file.file_size_bytes)}</span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
@@ -342,15 +355,20 @@ export function UploadedFilesManager() {
                       {file.is_used && (
                         <span className="flex items-center gap-1 text-green-600 font-medium">
                           <FileCheck className="w-3 h-3" />
-                          Used in resume
+                          <span className="hidden xs:inline">Used in resume</span>
+                          <span className="xs:hidden">Used</span>
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex items-center gap-2 sm:ml-4 w-full sm:w-auto">
                   {!file.is_used && (
-                    <Button onClick={() => handleUseFile(file)} size="sm">
+                    <Button 
+                      onClick={() => handleUseFile(file)} 
+                      size="sm"
+                      className="flex-1 sm:flex-initial"
+                    >
                       Use This File
                     </Button>
                   )}

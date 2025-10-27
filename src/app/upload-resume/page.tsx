@@ -350,65 +350,76 @@ export default function UploadResumePage() {
   };
 
   return (
-    <div className="bg-background min-h-screen">
-      <div className="container mx-auto max-w-4xl py-10">
-        <div className="mb-8">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/10">
+      {/* Subtle Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-4xl relative z-10">
+        <div className="mb-6 sm:mb-8">
           <Button 
             variant="outline" 
             onClick={() => router.back()}
-            className="mb-4 "
+            className="mb-4 sm:mb-6"
             disabled={uploadStatus === 'uploading' || uploadStatus === 'parsing'}
+            size="default"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold mb-2 text-bg-background">Upload Your Resume</h1>
-          <p className="text-text-muted-foreground">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground">
+            Upload Your Resume
+          </h1>
+          <p className="text-base sm:text-lg text-muted-foreground">
             Upload your existing resume and we&apos;ll help you create a modern, shareable profile.
           </p>
         </div>
 
         {loading ? (
-          <Card className="bg-card">
-            <CardContent className="py-12">
+          <Card className="bg-background/80 backdrop-blur-sm border-border/50">
+            <CardContent className="py-12 sm:py-16">
               <div className="flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-text-primary" />
-                <p className="text-text-muted-foreground">Loading...</p>
+                <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin text-primary" />
+                <p className="text-muted-foreground">Loading...</p>
               </div>
             </CardContent>
           </Card>
         ) : !user ? (
-          <Card className="bg-card">
-            <CardHeader>
-              <CardTitle className="text-bg-background">Sign In to Upload Your Resume</CardTitle>
-              <CardDescription className="text-text-muted-foreground">
+          <Card className="bg-background/80 backdrop-blur-sm border-border/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-foreground text-xl sm:text-2xl">
+                Sign In to Upload Your Resume
+              </CardTitle>
+              <CardDescription className="text-muted-foreground text-sm sm:text-base">
                 Sign in to upload and automatically parse your resume with AI
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="rounded-lg border border-border bg-white/5 p-6">
-                <div className="flex items-start gap-4">
-                  <div className="rounded-full bg-text-primary/20 p-3">
-                    <Upload className="w-6 h-6 text-text-primary" />
+              <div className="rounded-lg border border-border/50 bg-muted/20 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-start gap-4">
+                  <div className="rounded-full bg-primary/10 p-3 shrink-0">
+                    <Upload className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-bg-background mb-2">
+                    <h3 className="font-semibold text-foreground mb-2 text-base sm:text-lg">
                       AI-Powered Resume Parsing
                     </h3>
-                    <p className="text-sm text-text-muted-foreground mb-4">
+                    <p className="text-sm sm:text-base text-muted-foreground mb-4 leading-relaxed">
                       Our AI will automatically extract your information from PDF, DOCX, or DOC files and create a beautiful, modern resume.
                     </p>
-                    <ul className="space-y-2 text-sm text-text-muted-foreground">
+                    <ul className="space-y-2 text-sm sm:text-base text-muted-foreground">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                         Extract all your experience, education, and skills
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                         Save your resume to your account
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                         Edit and customize with ease
                       </li>
                     </ul>
@@ -416,23 +427,25 @@ export default function UploadResumePage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Button 
                   onClick={() => router.push('/login?returnTo=/upload-resume')}
-                  className="flex-1 bg-text-primary hover:bg-text-primary/80 text-white"
+                  className="flex-1 bg-primary hover:bg-primary/90 border border-primary"
+                  size="lg"
                 >
                   Sign In to Upload
                 </Button>
                 <Button 
                   onClick={() => router.push('/create-resume')}
                   variant="outline"
-                  className="flex-1 "
+                  className="flex-1"
+                  size="lg"
                 >
                   Build from Scratch
                 </Button>
               </div>
 
-              <p className="text-xs text-center text-text-muted-foreground">
+              <p className="text-xs sm:text-sm text-center text-muted-foreground">
                 Don&apos;t have an account?{' '}
                 <a 
                   href="/login?returnTo=/upload-resume" 
@@ -448,59 +461,51 @@ export default function UploadResumePage() {
             {/* Tabs for Existing vs Upload New */}
             {hasExistingFiles !== null && (
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "existing" | "upload")} className="w-full">
-                <TabsList className="card-enhanced grid w-full grid-cols-2 h-12 p-1 bg-muted/50 border border-border">
+                <TabsList className="grid w-full grid-cols-2 h-11 sm:h-12 p-1 bg-muted/30 backdrop-blur-sm border border-border/50">
                   <TabsTrigger 
                     value="existing" 
-                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:shadow-sm text-sm sm:text-base"
                   >
-                    <FileText className="w-4 h-4 mr-2" />
-                    Use Existing
+                    <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline">Use Existing</span>
+                    <span className="xs:hidden">Existing</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="upload" 
-                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:shadow-sm text-sm sm:text-base"
                   >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Upload New
+                    <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline">Upload New</span>
+                    <span className="xs:hidden">Upload</span>
                   </TabsTrigger>
                 </TabsList>
 
                 {/* Existing Files Tab Content */}
-                <TabsContent value="existing" className="mt-6">
-                  <Card className="card-enhanced border border-border shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-bg-background">Your Uploaded Resumes</CardTitle>
-                      <CardDescription className="text-text-muted-foreground">
-                        Select a previously uploaded resume to use
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div id="uploaded-files-section">
-                        <UploadedFilesManager />
-                      </div>
-                    </CardContent>
-                  </Card>
+                <TabsContent value="existing" className="mt-4 sm:mt-6">
+                  <UploadedFilesManager />
                 </TabsContent>
 
                 {/* Upload New Tab Content */}
-                <TabsContent value="upload" className="mt-6">
-                  <Card className="card-enhanced border border-border shadow-lg">
-                    <CardHeader>
-                      <CardTitle className="text-bg-background">Upload Resume</CardTitle>
-                      <CardDescription className="text-text-muted-foreground">
+                <TabsContent value="upload" className="mt-4 sm:mt-6">
+                  <Card className="bg-background/80 backdrop-blur-sm border-border/50">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-foreground text-lg sm:text-xl">
+                        Upload Resume
+                      </CardTitle>
+                      <CardDescription className="text-muted-foreground text-sm sm:text-base">
                         Supports PDF, DOCX, and DOC files up to 10MB
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
             <div
-              className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+              className={`border-2 border-dashed rounded-lg p-8 sm:p-12 text-center transition-colors ${
                 isDragging 
-                  ? 'border-text-primary/70 bg-white/10' 
+                  ? 'border-primary/70 bg-primary/5' 
                   : uploadStatus === 'error'
                   ? 'border-red-500/50 bg-red-500/5'
                   : uploadStatus === 'success'
                   ? 'border-green-500/50 bg-green-500/5'
-                  : 'border-white/20 hover:border-text-primary/50'
+                  : 'border-border/50 hover:border-primary/50 bg-muted/10'
               } ${(uploadStatus === 'uploading' || uploadStatus === 'parsing') ? 'pointer-events-none' : ''}`}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -514,57 +519,59 @@ export default function UploadResumePage() {
             >
               {uploadStatus === 'uploading' || uploadStatus === 'parsing' ? (
                 <div className="space-y-4">
-                  <Loader2 className="w-12 h-12 text-text-primary mx-auto animate-spin" />
+                  <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto animate-spin" />
                   <div className="space-y-2">
-                    <p className="text-lg font-medium text-bg-background">
+                    <p className="text-base sm:text-lg font-medium text-foreground">
                       {uploadStatus === 'uploading' ? 'Uploading...' : 'Parsing resume...'}
                     </p>
-                    <p className="text-sm text-text-muted-foreground">
+                    <p className="text-sm text-muted-foreground px-4">
                       {fileName}
                     </p>
                   </div>
-                  <div className="max-w-xs mx-auto">
+                  <div className="max-w-xs mx-auto px-4">
                     <Progress value={progress} className="h-2" />
-                    <p className="text-xs text-text-muted-foreground mt-2">{progress}% complete</p>
+                    <p className="text-xs text-muted-foreground mt-2">{progress}% complete</p>
                   </div>
                 </div>
               ) : uploadStatus === 'success' ? (
                 <div className="space-y-4">
-                  <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
+                  <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-green-500 mx-auto" />
                   <div>
-                    <p className="text-lg font-medium text-bg-background">Resume parsed successfully!</p>
-                    <p className="text-sm text-text-muted-foreground mt-1">Redirecting to editor...</p>
+                    <p className="text-base sm:text-lg font-medium text-foreground">
+                      Resume parsed successfully!
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">Redirecting to editor...</p>
                   </div>
                 </div>
               ) : uploadStatus === 'error' ? (
                 <div className="space-y-4">
-                  <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
+                  <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto" />
                   <div>
-                    <p className="text-lg font-medium text-bg-background">Upload failed</p>
-                    <p className="text-sm text-text-muted-foreground mt-1">Please try again</p>
+                    <p className="text-base sm:text-lg font-medium text-foreground">Upload failed</p>
+                    <p className="text-sm text-muted-foreground mt-1">Please try again</p>
                   </div>
                   <Button
                     variant="outline"
-                    className=""
                     onClick={() => {
                       setUploadStatus('idle');
                       setProgress(0);
                       setFileName('');
                     }}
+                    size="default"
                   >
                     Try Again
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center bg-white/10">
-                    <Upload className="w-8 h-8 text-text-primary" />
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center bg-primary/10">
+                    <Upload className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-bg-background">
+                  <div className="px-4">
+                    <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">
                       Drag and drop your resume here
                     </h3>
-                    <p className="text-text-muted-foreground mb-4">
+                    <p className="text-sm sm:text-base text-muted-foreground mb-4">
                       or click to browse files
                     </p>
                     <input
@@ -577,14 +584,15 @@ export default function UploadResumePage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="cursor-pointer "
+                      className="cursor-pointer"
                       onClick={() => fileInputRef.current?.click()}
+                      size="default"
                     >
                       <FileText className="w-4 h-4 mr-2" />
                       Choose File
                     </Button>
                   </div>
-                  <p className="text-xs text-text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground px-4">
                     Supported formats: PDF, DOCX, DOC • Max size: 10MB
                   </p>
                 </div>
@@ -599,8 +607,8 @@ export default function UploadResumePage() {
         )}
 
         {user && (
-          <Card className="bg-card mt-8">
-            <CardHeader>
+          <Card className="bg-background/80 backdrop-blur-sm border-border/50 mt-6 sm:mt-8">
+            <CardHeader className="pb-4">
               <CardTitle className="text-lg text-bg-background">What happens next?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

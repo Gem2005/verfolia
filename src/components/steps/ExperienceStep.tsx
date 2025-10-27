@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MonthPicker } from "@/components/ui/date-picker";
 import { Briefcase, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
-import { formatDateToInput } from "@/utils/date-utils";
 
 interface ExperienceStepProps {
   resumeData: ResumeData;
@@ -151,11 +151,10 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                   <Label className="text-sm font-medium">
                     Start Date <span className="text-red-500">*</span>
                   </Label>
-                  <Input
-                    type="month"
-                    value={formatDateToInput(exp.startDate)}
-                    onChange={(e) => updateExperienceField(exp.id, "startDate", e.target.value)}
-                    className={`h-10 ${validationErrors[`experience_${exp.id}_startDate`] ? "border-red-500" : ""}`}
+                  <MonthPicker
+                    value={exp.startDate}
+                    onChange={(value) => updateExperienceField(exp.id, "startDate", value)}
+                    error={!!validationErrors[`experience_${exp.id}_startDate`]}
                   />
                   {validationErrors[`experience_${exp.id}_startDate`] && (
                     <p className="text-xs text-red-500">{validationErrors[`experience_${exp.id}_startDate`]}</p>
@@ -178,11 +177,10 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                       <Label className="text-sm font-medium">
                         End Date <span className="text-red-500">*</span>
                       </Label>
-                      <Input
-                        type="month"
-                        value={formatDateToInput(exp.endDate || "")}
-                        onChange={(e) => updateExperienceField(exp.id, "endDate", e.target.value)}
-                        className={`h-10 ${validationErrors[`experience_${exp.id}_endDate`] ? "border-red-500" : ""}`}
+                      <MonthPicker
+                        value={exp.endDate || ""}
+                        onChange={(value) => updateExperienceField(exp.id, "endDate", value)}
+                        error={!!validationErrors[`experience_${exp.id}_endDate`]}
                       />
                       {validationErrors[`experience_${exp.id}_endDate`] && (
                         <p className="text-xs text-red-500">{validationErrors[`experience_${exp.id}_endDate`]}</p>
