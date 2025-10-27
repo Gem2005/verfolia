@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { MonthPicker } from "@/components/ui/date-picker";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Award, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
 
@@ -335,7 +335,7 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                   <Label className="text-sm font-medium">
                     Date
                   </Label>
-                  <MonthPicker
+                  <MonthYearPicker
                     value={cert.date}
                     onChange={(value) => updateCertificationField(cert.id, "date", value)}
                   />

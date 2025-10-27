@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MonthPicker } from "@/components/ui/date-picker";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { GraduationCap, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
 
@@ -145,7 +145,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Start Date</Label>
-                  <MonthPicker
+                  <MonthYearPicker
                     value={edu.startDate}
                     onChange={(value) => updateEducationField(edu.id, "startDate", value)}
                   />
@@ -153,7 +153,7 @@ export const EducationStep: React.FC<EducationStepProps> = ({
                 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">End Date</Label>
-                  <MonthPicker
+                  <MonthYearPicker
                     value={edu.endDate}
                     onChange={(value) => updateEducationField(edu.id, "endDate", value)}
                     error={!!validationErrors[`education_${edu.id}_endDate`]}

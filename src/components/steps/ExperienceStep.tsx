@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MonthPicker } from "@/components/ui/date-picker";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Briefcase, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
 
@@ -151,7 +151,7 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                   <Label className="text-sm font-medium">
                     Start Date <span className="text-red-500">*</span>
                   </Label>
-                  <MonthPicker
+                  <MonthYearPicker
                     value={exp.startDate}
                     onChange={(value) => updateExperienceField(exp.id, "startDate", value)}
                     error={!!validationErrors[`experience_${exp.id}_startDate`]}
@@ -177,7 +177,7 @@ export const ExperienceStep: React.FC<ExperienceStepProps> = ({
                       <Label className="text-sm font-medium">
                         End Date <span className="text-red-500">*</span>
                       </Label>
-                      <MonthPicker
+                      <MonthYearPicker
                         value={exp.endDate || ""}
                         onChange={(value) => updateExperienceField(exp.id, "endDate", value)}
                         error={!!validationErrors[`experience_${exp.id}_endDate`]}

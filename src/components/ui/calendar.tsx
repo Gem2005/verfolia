@@ -602,13 +602,17 @@ function Calendar(props: CalendarProps) {
   return (
     <div
       className={cn(
-        "bg-background/95 backdrop-blur-md text-foreground group/calendar p-3 border border-border rounded-md shadow-lg",
+        "bg-background/95 text-foreground group/calendar p-3 border border-border rounded-md shadow-lg",
         animate && "transition-all",
         numberOfMonths > 1 && "flex flex-col gap-4 sm:flex-row",
         className
       )}
       dir={dir}
       data-calendar-container
+      style={{
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
       {...restProps}
     >
       {Array.from({ length: numberOfMonths }, (_, monthIndex) => {
@@ -657,7 +661,13 @@ function Calendar(props: CalendarProps) {
             </div>
 
             {showMonthPicker && (
-              <div className="absolute top-10 bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border border-border rounded-lg shadow-lg">
+              <div 
+                className="absolute top-10 bottom-0 left-0 right-0 z-40 bg-background/95 border border-border rounded-lg shadow-lg"
+                style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                }}
+              >
                 <div className="p-4 h-full overflow-y-auto flex justify-center">
                   <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
                     {months.map((month, index) => (
@@ -681,7 +691,13 @@ function Calendar(props: CalendarProps) {
             )}
 
             {showYearPicker && (
-              <div className="absolute top-10 bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border border-border rounded-lg shadow-lg">
+              <div 
+                className="absolute top-10 bottom-0 left-0 right-0 z-40 bg-background/95 border border-border rounded-lg shadow-lg"
+                style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                }}
+              >
                 <div className="p-4 h-full overflow-y-auto">
                   <div className="grid grid-cols-4 gap-2">
                     {generateYears().map((year) => (
