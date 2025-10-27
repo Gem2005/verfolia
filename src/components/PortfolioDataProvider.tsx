@@ -1,20 +1,25 @@
 import type { PortfolioData } from "@/types/PortfolioTypes";
 import type { ResumeData } from "@/types/ResumeData";
 
-export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
+export const getPortfolioData = (
+  resumeData: ResumeData,
+  showSampleData: boolean = true // Default to true for backward compatibility
+): PortfolioData => ({
   personalInfo: {
-    firstName: resumeData.personalInfo.firstName || "John",
-    lastName: resumeData.personalInfo.lastName || "Doe",
-    title: resumeData.personalInfo.title || "Software Developer",
-    email: resumeData.personalInfo.email || "john@example.com",
-    phone: resumeData.personalInfo.phone || "+1 (555) 123-4567",
-    location: resumeData.personalInfo.location || "San Francisco, CA",
+    firstName: resumeData.personalInfo.firstName || (showSampleData ? "John" : ""),
+    lastName: resumeData.personalInfo.lastName || (showSampleData ? "Doe" : ""),
+    title: resumeData.personalInfo.title || (showSampleData ? "Software Developer" : ""),
+    email: resumeData.personalInfo.email || (showSampleData ? "john@example.com" : ""),
+    phone: resumeData.personalInfo.phone || (showSampleData ? "+1 (555) 123-4567" : ""),
+    location: resumeData.personalInfo.location || (showSampleData ? "San Francisco, CA" : ""),
     about:
       resumeData.personalInfo.summary ||
-      "Experienced professional with a proven track record of delivering high-quality solutions and driving innovation. Passionate about leveraging technology to solve complex problems and create meaningful impact. Strong collaborative skills with expertise in modern development practices and a commitment to continuous learning and growth.",
+      (showSampleData
+        ? "Experienced professional with a proven track record of delivering high-quality solutions and driving innovation. Passionate about leveraging technology to solve complex problems and create meaningful impact. Strong collaborative skills with expertise in modern development practices and a commitment to continuous learning and growth."
+        : ""),
     photo:
       resumeData.personalInfo.photo ||
-      "https://cdn-icons-png.flaticon.com/512/1999/1999625.png",
+      (showSampleData ? "https://cdn-icons-png.flaticon.com/512/1999/1999625.png" : ""),
     social: {
       github: resumeData.personalInfo.githubUrl || "",
       twitter: "",
@@ -34,7 +39,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           description: exp.description,
           location: exp.location,
         }))
-      : [
+      : showSampleData
+      ? [
           {
             id: "exp-1",
             position: "Senior Software Engineer",
@@ -57,11 +63,13 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
               "Developed and maintained full-stack applications using React, Node.js, and PostgreSQL. Participated in agile development processes and contributed to system architecture decisions. Improved application performance by 40% through code optimization.",
             location: "New York, NY",
           },
-        ],
+        ]
+      : [],
   skills:
     resumeData.skills.length > 0
       ? resumeData.skills
-      : [
+      : showSampleData
+      ? [
           "JavaScript",
           "TypeScript",
           "React",
@@ -77,7 +85,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           "Agile/Scrum",
           "Problem Solving",
           "Team Leadership",
-        ],
+        ]
+      : [],
   education:
     resumeData.education.length > 0
       ? resumeData.education.map((edu) => ({
@@ -90,7 +99,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           cgpa: edu.gpa || "",
           location: edu.location,
         }))
-      : [
+      : showSampleData
+      ? [
           {
             id: "edu-1",
             institution: "University of Technology",
@@ -101,7 +111,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
             cgpa: "3.8",
             location: "Boston, MA",
           },
-        ],
+        ]
+      : [],
   projects:
     resumeData.projects.length > 0
       ? resumeData.projects.map((proj) => ({
@@ -112,7 +123,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           sourceUrl: proj.sourceUrl || "",
           demoUrl: proj.demoUrl || "",
         }))
-      : [
+      : showSampleData
+      ? [
           {
             id: "proj-1",
             name: "E-Commerce Platform",
@@ -143,7 +155,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
             sourceUrl: "https://github.com/johndoe/task-manager",
             demoUrl: "https://tasks.johndoe.dev",
           },
-        ],
+        ]
+      : [],
   blogs: [], // Not used in resume context
   certifications:
     resumeData.certifications.length > 0
@@ -154,7 +167,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           date: cert.date || "",
           url: cert.url || "",
         }))
-      : [
+      : showSampleData
+      ? [
           {
             id: "cert-1",
             title: "AWS Certified Solutions Architect",
@@ -169,7 +183,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
             date: "2022-11",
             url: "https://scrum.org/professional-scrum-certifications",
           },
-        ],
+        ]
+      : [],
   languages:
     resumeData.languages.length > 0
       ? resumeData.languages.map((lang) => ({
@@ -189,7 +204,8 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
   interests:
     resumeData.customSections.length > 0
       ? resumeData.customSections.map((section) => section.title)
-      : [
+      : showSampleData
+      ? [
           "Open Source Contributions",
           "Machine Learning",
           "Cloud Architecture",
@@ -198,5 +214,6 @@ export const getPortfolioData = (resumeData: ResumeData): PortfolioData => ({
           "Tech Blogging",
           "Mentoring",
           "Innovation",
-        ],
+        ]
+      : [],
 });

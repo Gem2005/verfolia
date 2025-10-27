@@ -48,8 +48,39 @@ export default function CreateResumePage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showChoice, setShowChoice] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const prefillLoadedRef = useRef(false); // Track if prefill data has been loaded
   const draftRestoredRef = useRef(false); // Track if draft has been restored
+
+  // Helper function to check if resumeData is completely empty (user hasn't filled anything)
+  const isResumeDataEmpty = (data: ResumeData): boolean => {
+    const { personalInfo, experience, education, skills, projects, certifications, languages } = data;
+    
+    // Check if personal info is empty
+    const isPersonalInfoEmpty = 
+      !personalInfo.firstName &&
+      !personalInfo.lastName &&
+      !personalInfo.email &&
+      !personalInfo.phone &&
+      !personalInfo.location &&
+      !personalInfo.summary &&
+      !personalInfo.title &&
+      !personalInfo.photo &&
+      !personalInfo.linkedinUrl &&
+      !personalInfo.githubUrl;
+    
+    // Check if all arrays are empty
+    const areArraysEmpty = 
+      experience.length === 0 &&
+      education.length === 0 &&
+      skills.length === 0 &&
+      projects.length === 0 &&
+      certifications.length === 0 &&
+      languages.length === 0;
+    
+    return isPersonalInfoEmpty && areArraysEmpty;
+  };
+
   const [uploadedFileData, setUploadedFileData] = useState<{
     id?: string; // ID from uploaded_resume_files table
     filePath: string;
@@ -516,6 +547,25 @@ export default function CreateResumePage() {
     }
   }, [resumeData, resumeTitle, selectedTemplate, selectedTheme, currentStep, uploadedFileData]);
 
+  // Track when user starts interacting with the form
+  useEffect(() => {
+    // Skip if already marked as interacted
+    if (hasUserInteracted) return;
+    
+    // Skip if we're in edit mode or prefill mode (user already has data)
+    if (isEditMode || prefillLoadedRef.current) {
+      setHasUserInteracted(true);
+      return;
+    }
+    
+    // Check if user has filled any data
+    const hasFilledData = !isResumeDataEmpty(resumeData);
+    
+    if (hasFilledData) {
+      setHasUserInteracted(true);
+    }
+  }, [resumeData, hasUserInteracted, isEditMode]);
+
   const validatePersonalInfo = useCallback(() => {
     const errors: { [key: string]: string } = {};
     if (!resumeTitle.trim()) errors.resumeTitle = "Resume title is required";
@@ -525,7 +575,7 @@ export default function CreateResumePage() {
     if (!validateEmail(resumeData.personalInfo.email)) errors.email = "Please enter a valid email address";
     if (resumeData.personalInfo.phone.trim() && !validatePhone(resumeData.personalInfo.phone)) errors.phone = "Please enter a valid phone number";
     if (!resumeData.personalInfo.title.trim()) errors.title = "Current designation is required";
-    if (resumeData.personalInfo.summary.trim() && !validateWordCount(resumeData.personalInfo.summary, 20, 100)) errors.summary = "Summary should be between 20 and 100 words";
+    // Word count suggestion removed - no restriction
     if (resumeData.personalInfo.linkedinUrl && !validateUrl(resumeData.personalInfo.linkedinUrl)) errors.linkedinUrl = "LinkedIn URL must start with https://";
     if (resumeData.personalInfo.githubUrl && !validateUrl(resumeData.personalInfo.githubUrl)) errors.githubUrl = "GitHub URL must start with https://";
     return { errors, isValid: Object.keys(errors).length === 0 };
@@ -544,7 +594,7 @@ export default function CreateResumePage() {
       if (!exp.isPresent && !exp.endDate?.trim()) errors[`${prefix}_endDate`] = "End date is required";
       if (exp.startDate && exp.endDate && !exp.isPresent && !validateDateRange(exp.startDate, exp.endDate)) errors[`${prefix}_endDate`] = "End date must be after start date";
       if (!exp.description.trim()) errors[`${prefix}_description`] = "Job description is required";
-      else if (!validateWordCount(exp.description, 20, 100)) errors[`${prefix}_description`] = "Description should be between 20 and 100 words";
+      // Word count suggestion removed - no restriction
     });
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.experience]);
@@ -567,7 +617,7 @@ export default function CreateResumePage() {
       const prefix = `project_${proj.id}`;
       if (!proj.name.trim()) errors[`${prefix}_name`] = "Project name is required";
       if (!proj.description.trim()) errors[`${prefix}_description`] = "Project description is required";
-      else if (!validateWordCount(proj.description, 20, 100)) errors[`${prefix}_description`] = "Description should be between 20 and 100 words";
+      // Word count suggestion removed - no restriction
       if (!proj.techStack || proj.techStack.length === 0) errors[`${prefix}_techStack`] = "At least one technology is required";
       if (proj.sourceUrl && !validateUrl(proj.sourceUrl)) errors[`${prefix}_sourceUrl`] = "Source URL must start with https://";
       if (proj.demoUrl && !validateUrl(proj.demoUrl)) errors[`${prefix}_demoUrl`] = "Demo URL must start with https://";
@@ -753,7 +803,7 @@ export default function CreateResumePage() {
 
     const templateProps = {
       preview: true,
-      data: getPortfolioData(resumeData),
+      data: getPortfolioData(resumeData, !hasUserInteracted),
       theme: selectedTheme,
     };
 
@@ -1339,7 +1389,7 @@ export default function CreateResumePage() {
                     selectedTheme={selectedTheme}
                     onTemplateSelect={handleTemplateSelect}
                     onThemeSelect={handleThemeSelect}
-                    getPortfolioData={() => getPortfolioData(resumeData)}
+                    getPortfolioData={() => getPortfolioData(resumeData, !hasUserInteracted)}
                     previewTemplate={previewTemplate}
                     setPreviewTemplate={setPreviewTemplate}
                     isLoading={isTemplateLoading}
@@ -1562,7 +1612,7 @@ export default function CreateResumePage() {
                 {(() => {
                   const templateProps = {
                     preview: true as const,
-                    data: getPortfolioData(resumeData),
+                    data: getPortfolioData(resumeData, !hasUserInteracted),
                     theme: selectedTheme,
                   };
 
