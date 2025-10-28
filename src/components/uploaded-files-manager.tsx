@@ -3,6 +3,16 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { FileText, Trash2, Calendar, FileCheck, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -30,6 +40,8 @@ export function UploadedFilesManager() {
   const [stats, setStats] = useState<FileStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<{ id: string; filename: string } | null>(null);
 
   const fetchFiles = async () => {
     try {
@@ -56,19 +68,18 @@ export function UploadedFilesManager() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleDelete = async (fileId: string, filename: string) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${filename}"? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+  const openDeleteDialog = (fileId: string, filename: string) => {
+    setFileToDelete({ id: fileId, filename });
+    setDeleteDialogOpen(true);
+  };
 
-    setDeletingIds((prev) => new Set(prev).add(fileId));
+  const handleDelete = async () => {
+    if (!fileToDelete) return;
+
+    setDeletingIds((prev) => new Set(prev).add(fileToDelete.id));
 
     try {
-      const response = await fetch(`/api/uploaded-files/${fileId}`, {
+      const response = await fetch(`/api/uploaded-files/${fileToDelete.id}`, {
         method: 'DELETE',
       });
 
@@ -80,7 +91,7 @@ export function UploadedFilesManager() {
       toast.success('File deleted successfully');
 
       // Remove from local state
-      setFiles((prev) => prev.filter((f) => f.id !== fileId));
+      setFiles((prev) => prev.filter((f) => f.id !== fileToDelete.id));
       
       // Update stats
       if (stats) {
@@ -96,9 +107,11 @@ export function UploadedFilesManager() {
     } finally {
       setDeletingIds((prev) => {
         const next = new Set(prev);
-        next.delete(fileId);
+        next.delete(fileToDelete.id);
         return next;
       });
+      setDeleteDialogOpen(false);
+      setFileToDelete(null);
     }
   };
 
@@ -375,7 +388,7 @@ export function UploadedFilesManager() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleDelete(file.id, file.original_filename)}
+                    onClick={() => openDeleteDialog(file.id, file.original_filename)}
                     disabled={file.is_used || deletingIds.has(file.id)}
                     title={
                       file.is_used
@@ -396,6 +409,35 @@ export function UploadedFilesManager() {
           </div>
         )}
       </CardContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-white/95 dark:bg-[#2C3E50]/95 backdrop-blur-xl border-2 border-[#E74C3C]/30 dark:border-[#E74C3C]/50 shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold text-[#2C3E50] dark:text-[#ECF0F1] flex items-center gap-3">
+              <div className="p-3 rounded-full bg-[#E74C3C]/10 dark:bg-[#E74C3C]/20">
+                <Trash2 className="h-6 w-6 text-[#E74C3C]" />
+              </div>
+              Delete File
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-[#34495E] dark:text-[#ECF0F1]/80 leading-relaxed">
+              Are you sure you want to delete &ldquo;{fileToDelete?.filename}&rdquo;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3 pt-6">
+            <AlertDialogCancel className="rounded-xl border-2 border-[#ECF0F1]/70 dark:border-[#34495E]/50 bg-gradient-to-r from-[#ECF0F1]/50 to-[#34495E]/10 dark:from-[#34495E]/30 dark:to-[#2C3E50]/30 hover:from-[#ECF0F1]/70 hover:to-[#34495E]/20 dark:hover:from-[#34495E]/40 dark:hover:to-[#2C3E50]/40 text-[#2C3E50] dark:text-[#ECF0F1] font-semibold transition-all duration-300">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="rounded-xl bg-gradient-to-r from-[#E74C3C] to-[#C73A2B] hover:from-[#C73A2B] hover:to-[#A93226] text-white font-semibold shadow-lg shadow-[#E74C3C]/25 hover:shadow-xl hover:shadow-[#E74C3C]/30 transition-all duration-300"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete File
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

@@ -127,8 +127,8 @@ export default function Navbar() {
               ) : isAuthenticated ? (
                 // Show authenticated user options
                 <div className="hidden sm:flex items-center gap-2 lg:gap-3">
-                  <span className="text-xs lg:text-sm text-muted-foreground hidden md:block font-jakarta truncate max-w-[120px] lg:max-w-none">
-                    {user?.email}
+                  <span className="text-xs lg:text-sm text-foreground font-medium hidden md:block font-jakarta truncate max-w-[150px] lg:max-w-none">
+                    Hi, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}
                   </span>
                   <Button
                     variant="outline"
@@ -257,6 +257,9 @@ export default function Navbar() {
               
               {isAuthenticated ? (
                 <div className="space-y-3">
+                  <div className="text-sm font-medium text-foreground mb-2">
+                    Hi, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}!
+                  </div>
                   <Button
                     asChild
                     variant="default"
