@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { X, ArrowLeft, ArrowRight, Eye, Check, Save, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ArrowLeft, ArrowRight, Eye, Check, Save, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService, type Resume } from "@/services/resume-service";
 import { analyticsService } from "@/services/analytics-service";
@@ -1155,57 +1155,23 @@ export default function CreateResumePage() {
             <Button
               variant="ghost"
               onClick={() => router.back()}
-              className="text-muted-foreground hover:text-foreground shrink-0"
+              className="text-[#2C3E50] dark:text-[#ECF0F1] hover:text-[#3498DB] hover:bg-[#3498DB]/10 transition-all duration-300 shrink-0 font-semibold"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Back
             </Button>
-            <div className="h-8 w-px bg-border shrink-0"></div>
+            <div className="h-8 w-px bg-gradient-to-b from-[#3498DB]/50 to-transparent shrink-0"></div>
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold text-foreground truncate">
+              <h1 className="text-2xl font-bold text-[#2C3E50] dark:text-[#ECF0F1] truncate">
                 {isEditMode ? 'Edit Resume' : 'Create Resume'}
               </h1>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <Button
-              variant="outline"
-              onClick={() => {
-                try {
-                  const exportPayload = {
-                    title: resumeTitle || "My Resume",
-                    personalInfo: resumeData.personalInfo,
-                    experience: resumeData.experience,
-                    education: resumeData.education,
-                    skills: resumeData.skills,
-                    projects: resumeData.projects,
-                    certifications: resumeData.certifications,
-                    languages: resumeData.languages,
-                    customSections: resumeData.customSections,
-                    markdown,
-                  };
-                  const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
-                  const url = URL.createObjectURL(blob);
-                  const link = document.createElement('a');
-                  link.href = url;
-                  link.download = `resume-${Date.now()}.json`;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                  URL.revokeObjectURL(url);
-                } catch (e) {
-                  console.error('JSON export failed', e);
-                }
-              }}
-              className="gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Export
-            </Button>
-            <Button
               onClick={handleSave}
               disabled={saving}
-              className="gap-2 bg-primary hover:bg-primary/90 border border-primary"
+              className="gap-2 bg-gradient-to-r from-[#2C3E50] to-[#34495E] hover:from-[#34495E] hover:to-[#2C3E50] text-white border-none shadow-lg shadow-[#2C3E50]/20 hover:shadow-xl hover:shadow-[#2C3E50]/30 transition-all duration-300"
             >
               {saving ? (
                 <>
@@ -1230,17 +1196,17 @@ export default function CreateResumePage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => router.back()}
-                className="text-muted-foreground hover:text-foreground shrink-0"
+                className="text-[#2C3E50] dark:text-[#ECF0F1] hover:text-[#3498DB] hover:bg-[#3498DB]/10 transition-all duration-300 shrink-0 font-semibold"
               >
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
                 <span className="hidden sm:inline">Back</span>
               </Button>
-              <div className="h-6 sm:h-8 w-px bg-border shrink-0"></div>
+              <div className="h-6 sm:h-8 w-px bg-gradient-to-b from-[#3498DB]/50 to-transparent shrink-0"></div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-base sm:text-lg font-bold text-foreground truncate">
+                <h1 className="text-base sm:text-lg font-bold text-[#2C3E50] dark:text-[#ECF0F1] truncate">
                   {isEditMode ? 'Edit Resume' : 'Create Resume'}
                 </h1>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-xs text-[#34495E] dark:text-[#ECF0F1]/70 truncate">
                   Step {currentStep + 1}: {steps[currentStep].title}
                 </p>
               </div>
@@ -1250,7 +1216,7 @@ export default function CreateResumePage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFullPreview(true)}
-                className="gap-1"
+                className="gap-1 border-[#3498DB]/30 text-[#3498DB] hover:bg-[#3498DB]/10 hover:border-[#3498DB] transition-all duration-300"
               >
                 <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Preview</span>
@@ -1259,7 +1225,7 @@ export default function CreateResumePage() {
                 onClick={handleSave}
                 disabled={saving}
                 size="sm"
-                className="bg-primary hover:bg-primary/90 gap-1 border border-primary"
+                className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] hover:from-[#34495E] hover:to-[#2C3E50] text-white border-none shadow-md shadow-[#2C3E50]/20 hover:shadow-lg hover:shadow-[#2C3E50]/30 transition-all duration-300 gap-1"
               >
                 {saving ? (
                   <>
@@ -1282,23 +1248,23 @@ export default function CreateResumePage() {
           {/* Left Panel - Form/Steps */}
           <div className="flex flex-col h-full overflow-hidden order-2 lg:order-1">
             {/* Step Navigation Card - Consistent on Mobile and Desktop */}
-            <div className="flex-shrink-0 mb-4 bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-4">
+            <div className="flex-shrink-0 mb-4 bg-gradient-to-br from-[#ECF0F1] to-white dark:from-[#2C3E50] dark:to-[#34495E] backdrop-blur-sm border-2 border-[#3498DB]/20 rounded-2xl p-4 shadow-lg shadow-[#3498DB]/10">
               <div className="flex items-center justify-between gap-3 mb-3">
                 <Button
                   onClick={() => goToStep(currentStep - 1)}
                   disabled={currentStep === 0}
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 shrink-0 disabled:opacity-30"
+                  className="h-10 w-10 shrink-0 disabled:opacity-30 rounded-xl bg-white dark:bg-[#34495E] border border-[#3498DB]/20 hover:bg-[#3498DB]/10 hover:border-[#3498DB] transition-all duration-300 disabled:hover:bg-transparent"
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  <ChevronLeft className="w-5 h-5 text-[#2C3E50] dark:text-[#ECF0F1]" />
                 </Button>
                 
                 <div className="flex-1 text-center">
-                  <div className="text-sm font-semibold text-foreground">
+                  <div className="text-sm font-bold text-[#2C3E50] dark:text-[#ECF0F1]">
                     Step {currentStep + 1} of {steps.length}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
+                  <div className="text-xs text-[#34495E] dark:text-[#ECF0F1]/70 mt-0.5 font-medium">
                     {steps[currentStep].title}
                   </div>
                 </div>
@@ -1315,9 +1281,9 @@ export default function CreateResumePage() {
                   disabled={currentStep === steps.length - 1}
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 shrink-0 disabled:opacity-30"
+                  className="h-10 w-10 shrink-0 disabled:opacity-30 rounded-xl bg-white dark:bg-[#34495E] border border-[#3498DB]/20 hover:bg-[#3498DB]/10 hover:border-[#3498DB] transition-all duration-300 disabled:hover:bg-transparent"
                 >
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-5 h-5 text-[#2C3E50] dark:text-[#ECF0F1]" />
                 </Button>
               </div>
 
@@ -1326,17 +1292,17 @@ export default function CreateResumePage() {
                 <Progress 
                   value={((currentStep + 1) / steps.length) * 100}
                   variant="default"
-                  className="h-2"
+                  className="h-2.5"
                 />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Progress</span>
-                  <span className="font-semibold">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+                <div className="flex justify-between text-xs font-medium">
+                  <span className="text-[#2C3E50] dark:text-[#ECF0F1]">Progress</span>
+                  <span className="text-[#3498DB] font-bold">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
                 </div>
               </div>
             </div>
 
             {/* Form Content - Scrollable */}
-            <div className="flex-1 overflow-y-auto bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6">
+            <div className="flex-1 overflow-y-auto bg-gradient-to-br from-[#ECF0F1]/50 to-white/50 dark:from-[#2C3E50]/50 dark:to-[#34495E]/50 backdrop-blur-sm border-2 border-[#3498DB]/20 rounded-2xl p-4 sm:p-6 shadow-lg shadow-[#3498DB]/5">
               <div
                 className={`transition-all duration-300 ${
                   isTransitioning ? "opacity-0" : "opacity-100"
@@ -1411,7 +1377,7 @@ export default function CreateResumePage() {
                 onClick={() => goToStep(currentStep - 1)}
                 disabled={currentStep === 0}
                 variant="outline"
-                className="flex-1"
+                className="flex-1 border-2 border-[#3498DB]/30 text-[#2C3E50] dark:text-[#ECF0F1] hover:bg-[#3498DB]/10 hover:border-[#3498DB] disabled:opacity-50 disabled:hover:bg-transparent transition-all duration-300"
                 size="sm"
               >
                 <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
@@ -1427,7 +1393,7 @@ export default function CreateResumePage() {
                       setHasAttemptedNext(false);
                     }
                   }}
-                  className="flex-1 bg-primary hover:bg-primary/90 border border-primary"
+                  className="flex-1 bg-gradient-to-r from-[#3498DB] to-[#2980B9] hover:from-[#2980B9] hover:to-[#3498DB] text-white border-none shadow-lg shadow-[#3498DB]/30 hover:shadow-xl hover:shadow-[#3498DB]/40 transition-all duration-300"
                   size="sm"
                 >
                   Next
@@ -1437,7 +1403,7 @@ export default function CreateResumePage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving || !canProceedToNext}
-                  className="flex-1 bg-primary hover:bg-primary/90 border border-primary"
+                  className="flex-1 bg-gradient-to-r from-[#2C3E50] to-[#34495E] hover:from-[#34495E] hover:to-[#2C3E50] text-white border-none shadow-lg shadow-[#2C3E50]/30 hover:shadow-xl hover:shadow-[#2C3E50]/40 disabled:opacity-50 transition-all duration-300"
                   size="sm"
                 >
                   {saving ? (
@@ -1457,21 +1423,23 @@ export default function CreateResumePage() {
           </div>
 
           {/* Right Panel - Preview (Desktop only) */}
-          <div className="hidden lg:flex flex-col h-full overflow-hidden bg-gradient-to-br from-muted/30 to-muted/10 border border-border/50 rounded-xl p-4 xl:p-6 order-1 lg:order-2">
+          <div className="hidden lg:flex flex-col h-full overflow-hidden bg-gradient-to-br from-[#ECF0F1]/30 to-white/30 dark:from-[#2C3E50]/30 dark:to-[#34495E]/30 border-2 border-[#3498DB]/20 rounded-2xl p-4 xl:p-6 order-1 lg:order-2 shadow-xl shadow-[#3498DB]/10">
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 xl:w-3 xl:h-3 rounded-full bg-red-500"></div>
-                  <div className="w-2.5 h-2.5 xl:w-3 xl:h-3 rounded-full bg-yellow-500"></div>
-                  <div className="w-2.5 h-2.5 xl:w-3 xl:h-3 rounded-full bg-green-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#E74C3C] shadow-sm"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#F39C12] shadow-sm"></div>
+                  <div className="w-3 h-3 rounded-full bg-[#27AE60] shadow-sm"></div>
                 </div>
-                <h3 className="font-semibold text-sm xl:text-base text-foreground ml-2 xl:ml-4 truncate">{resumeTitle || "Resume Preview"}</h3>
+                <h3 className="font-bold text-sm xl:text-base text-[#2C3E50] dark:text-[#ECF0F1] ml-2 xl:ml-4 truncate">
+                  {resumeTitle || "Resume Preview"}
+                </h3>
               </div>
               <Button
                 onClick={() => setShowFullPreview(true)}
                 variant="outline"
                 size="sm"
-                className="gap-1 xl:gap-2 shrink-0"
+                className="gap-1 xl:gap-2 shrink-0 border-[#3498DB]/30 text-[#3498DB] hover:bg-[#3498DB]/10 hover:border-[#3498DB] transition-all duration-300"
               >
                 <Eye className="w-4 h-4" />
                 Full Screen
@@ -1479,10 +1447,10 @@ export default function CreateResumePage() {
             </div>
 
             {/* Preview Container */}
-            <div className="flex-1 overflow-auto bg-muted/30">
+            <div className="flex-1 overflow-auto bg-white/50 dark:bg-[#2C3E50]/20 rounded-xl border border-[#3498DB]/10">
               <div className="w-full h-full flex items-start justify-center p-4">
                 <div
-                  className="relative bg-background shadow-2xl w-full"
+                  className="relative bg-background shadow-2xl shadow-[#2C3E50]/20 w-full rounded-lg overflow-hidden border border-[#3498DB]/10"
                   style={
                     isTemplateLoading
                       ? {
@@ -1505,20 +1473,21 @@ export default function CreateResumePage() {
 
         {/* Full Screen Preview Modal */}
         {showFullPreview && (
-          <div className="fixed inset-0 bg-black z-50 flex flex-col">
+          <div className="fixed inset-0 bg-[#2C3E50]/95 backdrop-blur-sm z-50 flex flex-col">
             {/* Navigation Bar - Fixed on top with high z-index */}
-            <div className="flex-shrink-0 h-12 sm:h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 sm:px-6 relative z-50 shadow-sm">
-              <h2 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white truncate">
+            <div className="flex-shrink-0 h-12 sm:h-14 bg-gradient-to-r from-[#2C3E50] to-[#34495E] border-b-2 border-[#3498DB]/30 flex items-center justify-between px-4 sm:px-6 relative z-50 shadow-lg">
+              <h2 className="text-xs sm:text-sm font-bold text-white truncate flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#3498DB] animate-pulse"></div>
                 {resumeTitle || "Resume Preview"}
               </h2>
               
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400 hidden lg:block">Press ESC to close</span>
+                <span className="text-xs text-[#ECF0F1]/80 hidden lg:block">Press ESC to close</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowFullPreview(false)}
-                  className="h-9 w-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="h-9 w-9 p-0 hover:bg-[#E74C3C]/20 hover:text-[#E74C3C] text-white rounded-lg transition-all duration-300"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -1526,13 +1495,13 @@ export default function CreateResumePage() {
             </div>
 
             {/* Full Screen Preview Content - No constraints, just overflow scroll */}
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-[#2C3E50]/50 to-[#34495E]/50">
               <div className="min-h-full p-2 sm:p-4">
                 {isTemplateLoading ? (
                   <div className="w-full h-screen flex items-center justify-center">
                     <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-2 border-white mx-auto mb-4"></div>
-                      <p className="text-xs sm:text-sm text-gray-400">Loading template...</p>
+                      <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-[#3498DB] border-t-transparent mx-auto mb-4"></div>
+                      <p className="text-xs sm:text-sm text-white font-medium">Loading template...</p>
                     </div>
                   </div>
                 ) : (
@@ -1545,20 +1514,21 @@ export default function CreateResumePage() {
 
         {/* Template Preview Modal - Rendered at page level */}
         {previewTemplate && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex flex-col">
+          <div className="fixed inset-0 bg-[#2C3E50]/95 backdrop-blur-sm z-[100] flex flex-col">
             {/* Navigation Bar */}
-            <div className="flex-shrink-0 h-14 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6 relative z-50 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+            <div className="flex-shrink-0 h-14 bg-gradient-to-r from-[#2C3E50] to-[#34495E] border-b-2 border-[#3498DB]/30 flex items-center justify-between px-6 relative z-50 shadow-lg">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#3498DB] animate-pulse"></div>
                 {templates.find((t) => t.id === previewTemplate)?.name} Preview
               </h3>
               
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Press ESC to close</span>
+                <span className="text-xs text-[#ECF0F1]/80 hidden sm:block">Press ESC to close</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setPreviewTemplate(null)}
-                  className="h-9 w-9 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="h-9 w-9 p-0 hover:bg-[#E74C3C]/20 hover:text-[#E74C3C] text-white rounded-lg transition-all duration-300"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -1566,8 +1536,8 @@ export default function CreateResumePage() {
             </div>
 
             {/* Template Preview Content */}
-            <div className="flex-1 overflow-auto">
-              <div className="min-h-full">
+            <div className="flex-1 overflow-auto bg-gradient-to-br from-[#2C3E50]/50 to-[#34495E]/50">
+              <div className="min-h-full p-4">
                 {(() => {
                   const templateProps = {
                     preview: true as const,

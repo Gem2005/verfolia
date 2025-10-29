@@ -141,6 +141,29 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
         }`}
         onClick={() => onTemplateSelect(template.id)}
       >
+        {/* Title at the top with checkmark */}
+        <div className={`p-2 sm:p-2.5 border-b transition-all duration-200 ${
+          selectedTemplate === template.id
+            ? "bg-primary/5 border-primary/20"
+            : "bg-card border-border"
+        }`}>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className={`font-semibold text-xs sm:text-sm transition-colors ${
+              selectedTemplate === template.id
+                ? "text-primary"
+                : "text-foreground"
+            }`}>
+              {template.name}
+            </h3>
+            {selectedTemplate === template.id && (
+              <div className="bg-primary text-primary-foreground rounded-full p-1 shadow-md flex-shrink-0">
+                <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 stroke-[2.5]" />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Template preview */}
         <div className="aspect-[4/5] bg-muted/20 flex items-start justify-start p-1 sm:p-1.5 overflow-hidden">
           <div className="w-full h-full overflow-hidden rounded-lg bg-background shadow-sm relative">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -148,16 +171,6 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
             </div>
           </div>
         </div>
-        <div className="p-2 sm:p-3 border-t bg-card">
-          <h3 className="font-semibold text-center text-xs sm:text-sm">
-            {template.name}
-          </h3>
-        </div>
-        {selectedTemplate === template.id && (
-          <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 bg-primary text-primary-foreground rounded-full p-1 sm:p-1.5 shadow-sm">
-            <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-          </div>
-        )}
       </div>
     );
   };
