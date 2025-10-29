@@ -219,6 +219,72 @@ export default function Dashboard() {
     }
   };
 
+  const handleDownloadResume = async (resumeId: string) => {
+    try {
+      toast.loading("Generating PDF...");
+      
+      const response = await fetch(`/api/resumes/${resumeId}/download`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to download resume');
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Get filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'resume.pdf';
+      
+      if (contentDisposition) {
+        // Extract filename from header - handle both quoted and unquoted filenames
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(contentDisposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      }
+      
+      // Ensure the filename ends with .pdf
+      if (!filename.endsWith('.pdf')) {
+        filename = filename.replace(/\.pdf_?$/i, '') + '.pdf';
+      }
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.dismiss();
+      toast.success("Resume downloaded successfully!");
+    } catch (error) {
+      console.error("Error downloading resume:", error);
+      toast.dismiss();
+      toast.error(error instanceof Error ? error.message : "Failed to download resume");
+    }
+  };
+
+  const handleCopyShareLink = async (slug: string) => {
+    const shareUrl = `${window.location.origin}/resume/${slug}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Share link copied to clipboard!");
+    } catch (error) {
+      console.error("Error copying link:", error);
+      toast.error("Failed to copy link");
+    }
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -293,31 +359,6 @@ export default function Dashboard() {
                 </div>
                 
                 <div className="flex flex-wrap gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={loadResumes}
-                    disabled={loading}
-                    size="lg"
-                    className="rounded-2xl border-2 border-[#ECF0F1] dark:border-[#34495E] bg-white/80 dark:bg-[#2C3E50]/80 backdrop-blur-sm hover:bg-white dark:hover:bg-[#2C3E50] hover:border-[#3498DB]/50 dark:hover:border-[#3498DB]/50 shadow-sm hover:shadow-md transition-all duration-300 text-[#2C3E50] dark:text-[#ECF0F1]"
-                  >
-                    {loading ? (
-                      <>
-                        <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Refreshing...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Refresh
-                      </>
-                    )}
-                  </Button>
-                  
                   <Button 
                     asChild 
                     size="lg" 
@@ -344,10 +385,21 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Enhanced Stats Cards with Glassmorphism */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-              {/* Total Resumes Card */}
-              <Card className="relative overflow-hidden border-2 border-[#3498DB]/30 dark:border-[#3498DB]/50 bg-white/90 dark:bg-[#2C3E50]/90 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 group hover:scale-[1.02]">
+            {/* Analytics Section */}
+            <div className="mb-12">
+              <div className="mb-6">
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#2C3E50] via-[#34495E] to-[#3498DB] dark:from-[#ECF0F1] dark:via-[#3498DB] dark:to-[#E74C3C] bg-clip-text text-transparent mb-2">
+                  Analytics Overview
+                </h2>
+                <p className="text-sm sm:text-base text-[#34495E] dark:text-[#ECF0F1]/80">
+                  Track the performance of your resumes and gain insights into viewer engagement
+                </p>
+              </div>
+
+              {/* Enhanced Stats Cards with Glassmorphism */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Total Resumes Card */}
+                <Card className="relative overflow-hidden border-2 border-[#3498DB]/30 dark:border-[#3498DB]/50 bg-white/90 dark:bg-[#2C3E50]/90 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 group hover:scale-[1.02]">
                 <div className="absolute inset-0 bg-gradient-to-br from-[#3498DB]/10 via-[#E74C3C]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <CardHeader className="relative pb-2">
                   <div className="flex items-center justify-between mb-3">
@@ -482,7 +534,19 @@ export default function Dashboard() {
                   )}
                 </CardContent>
               </Card>
+              </div>
             </div>
+
+            {/* Resume Cards Section */}
+            <div>
+              <div className="mb-6">
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-[#2C3E50] via-[#34495E] to-[#3498DB] dark:from-[#ECF0F1] dark:via-[#3498DB] dark:to-[#E74C3C] bg-clip-text text-transparent mb-2">
+                  Your Resumes
+                </h2>
+                <p className="text-sm sm:text-base text-[#34495E] dark:text-[#ECF0F1]/80">
+                  Manage, edit, and share your professional resumes
+                </p>
+              </div>
 
             {/* Resume Grid */}
             {resumes.length === 0 ? (
@@ -620,19 +684,17 @@ export default function Dashboard() {
 
                       {/* Secondary Actions */}
                       <div className="grid grid-cols-2 gap-2.5">
-                        {resume.is_public && (
-                          <Button 
-                            asChild 
-                            variant="outline" 
-                            size="default" 
-                            className="rounded-xl border-2 border-[#3498DB]/30 dark:border-[#3498DB]/50 bg-gradient-to-r from-[#3498DB]/10 to-[#E74C3C]/10 dark:from-[#3498DB]/20 dark:to-[#E74C3C]/20 hover:from-[#3498DB]/20 hover:to-[#E74C3C]/20 dark:hover:from-[#3498DB]/30 dark:hover:to-[#E74C3C]/30 text-[#2C3E50] dark:text-[#ECF0F1] shadow-sm hover:shadow-md transition-all duration-300 font-semibold"
-                          >
-                            <Link href={`/resume/${resume.slug}`} target="_blank">
-                              <Globe className="h-4 w-4 mr-2" />
-                              View
-                            </Link>
-                          </Button>
-                        )}
+                        <Button 
+                          asChild 
+                          variant="outline" 
+                          size="default" 
+                          className="rounded-xl border-2 border-[#3498DB]/30 dark:border-[#3498DB]/50 bg-gradient-to-r from-[#3498DB]/10 to-[#E74C3C]/10 dark:from-[#3498DB]/20 dark:to-[#E74C3C]/20 hover:from-[#3498DB]/20 hover:to-[#E74C3C]/20 dark:hover:from-[#3498DB]/30 dark:hover:to-[#E74C3C]/30 text-[#2C3E50] dark:text-[#ECF0F1] shadow-sm hover:shadow-md transition-all duration-300 font-semibold"
+                        >
+                          <Link href={`/resume/${resume.slug}`} target="_blank">
+                            <Eye className="h-4 w-4 mr-2" />
+                            View
+                          </Link>
+                        </Button>
 
                         <Button
                           size="default"
@@ -644,8 +706,17 @@ export default function Dashboard() {
                               : "border-[#3498DB]/30 dark:border-[#3498DB]/50 bg-gradient-to-r from-[#3498DB]/10 to-[#E74C3C]/10 dark:from-[#3498DB]/20 dark:to-[#E74C3C]/20 hover:from-[#3498DB]/20 hover:to-[#E74C3C]/20 dark:hover:from-[#3498DB]/30 dark:hover:to-[#E74C3C]/30 text-[#2C3E50] dark:text-[#ECF0F1]"
                           }`}
                         >
-                          <Share2 className="h-4 w-4 mr-2" />
-                          {resume.is_public ? "Make Private" : "Make Public"}
+                          {resume.is_public ? (
+                            <>
+                              <Lock className="h-4 w-4 mr-2" />
+                              Make Private
+                            </>
+                          ) : (
+                            <>
+                              <Globe className="h-4 w-4 mr-2" />
+                              Make Public
+                            </>
+                          )}
                         </Button>
                       </div>
 
@@ -654,11 +725,24 @@ export default function Dashboard() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          onClick={() => handleDownloadResume(resume.id)}
                           className="text-[#34495E] dark:text-[#ECF0F1]/80 hover:text-[#3498DB] dark:hover:text-[#3498DB] hover:bg-[#3498DB]/10 dark:hover:bg-[#3498DB]/20 rounded-xl font-semibold transition-all duration-300"
                         >
                           <Download className="h-4 w-4 mr-2" />
                           Download
                         </Button>
+
+                        {resume.is_public && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleCopyShareLink(resume.slug)}
+                            className="text-[#34495E] dark:text-[#ECF0F1]/80 hover:text-[#3498DB] dark:hover:text-[#3498DB] hover:bg-[#3498DB]/10 dark:hover:bg-[#3498DB]/20 rounded-xl font-semibold transition-all duration-300"
+                          >
+                            <Share2 className="h-4 w-4 mr-2" />
+                            Share Link
+                          </Button>
+                        )}
 
                         <Button
                           size="sm"
@@ -675,6 +759,7 @@ export default function Dashboard() {
                 ))}
               </div>
             )}
+            </div>
           </div>
         </div>
 
