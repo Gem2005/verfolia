@@ -1,7 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Sparkles } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { AnimatedTestimonials } from "@/components/ui/animated-testimonials";
 
@@ -53,10 +51,6 @@ export const TestimonialsSection = () => {
       
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-1000 ${isVisible ? 'scroll-reveal visible' : 'scroll-reveal'}`}>
         <div className="text-center mb-16">
-          <Badge className="mb-6 bg-amber-500/20 backdrop-blur-md text-amber-600 dark:text-amber-400 border-2 border-amber-500/40 px-6 py-2.5 text-sm font-bold shadow-lg shadow-amber-500/20">
-            <Sparkles className="w-4 h-4 mr-2 inline" />
-            Testimonials
-          </Badge>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 text-balance">
             Loved by <span className="gradient-text-enhanced">professionals</span>{" "}
             worldwide

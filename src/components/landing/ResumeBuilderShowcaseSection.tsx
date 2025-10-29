@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -25,10 +24,6 @@ export const ResumeBuilderShowcaseSection = () => {
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 xl:gap-20 items-center">
           <div className="order-1 lg:order-1 space-y-6 sm:space-y-8">
             <div>
-              <Badge className="mb-4 sm:mb-6 bg-primary/20 backdrop-blur-md text-primary border-2 border-primary/40 px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-bold shadow-lg shadow-primary/20">
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2 inline" />
-                Profile Builder
-              </Badge>
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 text-balance leading-tight">
                 Craft your professional story in{" "}
                 <span className="gradient-text-enhanced">minutes</span>

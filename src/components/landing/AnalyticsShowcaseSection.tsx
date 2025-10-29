@@ -1,11 +1,9 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   BarChart3,
   Eye,
-  Sparkles,
   TrendingUp,
   Activity,
   MapPin,
@@ -25,10 +23,6 @@ export const AnalyticsShowcaseSection = () => {
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 xl:gap-20 items-center">
           <div className="order-1 lg:order-2 space-y-6 sm:space-y-8 animate-slide-in-right">
             <div>
-              <Badge className="mb-4 sm:mb-6 bg-blue-500/20 backdrop-blur-md text-blue-500 border-2 border-blue-500/40 px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-bold shadow-lg shadow-blue-500/20">
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2 inline" />
-                Analytics & Insights
-              </Badge>
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 text-balance leading-tight">
                 Know you&apos;ve been{" "}
                 <span className="gradient-text-enhanced">seen</span>, every single time.

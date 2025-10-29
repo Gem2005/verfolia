@@ -9,7 +9,6 @@ import {
   Share2,
   Shield,
   Target,
-  Sparkles,
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 
@@ -70,10 +69,6 @@ export const FeaturesOverviewSection = () => {
       
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-1000 ${isVisible ? 'scroll-reveal visible' : 'scroll-reveal'}`}>
         <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-          <Badge className="mb-4 sm:mb-6 bg-primary/20 backdrop-blur-md text-primary border-2 border-primary/40 px-4 py-2 sm:px-6 sm:py-2.5 text-xs sm:text-sm font-bold shadow-lg shadow-primary/20">
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 mr-2 inline" />
-            Platform Features
-          </Badge>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 text-balance px-4 sm:px-0">
             Everything you need to{" "}
             <span className="gradient-text-enhanced">succeed</span>

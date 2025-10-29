@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle,
-  Sparkles,
   Rocket,
   Upload,
 } from "lucide-react";
@@ -16,13 +15,6 @@ export const HeroSection = () => {
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
         <div className="max-w-6xl mx-auto flex flex-col justify-center items-center h-full">
-          {/* Announcement Badge - bounces in */}
-          <div className="inline-flex items-center gap-2 bg-primary/20 backdrop-blur-md border-2 border-primary/40 rounded-full px-4 py-2 sm:px-6 sm:py-3 mb-10 shadow-lg shadow-primary/20 animate-bounce-in hover-glow cursor-pointer">
-            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary animate-pulse" />
-            <span className="text-xs sm:text-sm lg:text-base font-bold text-primary">
-              Beta Version — Early Access
-            </span>
-          </div>
 
           {/* Main Headline - slides up with stagger - Using clamp for fluid scaling */}
           <h1 className="font-extrabold text-balance leading-[1.15] stagger-children mb-10" style={{ fontSize: 'clamp(2rem, 7vw + 0.5rem, 4.5rem)' }}>
