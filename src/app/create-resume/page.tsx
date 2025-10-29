@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { X, ArrowLeft, ArrowRight, Eye, Check, Save, Download } from "lucide-react";
+import { X, ArrowLeft, ArrowRight, Eye, Check, Save, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { resumeService, type Resume } from "@/services/resume-service";
 import { analyticsService } from "@/services/analytics-service";
@@ -1165,9 +1165,6 @@ export default function CreateResumePage() {
               <h1 className="text-2xl font-bold text-foreground truncate">
                 {isEditMode ? 'Edit Resume' : 'Create Resume'}
               </h1>
-              <p className="text-sm text-muted-foreground truncate">
-                Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
-              </p>
             </div>
           </div>
           <div className="flex items-center gap-3 shrink-0">
@@ -1278,102 +1275,66 @@ export default function CreateResumePage() {
               </Button>
             </div>
           </div>
-          
-          {/* Overall Progress Bar - Mobile Only */}
-          <div className="bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-foreground">
-                Overall Progress
-              </span>
-              <span className="text-xs font-semibold text-primary">
-                {Math.round(((currentStep + 1) / steps.length) * 100)}%
-              </span>
-            </div>
-            <Progress 
-              value={((currentStep + 1) / steps.length) * 100}
-              variant="default"
-              className="h-2 bg-white/20 border-white/30"
-              indicatorClassName="bg-white"
-            />
-          </div>
-        </div>
-
-        {/* Full-Width Progress Steps Bar - Desktop Only */}
-        <div className="hidden lg:block flex-shrink-0 mb-6 bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-6">
-          <div className="flex items-center justify-between gap-3">
-            {steps.map((step, index) => {
-              const Icon = step.icon;
-              const isActive = index === currentStep;
-              const isCompleted = index < currentStep;
-              
-              // Progress bar shows the connection between THIS step and the NEXT step
-              // If we've completed this step (moved past it), the bar is 100%
-              // If we're currently on this step, the bar is 50%
-              // If we haven't reached this step yet, the bar is 0%
-              const getProgressBarValue = () => {
-                if (index < currentStep) return 100; // Completed steps show full progress
-                if (index === currentStep) return 50; // Current step shows half progress
-                return 0; // Future steps show no progress
-              };
-              
-              const progressValue = getProgressBarValue();
-              
-              return (
-                <React.Fragment key={step.id}>
-                  <button
-                    onClick={() => goToStep(step.id)}
-                    className={`flex flex-col items-center gap-2 transition-all group ${
-                      isActive ? "" : isCompleted ? "" : "opacity-50"
-                    }`}
-                  >
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                        isActive
-                          ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
-                          : isCompleted
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground group-hover:bg-muted/80"
-                      }`}
-                    >
-                      {isCompleted ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <Icon className="w-5 h-5" />
-                      )}
-                    </div>
-                    <span
-                      className={`text-xs font-medium text-center whitespace-nowrap ${
-                        isActive
-                          ? "text-foreground"
-                          : isCompleted
-                          ? "text-primary"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {step.title}
-                    </span>
-                  </button>
-                  {index < steps.length - 1 && (
-                    <div className="flex-1 flex items-center px-3 -mt-6">
-                      <Progress 
-                        key={`progress-${index}-${currentStep}`}
-                        value={progressValue}
-                        variant="default"
-                        className="h-2 bg-white/20 border-white/30"
-                        indicatorClassName="bg-white"
-                      />
-                    </div>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
         </div>
 
         {/* Main Content - Split Layout */}
         <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[480px_1fr] gap-4 sm:gap-6 overflow-hidden">
           {/* Left Panel - Form/Steps */}
           <div className="flex flex-col h-full overflow-hidden order-2 lg:order-1">
+            {/* Step Navigation Card - Consistent on Mobile and Desktop */}
+            <div className="flex-shrink-0 mb-4 bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-4">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <Button
+                  onClick={() => goToStep(currentStep - 1)}
+                  disabled={currentStep === 0}
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 shrink-0 disabled:opacity-30"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                
+                <div className="flex-1 text-center">
+                  <div className="text-sm font-semibold text-foreground">
+                    Step {currentStep + 1} of {steps.length}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {steps[currentStep].title}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => {
+                    if (currentStep < steps.length - 1) {
+                      setHasAttemptedNext(true);
+                      if (validateCurrentStep()) {
+                        goToStep(currentStep + 1);
+                      }
+                    }
+                  }}
+                  disabled={currentStep === steps.length - 1}
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 shrink-0 disabled:opacity-30"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="space-y-2">
+                <Progress 
+                  value={((currentStep + 1) / steps.length) * 100}
+                  variant="default"
+                  className="h-2"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Progress</span>
+                  <span className="font-semibold">{Math.round(((currentStep + 1) / steps.length) * 100)}%</span>
+                </div>
+              </div>
+            </div>
+
             {/* Form Content - Scrollable */}
             <div className="flex-1 overflow-y-auto bg-background/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 sm:p-6">
               <div

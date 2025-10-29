@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
@@ -24,18 +24,7 @@ const navigationLinks = [
 
 export default function Navbar() {
   const { isAuthenticated, loading, user, signOut } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 10;
-      setScrolled(isScrolled);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -58,17 +47,9 @@ export default function Navbar() {
   return (
     <>
       {/* Main Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
-        scrolled ? 'py-4' : 'py-4'
-      }`}>
-        <div className={`mx-auto transition-all duration-300 px-4 sm:px-6 lg:px-8 ${
-          scrolled ? 'max-w-7xl' : 'max-w-full'
-        }`}>
-          <div className={`flex items-center justify-between gap-2 transition-all duration-300 rounded-2xl ${
-            scrolled 
-              ? 'px-3 sm:px-4 lg:px-6 py-2 sm:py-3 navbar-scrolled card-enhanced border-border/80 shadow-md' 
-              : 'px-3 sm:px-4 lg:px-6 py-2 sm:py-3 navbar-glass'
-          }`}>
+      <nav className="fixed top-0 left-0 right-0 z-50 w-full py-4">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+          <div className="flex items-center justify-between gap-2 px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full bg-background/40 backdrop-blur-xl shadow-lg">
             {/* Logo Section */}
             <div className="flex items-center flex-shrink-0">
               <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group">
@@ -95,7 +76,7 @@ export default function Navbar() {
                   <button
                     key={index}
                     onClick={() => handleLinkClick(link.href)}
-                    className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-105 active:scale-95 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
                   >
                     {link.label}
                   </button>
@@ -103,7 +84,7 @@ export default function Navbar() {
                   <Link
                     key={index}
                     href={link.href}
-                    className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
+                    className="px-4 py-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:scale-105 active:scale-95 transition-all duration-200 text-sm font-medium font-jakarta cursor-pointer"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {link.label}
@@ -120,21 +101,21 @@ export default function Navbar() {
 
               {loading ? (
                 // Show loading state
-                <div className="hidden sm:flex items-center gap-2 lg:gap-3">
-                  <div className="h-8 w-16 lg:h-10 lg:w-20 animate-pulse rounded-xl bg-muted/30"></div>
-                  <div className="h-8 w-20 lg:h-10 lg:w-24 animate-pulse rounded-xl bg-muted/30"></div>
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-16 lg:w-20 animate-pulse rounded-full bg-muted/30"></div>
+                  <div className="h-9 w-20 lg:w-24 animate-pulse rounded-full bg-muted/30"></div>
                 </div>
               ) : isAuthenticated ? (
                 // Show authenticated user options
-                <div className="hidden sm:flex items-center gap-2 lg:gap-3">
-                  <span className="text-xs lg:text-sm text-foreground font-medium hidden md:block font-jakarta truncate max-w-[150px] lg:max-w-none">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs lg:text-sm text-foreground font-medium font-jakarta truncate max-w-[100px] sm:max-w-[150px] lg:max-w-none animate-in fade-in slide-in-from-left-2 duration-300">
                     Hi, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
                     asChild
-                    className="hidden md:flex rounded-xl text-xs lg:text-sm"
+                    className="rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 border-border/50 hover:bg-muted/80 hover:border-border hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-2"
                   >
                     <Link href="/dashboard">Dashboard</Link>
                   </Button>
@@ -142,27 +123,26 @@ export default function Navbar() {
                     variant="ghost"
                     size="sm"
                     onClick={handleSignOut}
-                    className="rounded-xl text-xs lg:text-sm"
+                    className="hidden sm:flex rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-3"
                   >
                     Sign Out
                   </Button>
                 </div>
               ) : (
                 // Show non-authenticated user options
-                <div className="hidden sm:flex items-center gap-2 lg:gap-3">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
                     asChild
-                    className="hidden md:flex rounded-xl text-xs lg:text-sm"
+                    className="hidden md:flex rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-2"
                   >
                     <Link href="/login">Sign in</Link>
                   </Button>
                   <Button
                     size="sm"
                     asChild
-                    variant="default"
-                    className="rounded-xl text-xs lg:text-sm px-3 lg:px-4"
+                    className="rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-3"
                   >
                     <Link href="/choice">Get Started</Link>
                   </Button>

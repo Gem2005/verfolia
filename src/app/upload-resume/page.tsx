@@ -354,69 +354,72 @@ export default function UploadResumePage() {
     <div className="min-h-screen relative overflow-hidden bg-background">
       <AnimatedBackground />
 
-      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-4xl relative z-10">
-        <div className="mb-6 sm:mb-8">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-5xl relative z-10">
+        <div className="mb-8 sm:mb-10">
           <Button 
-            variant="outline" 
+            variant="ghost"
             onClick={() => router.back()}
-            className="mb-4 sm:mb-6"
+            className="mb-6 border border-[#34495E]/20 hover:bg-[#2C3E50]/10 hover:border-[#3498DB]/40 transition-all duration-300 group"
             disabled={uploadStatus === 'uploading' || uploadStatus === 'parsing'}
-            size="default"
+            size="sm"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
             Back
           </Button>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-foreground">
-            Upload Your Resume
-          </h1>
-          <p className="text-base sm:text-lg text-muted-foreground">
-            Upload your existing resume and we&apos;ll help you create a modern, shareable profile.
-          </p>
+          
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-r from-[#2C3E50] via-[#3498DB] to-[#2C3E50] bg-clip-text text-transparent">
+              Upload Your Resume
+            </h1>
+            <p className="text-base sm:text-lg text-[#34495E] dark:text-[#ECF0F1]/80 leading-relaxed">
+              Upload your existing resume and we&apos;ll help you create a modern, shareable profile with AI-powered parsing.
+            </p>
+          </div>
         </div>
 
         {loading ? (
-          <Card className="bg-background/80 backdrop-blur-sm border-border/50">
+          <Card className="bg-background/90 backdrop-blur-md border-[#3498DB]/30">
             <CardContent className="py-12 sm:py-16">
               <div className="flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin text-primary" />
-                <p className="text-muted-foreground">Loading...</p>
+                <Loader2 className="w-8 h-8 sm:w-10 sm:h-10 animate-spin text-[#3498DB]" />
+                <p className="text-[#34495E] dark:text-[#ECF0F1]/80">Loading...</p>
               </div>
             </CardContent>
           </Card>
         ) : !user ? (
-          <Card className="bg-background/80 backdrop-blur-sm border-border/50">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-foreground text-xl sm:text-2xl">
+          <Card className="bg-background/90 backdrop-blur-md border-[#3498DB]/30">
+            <CardHeader className="pb-6">
+              <CardTitle className="text-[#2C3E50] dark:text-[#ECF0F1] text-xl sm:text-2xl">
                 Sign In to Upload Your Resume
               </CardTitle>
-              <CardDescription className="text-muted-foreground text-sm sm:text-base">
+              <CardDescription className="text-[#34495E] dark:text-[#ECF0F1]/70 text-sm sm:text-base">
                 Sign in to upload and automatically parse your resume with AI
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="rounded-lg border border-border/50 bg-muted/20 p-4 sm:p-6">
+            <CardContent className="space-y-5">
+              <div className="rounded-lg border border-[#3498DB]/30 bg-gradient-to-br from-[#3498DB]/10 to-transparent p-4 sm:p-5">
                 <div className="flex flex-col sm:flex-row items-start gap-4">
-                  <div className="rounded-full bg-primary/10 p-3 shrink-0">
-                    <Upload className="w-6 h-6 text-primary" />
+                  <div className="rounded-xl bg-gradient-to-br from-[#3498DB]/30 to-[#3498DB]/10 p-3 shrink-0">
+                    <Upload className="w-5 h-5 text-[#3498DB]" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-foreground mb-2 text-base sm:text-lg">
+                    <h3 className="font-semibold text-[#2C3E50] dark:text-[#ECF0F1] mb-2 text-base">
                       AI-Powered Resume Parsing
                     </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground mb-4 leading-relaxed">
+                    <p className="text-sm text-[#34495E] dark:text-[#ECF0F1]/80 mb-3 leading-relaxed">
                       Our AI will automatically extract your information from PDF, DOCX, or DOC files and create a beautiful, modern resume.
                     </p>
-                    <ul className="space-y-2 text-sm sm:text-base text-muted-foreground">
+                    <ul className="space-y-2 text-sm text-[#34495E] dark:text-[#ECF0F1]/80">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#3498DB] shrink-0" />
                         Extract all your experience, education, and skills
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#3498DB] shrink-0" />
                         Save your resume to your account
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-[#3498DB] shrink-0" />
                         Edit and customize with ease
                       </li>
                     </ul>
@@ -424,29 +427,29 @@ export default function UploadResumePage() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button 
                   onClick={() => router.push('/login?returnTo=/upload-resume')}
-                  className="flex-1 bg-primary hover:bg-primary/90 border border-primary"
-                  size="lg"
+                  className="flex-1 bg-gradient-to-r from-[#2C3E50] to-[#34495E] hover:from-[#34495E] hover:to-[#2C3E50] text-white shadow-lg shadow-[#2C3E50]/20 transition-all duration-300 hover:shadow-xl hover:shadow-[#2C3E50]/30"
+                  size="default"
                 >
                   Sign In to Upload
                 </Button>
                 <Button 
                   onClick={() => router.push('/create-resume')}
                   variant="outline"
-                  className="flex-1"
-                  size="lg"
+                  className="flex-1 border-[#3498DB] text-[#3498DB] hover:bg-[#3498DB]/10"
+                  size="default"
                 >
                   Build from Scratch
                 </Button>
               </div>
 
-              <p className="text-xs sm:text-sm text-center text-muted-foreground">
+              <p className="text-xs sm:text-sm text-center text-[#34495E] dark:text-[#ECF0F1]/70">
                 Don&apos;t have an account?{' '}
                 <a 
                   href="/login?returnTo=/upload-resume" 
-                  className="text-text-primary hover:underline"
+                  className="text-[#3498DB] hover:text-[#2C3E50] dark:hover:text-[#ECF0F1] font-medium hover:underline transition-colors"
                 >
                   Sign up for free
                 </a>
@@ -458,51 +461,58 @@ export default function UploadResumePage() {
             {/* Tabs for Existing vs Upload New */}
             {hasExistingFiles !== null && (
               <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "existing" | "upload")} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 h-11 sm:h-12 p-1 bg-muted/30 backdrop-blur-sm border border-border/50">
-                  <TabsTrigger 
-                    value="existing" 
-                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:shadow-sm text-sm sm:text-base"
-                  >
-                    <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    <span className="hidden xs:inline">Use Existing</span>
-                    <span className="xs:hidden">Existing</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="upload" 
-                    className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:shadow-sm text-sm sm:text-base"
-                  >
-                    <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    <span className="hidden xs:inline">Upload New</span>
-                    <span className="xs:hidden">Upload</span>
-                  </TabsTrigger>
-                </TabsList>
+                <div className="mb-6">
+                  <TabsList className="grid w-full grid-cols-2 h-14 sm:h-16 p-1.5 bg-gradient-to-br from-[#ECF0F1]/50 to-[#ECF0F1]/30 dark:from-[#2C3E50]/40 dark:to-[#2C3E50]/20 backdrop-blur-md border-2 border-[#3498DB]/20 rounded-2xl shadow-lg shadow-[#3498DB]/5">
+                    <TabsTrigger 
+                      value="existing" 
+                      className="relative text-[#34495E] dark:text-[#ECF0F1]/80 font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#2C3E50] data-[state=active]:to-[#34495E] data-[state=active]:text-white transition-all duration-300 data-[state=active]:shadow-xl data-[state=active]:shadow-[#2C3E50]/30 text-sm sm:text-base rounded-xl h-full flex items-center justify-center gap-2"
+                    >
+                      <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="hidden xs:inline">Use Existing</span>
+                      <span className="xs:hidden">Existing</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="upload" 
+                      className="relative text-[#34495E] dark:text-[#ECF0F1]/80 font-semibold data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#2C3E50] data-[state=active]:to-[#34495E] data-[state=active]:text-white transition-all duration-300 data-[state=active]:shadow-xl data-[state=active]:shadow-[#2C3E50]/30 text-sm sm:text-base rounded-xl h-full flex items-center justify-center gap-2"
+                    >
+                      <Upload className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span className="hidden xs:inline">Upload New</span>
+                      <span className="xs:hidden">Upload</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
 
                 {/* Existing Files Tab Content */}
-                <TabsContent value="existing" className="mt-4 sm:mt-6">
+                <TabsContent value="existing" className="mt-0">
                   <UploadedFilesManager />
                 </TabsContent>
 
                 {/* Upload New Tab Content */}
-                <TabsContent value="upload" className="mt-4 sm:mt-6">
-                  <Card className="bg-background/80 backdrop-blur-sm border-border/50">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="text-foreground text-lg sm:text-xl">
-                        Upload Resume
-                      </CardTitle>
-                      <CardDescription className="text-muted-foreground text-sm sm:text-base">
+                <TabsContent value="upload" className="mt-0">
+                  <Card className="bg-background/90 backdrop-blur-md border-[#3498DB]/30 shadow-lg shadow-[#3498DB]/5">
+                    <CardHeader className="pb-6">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#3498DB]/30 to-[#3498DB]/10">
+                          <Upload className="w-5 h-5 text-[#3498DB]" />
+                        </div>
+                        <CardTitle className="text-[#2C3E50] dark:text-[#ECF0F1] text-xl sm:text-2xl">
+                          Upload Resume
+                        </CardTitle>
+                      </div>
+                      <CardDescription className="text-[#34495E] dark:text-[#ECF0F1]/70 text-sm sm:text-base">
                         Supports PDF, DOCX, and DOC files up to 10MB
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
             <div
-              className={`border-2 border-dashed rounded-lg p-8 sm:p-12 text-center transition-colors ${
+              className={`border-2 border-dashed rounded-xl p-8 sm:p-10 text-center transition-all duration-300 ${
                 isDragging 
-                  ? 'border-primary/70 bg-primary/5' 
+                  ? 'border-[#3498DB] bg-gradient-to-br from-[#3498DB]/10 to-[#3498DB]/5 scale-[1.02]' 
                   : uploadStatus === 'error'
-                  ? 'border-red-500/50 bg-red-500/5'
+                  ? 'border-[#E74C3C]/50 bg-[#E74C3C]/5'
                   : uploadStatus === 'success'
-                  ? 'border-green-500/50 bg-green-500/5'
-                  : 'border-border/50 hover:border-primary/50 bg-muted/10'
+                  ? 'border-[#2ECC71]/50 bg-[#2ECC71]/5'
+                  : 'border-[#ECF0F1] dark:border-[#34495E]/50 hover:border-[#3498DB]/60 hover:bg-gradient-to-br hover:from-[#3498DB]/5 hover:to-transparent'
               } ${(uploadStatus === 'uploading' || uploadStatus === 'parsing') ? 'pointer-events-none' : ''}`}
               onDragOver={(e) => {
                 e.preventDefault();
@@ -515,10 +525,10 @@ export default function UploadResumePage() {
               onDrop={handleDrop}
             >
               {uploadStatus === 'uploading' || uploadStatus === 'parsing' ? (
-                <div className="space-y-4">
-                  <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-primary mx-auto animate-spin" />
+                <div className="space-y-3">
+                  <Loader2 className="w-10 h-10 text-[#3498DB] mx-auto animate-spin" />
                   <div className="space-y-2">
-                    <p className="text-base sm:text-lg font-medium text-foreground">
+                    <p className="text-base font-medium text-foreground">
                       {uploadStatus === 'uploading' ? 'Uploading...' : 'Parsing resume...'}
                     </p>
                     <p className="text-sm text-muted-foreground px-4">
@@ -531,20 +541,20 @@ export default function UploadResumePage() {
                   </div>
                 </div>
               ) : uploadStatus === 'success' ? (
-                <div className="space-y-4">
-                  <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-green-500 mx-auto" />
+                <div className="space-y-3">
+                  <CheckCircle2 className="w-10 h-10 text-[#2ECC71] mx-auto" />
                   <div>
-                    <p className="text-base sm:text-lg font-medium text-foreground">
+                    <p className="text-base font-medium text-foreground">
                       Resume parsed successfully!
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">Redirecting to editor...</p>
                   </div>
                 </div>
               ) : uploadStatus === 'error' ? (
-                <div className="space-y-4">
-                  <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 mx-auto" />
+                <div className="space-y-3">
+                  <AlertCircle className="w-10 h-10 text-[#E74C3C] mx-auto" />
                   <div>
-                    <p className="text-base sm:text-lg font-medium text-foreground">Upload failed</p>
+                    <p className="text-base font-medium text-foreground">Upload failed</p>
                     <p className="text-sm text-muted-foreground mt-1">Please try again</p>
                   </div>
                   <Button
@@ -554,21 +564,21 @@ export default function UploadResumePage() {
                       setProgress(0);
                       setFileName('');
                     }}
-                    size="default"
+                    size="sm"
                   >
                     Try Again
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center bg-primary/10">
-                    <Upload className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+                <div className="space-y-4">
+                  <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center bg-gradient-to-br from-[#3498DB]/30 to-[#3498DB]/10">
+                    <Upload className="w-7 h-7 sm:w-8 sm:h-8 text-[#3498DB]" />
                   </div>
                   <div className="px-4">
-                    <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">
+                    <h3 className="text-base font-semibold mb-2 text-[#2C3E50] dark:text-[#ECF0F1]">
                       Drag and drop your resume here
                     </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground mb-4">
+                    <p className="text-sm text-[#34495E] dark:text-[#ECF0F1]/70 mb-4">
                       or click to browse files
                     </p>
                     <input
@@ -580,16 +590,15 @@ export default function UploadResumePage() {
                     />
                     <Button
                       type="button"
-                      variant="outline"
-                      className="cursor-pointer"
+                      className="bg-gradient-to-r from-[#2C3E50] to-[#34495E] hover:from-[#34495E] hover:to-[#2C3E50] text-white shadow-lg shadow-[#2C3E50]/20 transition-all duration-300"
                       onClick={() => fileInputRef.current?.click()}
-                      size="default"
+                      size="sm"
                     >
                       <FileText className="w-4 h-4 mr-2" />
                       Choose File
                     </Button>
                   </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground px-4">
+                  <p className="text-xs sm:text-sm text-[#34495E] dark:text-[#ECF0F1]/60 px-4">
                     Supported formats: PDF, DOCX, DOC • Max size: 10MB
                   </p>
                 </div>
@@ -604,87 +613,44 @@ export default function UploadResumePage() {
         )}
 
         {user && (
-          <Card className="bg-background/80 backdrop-blur-sm border-border/50 mt-6 sm:mt-8">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg text-bg-background">What happens next?</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-text-primary">1</span>
-                </div>
-                <div>
-                  <p className="font-medium text-bg-background">AI Analysis</p>
-                  <p className="text-sm text-text-muted-foreground">
-                    Our AI will extract and organize your information
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-text-primary">2</span>
-                </div>
-                <div>
-                  <p className="font-medium text-bg-background">Review & Edit</p>
-                  <p className="text-sm text-text-muted-foreground">
-                    Review the extracted data and make any necessary adjustments
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-text-primary">3</span>
-                </div>
-                <div>
-                  <p className="font-medium text-bg-background">Publish & Share</p>
-                  <p className="text-sm text-text-muted-foreground">
-                    Create your shareable profile with analytics tracking
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {user && (
           <>
             {/* How It Works Section */}
-            <Card className="bg-card mt-8">
-              <CardHeader>
-                <CardTitle className="text-bg-background">How It Works</CardTitle>
+            <Card className="bg-background/90 backdrop-blur-md border-[#3498DB]/30 mt-8">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-[#2C3E50] dark:text-[#ECF0F1]">How It Works</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-text-primary">1</span>
+                <div className="w-7 h-7 bg-gradient-to-br from-[#3498DB]/30 to-[#3498DB]/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-[#3498DB]">1</span>
                 </div>
                 <div>
-                  <p className="font-medium text-bg-background">Upload Your Resume</p>
-                  <p className="text-sm text-text-muted-foreground">
+                  <p className="font-semibold text-[#2C3E50] dark:text-[#ECF0F1] mb-0.5 text-sm">Upload Your Resume</p>
+                  <p className="text-xs text-[#34495E] dark:text-[#ECF0F1]/70">
                     We support PDF, DOCX, and DOC files up to 10MB
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-text-primary">2</span>
+                <div className="w-7 h-7 bg-gradient-to-br from-[#3498DB]/30 to-[#3498DB]/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-[#3498DB]">2</span>
                 </div>
                 <div>
-                  <p className="font-medium text-bg-background">AI Parses Your Data</p>
-                  <p className="text-sm text-text-muted-foreground">
+                  <p className="font-semibold text-[#2C3E50] dark:text-[#ECF0F1] mb-0.5 text-sm">AI Parses Your Data</p>
+                  <p className="text-xs text-[#34495E] dark:text-[#ECF0F1]/70">
                     Our AI extracts all your information automatically
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
-                <div className="w-6 h-6 bg-white/10 rounded-full flex items-center justify-center mt-0.5">
-                  <span className="text-xs font-semibold text-text-primary">3</span>
+                <div className="w-7 h-7 bg-gradient-to-br from-[#3498DB]/30 to-[#3498DB]/10 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-xs font-bold text-[#3498DB]">3</span>
                 </div>
                 <div>
-                  <p className="font-medium text-bg-background">Publish & Share</p>
-                  <p className="text-sm text-text-muted-foreground">
+                  <p className="font-semibold text-[#2C3E50] dark:text-[#ECF0F1] mb-0.5 text-sm">Publish & Share</p>
+                  <p className="text-xs text-[#34495E] dark:text-[#ECF0F1]/70">
                     Create your shareable profile with analytics tracking
                   </p>
                 </div>
