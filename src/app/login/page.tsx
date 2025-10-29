@@ -14,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import { signup, signInWithGoogle, resetPassword, sendMagicLink, resendConfirmation } from "./actions";
 import { useAuth } from "@/hooks/use-auth";
 import { AppLayout } from "@/components/layout/app-layout";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 import { storageHelpers } from "@/utils/storage";
 import { createClient } from "@/utils/supabase/client";
 
@@ -258,8 +259,9 @@ export default function LoginPage() {
 
   return (
     <AppLayout showFooter={false}>
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4 pt-24">
-            <div className="w-full max-w-md space-y-6">
+        <div className="min-h-screen bg-background flex items-center justify-center p-4 pt-24 relative overflow-hidden">
+            <AnimatedBackground />
+            <div className="w-full max-w-md space-y-6 relative z-20">
                 {/* Header Section */}
                 <div className="text-center space-y-3">
                     <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">

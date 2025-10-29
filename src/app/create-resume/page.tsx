@@ -11,7 +11,7 @@ import { resumeService, type Resume } from "@/services/resume-service";
 import { analyticsService } from "@/services/analytics-service";
 import { storageHelpers } from "@/utils/storage";
 import { ResumeData } from "@/types/ResumeData";
-import { validateEmail, validatePhone, validateUrl, validateWordCount, validateGPA, validateDateRange, validateSkill, validateProficiency } from "../../utils/validation";
+import { validateEmail, validatePhone, validateUrl, validateGPA, validateDateRange, validateSkill, validateProficiency } from "../../utils/validation";
 import { steps, templates } from "../../../data/constants";
 import { getPortfolioData } from "../../components/PortfolioDataProvider";
 import { TemplateStep } from "../../components/steps/TemplateStep";
@@ -27,6 +27,7 @@ import { CleanMonoTemplate } from "@/components/templates/CleanMonoTemplate";
 import { DarkMinimalistTemplate } from "@/components/templates/DarkMinimalistTemplate";
 import { DarkTechTemplate } from "@/components/templates/DarkTechTemplate";
 import { ModernAIFocusedTemplate } from "@/components/templates/ModernAIFocusedTemplate";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 
 export const dynamic = "force-dynamic";
 
@@ -1128,8 +1129,9 @@ export default function CreateResumePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden">
+        <AnimatedBackground />
+        <div className="text-center relative z-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-foreground">Loading...</p>
         </div>
@@ -1141,14 +1143,10 @@ export default function CreateResumePage() {
 
   return (
     <div 
-      className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/10" 
+      className="min-h-screen relative overflow-hidden bg-background" 
       data-page="create-resume"
     >
-      {/* Subtle Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl"></div>
-      </div>
+      <AnimatedBackground />
       
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-6 max-w-[1800px] relative z-10 h-screen flex flex-col">
         {/* Compact Header - Desktop */}

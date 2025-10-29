@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -61,8 +62,9 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      <AnimatedBackground />
+      <Card className="w-full max-w-md relative z-20">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Reset Your Password</CardTitle>
         </CardHeader>

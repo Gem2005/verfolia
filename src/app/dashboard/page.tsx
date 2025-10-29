@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { AppLayout } from "@/components/layout/app-layout";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -269,15 +270,10 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-        <div className="relative min-h-screen bg-gradient-to-br from-[#ECF0F1] via-[#ECF0F1] to-[#3498DB]/10 dark:from-[#2C3E50] dark:via-[#34495E] dark:to-[#2C3E50]">
-          {/* Animated Background Elements */}
-          <div className="fixed inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-[#3498DB]/15 to-[#E74C3C]/10 dark:from-[#3498DB]/8 dark:to-[#E74C3C]/5 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute top-1/3 -left-40 w-80 h-80 bg-gradient-to-br from-[#E74C3C]/10 to-[#3498DB]/15 dark:from-[#E74C3C]/5 dark:to-[#3498DB]/8 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute -bottom-40 right-1/4 w-80 h-80 bg-gradient-to-br from-[#3498DB]/15 to-[#E74C3C]/10 dark:from-[#3498DB]/8 dark:to-[#E74C3C]/5 rounded-full blur-3xl animate-pulse delay-2000"></div>
-          </div>
+        <div className="relative min-h-screen bg-background">
+          <AnimatedBackground />
 
-          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-16 sm:pb-24">
+          <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-16 sm:pb-24 z-20">
             {/* Enhanced Header */}
             <div className="mb-8 sm:mb-12">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">

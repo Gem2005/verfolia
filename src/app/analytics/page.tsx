@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useAnalyticsData } from "@/hooks/use-analytics-data";
 import { useAnalyticsCalculations } from "@/hooks/use-analytics-calculations";
 import { AnalyticsSkeletonLoading } from "@/components/analytics/SkeletonLoading";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 import { Button } from "@/components/ui/button";
 // Import only lightweight components directly to avoid pulling in charts
 import { ResumeSelector } from "@/components/analytics/ResumeSelector";
@@ -120,7 +121,9 @@ export default function AnalyticsPage() {
 
   // Main content
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="relative min-h-screen bg-background overflow-hidden">
+      <AnimatedBackground />
+      <div className="container mx-auto py-8 space-y-6 relative z-20">
       {/* Page Header with Refresh Button */}
       <div className="flex justify-between items-start">
         <div>
@@ -183,6 +186,7 @@ export default function AnalyticsPage() {
           />
         </>
       )}
+      </div>
     </div>
   );
 }

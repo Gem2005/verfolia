@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 
 export default function AuthCodeError() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-white/80 backdrop-blur-xl shadow-2xl border border-white/20">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      <AnimatedBackground />
+      <Card className="w-full max-w-md bg-card/80 backdrop-blur-xl shadow-2xl border border-border/20 relative z-20">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-red-600">Authentication Error</CardTitle>
           <CardDescription className="text-gray-600">

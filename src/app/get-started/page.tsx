@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, PenSquare } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +25,9 @@ export default function GetStartedPage() {
   // Show loading while checking authentication
   if (loading) {
     return (
-      <div className="bg-background flex items-center justify-center min-h-screen">
-        <div className="text-center">
+      <div className="bg-background flex items-center justify-center min-h-screen relative overflow-hidden">
+        <AnimatedBackground />
+        <div className="text-center relative z-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-text-primary mx-auto mb-4"></div>
           <p className="text-bg-background">Loading...</p>
         </div>
@@ -36,8 +38,9 @@ export default function GetStartedPage() {
   // Show loading if not authenticated
   if (!user) {
     return (
-      <div className="bg-background flex items-center justify-center min-h-screen">
-        <div className="text-center">
+      <div className="bg-background flex items-center justify-center min-h-screen relative overflow-hidden">
+        <AnimatedBackground />
+        <div className="text-center relative z-20">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-text-primary mx-auto mb-4"></div>
           <p className="text-bg-background">Redirecting to login...</p>
         </div>
@@ -46,8 +49,9 @@ export default function GetStartedPage() {
   }
 
   return (
-    <div className="bg-background min-h-screen">
-      <div className="container mx-auto max-w-4xl py-10">
+    <div className="bg-background min-h-screen relative overflow-hidden">
+      <AnimatedBackground />
+      <div className="container mx-auto max-w-4xl py-10 relative z-20">
         <h1 className="text-3xl font-bold mb-6 text-bg-background">How would you like to start?</h1>
         <p className="text-text-muted-foreground mb-8">
           Upload your existing PDF resume for instant parsing, or build a new profile from scratch.
