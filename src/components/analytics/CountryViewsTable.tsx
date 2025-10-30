@@ -94,9 +94,10 @@ export function CountryViewsTable({
             </TableHeader>
             <TableBody>
               {paginatedData.map((country) => {
-                const percentage = ((country.count / totalItems) * 100).toFixed(
-                  1
-                );
+                // Calculate total views across all countries
+                const totalViews = data.reduce((sum, c) => sum + c.count, 0);
+                const percentage = ((country.count / totalViews) * 100).toFixed(1);
+                
                 return (
                   <TableRow key={country.name}>
                     <TableCell>

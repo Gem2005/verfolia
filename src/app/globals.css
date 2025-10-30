@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import flag-icons CSS for country flags */
+@import "flag-icons/css/flag-icons.min.css";
+
 @layer base {
   :root {
     --background: 0 0% 100%;
