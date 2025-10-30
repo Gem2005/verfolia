@@ -98,7 +98,7 @@ export default function Navbar() {
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex items-center justify-between gap-2 px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-full bg-background/40 backdrop-blur-xl shadow-lg">
             {/* Logo Section */}
-            <div className="flex items-center flex-shrink-0 w-[200px]">
+            <div className="flex items-center flex-shrink-0 min-w-0">
               <Link href="/" className="flex items-center space-x-2 sm:space-x-3 group">
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded-xl shadow-glow group-hover:scale-105 transition-transform duration-200 flex-shrink-0">
                   <Image
@@ -143,7 +143,7 @@ export default function Navbar() {
             </div>
 
             {/* Right Side Actions */}
-            <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0 w-[200px] justify-end">
+            <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0 justify-end min-w-0">
               {/* Theme Toggle Button - Shows when scrolled */}
               <motion.div 
                 className="hidden sm:block"
@@ -165,15 +165,15 @@ export default function Navbar() {
                 </div>
               ) : isAuthenticated ? (
                 // Show authenticated user options
-                <div className="flex items-center gap-2">
-                  <span className="text-xs lg:text-sm text-foreground font-medium font-jakarta truncate max-w-[100px] sm:max-w-[150px] lg:max-w-none animate-in fade-in slide-in-from-left-2 duration-300">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <span className="hidden sm:inline text-xs lg:text-sm text-foreground font-medium font-jakarta truncate max-w-[60px] sm:max-w-[100px] lg:max-w-none animate-in fade-in slide-in-from-left-2 duration-300">
                     Hi, {user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
                     asChild
-                    className="rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 border-border/50 hover:bg-muted/80 hover:border-border hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-2"
+                    className="rounded-full text-xs lg:text-sm h-8 sm:h-9 px-3 sm:px-4 lg:px-5 border-border/50 hover:bg-muted/80 hover:border-border hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-2 flex-shrink-0"
                   >
                     <Link href="/dashboard">Dashboard</Link>
                   </Button>
@@ -181,26 +181,26 @@ export default function Navbar() {
                     variant="ghost"
                     size="sm"
                     onClick={handleSignOut}
-                    className="hidden sm:flex rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-3"
+                    className="hidden md:flex rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-3 flex-shrink-0"
                   >
                     Sign Out
                   </Button>
                 </div>
               ) : (
                 // Show non-authenticated user options
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
                     asChild
-                    className="hidden md:flex rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-2"
+                    className="hidden md:flex rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 hover:bg-muted/80 hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-2 flex-shrink-0"
                   >
                     <Link href="/login">Sign in</Link>
                   </Button>
                   <Button
                     size="sm"
                     asChild
-                    className="rounded-full text-xs lg:text-sm h-9 px-4 lg:px-5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-3"
+                    className="rounded-full text-xs lg:text-sm h-8 sm:h-9 px-3 sm:px-4 lg:px-5 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transition-all duration-200 animate-in fade-in slide-in-from-right-3 flex-shrink-0"
                   >
                     <Link href="/choice">Get Started</Link>
                   </Button>
