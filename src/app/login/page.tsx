@@ -40,6 +40,8 @@ export default function LoginPage() {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showMagicLink, setShowMagicLink] = useState(false);
   const [showResendConfirmation, setShowResendConfirmation] = useState(false);
+  const [signupTime, setSignupTime] = useState<number | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
 
   useEffect(() => {
     if (isAuthenticated && !loading) {
@@ -73,6 +75,23 @@ export default function LoginPage() {
       return () => clearTimeout(timer);
     }
   }, [message]);
+
+  // Timer for resend confirmation button
+  useEffect(() => {
+    if (signupTime === null) return;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - signupTime;
+      const remaining = Math.max(0, 180000 - elapsed); // 3 minutes = 180000ms
+      setTimeRemaining(remaining);
+
+      if (remaining === 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [signupTime]);
   
   const handleTabChange = (value: string) => {
     setActiveTab(value as "signin" | "signup");
@@ -169,6 +188,8 @@ export default function LoginPage() {
       }
     } else if (result?.success) {
       setMessage({ type: "success", text: "Success! Please check your email to confirm your account." });
+      setSignupTime(Date.now()); // Start the timer
+      setTimeRemaining(180000); // 3 minutes in milliseconds
       setEmail("");
       setPassword("");
       setConfirmPassword("");
@@ -264,12 +285,12 @@ export default function LoginPage() {
             <div className="w-full max-w-md space-y-6 relative z-20">
                 {/* Header Section */}
                 <div className="text-center space-y-3">
-                    <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <div className="w-16 h-16 bg-gradient-to-br from-[#2C3E50] to-[#3498DB] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#3498DB]/25">
                         <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                     </div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold text-[#2C3E50] dark:text-white">
                         Welcome to Verfolia
                     </h1>
                     <p className="text-muted-foreground">
@@ -288,7 +309,7 @@ export default function LoginPage() {
                 <div className="space-y-4">
                     <Button 
                         variant="outline" 
-                        className="w-full h-12 text-base font-medium transition-all duration-200 hover:scale-[1.02]" 
+                        className="w-full h-12 text-base font-medium transition-all duration-200 hover:scale-[1.02] border-2 border-[#3498DB]/30 hover:border-[#3498DB]/50 hover:bg-[#3498DB]/5" 
                         onClick={handleGoogleAuth} 
                         disabled={isLoading}
                     >
@@ -314,13 +335,13 @@ export default function LoginPage() {
                   <TabsList className="card-enhanced grid w-full grid-cols-2 h-12 p-1 bg-muted/50 border border-border">
                     <TabsTrigger 
                       value="signin" 
-                      className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                      className="text-foreground font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#2C3E50] data-[state=active]:to-[#3498DB] data-[state=active]:text-white transition-all duration-200 data-[state=active]:shadow-md data-[state=active]:shadow-[#3498DB]/25 rounded-lg"
                     >
                       Sign In
                     </TabsTrigger>
                     <TabsTrigger 
                       value="signup" 
-                      className="text-foreground font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all duration-200 data-[state=active]:border data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                      className="text-foreground font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#2C3E50] data-[state=active]:to-[#3498DB] data-[state=active]:text-white transition-all duration-200 data-[state=active]:shadow-md data-[state=active]:shadow-[#3498DB]/25 rounded-lg"
                     >
                       Sign Up
                     </TabsTrigger>
@@ -362,14 +383,14 @@ export default function LoginPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => setShowForgotPassword(true)}
-                                                className="text-primary hover:underline"
+                                                className="text-[#3498DB] hover:text-[#2C8BBD] hover:underline transition-colors"
                                             >
                                                 Forgot password?
                                             </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setShowMagicLink(true)}
-                                                className="text-primary hover:underline"
+                                                className="text-[#3498DB] hover:text-[#2C8BBD] hover:underline transition-colors"
                                             >
                                                 Use magic link
                                             </button>
@@ -377,7 +398,7 @@ export default function LoginPage() {
                                     </div>
                                     <Button 
                                         type="submit" 
-                                        className="button-enhanced w-full h-12 text-base font-medium mt-6 bg-primary hover:bg-primary/90 text-primary-foreground" 
+                                        className="button-enhanced w-full h-12 text-base font-medium mt-6 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] hover:from-[#34495E] hover:to-[#2C8BBD] text-white shadow-lg shadow-[#3498DB]/25 hover:shadow-xl hover:shadow-[#3498DB]/30 transition-all duration-300" 
                                         disabled={isLoading}
                                     >
                                         {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
@@ -451,20 +472,26 @@ export default function LoginPage() {
                                     </div>
                                     <Button 
                                         type="submit" 
-                                        className="button-enhanced w-full h-12 text-base font-medium mt-6 bg-primary hover:bg-primary/90 text-primary-foreground" 
+                                        className="button-enhanced w-full h-12 text-base font-medium mt-6 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] hover:from-[#34495E] hover:to-[#2C8BBD] text-white shadow-lg shadow-[#3498DB]/25 hover:shadow-xl hover:shadow-[#3498DB]/30 transition-all duration-300" 
                                         disabled={isLoading}
                                     >
                                         {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
                                         Create Account
                                     </Button>
                                     <div className="text-center text-sm mt-4">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowResendConfirmation(true)}
-                                            className="text-primary hover:underline"
-                                        >
-                                            Resend confirmation email
-                                        </button>
+                                        {timeRemaining > 0 ? (
+                                            <p className="text-muted-foreground">
+                                                Resend confirmation link in {Math.ceil(timeRemaining / 1000)}s
+                                            </p>
+                                        ) : signupTime !== null ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowResendConfirmation(true)}
+                                                className="text-[#3498DB] hover:text-[#2C8BBD] hover:underline transition-colors"
+                                            >
+                                                Resend confirmation email
+                                            </button>
+                                        ) : null}
                                     </div>
                                 </form>
                             </CardContent>
@@ -476,11 +503,11 @@ export default function LoginPage() {
                 <div className="text-center text-sm text-muted-foreground mt-6">
                     <p>
                         By continuing, you agree to our{" "}
-                        <Link href="/terms" className="text-primary hover:underline">
+                        <Link href="/terms" className="text-[#3498DB] hover:text-[#2C8BBD] hover:underline transition-colors">
                             Terms of Service
                         </Link>{" "}
                         and{" "}
-                        <Link href="/privacy" className="text-primary hover:underline">
+                        <Link href="/privacy" className="text-[#3498DB] hover:text-[#2C8BBD] hover:underline transition-colors">
                             Privacy Policy
                         </Link>
                     </p>
@@ -518,7 +545,11 @@ export default function LoginPage() {
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" className="flex-1" disabled={isLoading}>
+                            <Button 
+                                type="submit" 
+                                className="flex-1 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] hover:from-[#34495E] hover:to-[#2C8BBD] text-white" 
+                                disabled={isLoading}
+                            >
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Send Reset Link
                             </Button>
@@ -558,7 +589,11 @@ export default function LoginPage() {
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" className="flex-1" disabled={isLoading}>
+                            <Button 
+                                type="submit" 
+                                className="flex-1 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] hover:from-[#34495E] hover:to-[#2C8BBD] text-white" 
+                                disabled={isLoading}
+                            >
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Send Magic Link
                             </Button>
@@ -598,7 +633,11 @@ export default function LoginPage() {
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" className="flex-1" disabled={isLoading}>
+                            <Button 
+                                type="submit" 
+                                className="flex-1 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] hover:from-[#34495E] hover:to-[#2C8BBD] text-white" 
+                                disabled={isLoading}
+                            >
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 Resend Email
                             </Button>

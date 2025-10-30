@@ -5,7 +5,7 @@
 
 import type { InteractionTypeValue } from '@/types/analytics';
 
-const EDGE_FUNCTION_URL = 'https://iztearxnpsqcfmhwswpf.supabase.co/functions/v1/track-analytics';
+const API_ROUTE = '/api/track-analytics';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second
 
@@ -73,11 +73,10 @@ async function sendToEdgeFunction(
   retryCount = 0
 ): Promise<void> {
   try {
-    const response = await fetch(EDGE_FUNCTION_URL, {
+    const response = await fetch(API_ROUTE, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify(payload),
     });

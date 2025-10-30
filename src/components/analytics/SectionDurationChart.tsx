@@ -1,8 +1,16 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatDuration, formatDurationDetailed } from "@/utils/time-formatters";
+import { TrendingUp, Eye, MousePointerClick } from "lucide-react";
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
 interface SectionDurationData {
   section: string;
@@ -16,26 +24,35 @@ interface SectionDurationChartProps {
   data: SectionDurationData[];
 }
 
-const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-  "hsl(var(--primary))",
-  "hsl(var(--secondary))",
-];
+const chartConfig = {
+  views: {
+    label: "Views",
+    color: "hsl(var(--chart-1))",
+  },
+  clicks: {
+    label: "Clicks",
+    color: "hsl(var(--chart-2))",
+  },
+  engagementScore: {
+    label: "Engagement",
+    color: "hsl(var(--chart-3))",
+  },
+} satisfies ChartConfig;
 
 export function SectionDurationChart({ data }: SectionDurationChartProps) {
   if (!data || data.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Section Retention</CardTitle>
-          <CardDescription>Average time visitors spend in each section</CardDescription>
+      <Card className="border-2 border-[#3498DB]/10 shadow-lg">
+        <CardHeader className="items-center pb-4">
+          <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">
+            Section Retention Analysis
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Average time visitors spend in each section
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
+          <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
             No section duration data available
           </div>
         </CardContent>
@@ -43,91 +60,148 @@ export function SectionDurationChart({ data }: SectionDurationChartProps) {
     );
   }
 
-  // Sort by engagement score
-  const sortedData = [...data].sort((a, b) => b.engagementScore - a.engagementScore);
+  // Take top 6 sections by engagement score
+  const topSections = [...data]
+    .sort((a, b) => b.engagementScore - a.engagementScore)
+    .slice(0, 6);
+
+  // Normalize data to 0-100 scale for consistent visualization
+  const maxViews = Math.max(...topSections.map(item => item.views), 1);
+  const maxClicks = Math.max(...topSections.map(item => item.clicks), 1);
+  const maxEngagement = Math.max(...topSections.map(item => item.engagementScore), 1);
+
+  // Format section names and normalize values
+  const chartData = topSections.map((item) => ({
+    section: item.section.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    views: Math.round((item.views / maxViews) * 100),
+    clicks: Math.round((item.clicks / maxClicks) * 100),
+    engagementScore: Math.round((item.engagementScore / maxEngagement) * 100),
+    // Keep original values for tooltip
+    originalViews: item.views,
+    originalClicks: item.clicks,
+    originalEngagement: item.engagementScore.toFixed(1),
+  }));
+
+  // Calculate totals for footer
+  const totalViews = topSections.reduce((sum, item) => sum + item.views, 0);
+  const totalClicks = topSections.reduce((sum, item) => sum + item.clicks, 0);
+  const avgEngagement = topSections.length > 0 
+    ? topSections.reduce((sum, item) => sum + item.engagementScore, 0) / topSections.length 
+    : 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Section Retention Analysis</CardTitle>
-        <CardDescription>
-          Time spent and engagement per section (higher is better)
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={sortedData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-            <XAxis 
-              dataKey="section" 
-              stroke="hsl(var(--foreground))"
-              angle={-45}
-              textAnchor="end"
-              height={80}
-              tick={{ fill: 'hsl(var(--foreground))' }}
-            />
-            <YAxis 
-              stroke="hsl(var(--foreground))"
-              label={{ 
-                value: 'Avg Duration', 
-                angle: -90, 
-                position: 'insideLeft',
-                style: { fill: 'hsl(var(--foreground))' }
-              }}
-              tick={{ fill: 'hsl(var(--foreground))' }}
-              tickFormatter={(value: number) => formatDuration(value)}
-            />
-            <Tooltip 
-              contentStyle={{
-                backgroundColor: 'hsl(var(--background))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px',
-              }}
-              labelStyle={{ color: 'hsl(var(--foreground))' }}
-              formatter={(value: number, name: string) => {
-                if (name === 'avgDuration') return [formatDurationDetailed(value), 'Avg Duration'];
-                if (name === 'views') return [value, 'Views'];
-                if (name === 'clicks') return [value, 'Clicks'];
-                if (name === 'engagementScore') return [value.toFixed(1), 'Engagement'];
-                return [value, name];
-              }}
-            />
-            <Bar dataKey="avgDuration" radius={[8, 8, 0, 0]}>
-              {sortedData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-
-        {/* Legend with additional metrics */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sortedData.slice(0, 6).map((section, index) => (
-            <div
-              key={section.section}
-              className="flex items-start space-x-3 p-3 rounded-lg border bg-card"
-            >
-              <div
-                className="w-3 h-3 rounded-full mt-1 flex-shrink-0"
-                style={{ backgroundColor: COLORS[index % COLORS.length] }}
-              />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm capitalize truncate">
-                  {section.section.replace(/_/g, ' ')}
-                </p>
-                <div className="text-xs text-muted-foreground space-y-0.5">
-                  <p>⏱️ {formatDuration(section.avgDuration)} avg</p>
-                  <p>👁️ {section.views} views</p>
-                  <p>👆 {section.clicks} clicks</p>
-                  <p className="font-semibold text-foreground">
-                    🎯 {section.engagementScore.toFixed(1)} engagement
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
+    <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <CardHeader className="items-center pb-4 space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-[#3498DB]/10 to-[#2C3E50]/10">
+            <TrendingUp className="h-5 w-5 text-[#3498DB]" />
+          </div>
+          <div className="text-center sm:text-left">
+            <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">
+              Section Retention Analysis
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm mt-0.5">
+              Engagement metrics across resume sections
+            </CardDescription>
+          </div>
         </div>
+      </CardHeader>
+      <CardContent className="pb-0 px-2 sm:px-6">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square max-h-[280px] sm:max-h-[320px]"
+        >
+          <RadarChart
+            data={chartData}
+            margin={{
+              top: -30,
+              bottom: -10,
+              left: 0,
+              right: 0,
+            }}
+          >
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent 
+                indicator="line"
+                formatter={(value, name, item) => {
+                  // Show original values instead of normalized ones
+                  if (name === 'views') {
+                    return [`${item.payload.originalViews} views`, 'Views'];
+                  }
+                  if (name === 'clicks') {
+                    return [`${item.payload.originalClicks} clicks`, 'Clicks'];
+                  }
+                  if (name === 'engagementScore') {
+                    return [`${item.payload.originalEngagement}`, 'Engagement'];
+                  }
+                  return [value, name];
+                }}
+              />}
+            />
+            <PolarAngleAxis 
+              dataKey="section"
+              tick={{ fill: "hsl(var(--foreground))", fontSize: 11 }}
+            />
+            <PolarGrid 
+              gridType="polygon"
+              stroke="hsl(var(--foreground))"
+              strokeWidth={2}
+              strokeOpacity={0.3}
+            />
+            <Radar
+              dataKey="views"
+              fill="var(--color-views)"
+              fillOpacity={0.2}
+              stroke="var(--color-views)"
+              strokeWidth={2}
+            />
+            <Radar 
+              dataKey="clicks" 
+              fill="var(--color-clicks)" 
+              fillOpacity={0.15}
+              stroke="var(--color-clicks)"
+              strokeWidth={2}
+            />
+            <Radar 
+              dataKey="engagementScore" 
+              fill="var(--color-engagementScore)" 
+              fillOpacity={0.1}
+              stroke="var(--color-engagementScore)"
+              strokeWidth={2}
+            />
+            <ChartLegend 
+              className="mt-6" 
+              content={<ChartLegendContent />} 
+            />
+          </RadarChart>
+        </ChartContainer>
       </CardContent>
+      <CardFooter className="flex-col gap-3 text-sm pt-4 pb-4 sm:pb-6">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
+          <div className="flex items-center gap-1.5">
+            <Eye className="h-3.5 w-3.5 text-[var(--chart-1)]" />
+            <span className="text-gray-600 dark:text-gray-400">
+              {totalViews} total views
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <MousePointerClick className="h-3.5 w-3.5 text-[var(--chart-2)]" />
+            <span className="text-gray-600 dark:text-gray-400">
+              {totalClicks} total clicks
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5 text-[var(--chart-3)]" />
+            <span className="text-gray-600 dark:text-gray-400">
+              {avgEngagement.toFixed(1)} avg engagement
+            </span>
+          </div>
+        </div>
+        <div className="text-xs text-center text-muted-foreground">
+          Top {chartData.length} sections by engagement score
+        </div>
+      </CardFooter>
     </Card>
   );
 }

@@ -1,16 +1,24 @@
-import React from "react";
+"use client";
+
+import * as React from "react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import type { TimeSeriesDataPoint } from "@/types/analytics";
+import { TrendingUp } from "lucide-react";
 
 interface CombinedTimeSeriesChartProps {
   data: TimeSeriesDataPoint[];
@@ -18,19 +26,33 @@ interface CombinedTimeSeriesChartProps {
   showLegend?: boolean;
 }
 
+const chartConfig = {
+  views: {
+    label: "Views",
+    color: "hsl(var(--chart-1))",
+  },
+  interactions: {
+    label: "Interactions",
+    color: "hsl(var(--chart-2))",
+  },
+  avgDuration: {
+    label: "Avg Duration (s)",
+    color: "hsl(var(--chart-3))",
+  },
+} satisfies ChartConfig;
+
 export function CombinedTimeSeriesChart({
   data,
-  title = "Activity Over Time",
-  showLegend = true,
+  title = "Activity Trends",
 }: CombinedTimeSeriesChartProps) {
   if (!data || data.length === 0) {
     return (
-      <Card>
+      <Card className="border-2 border-[#3498DB]/10 shadow-lg">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+          <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
             No data available
           </div>
         </CardContent>
@@ -38,58 +60,153 @@ export function CombinedTimeSeriesChart({
     );
   }
 
+  // Calculate total metrics for the summary
+  const totalViews = data.reduce((sum, item) => sum + (item.views || 0), 0);
+  const totalInteractions = data.reduce((sum, item) => sum + (item.interactions || 0), 0);
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
+    <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <CardHeader className="space-y-1 pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-[#3498DB]/10 to-[#2C3E50]/10">
+              <TrendingUp className="h-5 w-5 text-[#3498DB]" />
+            </div>
+            <div>
+              <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">
+                {title}
+              </CardTitle>
+              <CardDescription className="text-xs sm:text-sm mt-0.5">
+                Track your resume engagement over time
+              </CardDescription>
+            </div>
+          </div>
+        </div>
+        
+        {/* Quick Stats */}
+        <div className="flex items-center gap-4 pt-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full bg-[var(--chart-1)]"></div>
+            <span className="text-gray-600 dark:text-gray-400">{totalViews} total views</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full bg-[var(--chart-2)]"></div>
+            <span className="text-gray-600 dark:text-gray-400">{totalInteractions} interactions</span>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+      <CardContent className="px-2 pb-4 sm:px-6 sm:pb-6">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-auto h-[280px] sm:h-[320px] w-full"
+        >
+          <AreaChart data={data}>
+            <defs>
+              <linearGradient id="fillViews" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-views)"
+                  stopOpacity={0.9}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-views)"
+                  stopOpacity={0.05}
+                />
+              </linearGradient>
+              <linearGradient id="fillInteractions" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-interactions)"
+                  stopOpacity={0.9}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-interactions)"
+                  stopOpacity={0.05}
+                />
+              </linearGradient>
+              <linearGradient id="fillAvgDuration" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-avgDuration)"
+                  stopOpacity={0.9}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-avgDuration)"
+                  stopOpacity={0.05}
+                />
+              </linearGradient>
+            </defs>
+            <CartesianGrid 
+              vertical={false} 
+              strokeDasharray="3 3" 
+              className="stroke-gray-200 dark:stroke-gray-700"
+            />
             <XAxis
               dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              minTickGap={32}
               className="text-xs"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
-            />
-            <YAxis
-              className="text-xs"
-              tick={{ fill: "hsl(var(--muted-foreground))" }}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "var(--radius)",
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
               }}
             />
-            {showLegend && <Legend />}
-            <Line
-              type="monotone"
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={10}
+              className="text-xs"
+            />
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  labelFormatter={(value) => {
+                    return new Date(value).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    });
+                  }}
+                  indicator="dot"
+                />
+              }
+            />
+            <Area
               dataKey="views"
-              stroke="hsl(var(--chart-1))"
-              strokeWidth={2}
-              dot={{ fill: "hsl(var(--chart-1))" }}
-              name="Views"
-            />
-            <Line
               type="monotone"
+              fill="url(#fillViews)"
+              stroke="var(--color-views)"
+              strokeWidth={2.5}
+            />
+            <Area
               dataKey="interactions"
-              stroke="hsl(var(--chart-2))"
-              strokeWidth={2}
-              dot={{ fill: "hsl(var(--chart-2))" }}
-              name="Interactions"
-            />
-            <Line
               type="monotone"
-              dataKey="avgDuration"
-              stroke="hsl(var(--chart-3))"
+              fill="url(#fillInteractions)"
+              stroke="var(--color-interactions)"
               strokeWidth={2}
-              dot={{ fill: "hsl(var(--chart-3))" }}
-              name="Avg Duration (s)"
             />
-          </LineChart>
-        </ResponsiveContainer>
+            <Area
+              dataKey="avgDuration"
+              type="monotone"
+              fill="url(#fillAvgDuration)"
+              stroke="var(--color-avgDuration)"
+              strokeWidth={2}
+            />
+            <ChartLegend 
+              content={<ChartLegendContent />}
+              className="pt-4"
+            />
+          </AreaChart>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
