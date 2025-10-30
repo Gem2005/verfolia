@@ -24,6 +24,8 @@ export interface AnalyticsCalculations {
   totalInteractions: number;
   avgViewDuration: number;
   avgEngagementRate: number;
+  totalReturningViews: number;
+  returningViewsPercentage: number;
 
   // Growth Metrics
   viewsGrowthRate: number;
@@ -68,6 +70,8 @@ export function useAnalyticsCalculations(
         totalInteractions: 0,
         avgViewDuration: 0,
         avgEngagementRate: 0,
+        totalReturningViews: 0,
+        returningViewsPercentage: 0,
         viewsGrowthRate: 0,
         interactionsGrowthRate: 0,
         durationGrowthRate: 0,
@@ -143,6 +147,15 @@ export function useAnalyticsCalculations(
     );
     const sectionDurations = transformToSectionDuration(analyticsData);
 
+    // Returning views calculation
+    const totalReturningViews = combinedSeries.reduce(
+      (sum, item) => sum + (item.returningViews || 0), 
+      0
+    );
+    const returningViewsPercentage = totalViews > 0 
+      ? Math.round((totalReturningViews / totalViews) * 100) 
+      : 0;
+
     // Growth metrics (using transformed time series data)
     const viewsGrowthRate = calculateGrowthRate(combinedSeries, "views");
     const interactionsGrowthRate = calculateGrowthRate(
@@ -194,6 +207,8 @@ export function useAnalyticsCalculations(
       totalInteractions,
       avgViewDuration,
       avgEngagementRate,
+      totalReturningViews,
+      returningViewsPercentage,
       viewsGrowthRate,
       interactionsGrowthRate,
       durationGrowthRate,

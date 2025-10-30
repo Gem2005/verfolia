@@ -109,15 +109,15 @@ export function SectionDurationChart({ data }: SectionDurationChartProps) {
       <CardContent className="pb-0 px-2 sm:px-6">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[280px] sm:max-h-[320px]"
+          className="mx-auto aspect-auto h-[280px] sm:h-[320px]"
         >
           <RadarChart
             data={chartData}
             margin={{
-              top: -30,
-              bottom: -10,
-              left: 0,
-              right: 0,
+              top: 20,
+              bottom: 20,
+              left: 50,
+              right: 50,
             }}
           >
             <ChartTooltip
@@ -125,23 +125,24 @@ export function SectionDurationChart({ data }: SectionDurationChartProps) {
               content={<ChartTooltipContent 
                 indicator="line"
                 formatter={(value, name, item) => {
-                  // Show original values instead of normalized ones
+                  // Show original values instead of normalized ones with proper spacing
                   if (name === 'views') {
-                    return [`${item.payload.originalViews} views`, 'Views'];
+                    return [item.payload.originalViews + ' ', 'Views'];
                   }
                   if (name === 'clicks') {
-                    return [`${item.payload.originalClicks} clicks`, 'Clicks'];
+                    return [item.payload.originalClicks + ' ', 'Clicks'];
                   }
                   if (name === 'engagementScore') {
-                    return [`${item.payload.originalEngagement}`, 'Engagement'];
+                    return [item.payload.originalEngagement + ' ', 'Engagement'];
                   }
-                  return [value, name];
+                  return [value + ' ', name];
                 }}
               />}
             />
             <PolarAngleAxis 
               dataKey="section"
-              tick={{ fill: "hsl(var(--foreground))", fontSize: 11 }}
+              tick={{ fill: "hsl(var(--foreground))", fontSize: 10 }}
+              tickLine={false}
             />
             <PolarGrid 
               gridType="polygon"
@@ -177,8 +178,8 @@ export function SectionDurationChart({ data }: SectionDurationChartProps) {
           </RadarChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-3 text-sm pt-4 pb-4 sm:pb-6">
-        <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
+      <CardFooter className="flex-col gap-2 text-sm pt-3 pb-3 sm:pb-4">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm">
           <div className="flex items-center gap-1.5">
             <Eye className="h-3.5 w-3.5 text-[var(--chart-1)]" />
             <span className="text-gray-600 dark:text-gray-400">

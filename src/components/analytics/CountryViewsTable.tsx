@@ -82,10 +82,10 @@ export function CountryViewsTable({
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-md border">
+        <div className="rounded-lg border-2 border-[#3498DB]/20 overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow>
+            <TableHeader className="bg-gradient-to-br from-[#3498DB]/5 to-[#2C3E50]/5">
+              <TableRow className="border-b border-[#3498DB]/20 hover:bg-transparent">
                 <TableHead className="w-[60px]">Flag</TableHead>
                 <TableHead>Country</TableHead>
                 <TableHead className="text-right">Views</TableHead>

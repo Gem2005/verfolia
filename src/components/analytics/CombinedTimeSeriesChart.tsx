@@ -35,8 +35,8 @@ const chartConfig = {
     label: "Interactions",
     color: "hsl(var(--chart-2))",
   },
-  avgDuration: {
-    label: "Avg Duration (s)",
+  returningViews: {
+    label: "Returning Views",
     color: "hsl(var(--chart-3))",
   },
 } satisfies ChartConfig;
@@ -60,14 +60,17 @@ export function CombinedTimeSeriesChart({
     );
   }
 
-  // Calculate total metrics for the summary
   const totalViews = data.reduce((sum, item) => sum + (item.views || 0), 0);
   const totalInteractions = data.reduce((sum, item) => sum + (item.interactions || 0), 0);
+  const totalReturningViews = data.reduce((sum, item) => sum + (item.returningViews || 0), 0);
+  const returningPercentage = totalViews > 0 ? Math.round((totalReturningViews / totalViews) * 100) : 0;
+  
+  const chartData = data;
 
   return (
     <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="space-y-1 pb-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-lg bg-gradient-to-br from-[#3498DB]/10 to-[#2C3E50]/10">
               <TrendingUp className="h-5 w-5 text-[#3498DB]" />
@@ -83,8 +86,7 @@ export function CombinedTimeSeriesChart({
           </div>
         </div>
         
-        {/* Quick Stats */}
-        <div className="flex items-center gap-4 pt-2 text-xs sm:text-sm">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2 text-xs sm:text-sm">
           <div className="flex items-center gap-1.5">
             <div className="h-2 w-2 rounded-full bg-[var(--chart-1)]"></div>
             <span className="text-gray-600 dark:text-gray-400">{totalViews} total views</span>
@@ -93,57 +95,33 @@ export function CombinedTimeSeriesChart({
             <div className="h-2 w-2 rounded-full bg-[var(--chart-2)]"></div>
             <span className="text-gray-600 dark:text-gray-400">{totalInteractions} interactions</span>
           </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-2 w-2 rounded-full bg-[var(--chart-3)]"></div>
+            <span className="text-gray-600 dark:text-gray-400">{totalReturningViews} returning ({returningPercentage}%)</span>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="px-2 pb-4 sm:px-6 sm:pb-6">
         <ChartContainer
           config={chartConfig}
-          className="aspect-auto h-[280px] sm:h-[320px] w-full"
+          className="aspect-auto h-[250px] sm:h-[320px] w-full"
         >
-          <AreaChart data={data}>
+          <AreaChart data={chartData} margin={{ left: -10, right: 10, top: 10, bottom: 0 }}>
             <defs>
               <linearGradient id="fillViews" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-views)"
-                  stopOpacity={0.9}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-views)"
-                  stopOpacity={0.05}
-                />
+                <stop offset="5%" stopColor="var(--color-views)" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="var(--color-views)" stopOpacity={0.05} />
               </linearGradient>
               <linearGradient id="fillInteractions" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-interactions)"
-                  stopOpacity={0.9}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-interactions)"
-                  stopOpacity={0.05}
-                />
+                <stop offset="5%" stopColor="var(--color-interactions)" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="var(--color-interactions)" stopOpacity={0.05} />
               </linearGradient>
-              <linearGradient id="fillAvgDuration" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-avgDuration)"
-                  stopOpacity={0.9}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-avgDuration)"
-                  stopOpacity={0.05}
-                />
+              <linearGradient id="fillReturningViews" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-returningViews)" stopOpacity={0.9} />
+                <stop offset="95%" stopColor="var(--color-returningViews)" stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <CartesianGrid 
-              vertical={false} 
-              strokeDasharray="3 3" 
-              className="stroke-gray-200 dark:stroke-gray-700"
-            />
+            <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -151,60 +129,13 @@ export function CombinedTimeSeriesChart({
               tickMargin={10}
               minTickGap={32}
               className="text-xs"
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
-              }}
             />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tickMargin={10}
-              className="text-xs"
-            />
-            <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    });
-                  }}
-                  indicator="dot"
-                />
-              }
-            />
-            <Area
-              dataKey="views"
-              type="monotone"
-              fill="url(#fillViews)"
-              stroke="var(--color-views)"
-              strokeWidth={2.5}
-            />
-            <Area
-              dataKey="interactions"
-              type="monotone"
-              fill="url(#fillInteractions)"
-              stroke="var(--color-interactions)"
-              strokeWidth={2}
-            />
-            <Area
-              dataKey="avgDuration"
-              type="monotone"
-              fill="url(#fillAvgDuration)"
-              stroke="var(--color-avgDuration)"
-              strokeWidth={2}
-            />
-            <ChartLegend 
-              content={<ChartLegendContent />}
-              className="pt-4"
-            />
+            <YAxis tickLine={false} axisLine={false} tickMargin={10} className="text-xs" />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+            <Area dataKey="views" type="monotone" fill="url(#fillViews)" stroke="var(--color-views)" strokeWidth={2.5} />
+            <Area dataKey="interactions" type="monotone" fill="url(#fillInteractions)" stroke="var(--color-interactions)" strokeWidth={2} />
+            <Area dataKey="returningViews" type="monotone" fill="url(#fillReturningViews)" stroke="var(--color-returningViews)" strokeWidth={2} />
+            <ChartLegend content={<ChartLegendContent />} className="pt-4" />
           </AreaChart>
         </ChartContainer>
       </CardContent>

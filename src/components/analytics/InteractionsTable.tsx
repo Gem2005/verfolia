@@ -37,9 +37,9 @@ export function InteractionsTable({
 
   if (!data || data.length === 0) {
     return (
-      <Card>
+      <Card className="border-2 border-[#3498DB]/10 shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle>Recent Interactions</CardTitle>
+          <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">Recent Interactions</CardTitle>
           {onRefresh && (
             <Button
               variant="outline"
@@ -117,10 +117,10 @@ export function InteractionsTable({
   };
 
   return (
-    <Card>
+    <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <div>
-          <CardTitle>Recent Interactions</CardTitle>
+          <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">Recent Interactions</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
             {sortedData.length} total interaction{sortedData.length !== 1 ? 's' : ''}
           </p>
@@ -138,10 +138,10 @@ export function InteractionsTable({
         )}
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
+        <div className="rounded-lg border-2 border-[#3498DB]/20 overflow-hidden">
           <Table>
-            <TableHeader>
-              <TableRow>
+            <TableHeader className="bg-gradient-to-br from-[#3498DB]/5 to-[#2C3E50]/5">
+              <TableRow className="border-b border-[#3498DB]/20 hover:bg-transparent">
                 <TableHead className="w-[50px]"></TableHead>
                 <TableHead>Type / Section</TableHead>
                 <TableHead>Details</TableHead>

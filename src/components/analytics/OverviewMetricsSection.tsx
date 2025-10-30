@@ -1,6 +1,6 @@
 import React from "react";
 import { PerformanceMetric } from "./PerformanceMetric";
-import { Eye, MousePointerClick, Clock, TrendingUp } from "lucide-react";
+import { Eye, MousePointerClick, Clock, UserCheck } from "lucide-react";
 import type { AnalyticsCalculations } from "@/hooks/use-analytics-calculations";
 
 interface OverviewMetricsSectionProps {
@@ -53,10 +53,11 @@ export function OverviewMetricsSection({
       gradient: "from-green-500 to-green-600",
     },
     {
-      title: "Engagement Rate",
-      icon: TrendingUp,
-      value: calculations.avgEngagementRate * 100,
-      format: "percentage" as const,
+      title: "Returning Views",
+      icon: UserCheck,
+      value: calculations.totalReturningViews,
+      subtitle: `${calculations.returningViewsPercentage}% of total`,
+      format: "number" as const,
       showTrend: false,
       gradient: "from-orange-500 to-orange-600",
     },
@@ -85,13 +86,20 @@ export function OverviewMetricsSection({
             </div>
             
             {/* Metric */}
-            <PerformanceMetric
-              label=""
-              value={metric.value}
-              change={metric.change}
-              format={metric.format}
-              showTrend={metric.showTrend}
-            />
+            <div>
+              <PerformanceMetric
+                label=""
+                value={metric.value}
+                change={metric.change}
+                format={metric.format}
+                showTrend={metric.showTrend}
+              />
+              {'subtitle' in metric && metric.subtitle && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {metric.subtitle}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       ))}

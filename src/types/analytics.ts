@@ -1,6 +1,7 @@
 export interface View {
   id: string;
   viewed_at: string;
+  session_id?: string;
   country?: string;
   city?: string;
   view_duration?: number;
@@ -90,6 +91,9 @@ export interface TimeSeriesDataPoint {
   views: number;
   interactions: number;
   avgDuration: number;
+  uniqueSessions: number;
+  returningViews: number;
+  returningPercentage: number;
 }
 
 export interface MetricCardProps {

@@ -18,6 +18,7 @@ export interface SectionDurationData {
 interface TimeSeriesInternal extends TimeSeriesDataPoint {
   durSum: number;
   durCount: number;
+  sessionIds: Set<string>;
 }
 
 export const transformToCombinedSeries = (
@@ -39,6 +40,10 @@ export const transformToCombinedSeries = (
       avgDuration: 0,
       durSum: 0,
       durCount: 0,
+      uniqueSessions: 0,
+      returningViews: 0,
+      returningPercentage: 0,
+      sessionIds: new Set<string>(),
     });
   });
 
@@ -51,6 +56,12 @@ export const transformToCombinedSeries = (
       cell.views += 1;
       cell.durSum += Number(v.view_duration || 0);
       cell.durCount += 1;
+      
+      // Track unique sessions
+      const sessionId = (v as { session_id?: string }).session_id;
+      if (sessionId) {
+        cell.sessionIds.add(sessionId);
+      }
     }
   });
 
@@ -71,12 +82,22 @@ export const transformToCombinedSeries = (
     }
   });
 
-  // Calculate average duration and clean up
+  // Calculate average duration, unique sessions, and returning views
   return Array.from(dateIndex.values()).map((r) => {
-    const { durSum, durCount, ...rest } = r;
+    const { durSum, durCount, sessionIds, ...rest } = r;
+    const uniqueSessions = sessionIds.size;
+    const totalViews = rest.views;
+    const returningViews = Math.max(0, totalViews - uniqueSessions);
+    const returningPercentage = totalViews > 0 
+      ? Math.round((returningViews / totalViews) * 100) 
+      : 0;
+    
     return {
       ...rest,
       avgDuration: durCount > 0 ? Math.round(durSum / durCount) : 0,
+      uniqueSessions,
+      returningViews,
+      returningPercentage,
     };
   });
 };

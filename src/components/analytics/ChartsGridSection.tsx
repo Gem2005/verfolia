@@ -33,8 +33,8 @@ interface ChartsGridSectionProps {
 
 export function ChartsGridSection({ calculations }: ChartsGridSectionProps) {
   return (
-    <div className="grid gap-6 md:grid-cols-2">
-      <div className="md:col-span-2">
+    <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+      <div className="lg:col-span-2">
         <CombinedTimeSeriesChart
           data={calculations.combinedSeries}
           title="Activity Trends"
@@ -42,7 +42,7 @@ export function ChartsGridSection({ calculations }: ChartsGridSectionProps) {
       </div>
 
       {calculations.sectionDurations && calculations.sectionDurations.length > 0 && (
-        <div className="md:col-span-2">
+        <div className="w-full">
           <SectionDurationChart
             data={calculations.sectionDurations}
           />
@@ -50,7 +50,7 @@ export function ChartsGridSection({ calculations }: ChartsGridSectionProps) {
       )}
 
       {calculations.stackedCountries.length > 0 && (
-        <div className="md:col-span-2">
+        <div className="w-full">
           <CountryStackedChart
             data={calculations.stackedCountries}
             title="Geographic Distribution"

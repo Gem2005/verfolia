@@ -69,24 +69,49 @@ export function CountryStackedChart({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-2 sm:px-6">
-        <ChartContainer config={chartConfig} className="h-[300px] sm:h-[350px] w-full">
+      <CardContent className="px-2 pb-4 sm:px-6 sm:pb-6">
+        <ChartContainer config={chartConfig} className="aspect-auto h-[280px] sm:h-[393px] w-full">
           <BarChart 
             accessibilityLayer 
             data={data}
-            margin={{ top: 10, right: 10, bottom: 0, left: 0 }}
+            margin={{ top: 10, right: 10, bottom: 10, left: 0 }}
           >
             <XAxis
               dataKey="date"
               tickLine={false}
-              tickMargin={10}
+              tickMargin={15}
               axisLine={false}
-              className="text-xs"
+              className="text-[10px] sm:text-xs"
+              angle={-45}
+              textAnchor="end"
+              height={80}
+              interval="preserveStartEnd"
               tickFormatter={(value) => {
-                return new Date(value).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                });
+                // Handle both ISO date strings and hour strings
+                if (value.includes('T')) {
+                  // For 24-hour format with ISO DateTime
+                  const date = new Date(value + ':00:00Z');
+                  if (!isNaN(date.getTime())) {
+                    return date.toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      hour12: true,
+                    });
+                  }
+                } else if (value.includes(',') || value.includes(' ')) {
+                  // Already formatted string from timeUtils
+                  return value;
+                }
+                // Regular date format (YYYY-MM-DD)
+                const date = new Date(value);
+                if (!isNaN(date.getTime())) {
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
+                }
+                return value;
               }}
             />
             <YAxis
@@ -94,6 +119,7 @@ export function CountryStackedChart({
               axisLine={false}
               tickMargin={10}
               className="text-xs"
+              allowDecimals={false}
             />
             {countryKeys.map((country, index) => (
               <Bar
@@ -125,7 +151,7 @@ export function CountryStackedChart({
                             }}
                           />
                           <span className="flex-1">{name}</span>
-                          <div className="ml-auto flex items-baseline gap-0.5 font-mono font-medium tabular-nums text-foreground">
+                          <div className="ml-auto flex items-baseline gap-1 font-mono font-medium tabular-nums text-foreground">
                             {value}
                             <span className="font-normal text-muted-foreground">
                               views
