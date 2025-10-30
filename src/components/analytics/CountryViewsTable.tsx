@@ -41,9 +41,9 @@ export function CountryViewsTable({
 
   if (!data || data.length === 0) {
     return (
-      <Card>
+      <Card className="border-2 border-[#3498DB]/10 shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
           {onRefresh && (
             <Button
               variant="outline"
@@ -66,9 +66,9 @@ export function CountryViewsTable({
   }
 
   return (
-    <Card>
+    <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
         {onRefresh && (
           <Button
             variant="outline"
@@ -99,7 +99,7 @@ export function CountryViewsTable({
                 const percentage = ((country.count / totalViews) * 100).toFixed(1);
                 
                 return (
-                  <TableRow key={country.name}>
+                  <TableRow key={country.name} className="border-b border-[#3498DB]/10 hover:bg-[#3498DB]/5">
                     <TableCell>
                       <Flag countryCode={country.name} />
                     </TableCell>

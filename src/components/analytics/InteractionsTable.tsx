@@ -150,7 +150,7 @@ export function InteractionsTable({
             </TableHeader>
             <TableBody>
               {currentData.map((interaction) => (
-                <TableRow key={interaction.id}>
+                <TableRow key={interaction.id} className="border-b border-[#3498DB]/10 hover:bg-[#3498DB]/5">
                   <TableCell className="text-xl">
                     {getInteractionIcon(interaction.interaction_type)}
                   </TableCell>

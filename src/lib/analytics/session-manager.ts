@@ -1,11 +1,11 @@
 /**
  * Session Manager for Analytics Tracking
  * Generates and manages unique session IDs for analytics tracking
- * Sessions expire after 30 minutes of inactivity
+ * Sessions expire after 15 days of inactivity
  */
 
 const STORAGE_KEY = 'verfolia_analytics_session';
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
+const SESSION_TIMEOUT = 15 * 24 * 60 * 60 * 1000; // 15 days in milliseconds
 
 interface SessionData {
   sessionId: string;
@@ -23,7 +23,7 @@ export function getOrCreateSessionId(): string {
   }
 
   try {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
     
     if (stored) {
       const sessionData: SessionData = JSON.parse(stored);
@@ -32,7 +32,7 @@ export function getOrCreateSessionId(): string {
       if (!isExpired) {
         // Update timestamp to extend session
         sessionData.timestamp = Date.now();
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
         console.log(`🔄 [Session] Using existing session: ${sessionData.sessionId.substring(0, 8)}...`);
         return sessionData.sessionId;
       }
@@ -49,7 +49,7 @@ export function getOrCreateSessionId(): string {
   };
 
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
     console.log(`🆕 [Session] Created new session: ${newSessionId.substring(0, 8)}...`);
   } catch (error) {
     console.error('Error storing session:', error);
@@ -66,7 +66,7 @@ export function clearSession(): void {
   if (typeof window === 'undefined') return;
 
   try {
-    sessionStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
     console.error('Error clearing session:', error);
   }
@@ -80,7 +80,7 @@ export function isSessionActive(): boolean {
   if (typeof window === 'undefined') return false;
 
   try {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return false;
 
     const sessionData: SessionData = JSON.parse(stored);
@@ -101,7 +101,7 @@ export function getCurrentSessionId(): string | null {
   if (typeof window === 'undefined') return null;
 
   try {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return null;
 
     const sessionData: SessionData = JSON.parse(stored);

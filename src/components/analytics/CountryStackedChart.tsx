@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
@@ -121,6 +121,7 @@ export function CountryStackedChart({
               className="text-xs"
               allowDecimals={false}
             />
+            <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />
             {countryKeys.map((country, index) => (
               <Bar
                 key={country}
@@ -135,6 +136,11 @@ export function CountryStackedChart({
                 <ChartTooltipContent
                   className="w-[200px]"
                   formatter={(value, name, item, index) => {
+                    // Hide entries with 0 views
+                    if (!value || Number(value) === 0) {
+                      return null;
+                    }
+                    
                     const payload = item.payload as Record<string, string | number>;
                     const total = countryKeys.reduce(
                       (sum, key) => sum + (Number(payload[key]) || 0),

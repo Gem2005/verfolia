@@ -102,7 +102,7 @@ export function RecentViewsTable({
             </TableHeader>
             <TableBody>
               {paginatedData.map((view) => (
-                <TableRow key={view.id}>
+                <TableRow key={view.id} className="border-b border-[#3498DB]/10 hover:bg-[#3498DB]/5">
                   <TableCell className="font-medium">
                     {formatDate(view.viewed_at)}
                   </TableCell>

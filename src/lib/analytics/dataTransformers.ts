@@ -29,6 +29,30 @@ export const transformToCombinedSeries = (
 
   const { slots, is24Hours } = createTimeSlots(timeframe);
 
+  // Track all session IDs globally to identify first-time vs returning
+  const sessionFirstSeen = new Map<string, string>(); // session_id -> first date seen
+  
+  // First pass: identify when each session first appears
+  analyticsData.views.forEach((v) => {
+    const sessionId = (v as { session_id?: string }).session_id;
+    if (sessionId) {
+      const viewDate = new Date(v.viewed_at);
+      const key = is24Hours ? toISODateTime(viewDate) : toISODate(viewDate);
+      
+      if (!sessionFirstSeen.has(sessionId)) {
+        sessionFirstSeen.set(sessionId, key);
+      }
+    }
+  });
+
+  console.log('🔍 Session tracking:', {
+    totalSessions: sessionFirstSeen.size,
+    sessions: Array.from(sessionFirstSeen.entries()).map(([id, date]) => ({
+      sessionId: id.substring(0, 8) + '...',
+      firstSeen: date
+    }))
+  });
+
   // Initialize data structure
   const dateIndex = new Map<string, TimeSeriesInternal>();
   
@@ -57,10 +81,23 @@ export const transformToCombinedSeries = (
       cell.durSum += Number(v.view_duration || 0);
       cell.durCount += 1;
       
-      // Track unique sessions
+      // Track unique sessions for this time period
       const sessionId = (v as { session_id?: string }).session_id;
       if (sessionId) {
         cell.sessionIds.add(sessionId);
+        
+        // Check if this is a returning view
+        const firstSeenDate = sessionFirstSeen.get(sessionId);
+        if (firstSeenDate && firstSeenDate !== key) {
+          // This view is from a session that was first seen in a different time period
+          cell.returningViews += 1;
+          console.log('✅ Returning view detected:', {
+            sessionId: sessionId.substring(0, 8) + '...',
+            firstSeen: firstSeenDate,
+            currentView: key,
+            viewTime: viewDate.toISOString()
+          });
+        }
       }
     }
   });
@@ -87,7 +124,8 @@ export const transformToCombinedSeries = (
     const { durSum, durCount, sessionIds, ...rest } = r;
     const uniqueSessions = sessionIds.size;
     const totalViews = rest.views;
-    const returningViews = Math.max(0, totalViews - uniqueSessions);
+    const returningViews = rest.returningViews; // Already calculated during processing
+    
     const returningPercentage = totalViews > 0 
       ? Math.round((returningViews / totalViews) * 100) 
       : 0;

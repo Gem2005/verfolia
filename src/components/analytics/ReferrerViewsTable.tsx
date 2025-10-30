@@ -109,7 +109,7 @@ export function ReferrerViewsTable({
                 const showLink = isUrl(referrer.name);
 
                 return (
-                  <TableRow key={`${referrer.name}-${index}`}>
+                  <TableRow key={`${referrer.name}-${index}`} className="border-b border-[#3498DB]/10 hover:bg-[#3498DB]/5">
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{displayName}</span>
