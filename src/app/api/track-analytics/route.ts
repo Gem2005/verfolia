@@ -1,21 +1,75 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Helper: fetch geo data from IP-API if needed
+// Country code to full name mapping
+const countryCodeToName: Record<string, string> = {
+  US: "United States",
+  IN: "India",
+  GB: "United Kingdom",
+  CA: "Canada",
+  AU: "Australia",
+  DE: "Germany",
+  FR: "France",
+  JP: "Japan",
+  CN: "China",
+  BR: "Brazil",
+  MX: "Mexico",
+  ES: "Spain",
+  IT: "Italy",
+  NL: "Netherlands",
+  SE: "Sweden",
+  NO: "Norway",
+  DK: "Denmark",
+  FI: "Finland",
+  PL: "Poland",
+  RU: "Russia",
+  ZA: "South Africa",
+  KR: "South Korea",
+  SG: "Singapore",
+  MY: "Malaysia",
+  TH: "Thailand",
+  ID: "Indonesia",
+  PH: "Philippines",
+  VN: "Vietnam",
+  AE: "United Arab Emirates",
+  SA: "Saudi Arabia",
+  IL: "Israel",
+  TR: "Turkey",
+  GR: "Greece",
+  PT: "Portugal",
+  IE: "Ireland",
+  NZ: "New Zealand",
+  AR: "Argentina",
+  CL: "Chile",
+  CO: "Colombia",
+  PE: "Peru",
+  EG: "Egypt",
+  NG: "Nigeria",
+  KE: "Kenya",
+  PK: "Pakistan",
+  BD: "Bangladesh",
+};
+
+// Helper: fetch geo data from ipapi.co (same as session route)
 async function fetchGeoFromIP(ip: string) {
+  if (ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+    return {};
+  }
+
   try {
-    const res = await fetch(
-      `http://ip-api.com/json/${ip}?fields=status,country,city,regionName,lat,lon`,
-      { next: { revalidate: 0 } }
-    );
+    const res = await fetch(`https://ipapi.co/${ip}/json/`, {
+      headers: { 'User-Agent': 'verfolia-analytics/1.0' },
+      signal: AbortSignal.timeout(3000)
+    });
+    
     if (!res.ok) return {};
     const geo = await res.json();
-    if (geo.status !== "success") return {};
+    
     return {
-      country: geo.country || null,
+      country: geo.country_name || null, // ipapi.co returns full country name
       city: geo.city || null,
-      region: geo.regionName || null,
-      latitude: geo.lat ?? null,
-      longitude: geo.lon ?? null,
+      region: geo.region || null,
+      latitude: geo.latitude ?? null,
+      longitude: geo.longitude ?? null,
     };
   } catch {
     return {};
@@ -43,13 +97,17 @@ export async function POST(req: NextRequest) {
       headers.get("x-client-ip") ||
       null;
 
+    // Get country code from headers
+    const countryCode =
+      headers.get("x-vercel-ip-country") ||
+      headers.get("x-vercel-ip-country-code") ||
+      headers.get("cf-ipcountry") ||
+      null;
+
     const geo: Record<string, string | number | null> = {
       ipAddress: ip,
-      country:
-        headers.get("x-vercel-ip-country") ||
-        headers.get("x-vercel-ip-country-code") ||
-        headers.get("cf-ipcountry") ||
-        null,
+      // Convert country code to full name
+      country: countryCode ? (countryCodeToName[countryCode] || countryCode) : null,
       city:
         headers.get("x-vercel-ip-city") ||
         headers.get("cf-ipcity") ||
@@ -62,7 +120,7 @@ export async function POST(req: NextRequest) {
       longitude: headers.get("x-vercel-ip-longitude") || null,
     };
 
-    // If missing geo info (localhost/dev), try IP-API
+    // If missing geo info (localhost/dev), try ipapi.co
     if (
       (!geo.country || !geo.city || !geo.region) &&
       ip &&
