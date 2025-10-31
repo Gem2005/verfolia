@@ -4,6 +4,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { plusJakartaSans, lora, robotoMono } from "@/lib/fonts";
+import { ConsoleWelcome } from "@/components/console-welcome";
 
 export const metadata: Metadata = {
   title: "Verfolia",
@@ -34,6 +35,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_SUPABASE_URL || ''} />
       </head>
       <body className="font-sans antialiased">
+        <ConsoleWelcome />
         <AuthProvider>
           <ThemeProvider
             attribute="class"

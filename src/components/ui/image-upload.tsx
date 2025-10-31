@@ -95,7 +95,6 @@ export function ImageUpload({
             setError(errorMessage);
 
             // Fallback to base64 storage if cloud upload fails
-            console.log("Falling back to base64 storage");
             onChange(result);
           }
         } else if (uploadToSupabase && !user) {

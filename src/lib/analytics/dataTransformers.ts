@@ -29,28 +29,24 @@ export const transformToCombinedSeries = (
 
   const { slots, is24Hours } = createTimeSlots(timeframe);
 
-  // Track all session IDs globally to identify first-time vs returning
-  const sessionFirstSeen = new Map<string, string>(); // session_id -> first date seen
+  // Track first view timestamp for each session globally
+  const sessionFirstView = new Map<string, Date>(); // session_id -> first view timestamp
   
-  // First pass: identify when each session first appears
+  // First pass: identify the very first view timestamp for each session
   analyticsData.views.forEach((v) => {
-    const sessionId = (v as { session_id?: string }).session_id;
+    const sessionId = v.session_id;
     if (sessionId) {
       const viewDate = new Date(v.viewed_at);
-      const key = is24Hours ? toISODateTime(viewDate) : toISODate(viewDate);
       
-      if (!sessionFirstSeen.has(sessionId)) {
-        sessionFirstSeen.set(sessionId, key);
+      if (!sessionFirstView.has(sessionId)) {
+        sessionFirstView.set(sessionId, viewDate);
+      } else {
+        const currentFirst = sessionFirstView.get(sessionId)!;
+        if (viewDate < currentFirst) {
+          sessionFirstView.set(sessionId, viewDate);
+        }
       }
     }
-  });
-
-  console.log('🔍 Session tracking:', {
-    totalSessions: sessionFirstSeen.size,
-    sessions: Array.from(sessionFirstSeen.entries()).map(([id, date]) => ({
-      sessionId: id.substring(0, 8) + '...',
-      firstSeen: date
-    }))
   });
 
   // Initialize data structure
@@ -82,21 +78,15 @@ export const transformToCombinedSeries = (
       cell.durCount += 1;
       
       // Track unique sessions for this time period
-      const sessionId = (v as { session_id?: string }).session_id;
+      const sessionId = v.session_id;
       if (sessionId) {
         cell.sessionIds.add(sessionId);
         
-        // Check if this is a returning view
-        const firstSeenDate = sessionFirstSeen.get(sessionId);
-        if (firstSeenDate && firstSeenDate !== key) {
-          // This view is from a session that was first seen in a different time period
+        // Check if this is a returning view (not the first view from this session)
+        const firstViewTime = sessionFirstView.get(sessionId);
+        if (firstViewTime && viewDate.getTime() !== firstViewTime.getTime()) {
+          // This view is NOT the first view from this session - it's a returning view
           cell.returningViews += 1;
-          console.log('✅ Returning view detected:', {
-            sessionId: sessionId.substring(0, 8) + '...',
-            firstSeen: firstSeenDate,
-            currentView: key,
-            viewTime: viewDate.toISOString()
-          });
         }
       }
     }

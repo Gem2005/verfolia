@@ -38,25 +38,31 @@ export function ReferrerViewsTable({
     setPageSize,
   } = usePagination(data, 10);
 
+  // Calculate total views for percentage calculation
+  const totalViews = React.useMemo(() => {
+    return data.reduce((sum, referrer) => sum + referrer.count, 0);
+  }, [data]);
+
   if (!data || data.length === 0) {
     return (
       <Card className="border-2 border-[#3498DB]/10 shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-3 sm:pb-4">
+          <CardTitle className="text-base sm:text-lg md:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
           {onRefresh && (
             <Button
               variant="outline"
               size="sm"
               onClick={onRefresh}
               disabled={isRefreshing}
+              className="w-full sm:w-auto"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
             No referrer data available
           </div>
         </CardContent>
@@ -66,17 +72,18 @@ export function ReferrerViewsTable({
 
   return (
     <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-3 sm:pb-4">
+        <CardTitle className="text-base sm:text-lg md:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
         {onRefresh && (
           <Button
             variant="outline"
             size="sm"
             onClick={onRefresh}
             disabled={isRefreshing}
+            className="w-full sm:w-auto"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
           </Button>
         )}
       </CardHeader>
@@ -92,7 +99,7 @@ export function ReferrerViewsTable({
             </TableHeader>
             <TableBody>
               {paginatedData.map((referrer, index) => {
-                const percentage = ((referrer.count / totalItems) * 100).toFixed(
+                const percentage = ((referrer.count / totalViews) * 100).toFixed(
                   1
                 );
                 

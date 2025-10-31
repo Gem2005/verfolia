@@ -25,11 +25,8 @@ export function startDurationTracking(resumeId: string, sessionId: string): void
   
   // If already tracking this combination, don't create a new tracker
   if (trackers.has(key)) {
-    console.log('⏱️ [DurationTracker] Already tracking this resume/session');
     return;
   }
-
-  console.log('⏱️ [DurationTracker] Starting new tracker', { resumeId, sessionId: sessionId.substring(0, 8) + '...' });
 
   const state: TrackerState = {
     resumeId,
@@ -51,17 +48,11 @@ export function startDurationTracking(resumeId: string, sessionId: string): void
         const elapsed = performance.now() - tracker.startTime;
         tracker.accumulatedTime += elapsed;
         tracker.isVisible = false;
-        
-        const totalSeconds = Math.floor(tracker.accumulatedTime / 1000);
-        console.log(`⏱️ [DurationTracker] Tab hidden - paused at ${totalSeconds}s`);
       }
     } else {
       if (!tracker.isVisible) {
         tracker.startTime = performance.now();
         tracker.isVisible = true;
-        
-        const totalSeconds = Math.floor(tracker.accumulatedTime / 1000);
-        console.log(`⏱️ [DurationTracker] Tab visible - resuming from ${totalSeconds}s`);
       }
     }
   };
@@ -69,19 +60,14 @@ export function startDurationTracking(resumeId: string, sessionId: string): void
   document.addEventListener('visibilitychange', handleVisibilityChange);
 
   // Set up interval
-  console.log('⏱️ [DurationTracker] Creating 15-second interval...');
   state.intervalId = setInterval(() => {
     const tracker = trackers.get(key);
     if (!tracker) {
-      console.log('⏱️ [DurationTracker] Tracker no longer exists, clearing interval');
       if (state.intervalId) clearInterval(state.intervalId);
       return;
     }
 
-    console.log(`⏱️ [DurationTracker] ✨ INTERVAL FIRED!`);
-
     if (!tracker.isVisible) {
-      console.log('⏱️ [DurationTracker] Tab hidden, skipping');
       return;
     }
 
@@ -89,11 +75,7 @@ export function startDurationTracking(resumeId: string, sessionId: string): void
     const totalDuration = tracker.accumulatedTime + currentElapsed;
     const durationSeconds = Math.floor(totalDuration / 1000);
 
-    console.log(`⏱️ [DurationTracker] Duration: ${durationSeconds}s, Last: ${tracker.lastUpdate}s`);
-
     if (durationSeconds >= 10 && durationSeconds - tracker.lastUpdate >= 10) {
-      console.log(`⏱️ [DurationTracker] Sending update: ${durationSeconds}s`);
-      
       trackView({
         resumeId: tracker.resumeId,
         sessionId: tracker.sessionId,
@@ -105,18 +87,13 @@ export function startDurationTracking(resumeId: string, sessionId: string): void
       });
 
       tracker.lastUpdate = durationSeconds;
-    } else {
-      console.log(`⏱️ [DurationTracker] Not ready to send (need ≥10s total and ≥10s change)`);
     }
   }, 15000);
-
-  console.log(`⏱️ [DurationTracker] ✅ Interval created! ID: ${state.intervalId}`);
 
   trackers.set(key, state);
 
   // Set up cleanup for actual page navigation (not React re-renders)
   const cleanupOnNavigation = () => {
-    console.log('⏱️ [DurationTracker] Page unloading - cleaning up');
     stopDurationTracking(resumeId, sessionId);
   };
 
@@ -132,16 +109,12 @@ export function stopDurationTracking(resumeId: string, sessionId: string): void 
   const tracker = trackers.get(key);
   
   if (!tracker) {
-    console.log('⏱️ [DurationTracker] No tracker to stop');
     return;
   }
-
-  console.log('⏱️ [DurationTracker] Stopping tracker');
 
   // Clear interval
   if (tracker.intervalId) {
     clearInterval(tracker.intervalId);
-    console.log(`⏱️ [DurationTracker] Interval ${tracker.intervalId} cleared`);
   }
 
   // Remove visibility listener
@@ -154,8 +127,6 @@ export function stopDurationTracking(resumeId: string, sessionId: string): void 
   const finalDuration = Math.floor((tracker.accumulatedTime + finalElapsed) / 1000);
 
   if (finalDuration > 0) {
-    console.log(`⏱️ [DurationTracker] Sending final: ${finalDuration}s`);
-    
     trackView({
       resumeId: tracker.resumeId,
       sessionId: tracker.sessionId,
@@ -169,7 +140,6 @@ export function stopDurationTracking(resumeId: string, sessionId: string): void 
 
   // Remove from map
   trackers.delete(key);
-  console.log('⏱️ [DurationTracker] Tracker removed');
 }
 
 /**

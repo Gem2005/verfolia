@@ -8,13 +8,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = useAuthStore((state) => state.checkAuth);
 
   useEffect(() => {
-    console.log("AuthProvider initializing...");
     initialize();
     
     // Also check auth immediately
-    checkAuth().then(user => {
-      console.log("Initial auth check:", user ? "User found" : "No user");
-    });
+    checkAuth();
   }, [initialize, checkAuth]);
 
   return <>{children}</>;

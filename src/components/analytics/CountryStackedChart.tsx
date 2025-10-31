@@ -81,7 +81,8 @@ export function CountryStackedChart({
               tickLine={false}
               tickMargin={15}
               axisLine={false}
-              className="text-[10px] sm:text-xs"
+              className="text-[10px] sm:text-xs fill-[#2C3E50] dark:fill-white"
+              tick={{ fill: 'currentColor' }}
               angle={-45}
               textAnchor="end"
               height={80}
@@ -118,7 +119,8 @@ export function CountryStackedChart({
               tickLine={false}
               axisLine={false}
               tickMargin={10}
-              className="text-xs"
+              className="text-xs fill-[#2C3E50] dark:fill-white"
+              tick={{ fill: 'currentColor' }}
               allowDecimals={false}
             />
             <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-gray-200 dark:stroke-gray-700" />

@@ -344,6 +344,7 @@ class ResumeService {
       interface ViewRecord {
         id: string;
         viewed_at: string;
+        session_id: string | null;
         country: string | null;
         city: string | null;
         view_duration: number | null;
@@ -362,6 +363,7 @@ class ResumeService {
       const views = viewsData?.map((view: ViewRecord) => ({
         id: view.id,
         viewed_at: view.viewed_at,
+        session_id: view.session_id,
         country: view.country,
         city: view.city,
         view_duration: view.view_duration,

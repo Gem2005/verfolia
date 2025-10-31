@@ -128,9 +128,16 @@ export function CombinedTimeSeriesChart({
               axisLine={false}
               tickMargin={10}
               minTickGap={32}
-              className="text-xs"
+              className="text-xs fill-[#2C3E50] dark:fill-white"
+              tick={{ fill: 'currentColor' }}
             />
-            <YAxis tickLine={false} axisLine={false} tickMargin={10} className="text-xs" />
+            <YAxis 
+              tickLine={false} 
+              axisLine={false} 
+              tickMargin={10} 
+              className="text-xs fill-[#2C3E50] dark:fill-white"
+              tick={{ fill: 'currentColor' }}
+            />
             <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
             <Area dataKey="views" type="monotone" fill="url(#fillViews)" stroke="var(--color-views)" strokeWidth={2.5} />
             <Area dataKey="interactions" type="monotone" fill="url(#fillInteractions)" stroke="var(--color-interactions)" strokeWidth={2} />

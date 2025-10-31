@@ -236,9 +236,7 @@ export async function parseResumeWithAI(
 
     // Convert DOCX/DOC to PDF if needed
     if (fileType === 'docx' || fileType === 'doc') {
-      console.log('Converting DOCX/DOC to PDF...');
       pdfBuffer = await convertDocxToPdf(fileBuffer);
-      console.log('Conversion successful!');
     }
 
     // Validate it's a PDF
@@ -533,8 +531,6 @@ Extract all data with maximum accuracy and completeness.
     // Convert PDF buffer to base64
     const base64PDF = pdfBuffer.toString('base64');
 
-    console.log('Sending resume to Gemini AI for parsing...');
-
     // Generate content with PDF
     const result = await model.generateContent([
       prompt,
@@ -547,7 +543,6 @@ Extract all data with maximum accuracy and completeness.
     ]);
 
     let response = result.response.text();
-    console.log('AI Response received, parsing JSON...');
 
     // Clean up response - remove markdown code blocks if present
     response = response.trim();
@@ -571,16 +566,6 @@ Extract all data with maximum accuracy and completeness.
     if (!parsedData.personal_info?.first_name || !parsedData.personal_info?.last_name) {
       throw new Error('Failed to extract name from resume. Please ensure the resume has clear contact information.');
     }
-
-    console.log('✅ Resume parsed successfully with Gemini AI!');
-    console.log('[AI Parser] Raw AI Response - Custom Sections:', {
-      count: parsedData.custom_sections?.length || 0,
-      sections: parsedData.custom_sections || [],
-    });
-    console.log('[AI Parser] Raw AI Response - Languages:', {
-      count: parsedData.languages?.length || 0,
-      languages: parsedData.languages || [],
-    });
     
     return parsedData;
   } catch (error) {

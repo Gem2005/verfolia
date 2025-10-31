@@ -13,15 +13,23 @@ const InteractionPieChart = dynamic(
   () => import("./InteractionPieChart").then((mod) => ({ default: mod.InteractionPieChart })),
   { 
     ssr: false,
-    loading: () => <div className="h-64 bg-gray-50 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+    loading: () => <div className="h-64 bg-gray-50 dark:bg-gray-900 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
   }
 );
 
-const ReferrerBarChart = dynamic(
-  () => import("./ReferrerBarChart").then((mod) => ({ default: mod.ReferrerBarChart })),
+const CountryPieChart = dynamic(
+  () => import("./CountryPieChart").then((mod) => ({ default: mod.CountryPieChart })),
   { 
     ssr: false,
-    loading: () => <div className="h-64 bg-gray-50 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+    loading: () => <div className="h-64 bg-gray-50 dark:bg-gray-900 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
+  }
+);
+
+const ReferrerRadialChart = dynamic(
+  () => import("./ReferrerRadialChart").then((mod) => ({ default: mod.ReferrerRadialChart })),
+  { 
+    ssr: false,
+    loading: () => <div className="h-64 bg-gray-50 dark:bg-gray-900 animate-pulse rounded-lg flex items-center justify-center">Loading chart...</div>
   }
 );
 
@@ -75,9 +83,9 @@ export function DetailedDataSection({
             <CountryViewsTable data={analyticsData.summary.viewsByCountry} onRefresh={onRefresh} isRefreshing={isRefreshing} />
             {analyticsData.summary.viewsByCountry.length > 0 && (
               <div className="w-full">
-                <InteractionPieChart
-                  data={analyticsData.summary.viewsByCountry.slice(0, 6)}
-                  title="Top Countries Distribution"
+                <CountryPieChart
+                  data={analyticsData.summary.viewsByCountry}
+                  title="Geographic Distribution"
                 />
               </div>
             )}
@@ -89,7 +97,7 @@ export function DetailedDataSection({
             <ReferrerViewsTable data={analyticsData.summary.viewsByReferrer} onRefresh={onRefresh} isRefreshing={isRefreshing} />
             {analyticsData.summary.viewsByReferrer.length > 0 && (
               <div className="w-full">
-                <ReferrerBarChart
+                <ReferrerRadialChart
                   data={analyticsData.summary.viewsByReferrer}
                   maxItems={10}
                 />
@@ -100,7 +108,7 @@ export function DetailedDataSection({
 
         <TabsContent value="interactions" className="space-y-4">
           {analyticsData.interactions.length > 0 ? (
-            <div className="grid gap-6">
+            <div className="space-y-4">
               {/* Summary charts first */}
               {analyticsData.summary.interactionsByType.length > 0 && (
                 <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
@@ -121,12 +129,12 @@ export function DetailedDataSection({
                           return (
                             <div
                               key={type.name}
-                              className="flex justify-between items-center"
+                              className="flex justify-between items-center gap-2"
                             >
-                              <span className="text-xs sm:text-sm">
+                              <span className="text-xs sm:text-sm truncate flex-1">
                                 {formattedName}
                               </span>
-                              <span className="font-semibold text-sm sm:text-base">{type.count}</span>
+                              <span className="font-semibold text-sm sm:text-base whitespace-nowrap">{type.count}</span>
                             </div>
                           );
                         })}

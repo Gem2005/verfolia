@@ -27,11 +27,11 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.75rem;
-    --chart-1: 221 83% 53%;
-    --chart-2: 212 95% 68%;
-    --chart-3: 216 92% 60%;
-    --chart-4: 210 98% 78%;
-    --chart-5: 212 97% 87%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
     --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
     --shadow-sm: 0 2px 4px -1px rgb(0 0 0 / 0.06), 0 2px 4px -1px rgb(0 0 0 / 0.1);
@@ -86,6 +86,18 @@
     background-color: var(--background);
     color: var(--foreground);
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Remove all focus outlines from Recharts elements */
+  .recharts-wrapper *,
+  .recharts-surface,
+  .recharts-sector,
+  .recharts-layer,
+  .recharts-pie,
+  .recharts-pie-sector,
+  .recharts-radial-bar,
+  .recharts-radial-bar-sector {
+    outline: none !important;
   }
 }
 

@@ -249,19 +249,6 @@ export default function CreateResumePage() {
           // Mark as loaded before showing toasts to prevent duplicates
           prefillLoadedRef.current = true;
 
-          console.log('[Prefill] Loaded resume data:', {
-            title: parsed.title,
-            hasPersonalInfo: !!parsed.personalInfo,
-            experienceCount: parsed.experience?.length || 0,
-            educationCount: parsed.education?.length || 0,
-            skillsCount: parsed.skills?.length || 0,
-            projectsCount: parsed.projects?.length || 0,
-            certificationsCount: parsed.certifications?.length || 0,
-            languagesCount: parsed.languages?.length || 0,
-            customSectionsCount: parsed.customSections?.length || 0,
-            hasUploadedFile: !!parsed.uploadedFile,
-          });
-
           // Store uploaded file metadata if present
           if (parsed.uploadedFile) {
             setUploadedFileData({

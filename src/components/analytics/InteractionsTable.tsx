@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -10,7 +10,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { RefreshCw, ArrowUpDown } from "lucide-react";
+import { PaginationControls } from "./PaginationControls";
+import { usePagination } from "@/hooks/use-pagination";
 
 interface Interaction {
   id: string;
@@ -33,27 +35,49 @@ export function InteractionsTable({
   onRefresh,
   isRefreshing = false
 }: InteractionsTableProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  
+  // Sort data by clicked_at
+  const sortedData = useMemo(() => {
+    const sorted = [...data];
+    sorted.sort((a, b) => {
+      const dateA = new Date(a.clicked_at).getTime();
+      const dateB = new Date(b.clicked_at).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+    return sorted;
+  }, [data, sortOrder]);
+
+  const {
+    paginatedData,
+    currentPage,
+    pageSize,
+    totalPages,
+    totalItems,
+    setPage,
+    setPageSize,
+  } = usePagination(sortedData, itemsPerPage);
 
   if (!data || data.length === 0) {
     return (
       <Card className="border-2 border-[#3498DB]/10 shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">Recent Interactions</CardTitle>
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-3 sm:pb-4">
+          <CardTitle className="text-base sm:text-lg md:text-xl text-[#2C3E50] dark:text-white">Recent Interactions</CardTitle>
           {onRefresh && (
             <Button
               variant="outline"
               size="sm"
               onClick={onRefresh}
               disabled={isRefreshing}
+              className="w-full sm:w-auto"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Refresh
+              <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
             </Button>
           )}
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
             No interactions recorded yet
           </div>
         </CardContent>
@@ -78,99 +102,67 @@ export function InteractionsTable({
       .join(' ');
   };
 
-  const getInteractionIcon = (type: string) => {
-    switch (type) {
-      case 'section_view':
-        return '👁️';
-      case 'email_click':
-        return '📧';
-      case 'phone_click':
-        return '📞';
-      case 'link_click':
-        return '🔗';
-      case 'download':
-        return '⬇️';
-      case 'social_link_click':
-        return '👥';
-      default:
-        return '👆';
-    }
-  };
-
-  // Sort data by most recent first
-  const sortedData = [...data].sort(
-    (a, b) => new Date(b.clicked_at).getTime() - new Date(a.clicked_at).getTime()
-  );
-
-  // Calculate pagination
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentData = sortedData.slice(startIndex, endIndex);
-
-  const goToNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
-
-  const goToPreviousPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-
   return (
     <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div>
-          <CardTitle className="text-lg sm:text-xl text-[#2C3E50] dark:text-white">Recent Interactions</CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            {sortedData.length} total interaction{sortedData.length !== 1 ? 's' : ''}
-          </p>
-        </div>
-        {onRefresh && (
+      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-3 sm:pb-4">
+        <CardTitle className="text-base sm:text-lg md:text-xl text-[#2C3E50] dark:text-white">Recent Interactions</CardTitle>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="sm"
-            onClick={onRefresh}
-            disabled={isRefreshing}
+            onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
+            className="flex-1 sm:flex-initial"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
+            <ArrowUpDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+            <span className="text-xs sm:text-sm">{sortOrder === 'newest' ? 'Newest' : 'Oldest'}</span>
           </Button>
-        )}
+          {onRefresh && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="flex-1 sm:flex-initial"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
+            </Button>
+          )}
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <div className="rounded-lg border-2 border-[#3498DB]/20 overflow-hidden">
           <Table>
             <TableHeader className="bg-gradient-to-br from-[#3498DB]/5 to-[#2C3E50]/5">
               <TableRow className="border-b border-[#3498DB]/20 hover:bg-transparent">
-                <TableHead className="w-[50px]"></TableHead>
-                <TableHead>Type / Section</TableHead>
-                <TableHead>Details</TableHead>
-                <TableHead className="text-right">Time</TableHead>
+                <TableHead className="text-xs sm:text-sm">Type</TableHead>
+                <TableHead className="text-xs sm:text-sm">Details</TableHead>
+                <TableHead className="text-right text-xs sm:text-sm">Time</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentData.map((interaction) => (
+              {paginatedData.map((interaction) => (
                 <TableRow key={interaction.id} className="border-b border-[#3498DB]/10 hover:bg-[#3498DB]/5">
-                  <TableCell className="text-xl">
-                    {getInteractionIcon(interaction.interaction_type)}
+                  <TableCell className="font-medium text-xs sm:text-sm">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="text-base sm:text-lg">{getInteractionIcon(interaction.interaction_type)}</span>
+                      <span className="whitespace-nowrap">{formatInteractionType(interaction.interaction_type, interaction.section_name)}</span>
+                    </div>
                   </TableCell>
-                  <TableCell className="font-medium">
-                    {formatInteractionType(interaction.interaction_type, interaction.section_name)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-muted-foreground text-xs sm:text-sm max-w-[200px]">
                     {interaction.interaction_type === 'section_view' ? (
-                      <span className="text-sm">
+                      <span className="truncate block">
                         Viewed {interaction.target_value || 'section'}
                       </span>
                     ) : interaction.target_value ? (
-                      <span className="text-sm truncate max-w-[200px] inline-block">
+                      <span className="truncate block">
                         {interaction.target_value}
                       </span>
                     ) : (
-                      <span className="text-sm text-muted-foreground/50">—</span>
+                      <span className="text-muted-foreground/50">—</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-right text-sm text-muted-foreground">
+                  <TableCell className="text-right text-[10px] sm:text-xs md:text-sm text-muted-foreground whitespace-nowrap">
                     {formatDistanceToNow(new Date(interaction.clicked_at), {
                       addSuffix: true,
                     })}
@@ -181,38 +173,34 @@ export function InteractionsTable({
           </Table>
         </div>
 
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-muted-foreground">
-              Showing {startIndex + 1} to {Math.min(endIndex, sortedData.length)} of {sortedData.length}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPreviousPage}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
-              </Button>
-              <span className="text-sm text-muted-foreground px-2">
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNextPage}
-                disabled={currentPage === totalPages}
-              >
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          </div>
-        )}
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalItems={totalItems}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
       </CardContent>
     </Card>
   );
 }
+
+const getInteractionIcon = (type: string) => {
+  switch (type) {
+    case 'section_view':
+      return '👁️';
+    case 'email_click':
+      return '📧';
+    case 'phone_click':
+      return '📞';
+    case 'link_click':
+      return '🔗';
+    case 'download':
+      return '⬇️';
+    case 'social_link_click':
+      return '👥';
+    default:
+      return '👆';
+  }
+};

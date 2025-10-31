@@ -40,11 +40,7 @@ interface ResumeViewTrackerProps {
  * ```
  */
 export function ResumeViewTracker({ resumeId, children }: ResumeViewTrackerProps) {
-  console.log('🎯 [ResumeViewTracker] Component rendering', { resumeId });
-  
   const { sessionId, trackInteraction } = useResumeViewTracker(resumeId);
-
-  console.log('🎯 [ResumeViewTracker] Returning provider with sessionId:', sessionId.substring(0, 8) + '...');
 
   return (
     <ResumeViewTrackerContext.Provider value={{ sessionId, trackInteraction }}>

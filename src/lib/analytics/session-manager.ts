@@ -33,7 +33,6 @@ export function getOrCreateSessionId(): string {
         // Update timestamp to extend session
         sessionData.timestamp = Date.now();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
-        console.log(`🔄 [Session] Using existing session: ${sessionData.sessionId.substring(0, 8)}...`);
         return sessionData.sessionId;
       }
     }
@@ -50,7 +49,6 @@ export function getOrCreateSessionId(): string {
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessionData));
-    console.log(`🆕 [Session] Created new session: ${newSessionId.substring(0, 8)}...`);
   } catch (error) {
     console.error('Error storing session:', error);
   }
