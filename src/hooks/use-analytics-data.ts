@@ -62,14 +62,14 @@ export function useAnalyticsData(user: unknown, authLoading: boolean) {
     try {
       setLoading(true);
 
-      // Only update URL if the resumeId is different from what's currently in the URL
-      const currentUrlResumeId = new URL(window.location.href).searchParams.get(
-        "resumeId"
-      );
-      if (currentUrlResumeId !== resumeId) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("resumeId", resumeId);
-        window.history.replaceState({}, "", url.toString());
+      // Update URL without causing page reload - use replaceState directly
+      if (typeof window !== 'undefined') {
+        const currentUrlResumeId = new URLSearchParams(window.location.search).get("resumeId");
+        if (currentUrlResumeId !== resumeId) {
+          const url = new URL(window.location.href);
+          url.searchParams.set("resumeId", resumeId);
+          window.history.replaceState({}, "", url.toString());
+        }
       }
 
       // Convert timeframe to proper days for backend query

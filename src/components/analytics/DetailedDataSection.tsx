@@ -35,14 +35,10 @@ const ReferrerRadialChart = dynamic(
 
 interface DetailedDataSectionProps {
   analyticsData: AnalyticsData;
-  onRefresh?: () => void;
-  isRefreshing?: boolean;
 }
 
 export function DetailedDataSection({
   analyticsData,
-  onRefresh,
-  isRefreshing = false,
 }: DetailedDataSectionProps) {
   return (
     <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
@@ -75,12 +71,12 @@ export function DetailedDataSection({
         </TabsList>
 
         <TabsContent value="views" className="space-y-4">
-          <RecentViewsTable data={analyticsData.views} onRefresh={onRefresh} isRefreshing={isRefreshing} />
+          <RecentViewsTable data={analyticsData.views} />
         </TabsContent>
 
         <TabsContent value="countries" className="space-y-4">
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-            <CountryViewsTable data={analyticsData.summary.viewsByCountry} onRefresh={onRefresh} isRefreshing={isRefreshing} />
+            <CountryViewsTable data={analyticsData.summary.viewsByCountry} />
             {analyticsData.summary.viewsByCountry.length > 0 && (
               <div className="w-full">
                 <CountryPieChart
@@ -94,7 +90,7 @@ export function DetailedDataSection({
 
         <TabsContent value="referrers" className="space-y-4">
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-            <ReferrerViewsTable data={analyticsData.summary.viewsByReferrer} onRefresh={onRefresh} isRefreshing={isRefreshing} />
+            <ReferrerViewsTable data={analyticsData.summary.viewsByReferrer} />
             {analyticsData.summary.viewsByReferrer.length > 0 && (
               <div className="w-full">
                 <ReferrerRadialChart
@@ -148,8 +144,6 @@ export function DetailedDataSection({
               <InteractionsTable 
                 data={analyticsData.interactions} 
                 itemsPerPage={10}
-                onRefresh={onRefresh}
-                isRefreshing={isRefreshing}
               />
             </div>
           ) : (

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, ArrowUpDown } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { formatDate } from "@/lib/analytics/formatters";
 import { PaginationControls } from "./PaginationControls";
 import { usePagination } from "@/hooks/use-pagination";
@@ -19,15 +19,11 @@ import { Flag } from "./Flag";
 interface RecentViewsTableProps {
   data: View[];
   title?: string;
-  onRefresh?: () => void;
-  isRefreshing?: boolean;
 }
 
 export function RecentViewsTable({
   data,
   title = "Recent Views",
-  onRefresh,
-  isRefreshing = false,
 }: RecentViewsTableProps) {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   
@@ -54,20 +50,8 @@ export function RecentViewsTable({
   if (!data || data.length === 0) {
     return (
       <Card className="border-2 border-[#3498DB]/10 shadow-lg">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-3 sm:pb-4">
+        <CardHeader className="pb-3 sm:pb-4">
           <CardTitle className="text-base sm:text-lg md:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
-          {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className="w-full sm:w-auto"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
-            </Button>
-          )}
         </CardHeader>
         <CardContent>
           <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
@@ -90,29 +74,15 @@ export function RecentViewsTable({
     <Card className="border-2 border-[#3498DB]/10 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-3 sm:pb-4">
         <CardTitle className="text-base sm:text-lg md:text-xl text-[#2C3E50] dark:text-white">{title}</CardTitle>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
-            className="flex-1 sm:flex-initial"
-          >
-            <ArrowUpDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
-            <span className="text-xs sm:text-sm">{sortOrder === 'newest' ? 'Newest' : 'Oldest'}</span>
-          </Button>
-          {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className="flex-1 sm:flex-initial"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
-            </Button>
-          )}
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setSortOrder(sortOrder === 'newest' ? 'oldest' : 'newest')}
+          className="w-full sm:w-auto"
+        >
+          <ArrowUpDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
+          <span className="text-xs sm:text-sm">{sortOrder === 'newest' ? 'Newest' : 'Oldest'}</span>
+        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded-lg border-2 border-[#3498DB]/20 overflow-hidden">

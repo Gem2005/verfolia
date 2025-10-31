@@ -10,7 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
-import { RefreshCw, ArrowUpDown } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { PaginationControls } from "./PaginationControls";
 import { usePagination } from "@/hooks/use-pagination";
 
@@ -25,15 +25,11 @@ interface Interaction {
 interface InteractionsTableProps {
   data: Interaction[];
   itemsPerPage?: number;
-  onRefresh?: () => void;
-  isRefreshing?: boolean;
 }
 
 export function InteractionsTable({ 
   data, 
   itemsPerPage = 10,
-  onRefresh,
-  isRefreshing = false
 }: InteractionsTableProps) {
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   
@@ -61,20 +57,8 @@ export function InteractionsTable({
   if (!data || data.length === 0) {
     return (
       <Card className="border-2 border-[#3498DB]/10 shadow-lg">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 pb-3 sm:pb-4">
+        <CardHeader className="pb-3 sm:pb-4">
           <CardTitle className="text-base sm:text-lg md:text-xl text-[#2C3E50] dark:text-white">Recent Interactions</CardTitle>
-          {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className="w-full sm:w-auto"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
-            </Button>
-          )}
         </CardHeader>
         <CardContent>
           <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
@@ -116,18 +100,6 @@ export function InteractionsTable({
             <ArrowUpDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2" />
             <span className="text-xs sm:text-sm">{sortOrder === 'newest' ? 'Newest' : 'Oldest'}</span>
           </Button>
-          {onRefresh && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isRefreshing}
-              className="flex-1 sm:flex-initial"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 sm:h-4 sm:w-4 sm:mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-              <span className="text-xs sm:text-sm hidden sm:inline">Refresh</span>
-            </Button>
-          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
   // Calculations derived from analytics data
   const calculations = useAnalyticsCalculations(analyticsData, timeframe);
 
-  // Refresh function
+  // Refresh function - only refreshes data without page reload
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
@@ -78,6 +78,9 @@ export default function AnalyticsPage() {
       setIsRefreshing(false);
     }
   };
+
+  // Show loading state while data is being fetched
+  const isLoadingData = loading || isRefreshing;
 
   // Loading state
   if (authLoading || loading) {
@@ -272,16 +275,15 @@ export default function AnalyticsPage() {
                 <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] rounded-full"></div>
                 <span className="truncate">Performance Overview</span>
               </h2>
-              <OverviewMetricsSection calculations={calculations} />
-            </div>
-
-            {/* Key Insights */}
-            <div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#2C3E50] dark:text-white mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
-                <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] rounded-full"></div>
-                <span className="truncate">Key Insights</span>
-              </h2>
-              <AnalyticsInsightsSection calculations={calculations} />
+              {isLoadingData ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border-2 border-[#3498DB]/20 p-6 h-32 animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <OverviewMetricsSection calculations={calculations} />
+              )}
             </div>
 
             {/* Charts Grid */}
@@ -290,7 +292,15 @@ export default function AnalyticsPage() {
                 <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] rounded-full"></div>
                 <span className="truncate">Visual Analytics</span>
               </h2>
-              <ChartsGridSection calculations={calculations} />
+              {isLoadingData ? (
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="md:col-span-2 h-80 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border-2 border-[#3498DB]/20 animate-pulse" />
+                  <div className="h-80 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border-2 border-[#3498DB]/20 animate-pulse" />
+                  <div className="h-80 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border-2 border-[#3498DB]/20 animate-pulse" />
+                </div>
+              ) : (
+                <ChartsGridSection calculations={calculations} />
+              )}
             </div>
 
             {/* Detailed Data Tables */}
@@ -299,11 +309,33 @@ export default function AnalyticsPage() {
                 <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] rounded-full"></div>
                 <span className="truncate">Detailed Reports</span>
               </h2>
-              <DetailedDataSection 
-                analyticsData={analyticsData} 
-                onRefresh={handleRefresh}
-                isRefreshing={isRefreshing}
-              />
+              {isLoadingData ? (
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border-2 border-[#3498DB]/20 p-8 flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-3">
+                    <RefreshCw className="h-8 w-8 animate-spin text-[#3498DB]" />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Refreshing data...</p>
+                  </div>
+                </div>
+              ) : (
+                <DetailedDataSection analyticsData={analyticsData} />
+              )}
+            </div>
+
+            {/* Key Insights */}
+            <div>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#2C3E50] dark:text-white mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
+                <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] rounded-full"></div>
+                <span className="truncate">Key Insights</span>
+              </h2>
+              {isLoadingData ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border-2 border-[#3498DB]/20 p-6 h-48 animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <AnalyticsInsightsSection calculations={calculations} />
+              )}
             </div>
           </div>
         )}
