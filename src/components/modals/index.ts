@@ -1,0 +1,1 @@
+export { ResumeSuccessModal } from './ResumeSuccessModal';

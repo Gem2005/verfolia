@@ -968,10 +968,9 @@ export default function CreateResumePage() {
         } catch {}
         
         toast.dismiss();
-        toast.success(
-          isEditMode ? "Resume updated successfully! Redirecting to your dashboard..." : "Resume saved successfully! Redirecting to your dashboard..."
-        );
-        router.push(`/dashboard?fromSave=true`);
+        
+        // Redirect to dashboard with slug parameter to show success modal
+        router.push(`/dashboard?success=true&slug=${savedResume.slug}&isEdit=${isEditMode}`);
       } else {
         throw new Error("Failed to save resume or receive a valid response.");
       }

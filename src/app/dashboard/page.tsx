@@ -43,6 +43,7 @@ import {
   type Resume as ResumeType,
 } from "@/services/resume-service";
 import { toast } from "sonner";
+import { ResumeSuccessModal } from "@/components/modals/ResumeSuccessModal";
 
 interface AnalyticsData {
   totalViews: number;
@@ -66,6 +67,11 @@ export default function Dashboard() {
     avgViewDuration: 0,
     mostViewedResume: null,
   });
+
+  // Success modal state
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successSlug, setSuccessSlug] = useState("");
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Force auth check on mount (important after server-side redirect from login)
   useEffect(() => {
@@ -137,16 +143,22 @@ export default function Dashboard() {
     }
   }, [authLoading, user, loadResumes, initialLoadComplete]);
 
-  // Check for success message from create-resume page and reload data
+  // Check for success message from create-resume page and show modal
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const fromSave = params.get('fromSave');
+    const success = params.get('success');
+    const slug = params.get('slug');
+    const isEdit = params.get('isEdit');
     
-    if (fromSave === 'true' && user) {
-      toast.success("Your resume has been saved successfully! You can find it below.");
+    if (success === 'true' && slug && user) {
+      setSuccessSlug(slug);
+      setIsEditMode(isEdit === 'true');
+      setShowSuccessModal(true);
+      
       // Clean up the URL
       const newUrl = window.location.pathname;
       window.history.replaceState({}, document.title, newUrl);
+      
       // Reload resumes to show the updated data
       loadResumes();
     }
@@ -794,6 +806,14 @@ export default function Dashboard() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Success Modal */}
+        <ResumeSuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          resumeSlug={successSlug}
+          isEditMode={isEditMode}
+        />
     </AppLayout>
   );
 }
