@@ -261,20 +261,19 @@ export default function AnalyticsPage() {
           </div>
         ) : (
           <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-            {/* Timeframe Selection */}
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border-2 border-[#3498DB]/20 shadow-xl shadow-[#3498DB]/10 p-4 sm:p-6">
-              <TimeframeSelector
-                selectedTimeframe={timeframe}
-                onTimeframeChange={(value) => setTimeframe(value)}
-              />
-            </div>
-
             {/* Overview Metrics Grid */}
             <div>
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#2C3E50] dark:text-white mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
-                <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] rounded-full"></div>
-                <span className="truncate">Performance Overview</span>
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-[#2C3E50] dark:text-white flex items-center gap-2 sm:gap-3">
+                  <div className="h-0.5 sm:h-1 w-8 sm:w-12 bg-gradient-to-r from-[#2C3E50] to-[#3498DB] rounded-full"></div>
+                  <span className="truncate">Performance Overview</span>
+                </h2>
+                <TimeframeSelector
+                  selectedTimeframe={timeframe}
+                  onTimeframeChange={(value) => setTimeframe(value)}
+                  compact
+                />
+              </div>
               {isLoadingData ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[1, 2, 3, 4].map((i) => (

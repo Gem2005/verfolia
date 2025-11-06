@@ -137,7 +137,7 @@ export const ProjectsStep: React.FC<ProjectsStepProps> = ({
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium">
-                  Technologies <span className="text-red-500">*</span>
+                  Technologies
                 </Label>
                 <div className="flex gap-2 mb-2">
                   <Input

@@ -606,7 +606,7 @@ export default function CreateResumePage() {
       if (!proj.name.trim()) errors[`${prefix}_name`] = "Project name is required";
       if (!proj.description.trim()) errors[`${prefix}_description`] = "Project description is required";
       // Word count suggestion removed - no restriction
-      if (!proj.techStack || proj.techStack.length === 0) errors[`${prefix}_techStack`] = "At least one technology is required";
+      // Technologies are now optional - no longer required
       if (proj.sourceUrl && !validateUrl(proj.sourceUrl)) errors[`${prefix}_sourceUrl`] = "Source URL must start with https://";
       if (proj.demoUrl && !validateUrl(proj.demoUrl)) errors[`${prefix}_demoUrl`] = "Demo URL must start with https://";
     });
