@@ -72,19 +72,6 @@ export default function Dashboard() {
     checkAuth();
   }, [checkAuth]);
 
-  // Check for success message from create-resume page
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const fromSave = params.get('fromSave');
-    
-    if (fromSave === 'true') {
-      toast.success("Your resume has been saved successfully! You can find it below.");
-      // Clean up the URL
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    }
-  }, []);
-
   const loadResumes = useCallback(async () => {
     if (!user) return;
 
@@ -150,12 +137,34 @@ export default function Dashboard() {
     }
   }, [authLoading, user, loadResumes, initialLoadComplete]);
 
+  // Check for success message from create-resume page and reload data
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromSave = params.get('fromSave');
+    
+    if (fromSave === 'true' && user) {
+      toast.success("Your resume has been saved successfully! You can find it below.");
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      // Reload resumes to show the updated data
+      loadResumes();
+    }
+  }, [user, loadResumes]);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
+  };
+
+  const formatDuration = (seconds: number): string => {
+    if (seconds === 0) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const openDeleteDialog = (id: string) => {
@@ -465,8 +474,8 @@ export default function Dashboard() {
                     </div>
                     <div className="text-2xl font-bold bg-gradient-to-br from-[#E74C3C] to-[#3498DB] dark:from-[#E74C3C] dark:to-[#3498DB] bg-clip-text text-transparent">
                       {analyticsData.avgViewDuration > 0
-                        ? `${Math.round(analyticsData.avgViewDuration)}s`
-                        : "0s"}
+                        ? formatDuration(analyticsData.avgViewDuration)
+                        : "0:00"}
                     </div>
                   </div>
                 </CardContent>
@@ -509,7 +518,7 @@ export default function Dashboard() {
                             <span className="text-xs font-medium text-[#34495E] dark:text-[#ECF0F1]/80">Avg Time</span>
                           </div>
                           <p className="text-2xl font-bold bg-gradient-to-br from-[#E74C3C] to-[#3498DB] dark:from-[#E74C3C] dark:to-[#3498DB] bg-clip-text text-transparent">
-                            {Math.round(analyticsData.mostViewedResume.avgDuration)}s
+                            {formatDuration(analyticsData.mostViewedResume.avgDuration)}
                           </p>
                         </div>
                       </div>

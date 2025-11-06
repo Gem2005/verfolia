@@ -177,7 +177,10 @@ class ResumeService {
   async updateResume(id: string, resume: Partial<Resume>): Promise<Resume | null> {
     const { data, error } = await this.supabase
       .from('resumes')
-      .update(resume)
+      .update({
+        ...resume,
+        updated_at: new Date().toISOString(), // Explicitly set updated_at
+      })
       .eq('id', id)
       .select()
       .single();
