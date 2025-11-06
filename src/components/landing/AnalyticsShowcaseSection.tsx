@@ -8,7 +8,6 @@ import {
   Activity,
   MapPin,
 } from "lucide-react";
-import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 
 export const AnalyticsShowcaseSection = () => {
@@ -54,16 +53,6 @@ export const AnalyticsShowcaseSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-4">
-              <Button
-                size="lg"
-                className="group text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 w-full sm:w-auto"
-                asChild
-              >
-                <Link href="/analytics">
-                  View Analytics
-                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:scale-110 transition-transform duration-300" />
-                </Link>
-              </Button>
               <Button 
                 variant="outline" 
                 size="lg"

@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Instagram, Linkedin, Twitter, FileText, Book } from "lucide-react";
+import { Instagram, Linkedin, FileText, Book } from "lucide-react";
 import VenomBeam from "@/components/ui/venom-beam";
 
 function Footer() {
@@ -120,10 +120,10 @@ function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="pt-6 border-t border-border">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="pt-6">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
             {/* Logo and Copyright */}
-            <div className="flex flex-col md:flex-row md:items-center gap-3 items-center">
+            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
               <Link href="/" className="flex items-center">
                 <Image
                   src="/Logo.png"
@@ -133,13 +133,13 @@ function Footer() {
                   className="h-7 w-auto rounded-xl object-contain"
                 />
               </Link>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground text-center md:text-left">
                 © 2025 Verfolia. All rights reserved.
               </p>
             </div>
 
             {/* Social Links */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-4">
               <Link
                 href="https://instagram.com/verfolia"
                 className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
@@ -153,13 +153,6 @@ function Footer() {
                 aria-label="Follow us on LinkedIn"
               >
                 <Linkedin className="h-4 w-4" />
-              </Link>
-              <Link
-                href="https://twitter.com/verfolia"
-                className="text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-full hover:bg-muted"
-                aria-label="Follow us on Twitter"
-              >
-                <Twitter className="h-4 w-4" />
               </Link>
             </div>
           </div>

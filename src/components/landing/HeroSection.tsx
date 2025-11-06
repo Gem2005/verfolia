@@ -16,6 +16,13 @@ export const HeroSection = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 w-full">
         <div className="max-w-6xl mx-auto flex flex-col justify-center items-center h-full">
 
+          {/* BETA Badge */}
+          <div className="mb-6 animate-fade-in">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-semibold bg-gradient-to-r from-primary/20 to-purple-500/20 text-primary border border-primary/30 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+              BETA
+            </span>
+          </div>
+
           {/* Main Headline - slides up with stagger - Using clamp for fluid scaling */}
           <h1 className="font-extrabold text-balance leading-[1.15] stagger-children mb-10" style={{ fontSize: 'clamp(2rem, 7vw + 0.5rem, 4.5rem)' }}>
             <span className="gradient-text-enhanced block mb-2 hover-text-gradient">Build smarter.</span>

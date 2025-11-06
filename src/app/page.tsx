@@ -4,7 +4,6 @@ import {
   HeroSection,
   ResumeBuilderShowcaseSection,
   AnalyticsShowcaseSection,
-  AIAssistantSection,
   CTASection,
 } from "@/components/landing";
 
@@ -19,7 +18,6 @@ const HomePage = () => {
           <HeroSection />
           <ResumeBuilderShowcaseSection />
           <AnalyticsShowcaseSection />
-          <AIAssistantSection />
           <CTASection />
         </div>
       </div>
