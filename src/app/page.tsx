@@ -5,6 +5,7 @@ import {
   ResumeBuilderShowcaseSection,
   AnalyticsShowcaseSection,
   CTASection,
+  FOMOBanner,
 } from "@/components/landing";
 
 const HomePage = () => {
@@ -20,6 +21,9 @@ const HomePage = () => {
           <AnalyticsShowcaseSection />
           <CTASection />
         </div>
+
+        {/* FOMO Banner */}
+        <FOMOBanner />
       </div>
     </AppLayout>
   );
