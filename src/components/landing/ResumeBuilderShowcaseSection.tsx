@@ -16,19 +16,19 @@ export const ResumeBuilderShowcaseSection = () => {
   const { ref, isVisible } = useScrollAnimation(0.1);
   
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} id="features" className="py-12 sm:py-16 lg:py-24 relative overflow-hidden">
+    <section ref={ref as React.RefObject<HTMLElement>} id="features" className="py-12 sm:py-16 md:py-20 lg:py-24 relative overflow-hidden">
       {/* Animated background orb */}
-      <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-purple-500/8 to-pink-500/8 rounded-full blur-3xl animate-float opacity-60 hover:opacity-100 transition-opacity duration-700" />
+      <div className="absolute -top-20 -right-20 w-72 h-72 sm:w-96 sm:h-96 bg-gradient-to-br from-purple-500/8 to-pink-500/8 rounded-full blur-3xl animate-float opacity-60 hover:opacity-100 transition-opacity duration-700" />
       
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-1000 ${isVisible ? 'scroll-reveal visible' : 'scroll-reveal'}`}>
-        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 xl:gap-20 items-center">
-          <div className="order-1 lg:order-1 space-y-6 sm:space-y-8">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 xl:gap-16 items-center">
+          <div className="order-1 lg:order-1 space-y-5 sm:space-y-6 md:space-y-8">
             <div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 text-balance leading-tight">
+              <h2 className="font-extrabold mb-3 sm:mb-4 md:mb-6 text-balance leading-tight" style={{ fontSize: 'clamp(1.75rem, 4vw + 0.5rem, 3.5rem)' }}>
                 Craft your professional story in{" "}
                 <span className="gradient-text-enhanced">minutes</span>
               </h2>
-              <p className="text-base sm:text-lg lg:text-xl text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed" style={{ fontSize: 'clamp(0.9375rem, 1.2vw + 0.25rem, 1.125rem)' }}>
                 Our intuitive identity builder allows you to import your
                 existing documents or start from scratch. We help you create a
                 clean, modern profile that&#39;s optimized to show your unique
@@ -36,7 +36,7 @@ export const ResumeBuilderShowcaseSection = () => {
               </p>
             </div>
 
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-2.5 sm:space-y-3 md:space-y-4">
               {[
                 { text: "Stunning, Dynamic Profiles", icon: Star },
                 { text: "4+ professional templates", icon: Award },
@@ -44,11 +44,11 @@ export const ResumeBuilderShowcaseSection = () => {
                 { text: "The PDF is not a dead end", icon: FileText },
                 { text: "The Future is a Shared Experience", icon: TrendingUp },
               ].map((feature, index) => (
-                <div key={index} className="flex items-center space-x-3 sm:space-x-4 group hover-lift cursor-default">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg group-hover:shadow-primary/30 border border-primary/20 flex-shrink-0">
-                    <feature.icon className="w-4 h-4 sm:w-5 sm:h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
+                <div key={index} className="flex items-center space-x-2.5 sm:space-x-3 md:space-x-4 group hover-lift cursor-default">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary/20 to-purple-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg group-hover:shadow-primary/30 border border-primary/20 flex-shrink-0">
+                    <feature.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
                   </div>
-                  <span className="text-foreground font-semibold text-sm sm:text-base lg:text-lg group-hover:text-primary transition-colors duration-300">
+                  <span className="text-foreground font-semibold group-hover:text-primary transition-colors duration-300" style={{ fontSize: 'clamp(0.8125rem, 1vw + 0.25rem, 1rem)' }}>
                     {feature.text}
                   </span>
                 </div>
@@ -57,7 +57,8 @@ export const ResumeBuilderShowcaseSection = () => {
 
             <Button 
               size="lg"
-              className="group text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 h-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 hover-glow w-full sm:w-auto"
+              className="group px-5 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 h-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 hover-glow w-full sm:w-auto"
+              style={{ fontSize: 'clamp(0.875rem, 1.1vw, 1rem)' }}
               asChild
             >
               <Link href="/login">
@@ -70,7 +71,7 @@ export const ResumeBuilderShowcaseSection = () => {
           <div className="order-2 lg:order-2 animate-slide-in-right">
             <div className="relative group">
               {/* Main Card */}
-              <div className="glass-card-strong p-6 sm:p-8 lg:p-10 rounded-3xl shadow-2xl border-2 border-primary/20 group-hover:border-primary/40 transition-all duration-500 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.3)]">
+              <div className="glass-card-strong p-5 sm:p-6 md:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-primary/20 group-hover:border-primary/40 transition-all duration-500 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.3)]">
                 <div className="aspect-[4/5] bg-gradient-to-br from-primary/10 via-purple-500/10 to-blue-500/10 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden p-8">
                   {/* Animated Background Pattern */}
                   <div className="absolute inset-0 bg-grid-pattern opacity-5" />

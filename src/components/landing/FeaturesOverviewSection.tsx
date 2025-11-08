@@ -62,18 +62,18 @@ export const FeaturesOverviewSection = () => {
   ];
 
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} className="py-12 sm:py-16 lg:py-24 relative overflow-hidden">
+    <section ref={ref as React.RefObject<HTMLElement>} className="py-12 sm:py-16 md:py-20 lg:py-24 relative overflow-hidden">
       {/* Subtle animated background accent */}
       <div className="absolute top-1/3 -left-20 w-72 h-72 bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-full blur-3xl animate-float opacity-60 hover:opacity-100 transition-opacity duration-700" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl animate-float-delayed opacity-60 hover:opacity-100 transition-opacity duration-700" />
+      <div className="absolute bottom-1/4 -right-20 w-72 h-72 sm:w-96 sm:h-96 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl animate-float-delayed opacity-60 hover:opacity-100 transition-opacity duration-700" />
       
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-1000 ${isVisible ? 'scroll-reveal visible' : 'scroll-reveal'}`}>
-        <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 text-balance px-4 sm:px-0">
+        <div className="text-center mb-8 sm:mb-12 md:mb-14 lg:mb-16">
+          <h2 className="font-extrabold mb-3 sm:mb-4 md:mb-6 text-balance px-4 sm:px-0" style={{ fontSize: 'clamp(1.75rem, 4vw + 0.5rem, 3.5rem)' }}>
             Everything you need to{" "}
             <span className="gradient-text-enhanced">succeed</span>
           </h2>
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4 sm:px-0">
+          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4 sm:px-0" style={{ fontSize: 'clamp(0.9375rem, 1.2vw + 0.25rem, 1.125rem)' }}>
             Comprehensive tools designed for modern professionals who want
             to take control of their career growth.
           </p>

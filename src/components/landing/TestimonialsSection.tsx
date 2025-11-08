@@ -45,17 +45,17 @@ export const TestimonialsSection = () => {
   ];
 
   return (
-    <section ref={ref as React.RefObject<HTMLElement>} className="py-24 relative overflow-hidden">
+    <section ref={ref as React.RefObject<HTMLElement>} className="py-12 sm:py-16 md:py-20 lg:py-24 relative overflow-hidden">
       {/* Animated background accent */}
       <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-gradient-to-br from-amber-500/6 to-yellow-500/6 rounded-full blur-3xl animate-float-delayed opacity-60 hover:opacity-100 transition-opacity duration-700" />
       
       <div className={`container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 transition-all duration-1000 ${isVisible ? 'scroll-reveal visible' : 'scroll-reveal'}`}>
-        <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 text-balance">
+        <div className="text-center mb-10 sm:mb-12 md:mb-14 lg:mb-16">
+          <h2 className="font-extrabold mb-4 sm:mb-5 md:mb-6 text-balance" style={{ fontSize: 'clamp(1.875rem, 4.5vw + 0.5rem, 3.75rem)' }}>
             Loved by <span className="gradient-text-enhanced">professionals</span>{" "}
             worldwide
           </h2>
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed" style={{ fontSize: 'clamp(0.9375rem, 1.2vw + 0.25rem, 1.125rem)' }}>
             See how Verfolia is helping job seekers land their dream roles
             and advance their careers.
           </p>
