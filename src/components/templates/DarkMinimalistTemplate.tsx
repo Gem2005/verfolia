@@ -11,6 +11,7 @@ import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 import { formatDescription } from "@/utils/formatDescription";
 import { formatDateToDisplay } from "@/utils/date-utils";
 import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
+import { getStandardThemeClasses } from "@/lib/template-theme-config";
 
 interface DarkMinimalistTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -32,85 +33,8 @@ export function DarkMinimalistTemplate({
   // Use provided data only; do not fallback to mock defaults
   const portfolioData: PortfolioData = data;
 
-  // Theme configuration
-  const getThemeClasses = () => {
-    switch (theme) {
-      case "dark-gray":
-        return {
-          bg: "bg-gray-900",
-          text: "text-white",
-          accent: "text-blue-400",
-          border: "border-gray-600",
-          cardBg: "bg-gray-800",
-          cardBorder: "border-gray-600",
-          sectionBorder: "border-gray-600",
-          buttonHover: "hover:bg-blue-600",
-          badgeHover: "hover:bg-blue-600",
-        };
-      case "navy-blue":
-        return {
-          bg: "bg-slate-900",
-          text: "text-white",
-          accent: "text-cyan-400",
-          border: "border-blue-500",
-          cardBg: "bg-blue-900",
-          cardBorder: "border-blue-500",
-          sectionBorder: "border-blue-500",
-          buttonHover: "hover:bg-cyan-600",
-          badgeHover: "hover:bg-cyan-600",
-        };
-      case "professional":
-        return {
-          bg: "bg-slate-800",
-          text: "text-white",
-          accent: "text-emerald-400",
-          border: "border-slate-600",
-          cardBg: "bg-slate-700",
-          cardBorder: "border-slate-600",
-          sectionBorder: "border-slate-600",
-          buttonHover: "hover:bg-emerald-600",
-          badgeHover: "hover:bg-emerald-600",
-        };
-      case "black":
-        return {
-          bg: "bg-black",
-          text: "text-white",
-          accent: "text-gray-300",
-          border: "border-gray-700",
-          cardBg: "bg-gray-900",
-          cardBorder: "border-gray-700",
-          sectionBorder: "border-gray-700",
-          buttonHover: "hover:bg-gray-800",
-          badgeHover: "hover:bg-gray-800",
-        };
-      case "white":
-        return {
-          bg: "bg-white",
-          text: "text-black",
-          accent: "text-blue-700",
-          border: "border-gray-400",
-          cardBg: "bg-gray-100",
-          cardBorder: "border-gray-400",
-          sectionBorder: "border-gray-400",
-          buttonHover: "hover:bg-blue-700",
-          badgeHover: "hover:bg-blue-700",
-        };
-      default: // dark minimalist default
-        return {
-          bg: "bg-gray-950",
-          text: "text-white",
-          accent: "text-gray-300",
-          border: "border-gray-700",
-          cardBg: "bg-gray-900",
-          cardBorder: "border-gray-700",
-          sectionBorder: "border-gray-700",
-          buttonHover: "hover:bg-gray-800",
-          badgeHover: "hover:bg-gray-800",
-        };
-    }
-  };
-
-  const themeClasses = getThemeClasses();
+  // Theme configuration - using standardized theme classes
+  const themeClasses = getStandardThemeClasses(theme);
 
   return (
     <div className={`theme-${theme}`}>
@@ -123,12 +47,12 @@ export function DarkMinimalistTemplate({
           <header className="mb-12 sm:mb-14 md:mb-16 mt-6 sm:mt-8" data-section="header">
           <div className="flex flex-col md:flex-row items-start justify-between gap-6 md:gap-8">
             <div className="flex-1">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              <h1 className={`text-4xl sm:text-5xl md:text-6xl font-bold mb-4 ${themeClasses.text}`}>
                 {portfolioData.personalInfo.firstName}{" "}
                 {portfolioData.personalInfo.lastName}
               </h1>
               <h2
-                className={`text-lg sm:text-xl md:text-2xl ${themeClasses.text} mb-6 font-medium`}
+                className={`text-lg sm:text-xl md:text-2xl ${themeClasses.accent} mb-6 font-medium`}
               >
                 {portfolioData.personalInfo.title}
               </h2>
@@ -137,13 +61,6 @@ export function DarkMinimalistTemplate({
               >
                 {portfolioData.personalInfo.about}
               </p>
-              {portfolioData.interests &&
-                portfolioData.interests.length > 0 && (
-                  <p className={`mt-6 ${themeClasses.accent} text-base`}>
-                    My interests include {portfolioData.interests.join(", ")}.
-                    Always excited to discuss technology and innovation.
-                  </p>
-                )}
             </div>
 
             {portfolioData.personalInfo.photo && (
@@ -547,15 +464,8 @@ export function DarkMinimalistTemplate({
         <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
           <section className="mb-16" data-section="contact">
             <h2 className={`text-3xl font-bold mb-6 ${themeClasses.text}`}>
-              Let&apos;s Connect
+              Contact
             </h2>
-            <p
-              className={`${themeClasses.text} mb-8 text-lg leading-relaxed max-w-2xl`}
-            >
-              Feel free to drop me an email or connect on social media. I&apos;m always
-              open to interesting conversations, collaboration opportunities, and
-              discussing the latest in technology and development.
-            </p>
 
             <div className="flex flex-wrap gap-4">
               {portfolioData.personalInfo.social.github && (
@@ -581,7 +491,7 @@ export function DarkMinimalistTemplate({
                   interactionType="email_click"
                   sectionName="contact"
                   disableTracking={disableTracking}
-                  className="flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white transition-all duration-200 rounded-lg"
+                  className={`flex items-center gap-3 px-6 py-3 ${themeClasses.buttonBg} ${themeClasses.buttonHover} text-white transition-all duration-200 rounded-lg`}
                 >
                   <Mail className="w-5 h-5" />
                   <span className="font-medium">Email</span>

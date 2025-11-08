@@ -13,6 +13,7 @@ import { TrackableLink, SectionViewTracker } from "@/components/analytics";
 import { formatDescription } from "@/utils/formatDescription";
 import { formatDateToDisplay } from "@/utils/date-utils";
 import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
+import { getStandardThemeClasses } from "@/lib/template-theme-config";
 
 interface CleanMonoTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -34,85 +35,8 @@ export function CleanMonoTemplate({
   // Use provided data only; do not fallback to mock defaults
   const portfolioData: PortfolioData = data;
 
-  // Theme configuration
-  const getThemeClasses = () => {
-    switch (theme) {
-      case "dark-gray":
-        return {
-          bg: "bg-gray-900",
-          text: "text-white",
-          accent: "text-blue-400",
-          border: "border-gray-600",
-          cardBg: "bg-gray-800",
-          cardBorder: "border-gray-600",
-          sectionBorder: "border-gray-600",
-          buttonHover: "hover:bg-blue-600",
-          badgeHover: "hover:bg-blue-600",
-        };
-      case "navy-blue":
-        return {
-          bg: "bg-slate-900",
-          text: "text-white",
-          accent: "text-cyan-400",
-          border: "border-blue-500",
-          cardBg: "bg-blue-900",
-          cardBorder: "border-blue-500",
-          sectionBorder: "border-blue-500",
-          buttonHover: "hover:bg-cyan-600",
-          badgeHover: "hover:bg-cyan-600",
-        };
-      case "professional":
-        return {
-          bg: "bg-slate-800",
-          text: "text-white",
-          accent: "text-emerald-400",
-          border: "border-slate-600",
-          cardBg: "bg-slate-700",
-          cardBorder: "border-slate-600",
-          sectionBorder: "border-slate-600",
-          buttonHover: "hover:bg-emerald-600",
-          badgeHover: "hover:bg-emerald-600",
-        };
-      case "black":
-        return {
-          bg: "bg-black",
-          text: "text-white",
-          accent: "text-gray-300",
-          border: "border-gray-700",
-          cardBg: "bg-gray-900",
-          cardBorder: "border-gray-700",
-          sectionBorder: "border-gray-700",
-          buttonHover: "hover:bg-gray-800",
-          badgeHover: "hover:bg-gray-800",
-        };
-      case "white":
-        return {
-          bg: "bg-white",
-          text: "text-gray-900",
-          accent: "text-blue-700",
-          border: "border-gray-400",
-          cardBg: "bg-gray-100",
-          cardBorder: "border-gray-400",
-          sectionBorder: "border-gray-400",
-          buttonHover: "hover:bg-blue-700",
-          badgeHover: "hover:bg-blue-700",
-        };
-      default: // light theme fallback
-        return {
-          bg: "bg-gray-50",
-          text: "text-gray-900",
-          accent: "text-blue-600",
-          border: "border-gray-300",
-          cardBg: "bg-white",
-          cardBorder: "border-gray-300",
-          sectionBorder: "border-gray-300",
-          buttonHover: "hover:bg-blue-600",
-          badgeHover: "hover:bg-blue-600",
-        };
-    }
-  };
-
-  const themeClasses = getThemeClasses();
+  // Theme configuration - using standardized theme classes
+  const themeClasses = getStandardThemeClasses(theme);
 
   // click tracking disabled across template
 
@@ -734,34 +658,21 @@ export function CleanMonoTemplate({
                 </div>
               ))}
             </div>
-            <div className="text-center mt-8">
-              <Button
-                variant="outline"
-                // click disabled
-                className={`border-2 ${themeClasses.buttonHover} hover:text-white px-8 py-3 text-base transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
-              >
-                View All Blog Posts
-              </Button>
-            </div>
           </section>
         )}
 
         {/* Contact Section */}
-        <section className="mb-16">
-          <h2
-            className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
-          >
-            Let&apos;s Work Together
-          </h2>
-          <div
-            className={`${themeClasses.cardBg} p-8 rounded-xl shadow-sm border ${themeClasses.cardBorder}`}
-          >
-            <p className={`${themeClasses.text} mb-6 text-lg leading-relaxed`}>
-              {portfolioData.personalInfo.about ||
-                "Want to chat? Just shoot me a message with your project details or questions. I'm always excited to discuss new opportunities and collaborations."}
-            </p>
-            <div className="flex flex-wrap gap-4">
-              {portfolioData.personalInfo.email && (
+        {portfolioData.personalInfo.email && (
+          <section className="mb-16">
+            <h2
+              className={`text-2xl font-bold mb-8 ${themeClasses.text} border-b-2 ${themeClasses.sectionBorder} pb-3`}
+            >
+              Contact
+            </h2>
+            <div
+              className={`${themeClasses.cardBg} p-8 rounded-xl shadow-sm border ${themeClasses.cardBorder}`}
+            >
+              <div className="flex flex-wrap gap-4">
                 <a
                   href={`mailto:${portfolioData.personalInfo.email}`}
                   className="inline-block"
@@ -769,30 +680,30 @@ export function CleanMonoTemplate({
                   <Button
                     variant="default"
                     size="lg"
-                    className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200"
+                    className={`${themeClasses.buttonBg} ${themeClasses.buttonHover} text-white transition-all duration-200`}
                   >
                     <Mail className="w-5 h-5 mr-2" />
                     {portfolioData.personalInfo.email}
                   </Button>
                 </a>
-              )}
-              {portfolioData.personalInfo.phone && (
-                <a
-                  href={`tel:${portfolioData.personalInfo.phone}`}
-                  className="inline-block"
-                >
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className={`border-2 ${themeClasses.buttonHover} hover:text-white transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
+                {portfolioData.personalInfo.phone && (
+                  <a
+                    href={`tel:${portfolioData.personalInfo.phone}`}
+                    className="inline-block"
                   >
-                    📞 {portfolioData.personalInfo.phone}
-                  </Button>
-                </a>
-              )}
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className={`border-2 ${themeClasses.buttonHover} hover:text-white transition-all duration-200 bg-transparent ${themeClasses.border} ${themeClasses.text}`}
+                    >
+                      📞 {portfolioData.personalInfo.phone}
+                    </Button>
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Footer */}
         <footer
@@ -853,9 +764,9 @@ export function CleanMonoTemplate({
               </a>
             )}
           </div>
-          <p className={`${themeClasses.accent} text-base`}>
+          <p className={`${themeClasses.mutedText} text-base`}>
             © {new Date().getFullYear()} {portfolioData.personalInfo.firstName}{" "}
-            {portfolioData.personalInfo.lastName}. All rights reserved.
+            {portfolioData.personalInfo.lastName}
           </p>
         </footer>
       </div>

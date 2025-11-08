@@ -118,7 +118,7 @@ export const SkillsStep: React.FC<SkillsStepProps> = ({
               </div>
               {Object.keys(validationErrors).some(key => key.startsWith("skill_")) && (
                 <p className="text-xs text-red-500">
-                  Please ensure all skills are between 2 and 50 characters
+                  Please ensure all skills are between 1 and 50 characters
                 </p>
               )}
             </div>

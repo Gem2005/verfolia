@@ -616,7 +616,7 @@ export default function CreateResumePage() {
   const validateSkills = useCallback(() => {
     const errors: { [key: string]: string } = {};
     resumeData.skills.forEach((skill, index) => {
-      if (!validateSkill(skill)) errors[`skill_${index}`] = "Skill must be between 2 and 50 characters";
+      if (!validateSkill(skill)) errors[`skill_${index}`] = "Skill must be between 1 and 50 characters";
     });
     return { errors, isValid: Object.keys(errors).length === 0 };
   }, [resumeData.skills]);
