@@ -7,9 +7,18 @@ export interface StackedCountryData {
   [country: string]: string | number;
 }
 
+export interface SectionDurationData {
+  section: string;
+  avgDuration: number;
+  views: number;
+  clicks: number;
+  engagementScore: number;
+}
+
 interface TimeSeriesInternal extends TimeSeriesDataPoint {
   durSum: number;
   durCount: number;
+  sessionIds: Set<string>;
 }
 
 export const transformToCombinedSeries = (
@@ -19,6 +28,26 @@ export const transformToCombinedSeries = (
   if (!analyticsData) return [];
 
   const { slots, is24Hours } = createTimeSlots(timeframe);
+
+  // Track first view timestamp for each session globally
+  const sessionFirstView = new Map<string, Date>(); // session_id -> first view timestamp
+  
+  // First pass: identify the very first view timestamp for each session
+  analyticsData.views.forEach((v) => {
+    const sessionId = v.session_id;
+    if (sessionId) {
+      const viewDate = new Date(v.viewed_at);
+      
+      if (!sessionFirstView.has(sessionId)) {
+        sessionFirstView.set(sessionId, viewDate);
+      } else {
+        const currentFirst = sessionFirstView.get(sessionId)!;
+        if (viewDate < currentFirst) {
+          sessionFirstView.set(sessionId, viewDate);
+        }
+      }
+    }
+  });
 
   // Initialize data structure
   const dateIndex = new Map<string, TimeSeriesInternal>();
@@ -31,6 +60,10 @@ export const transformToCombinedSeries = (
       avgDuration: 0,
       durSum: 0,
       durCount: 0,
+      uniqueSessions: 0,
+      returningViews: 0,
+      returningPercentage: 0,
+      sessionIds: new Set<string>(),
     });
   });
 
@@ -43,11 +76,29 @@ export const transformToCombinedSeries = (
       cell.views += 1;
       cell.durSum += Number(v.view_duration || 0);
       cell.durCount += 1;
+      
+      // Track unique sessions for this time period
+      const sessionId = v.session_id;
+      if (sessionId) {
+        cell.sessionIds.add(sessionId);
+        
+        // Check if this is a returning view (not the first view from this session)
+        const firstViewTime = sessionFirstView.get(sessionId);
+        if (firstViewTime && viewDate.getTime() !== firstViewTime.getTime()) {
+          // This view is NOT the first view from this session - it's a returning view
+          cell.returningViews += 1;
+        }
+      }
     }
   });
 
-  // Process interactions data
+  // Process interactions data (exclude section_view_duration from interaction counts)
   analyticsData.interactions.forEach((i) => {
+    // Skip section_view_duration as it's only for the duration chart
+    if (i.interaction_type === 'section_view_duration') {
+      return;
+    }
+    
     const interactionDate = new Date(i.clicked_at);
     const key = is24Hours
       ? toISODateTime(interactionDate)
@@ -58,12 +109,23 @@ export const transformToCombinedSeries = (
     }
   });
 
-  // Calculate average duration and clean up
+  // Calculate average duration, unique sessions, and returning views
   return Array.from(dateIndex.values()).map((r) => {
-    const { durSum, durCount, ...rest } = r;
+    const { durSum, durCount, sessionIds, ...rest } = r;
+    const uniqueSessions = sessionIds.size;
+    const totalViews = rest.views;
+    const returningViews = rest.returningViews; // Already calculated during processing
+    
+    const returningPercentage = totalViews > 0 
+      ? Math.round((returningViews / totalViews) * 100) 
+      : 0;
+    
     return {
       ...rest,
       avgDuration: durCount > 0 ? Math.round(durSum / durCount) : 0,
+      uniqueSessions,
+      returningViews,
+      returningPercentage,
     };
   });
 };
@@ -102,6 +164,64 @@ export const transformToStackedCountries = (
   });
 
   return Array.from(buckets.values());
+};
+
+export const transformToSectionDuration = (
+  analyticsData: AnalyticsData | null
+): SectionDurationData[] => {
+  if (!analyticsData) return [];
+
+  const sectionMap = new Map<string, {
+    durations: number[];
+    views: number;
+    clicks: number;
+  }>();
+
+  // Process section_view_duration interactions
+  analyticsData.interactions.forEach((interaction) => {
+    const sectionName = interaction.section_name || 'unknown';
+    
+    if (!sectionMap.has(sectionName)) {
+      sectionMap.set(sectionName, { durations: [], views: 0, clicks: 0 });
+    }
+    
+    const section = sectionMap.get(sectionName)!;
+    
+    if (interaction.interaction_type === 'section_view_duration') {
+      // Parse duration from target_value (format: "15s")
+      const durationMatch = interaction.target_value?.match(/^(\d+)s$/);
+      if (durationMatch) {
+        const duration = parseInt(durationMatch[1], 10);
+        section.durations.push(duration);
+        section.views += 1;
+      }
+    } else if (interaction.interaction_type === 'section_click') {
+      section.clicks += 1;
+    }
+  });
+
+  // Calculate averages and engagement scores
+  const result: SectionDurationData[] = [];
+  
+  sectionMap.forEach((data, section) => {
+    if (data.views === 0) return; // Skip sections with no duration data
+    
+    const avgDuration = data.durations.reduce((sum, d) => sum + d, 0) / data.durations.length;
+    
+    // Engagement score: weighted formula considering duration, views, and clicks
+    // Higher duration + clicks = better engagement
+    const engagementScore = (avgDuration * 0.5) + (data.clicks * 10) + (data.views * 2);
+    
+    result.push({
+      section,
+      avgDuration: Math.round(avgDuration * 10) / 10, // Round to 1 decimal
+      views: data.views,
+      clicks: data.clicks,
+      engagementScore: Math.round(engagementScore * 10) / 10,
+    });
+  });
+
+  return result.sort((a, b) => b.engagementScore - a.engagementScore);
 };
 
 export const processAnalyticsData = (data: unknown): AnalyticsData => {

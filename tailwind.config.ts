@@ -73,16 +73,6 @@ const config = {
           4: "var(--chart-4)",
           5: "var(--chart-5)",
         },
-        // Glassmorphism Color Palette
-        glass: {
-          dark: "#0B0C10",
-          "dark-blue": "#1A1F2B",
-          "light-blue": "#4AC6FF",
-          "sky-blue": "#5DE0FF",
-          "highlight-blue": "#00AFFF",
-          "light-gray": "#A9B3C1",
-          "input-bg": "#1E2430",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -152,6 +142,14 @@ const config = {
           from: { backgroundPosition: "0% 50%" },
           to: { backgroundPosition: "100% 50%" },
         },
+        "canopy-x": {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(calc(-100% - var(--gap)))" },
+        },
+        "canopy-y": {
+          from: { transform: "translateY(0)" },
+          to: { transform: "translateY(calc(-100% - var(--gap)))" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -160,6 +158,8 @@ const config = {
         "slide-up": "slide-up 0.5s ease-out",
         float: "float 3s ease-in-out infinite alternate",
         shimmer: "shimmer 3s linear infinite",
+        "canopy-horizontal": "canopy-x var(--duration) infinite linear",
+        "canopy-vertical": "canopy-y var(--duration) linear infinite",
       },
     },
   },

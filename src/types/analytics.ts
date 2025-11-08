@@ -1,6 +1,7 @@
 export interface View {
   id: string;
   viewed_at: string;
+  session_id?: string;
   country?: string;
   city?: string;
   view_duration?: number;
@@ -42,6 +43,8 @@ export type InteractionTypeValue =
   | 'link_click' 
   | 'download' 
   | 'section_view' 
+  | 'section_click'
+  | 'section_view_duration'
   | 'social_link_click'
   | string; // Allow custom interaction types
 
@@ -88,6 +91,9 @@ export interface TimeSeriesDataPoint {
   views: number;
   interactions: number;
   avgDuration: number;
+  uniqueSessions: number;
+  returningViews: number;
+  returningPercentage: number;
 }
 
 export interface MetricCardProps {

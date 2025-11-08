@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
 import { FileText, Loader2 } from "lucide-react";
 import type { Resume } from "@/services/resume-service";
 
@@ -25,78 +24,71 @@ export function ResumeSelector({
 }: ResumeSelectorProps) {
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              Loading resumes...
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-3 p-6">
+        <Loader2 className="h-5 w-5 animate-spin text-[#3498DB]" />
+        <span className="text-sm text-[#34495E] dark:text-gray-400">
+          Loading resumes...
+        </span>
+      </div>
     );
   }
 
   if (!resumes || resumes.length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <FileText className="h-5 w-5" />
-            <span className="text-sm">
-              No resumes found. Create a resume to see analytics.
-            </span>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-3 p-6 text-[#34495E] dark:text-gray-400">
+        <FileText className="h-5 w-5" />
+        <span className="text-sm">
+          No resumes found. Create a resume to see analytics.
+        </span>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-center gap-4">
-          <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-          <div className="flex-1">
-            <label
-              htmlFor="resume-select"
-              className="text-sm font-medium mb-2 block"
-            >
-              Select Resume
-            </label>
-            <Select
-              value={selectedResumeId || undefined}
-              onValueChange={onResumeChange}
-            >
-              <SelectTrigger id="resume-select" className="w-full">
-                <SelectValue placeholder="Choose a resume to view analytics" />
-              </SelectTrigger>
-              <SelectContent>
-                {resumes.map((resume) => (
-                  <SelectItem key={resume.id} value={resume.id}>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">
-                        {resume.personal_info?.firstName && resume.personal_info?.lastName
-                          ? `${resume.personal_info.firstName} ${resume.personal_info.lastName}`
-                          : "Unnamed Resume"}
-                      </span>
-                      {resume.template_id && (
-                        <span className="text-xs text-muted-foreground">
-                          • {resume.template_id}
-                        </span>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {resumes.length} resume{resumes.length !== 1 ? "s" : ""}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex items-center gap-6">
+      {/* Icon */}
+      <div className="p-4 rounded-2xl bg-gradient-to-br from-[#2C3E50] to-[#3498DB] shadow-lg shadow-[#3498DB]/30">
+        <FileText className="h-6 w-6 text-white" />
+      </div>
+      
+      {/* Select Input */}
+      <div className="flex-1">
+        <label
+          htmlFor="resume-select"
+          className="text-sm font-semibold mb-2 block text-[#2C3E50] dark:text-white"
+        >
+          Select Resume to Analyze
+        </label>
+        <Select
+          value={selectedResumeId || undefined}
+          onValueChange={onResumeChange}
+        >
+          <SelectTrigger 
+            id="resume-select" 
+            className="w-full h-12 border-2 border-[#3498DB]/30 hover:border-[#3498DB]/60 focus:border-[#3498DB] bg-white dark:bg-gray-900 transition-all duration-200 rounded-xl"
+          >
+            <SelectValue placeholder="Choose a resume to view analytics" />
+          </SelectTrigger>
+          <SelectContent>
+            {resumes.map((resume) => (
+              <SelectItem key={resume.id} value={resume.id}>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">
+                    {resume.personal_info?.firstName && resume.personal_info?.lastName
+                      ? `${resume.personal_info.firstName} ${resume.personal_info.lastName}`
+                      : "Unnamed Resume"}
+                  </span>
+                  {resume.template_id && (
+                    <span className="text-xs text-muted-foreground">
+                      • {resume.template_id}
+                    </span>
+                  )}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   );
 }

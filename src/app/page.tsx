@@ -1,25 +1,29 @@
 import { AppLayout } from "@/components/layout/app-layout";
+import { AnimatedBackground } from "@/components/layout/animated-background";
 import {
   HeroSection,
-  FeaturesOverviewSection,
   ResumeBuilderShowcaseSection,
   AnalyticsShowcaseSection,
-  AIAssistantSection,
-  TestimonialsSection,
   CTASection,
+  FOMOBanner,
 } from "@/components/landing";
 
 const HomePage = () => {
   return (
     <AppLayout>
-      <div className="min-h-screen bg-background font-jakarta animate-fade-in">
-        <HeroSection />
-        <FeaturesOverviewSection />
-        <ResumeBuilderShowcaseSection />
-        <AnalyticsShowcaseSection />
-        <AIAssistantSection />
-        <TestimonialsSection />
-        <CTASection />
+      <div className="min-h-screen bg-background font-jakarta animate-fade-in relative overflow-hidden">
+        <AnimatedBackground />
+
+        {/* Content */}
+        <div className="relative z-20">
+          <HeroSection />
+          <ResumeBuilderShowcaseSection />
+          <AnalyticsShowcaseSection />
+          <CTASection />
+        </div>
+
+        {/* FOMO Banner */}
+        <FOMOBanner />
       </div>
     </AppLayout>
   );

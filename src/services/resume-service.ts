@@ -177,7 +177,10 @@ class ResumeService {
   async updateResume(id: string, resume: Partial<Resume>): Promise<Resume | null> {
     const { data, error } = await this.supabase
       .from('resumes')
-      .update(resume)
+      .update({
+        ...resume,
+        updated_at: new Date().toISOString(), // Explicitly set updated_at
+      })
       .eq('id', id)
       .select()
       .single();
@@ -344,6 +347,7 @@ class ResumeService {
       interface ViewRecord {
         id: string;
         viewed_at: string;
+        session_id: string | null;
         country: string | null;
         city: string | null;
         view_duration: number | null;
@@ -362,6 +366,7 @@ class ResumeService {
       const views = viewsData?.map((view: ViewRecord) => ({
         id: view.id,
         viewed_at: view.viewed_at,
+        session_id: view.session_id,
         country: view.country,
         city: view.city,
         view_duration: view.view_duration,
@@ -399,11 +404,20 @@ class ResumeService {
       }, {});
 
       const interactionsByType = interactions.reduce((acc: { [key: string]: number }, interaction: InteractionRecord) => {
-        // For section_view, use section name; for others, use interaction type
+        // Skip section_view_duration as it's only for duration chart
+        if (interaction.interaction_type === 'section_view_duration') {
+          return acc;
+        }
+        
+        // For section_view and section_click, use section name; for others, use interaction type
         let key: string;
-        if (interaction.interaction_type === 'section_view' && interaction.section_name) {
-          // Remove "custom_" prefix from section names
-          key = interaction.section_name.replace(/^custom_/i, '');
+        if ((interaction.interaction_type === 'section_view' || interaction.interaction_type === 'section_click') && interaction.section_name) {
+          // Remove "custom_" prefix from section names and capitalize
+          key = interaction.section_name
+            .replace(/^custom_/i, '')
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
         } else {
           key = interaction.interaction_type;
         }
@@ -412,7 +426,13 @@ class ResumeService {
       }, {});
 
       const totalViewDuration = views.reduce((sum: number, view: ViewRecord) => sum + (view.view_duration || 0), 0);
-      const avgViewDuration = views.length > 0 ? totalViewDuration / views.length : 0;
+      const viewsWithDuration = views.filter((view: ViewRecord) => view.view_duration && view.view_duration > 0).length;
+      const avgViewDuration = viewsWithDuration > 0 ? totalViewDuration / viewsWithDuration : 0;
+
+      // Count total interactions excluding section_view_duration
+      const totalInteractions = interactions.filter(
+        (i: InteractionRecord) => i.interaction_type !== 'section_view_duration'
+      ).length;
 
       // Construct and return the AnalyticsData object
       return {
@@ -420,7 +440,7 @@ class ResumeService {
         interactions,
         summary: {
           totalViews: views.length,
-          totalInteractions: interactions.length,
+          totalInteractions,
           avgViewDuration,
           viewsByDate: Object.entries(viewsByDate).map(([date, count]) => ({ date, count: count as number })),
           interactionsByType: Object.entries(interactionsByType).map(([name, count]) => ({ name, count: count as number })),

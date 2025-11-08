@@ -24,10 +24,6 @@ export function useSectionVisibility(
           if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && !hasTrackedRef.current) {
             trackingFn('section_view' as InteractionTypeValue, sectionId, sectionName);
             hasTrackedRef.current = true;
-
-            if (process.env.NODE_ENV === 'development') {
-              console.log(`[SectionVisibility] ${sectionName} viewed`);
-            }
           }
         });
       },

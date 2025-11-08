@@ -21,7 +21,7 @@ export { MetricCard } from "./MetricCard";
 export { CombinedTimeSeriesChart } from "./CombinedTimeSeriesChart";
 export { CountryStackedChart } from "./CountryStackedChart";
 export { InteractionPieChart } from "./InteractionPieChart";
-export { ReferrerBarChart } from "./ReferrerBarChart";
+export { ReferrerRadialChart } from "./ReferrerRadialChart";
 export { ViewDurationChart } from "./ViewDurationChart";
 
 // Table Components

@@ -3,9 +3,9 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { GraduationCap, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
-import { formatDateToInput } from "@/utils/date-utils";
 
 interface EducationStepProps {
   resumeData: ResumeData;
@@ -145,21 +145,18 @@ export const EducationStep: React.FC<EducationStepProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Start Date</Label>
-                  <Input
-                    type="month"
-                    value={formatDateToInput(edu.startDate)}
-                    onChange={(e) => updateEducationField(edu.id, "startDate", e.target.value)}
-                    className="h-10"
+                  <MonthYearPicker
+                    value={edu.startDate}
+                    onChange={(value) => updateEducationField(edu.id, "startDate", value)}
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">End Date</Label>
-                  <Input
-                    type="month"
-                    value={formatDateToInput(edu.endDate)}
-                    onChange={(e) => updateEducationField(edu.id, "endDate", e.target.value)}
-                    className={`h-10 ${validationErrors[`education_${edu.id}_endDate`] ? "border-red-500" : ""}`}
+                  <MonthYearPicker
+                    value={edu.endDate}
+                    onChange={(value) => updateEducationField(edu.id, "endDate", value)}
+                    error={!!validationErrors[`education_${edu.id}_endDate`]}
                   />
                   {validationErrors[`education_${edu.id}_endDate`] && (
                     <p className="text-xs text-red-500">{validationErrors[`education_${edu.id}_endDate`]}</p>
@@ -193,3 +190,4 @@ export const EducationStep: React.FC<EducationStepProps> = ({
     </Card>
   );
 };
+

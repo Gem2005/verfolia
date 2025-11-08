@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InsightItem } from "./InsightItem";
 import {
   TrendingUp,
@@ -105,17 +104,22 @@ export function AnalyticsInsightsSection({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Key Insights</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border-2 border-[#3498DB]/20 shadow-xl shadow-[#3498DB]/10 overflow-hidden">
+      <div className="bg-gradient-to-r from-[#2C3E50]/5 via-[#3498DB]/5 to-[#2C3E50]/5 border-b-2 border-[#3498DB]/20 p-6">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-gradient-to-br from-[#2C3E50] to-[#3498DB] shadow-lg shadow-[#3498DB]/30">
+            <TrendingUp className="h-5 w-5 text-white" />
+          </div>
+          <h3 className="text-xl font-bold text-[#2C3E50] dark:text-white">Intelligent Insights</h3>
+        </div>
+      </div>
+      <div className="p-6">
+        <div className="space-y-4">
           {insights.map((insight, index) => (
             <InsightItem key={index} {...insight} />
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

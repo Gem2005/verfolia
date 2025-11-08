@@ -1,32 +1,16 @@
 import React from "react";
-import dynamic from "next/dynamic";
-import Image from "next/image";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Eye, Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import { templates, themes } from "../../../data/constants";
 import { PortfolioData } from "@/types/PortfolioTypes";
+import { ResumeData } from "@/types/ResumeData";
+import { getPortfolioData as transformResumeToPortfolio } from "@/components/PortfolioDataProvider";
 
-// Lazy load templates - only load when previewed
-const CleanMonoTemplate = dynamic(
-  () => import("@/components/templates/CleanMonoTemplate").then((mod) => ({ default: mod.CleanMonoTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
-
-const DarkMinimalistTemplate = dynamic(
-  () => import("@/components/templates/DarkMinimalistTemplate").then((mod) => ({ default: mod.DarkMinimalistTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
-
-const DarkTechTemplate = dynamic(
-  () => import("@/components/templates/DarkTechTemplate").then((mod) => ({ default: mod.DarkTechTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
-
-const ModernAIFocusedTemplate = dynamic(
-  () => import("@/components/templates/ModernAIFocusedTemplate").then((mod) => ({ default: mod.ModernAIFocusedTemplate })),
-  { ssr: false, loading: () => <div className="animate-pulse bg-gray-50 h-96 rounded-lg" /> }
-);
+// Import templates directly to prevent flashing
+import { CleanMonoTemplate } from "@/components/templates/CleanMonoTemplate";
+import { DarkMinimalistTemplate } from "@/components/templates/DarkMinimalistTemplate";
+import { DarkTechTemplate } from "@/components/templates/DarkTechTemplate";
+import { ModernAIFocusedTemplate } from "@/components/templates/ModernAIFocusedTemplate";
 
 interface TemplateStepProps {
   selectedTemplate: string;
@@ -36,6 +20,7 @@ interface TemplateStepProps {
   getPortfolioData: () => PortfolioData;
   previewTemplate: string | null;
   setPreviewTemplate: (templateId: string | null) => void;
+  isLoading: boolean;
 }
 
 export const TemplateStep: React.FC<TemplateStepProps> = ({
@@ -46,30 +31,59 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
   getPortfolioData,
   previewTemplate,
   setPreviewTemplate,
+  isLoading,
 }) => {
+  // Mock data for template previews - using data from PortfolioDataProvider
+  const getMockData = (): PortfolioData => {
+    // Create empty resume data structure with proper ResumeData type
+    const emptyResumeData: ResumeData = {
+      user_id: "",
+      title: "",
+      template_id: 1,
+      theme_id: 1,
+      is_public: false,
+      slug: "",
+      view_count: 0,
+      personalInfo: {
+        firstName: "",
+        lastName: "",
+        title: "",
+        email: "",
+        phone: "",
+        location: "",
+        summary: "",
+        photo: "",
+        githubUrl: "",
+        linkedinUrl: "",
+      },
+      experience: [],
+      skills: [],
+      education: [],
+      projects: [],
+      certifications: [],
+      languages: [],
+      customSections: [],
+    };
+    
+    // Get sample data by passing showSampleData=true
+    return transformResumeToPortfolio(emptyResumeData, true);
+  };
+
   const TemplatePreview = ({
     template,
   }: {
     template: (typeof templates)[0];
   }) => {
-    const getPreviewImage = () => {
-      const baseUrl = "/preview-images";
-      const templateImageMap: { [key: string]: string } = {
-        "clean-mono": "Clean Mono.png",
-        "dark-minimalist": "Dark Minimalist.png",
-        "dark-tech": "Dark Tech.png",
-        "modern-ai-focused": "Modern AI Focused.png",
-      };
-      const imageName = templateImageMap[template.id];
-      return imageName
-        ? `${baseUrl}/${imageName}`
-        : `${baseUrl}/Clean Mono.png`;
-    };
-
     const getTemplateComponent = () => {
+      const portfolioData = getPortfolioData();
+      // Use mock data if user data is empty/incomplete
+      const hasUserData = portfolioData.personalInfo?.firstName || 
+                          portfolioData.experience?.length > 0 || 
+                          portfolioData.projects?.length > 0;
+      
       const templateProps = {
         preview: true as const,
-        data: getPortfolioData(),
+        data: hasUserData ? portfolioData : getMockData(),
         theme: selectedTheme,
       };
 
@@ -83,13 +97,26 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
 
       const templateWrapper = (
         Component: React.ComponentType<TemplateProps>
-      ) => (
-        <div className="w-full h-full scale-[0.15] origin-top-left transform transition-transform duration-200 overflow-hidden">
-          <div className="w-[800px] h-[1000px]">
-            <Component {...templateProps} />
+      ) => {
+        // Scale down the template to show more content in the preview
+        const scale = 0.25; // 25% of original size
+        const cardAspectRatio = 4 / 5;
+        
+        return (
+          <div className="w-full h-full overflow-hidden pointer-events-none">
+            <div 
+              className="origin-top-left" 
+              style={{
+                width: `${100 / scale}%`,
+                height: `${(100 / scale) * (1 / cardAspectRatio)}%`,
+                transform: `scale(${scale})`,
+              }}
+            >
+              <Component {...templateProps} />
+            </div>
           </div>
-        </div>
-      );
+        );
+      };
 
       switch (template.id) {
         case "clean-mono":
@@ -107,108 +134,65 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
 
     return (
       <div
-        className={`relative rounded-xl border-2 transition-all duration-200 cursor-pointer overflow-hidden hover:shadow-lg ${
+        className={`relative rounded-xl border-2 transition-all duration-200 cursor-pointer overflow-hidden hover:shadow-lg will-change-transform ${
           selectedTemplate === template.id
             ? "ring-2 ring-primary border-primary shadow-md"
             : "border-border hover:border-muted-foreground/30"
         }`}
         onClick={() => onTemplateSelect(template.id)}
       >
-        <div className="aspect-[4/5] bg-muted/20 flex items-center justify-center p-2">
+        {/* Title at the top with checkmark */}
+        <div className={`p-2 sm:p-2.5 border-b transition-all duration-200 ${
+          selectedTemplate === template.id
+            ? "bg-primary/5 border-primary/20"
+            : "bg-card border-border"
+        }`}>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className={`font-semibold text-xs sm:text-sm transition-colors ${
+              selectedTemplate === template.id
+                ? "text-primary"
+                : "text-foreground"
+            }`}>
+              {template.name}
+            </h3>
+            {selectedTemplate === template.id && (
+              <div className="bg-primary text-primary-foreground rounded-full p-1 shadow-md flex-shrink-0">
+                <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 stroke-[2.5]" />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Template preview */}
+        <div className="aspect-[4/5] bg-muted/20 flex items-start justify-start p-1 sm:p-1.5 overflow-hidden">
           <div className="w-full h-full overflow-hidden rounded-lg bg-background shadow-sm relative">
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-              <Image
-                src={getPreviewImage()}
-                alt={`${template.name} preview`}
-                fill
-                className="object-cover object-top transition-opacity duration-200"
-                onLoad={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  const loadingDiv = target.parentElement?.querySelector(
-                    ".loading-placeholder"
-                  ) as HTMLElement;
-                  if (loadingDiv) {
-                    loadingDiv.style.display = "none";
-                  }
-                }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                  const fallbackDiv =
-                    target.nextElementSibling as HTMLElement;
-                  if (fallbackDiv) {
-                    fallbackDiv.style.display = "block";
-                  }
-                }}
-                unoptimized
-              />
-              <div className="loading-placeholder absolute inset-0 flex items-center justify-center bg-gray-100">
-                <div className="text-gray-400 text-sm">
-                  Loading preview...
-                </div>
-              </div>
-              <div className="w-full h-full" style={{ display: "none" }}>
-                {getTemplateComponent()}
-              </div>
-            </div>
-            <div className="absolute top-2 right-2 px-2 py-1 bg-black/80 text-white text-xs rounded-md backdrop-blur-sm">
-              {themes.find((t) => t.id === selectedTheme)?.name ||
-                selectedTheme}
-            </div>
-            <div className="absolute bottom-2 left-2 flex gap-1">
-                <div className="px-2 py-1 bg-white/10 text-white text-xs rounded-md backdrop-blur-md border border-white/20">
-                {template.layout}
-                </div>
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {getTemplateComponent()}
             </div>
           </div>
         </div>
-        <div className="p-4 border-t bg-card">
-          <h3 className="font-semibold text-center text-sm">
-            {template.name}
-          </h3>
-          <p className="text-xs text-muted-foreground text-center mt-1 leading-relaxed">
-            {template.description}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full mt-3 h-8 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewTemplate(template.id);
-            }}
-          >
-            <Eye className="h-3 w-3 mr-1" />
-            Preview
-          </Button>
-        </div>
-        {selectedTemplate === template.id && (
-          <div className="absolute top-3 right-3 bg-primary text-primary-foreground rounded-full p-1.5 shadow-sm">
-            <Check className="h-3 w-3" />
-          </div>
-        )}
       </div>
     );
   };
 
   return (
     <>
-      <Card className="glass-step-card border-0 shadow-sm">
-        <CardHeader className="pb-6">
-          <CardTitle className="text-xl text-glass-primary">Choose a Template</CardTitle>
-          <p className="text-sm text-glass-secondary leading-relaxed">
+      <Card className="bg-card border-0 shadow-sm">
+        <CardHeader className="pb-3 px-3 sm:px-4 pt-4 sm:pt-5">
+          <CardTitle className="text-xl text-foreground">Choose a Template</CardTitle>
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Select a design that best fits your professional style
           </p>
         </CardHeader>
-        <CardContent className="space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <CardContent className="space-y-4 px-3 sm:px-4 pb-4 sm:pb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {templates.map((template) => (
               <TemplatePreview key={template.id} template={template} />
             ))}
           </div>
-          <div className="pt-4 border-t">
-            <h3 className="text-lg font-semibold mb-4">Color Theme</h3>
-            <div className="flex flex-wrap gap-4">
+          <div className="pt-3 border-t">
+            <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Color Theme</h3>
+            <div className="flex flex-wrap gap-2.5 sm:gap-3">
               {themes.map((theme) => {
                 const getThemeButtonStyle = () => {
                   switch (theme.id) {
@@ -230,7 +214,7 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
                 return (
                   <button
                     key={theme.id}
-                    className={`w-12 h-12 rounded-full ${getThemeButtonStyle()} flex items-center justify-center transition-all duration-200 hover:scale-110 hover:shadow-md ${
+                    className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full ${getThemeButtonStyle()} flex items-center justify-center transition-all duration-200 hover:scale-110 hover:shadow-md ${
                       selectedTheme === theme.id
                         ? "ring-4 ring-offset-2 ring-primary shadow-lg scale-105"
                         : "shadow-sm"
@@ -250,50 +234,7 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({
           </div>
         </CardContent>
       </Card>
-
-      {previewTemplate && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="text-lg font-semibold">
-                {templates.find((t) => t.id === previewTemplate)?.name}{" "}
-                Preview
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setPreviewTemplate(null)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-              <div className="preview-sandbox scale-75 origin-top">
-                {(() => {
-                  const templateProps = {
-                    preview: true as const,
-                    data: getPortfolioData(),
-                    theme: selectedTheme,
-                  };
-
-                  switch (previewTemplate) {
-                    case "clean-mono":
-                      return <CleanMonoTemplate {...templateProps} />;
-                    case "dark-minimalist":
-                      return <DarkMinimalistTemplate {...templateProps} />;
-                    case "dark-tech":
-                      return <DarkTechTemplate {...templateProps} />;
-                    case "modern-ai-focused":
-                      return <ModernAIFocusedTemplate {...templateProps} />;
-                    default:
-                      return <CleanMonoTemplate {...templateProps} />;
-                  }
-                })()}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };
+

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { MonthYearPicker } from "@/components/ui/month-year-picker";
 import { Award, Plus, Trash2 } from "lucide-react";
 import { ResumeData } from "@/types/ResumeData";
 
@@ -334,11 +335,9 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
                   <Label className="text-sm font-medium">
                     Date
                   </Label>
-                  <Input
-                    type="month"
+                  <MonthYearPicker
                     value={cert.date}
-                    onChange={(e) => updateCertificationField(cert.id, "date", e.target.value)}
-                    className="input-enhanced h-10"
+                    onChange={(value) => updateCertificationField(cert.id, "date", value)}
                   />
                 </div>
 
@@ -675,8 +674,8 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
   return (
     <div className="space-y-8">
       <div className="flex items-center gap-2 mb-6">
-        <Award className="w-6 h-6 text-glass-blue" />
-        <h2 className="text-2xl font-bold text-glass-primary">Additional Information</h2>
+        <Award className="w-6 h-6 text-primary" />
+        <h2 className="text-2xl font-bold text-foreground">Additional Information</h2>
       </div>
       
       {renderCertificationsSection()}
@@ -685,3 +684,4 @@ export const AdditionalStep: React.FC<AdditionalStepProps> = ({
     </div>
   );
 };
+

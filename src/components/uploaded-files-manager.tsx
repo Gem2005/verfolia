@@ -3,6 +3,16 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { FileText, Trash2, Calendar, FileCheck, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -30,6 +40,8 @@ export function UploadedFilesManager() {
   const [stats, setStats] = useState<FileStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<{ id: string; filename: string } | null>(null);
 
   const fetchFiles = async () => {
     try {
@@ -56,19 +68,18 @@ export function UploadedFilesManager() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleDelete = async (fileId: string, filename: string) => {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${filename}"? This action cannot be undone.`
-      )
-    ) {
-      return;
-    }
+  const openDeleteDialog = (fileId: string, filename: string) => {
+    setFileToDelete({ id: fileId, filename });
+    setDeleteDialogOpen(true);
+  };
 
-    setDeletingIds((prev) => new Set(prev).add(fileId));
+  const handleDelete = async () => {
+    if (!fileToDelete) return;
+
+    setDeletingIds((prev) => new Set(prev).add(fileToDelete.id));
 
     try {
-      const response = await fetch(`/api/uploaded-files/${fileId}`, {
+      const response = await fetch(`/api/uploaded-files/${fileToDelete.id}`, {
         method: 'DELETE',
       });
 
@@ -80,7 +91,7 @@ export function UploadedFilesManager() {
       toast.success('File deleted successfully');
 
       // Remove from local state
-      setFiles((prev) => prev.filter((f) => f.id !== fileId));
+      setFiles((prev) => prev.filter((f) => f.id !== fileToDelete.id));
       
       // Update stats
       if (stats) {
@@ -96,9 +107,11 @@ export function UploadedFilesManager() {
     } finally {
       setDeletingIds((prev) => {
         const next = new Set(prev);
-        next.delete(fileId);
+        next.delete(fileToDelete.id);
         return next;
       });
+      setDeleteDialogOpen(false);
+      setFileToDelete(null);
     }
   };
 
@@ -273,14 +286,25 @@ export function UploadedFilesManager() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Uploads</CardTitle>
-          <CardDescription>Loading...</CardDescription>
+      <Card className="bg-background/90 backdrop-blur-md border-[#3498DB]/30">
+        <CardHeader className="pb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-[#2C3E50] dark:text-[#ECF0F1] text-lg sm:text-xl mb-2">
+                Your Uploaded Resumes
+              </CardTitle>
+              <CardDescription className="text-[#34495E] dark:text-[#ECF0F1]/70 text-sm sm:text-base">
+                Loading your files...
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+          <div className="flex items-center justify-center py-12">
+            <div className="flex flex-col items-center gap-4">
+              <RefreshCw className="w-8 h-8 animate-spin text-[#3498DB]" />
+              <p className="text-sm text-[#34495E] dark:text-[#ECF0F1]/70">Loading your files...</p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -288,88 +312,112 @@ export function UploadedFilesManager() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Recent Uploads</CardTitle>
-            <CardDescription>
+    <Card className="bg-background/90 backdrop-blur-md border-[#3498DB]/30 shadow-lg shadow-[#3498DB]/5">
+      <CardHeader className="pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-[#3498DB]/30 to-[#3498DB]/10">
+                <FileText className="w-4 h-4 text-[#3498DB]" />
+              </div>
+              <CardTitle className="text-[#2C3E50] dark:text-[#ECF0F1] text-lg sm:text-xl">
+                Your Uploaded Resumes
+              </CardTitle>
+            </div>
+            <CardDescription className="text-[#34495E] dark:text-[#ECF0F1]/70 text-xs sm:text-sm">
               {files.length === 0
-                ? 'No uploaded files yet'
+                ? 'No uploaded files yet. Upload a resume to get started.'
                 : stats
-                ? `${stats.total} file${stats.total !== 1 ? 's' : ''} (${stats.used} used, ${stats.unused} available) • ${formatTotalSize(stats.totalSize)} total`
+                ? `${stats.total} file${stats.total !== 1 ? 's' : ''} • ${stats.used} used, ${stats.unused} available • ${formatTotalSize(stats.totalSize)} total`
                 : `${files.length} file${files.length !== 1 ? 's' : ''}`}
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchFiles}
-            disabled={loading}
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
+          {files.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={fetchFiles}
+              disabled={loading}
+              className="shrink-0 border-[#3498DB]/40 text-[#3498DB] hover:bg-[#3498DB]/10 hover:border-[#3498DB]/60 transition-all duration-300"
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Refresh
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent>
         {files.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>Upload a resume to get started</p>
+          <div className="text-center py-12 px-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-[#3498DB]/20 to-[#3498DB]/5 mb-4">
+              <FileText className="w-8 h-8 text-[#3498DB]/60" />
+            </div>
+            <h3 className="text-base font-semibold text-[#2C3E50] dark:text-[#ECF0F1] mb-1">
+              No Files Yet
+            </h3>
+            <p className="text-xs text-[#34495E] dark:text-[#ECF0F1]/60">
+              Upload a resume to get started with AI-powered parsing
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
             {files.map((file) => (
               <div
                 key={file.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent transition-colors"
+                className="group relative flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-5 border-2 border-[#ECF0F1]/50 dark:border-[#34495E]/30 rounded-lg hover:border-[#3498DB]/40 hover:bg-gradient-to-br hover:from-[#3498DB]/5 hover:to-transparent transition-all duration-300 gap-3 hover:shadow-lg hover:shadow-[#3498DB]/5"
               >
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <FileText className="w-10 h-10 text-muted-foreground flex-shrink-0" />
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="p-2.5 rounded-lg bg-gradient-to-br from-[#3498DB]/20 to-[#3498DB]/5 group-hover:from-[#3498DB]/30 group-hover:to-[#3498DB]/10 transition-all duration-300 flex-shrink-0">
+                    <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-[#3498DB]" />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate" title={file.original_filename}>
+                    <p className="font-semibold truncate text-sm text-[#2C3E50] dark:text-[#ECF0F1] mb-1" title={file.original_filename}>
                       {file.original_filename}
                     </p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1 flex-wrap">
-                      <span>{formatFileSize(file.file_size_bytes)}</span>
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs text-[#34495E] dark:text-[#ECF0F1]/60 flex-wrap">
+                      <span className="font-medium">{formatFileSize(file.file_size_bytes)}</span>
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
+                        <Calendar className="w-3 h-3 text-[#3498DB]" />
                         {formatDistanceToNow(new Date(file.uploaded_at), {
                           addSuffix: true,
                         })}
                       </span>
                       {file.is_used && (
-                        <span className="flex items-center gap-1 text-green-600 font-medium">
+                        <span className="flex items-center gap-1 text-[#2ECC71] font-semibold bg-[#2ECC71]/10 px-2 py-0.5 rounded-full text-xs">
                           <FileCheck className="w-3 h-3" />
-                          Used in resume
+                          <span className="hidden xs:inline">Used in resume</span>
+                          <span className="xs:hidden">Used</span>
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex items-center gap-2 sm:ml-4 w-full sm:w-auto">
                   {!file.is_used && (
-                    <Button onClick={() => handleUseFile(file)} size="sm">
+                    <Button 
+                      onClick={() => handleUseFile(file)} 
+                      size="sm"
+                      className="flex-1 sm:flex-initial bg-gradient-to-r from-[#2C3E50] to-[#34495E] hover:from-[#34495E] hover:to-[#2C3E50] text-white shadow-md shadow-[#2C3E50]/20 hover:shadow-lg hover:shadow-[#2C3E50]/30 transition-all duration-300 text-xs"
+                    >
                       Use This File
                     </Button>
                   )}
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleDelete(file.id, file.original_filename)}
+                    onClick={() => openDeleteDialog(file.id, file.original_filename)}
                     disabled={file.is_used || deletingIds.has(file.id)}
                     title={
                       file.is_used
                         ? 'Cannot delete file used in resume. Delete the resume first.'
                         : 'Delete file'
                     }
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 h-8 w-8 hover:bg-[#E74C3C]/10 hover:text-[#E74C3C] transition-all duration-300"
                   >
                     {deletingIds.has(file.id) ? (
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     )}
                   </Button>
                 </div>
@@ -378,6 +426,35 @@ export function UploadedFilesManager() {
           </div>
         )}
       </CardContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="bg-white/95 dark:bg-[#2C3E50]/95 backdrop-blur-xl border-2 border-[#E74C3C]/30 dark:border-[#E74C3C]/50 shadow-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold text-[#2C3E50] dark:text-[#ECF0F1] flex items-center gap-3">
+              <div className="p-3 rounded-full bg-[#E74C3C]/10 dark:bg-[#E74C3C]/20">
+                <Trash2 className="h-6 w-6 text-[#E74C3C]" />
+              </div>
+              Delete File
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-[#34495E] dark:text-[#ECF0F1]/80 leading-relaxed">
+              Are you sure you want to delete &ldquo;{fileToDelete?.filename}&rdquo;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3 pt-6">
+            <AlertDialogCancel className="rounded-xl border-2 border-[#ECF0F1]/70 dark:border-[#34495E]/50 bg-gradient-to-r from-[#ECF0F1]/50 to-[#34495E]/10 dark:from-[#34495E]/30 dark:to-[#2C3E50]/30 hover:from-[#ECF0F1]/70 hover:to-[#34495E]/20 dark:hover:from-[#34495E]/40 dark:hover:to-[#2C3E50]/40 text-[#2C3E50] dark:text-[#ECF0F1] font-semibold transition-all duration-300">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="rounded-xl bg-gradient-to-r from-[#E74C3C] to-[#C73A2B] hover:from-[#C73A2B] hover:to-[#A93226] text-white font-semibold shadow-lg shadow-[#E74C3C]/25 hover:shadow-xl hover:shadow-[#E74C3C]/30 transition-all duration-300"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete File
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

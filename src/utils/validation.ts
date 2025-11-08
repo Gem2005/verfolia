@@ -80,13 +80,33 @@ export const validateDateRange = (
   endDate: string
 ): boolean => {
   if (!startDate || !endDate) return true; // Skip validation if either date is missing
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  
+  // Parse YYYY-MM format
+  const parseYYYYMM = (dateStr: string): Date | null => {
+    if (/^\d{4}-\d{2}$/.test(dateStr)) {
+      const [year, month] = dateStr.split('-').map(Number);
+      if (year && month >= 1 && month <= 12) {
+        return new Date(year, month - 1, 1);
+      }
+    }
+    return null;
+  };
+  
+  // Try parsing as YYYY-MM first, then fall back to regular Date parsing
+  let start = parseYYYYMM(startDate);
+  let end = parseYYYYMM(endDate);
+  
+  if (!start) start = new Date(startDate);
+  if (!end) end = new Date(endDate);
+  
+  // Validate the dates are valid
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return true; // Skip validation if dates are invalid
+  
   return start <= end;
 };
 
 export const validateSkill = (skill: string): boolean => {
-  return skill.trim().length >= 2 && skill.trim().length <= 50;
+  return skill.trim().length >= 1 && skill.trim().length <= 50;
 };
 
 export const validateProficiency = (proficiency: string): boolean => {

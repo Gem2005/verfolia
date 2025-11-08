@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { formatDateToDisplay } from "@/utils/date-utils";
 import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
+import { getStandardThemeClasses } from "@/lib/template-theme-config";
 
 interface ModernAIFocusedTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -21,92 +22,17 @@ export function ModernAIFocusedTemplate({
   theme = "black",
   resumeId,
   preview = false,
+  disableTracking: disableTrackingProp,
 }: ModernAIFocusedTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
-  const disableTracking = preview || !resumeId;
+  // Use prop if provided, otherwise fallback to preview mode check
+  const disableTracking = disableTrackingProp ?? (preview || !resumeId);
   
   // Use provided data only; do not fallback to mock defaults
   const portfolioData: PortfolioData = data;
 
-  // Theme configuration
-  const getThemeClasses = () => {
-    switch (theme) {
-      case "dark-gray":
-        return {
-          bg: "bg-gray-900",
-          text: "text-white",
-          accent: "text-blue-400",
-          border: "border-gray-600",
-          cardBg: "bg-gray-800",
-          cardBorder: "border-gray-600",
-          sectionBorder: "border-gray-600",
-          buttonHover: "hover:bg-blue-600",
-          badgeHover: "hover:bg-blue-600",
-        };
-      case "navy-blue":
-        return {
-          bg: "bg-slate-900",
-          text: "text-white",
-          accent: "text-cyan-400",
-          border: "border-blue-500",
-          cardBg: "bg-blue-900",
-          cardBorder: "border-blue-500",
-          sectionBorder: "border-blue-500",
-          buttonHover: "hover:bg-cyan-600",
-          badgeHover: "hover:bg-cyan-600",
-        };
-      case "professional":
-        return {
-          bg: "bg-slate-800",
-          text: "text-white",
-          accent: "text-emerald-400",
-          border: "border-slate-600",
-          cardBg: "bg-slate-700",
-          cardBorder: "border-slate-600",
-          sectionBorder: "border-slate-600",
-          buttonHover: "hover:bg-emerald-600",
-          badgeHover: "hover:bg-emerald-600",
-        };
-      case "black":
-        return {
-          bg: "bg-black",
-          text: "text-white",
-          accent: "text-gray-300",
-          border: "border-gray-700",
-          cardBg: "bg-gray-900",
-          cardBorder: "border-gray-700",
-          sectionBorder: "border-gray-700",
-          buttonHover: "hover:bg-gray-800",
-          badgeHover: "hover:bg-gray-800",
-        };
-      case "white":
-        return {
-          bg: "bg-white",
-          text: "text-black",
-          accent: "text-blue-700",
-          border: "border-gray-400",
-          cardBg: "bg-gray-100",
-          cardBorder: "border-gray-400",
-          sectionBorder: "border-gray-400",
-          buttonHover: "hover:bg-blue-700",
-          badgeHover: "hover:bg-blue-700",
-        };
-      default: // modern AI light theme
-        return {
-          bg: "bg-white",
-          text: "text-gray-900",
-          accent: "text-blue-600",
-          border: "border-gray-300",
-          cardBg: "bg-gray-50",
-          cardBorder: "border-gray-300",
-          sectionBorder: "border-gray-300",
-          buttonHover: "hover:bg-blue-600",
-          badgeHover: "hover:bg-blue-600",
-        };
-    }
-  };
-
-  const themeClasses = getThemeClasses();
+  // Theme configuration - using standardized theme classes
+  const themeClasses = getStandardThemeClasses(theme);
 
   return (
     <div className={`theme-${theme}`}>
@@ -226,7 +152,7 @@ export function ModernAIFocusedTemplate({
               {portfolioData.experience.map((exp) => (
                 <div
                   key={exp.id}
-                  className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder} hover:shadow-md transition-shadow`}
+                  className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder} hover:shadow-md transition-all duration-200`}
                 >
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0">
@@ -341,7 +267,7 @@ export function ModernAIFocusedTemplate({
                 {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
                   <div
                     key={project.id}
-                    className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder} hover:shadow-lg transition-shadow`}
+                    className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder} hover:shadow-lg transition-all duration-200`}
                   >
                     <h3 className={`font-bold text-xl ${themeClasses.text} mb-3`}>
                       {project.name}
@@ -370,7 +296,7 @@ export function ModernAIFocusedTemplate({
                           target="_blank"
                           rel="noopener noreferrer"
                           disableTracking={disableTracking}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          className={`${themeClasses.accent} ${themeClasses.buttonHover} text-sm font-medium transition-colors duration-200`}
                         >
                           Source Code →
                         </TrackableLink>
@@ -384,7 +310,7 @@ export function ModernAIFocusedTemplate({
                           target="_blank"
                           rel="noopener noreferrer"
                           disableTracking={disableTracking}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          className={`${themeClasses.accent} ${themeClasses.buttonHover} text-sm font-medium transition-colors duration-200`}
                         >
                           Live Demo →
                         </TrackableLink>
@@ -399,7 +325,7 @@ export function ModernAIFocusedTemplate({
                   <Button
                     onClick={() => setShowAllProjects(!showAllProjects)}
                     variant="outline"
-                    className={`${themeClasses.text} ${themeClasses.border} hover:bg-gray-100`}
+                    className={`${themeClasses.text} ${themeClasses.border} ${themeClasses.buttonHover} transition-all duration-200`}
                   >
                     {showAllProjects ? (
                       <>
@@ -454,7 +380,7 @@ export function ModernAIFocusedTemplate({
                           target="_blank"
                           rel="noopener noreferrer"
                           disableTracking={disableTracking}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          className={`${themeClasses.accent} ${themeClasses.buttonHover} text-sm font-medium transition-colors duration-200`}
                         >
                           View Certificate →
                         </TrackableLink>
@@ -501,12 +427,18 @@ export function ModernAIFocusedTemplate({
         {portfolioData.customSections && portfolioData.customSections.length > 0 && (
           <>
             {portfolioData.customSections.map((section) => (
-              <section key={section.id} className="mb-16">
-                <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>
-                  {section.title}
-                </h2>
-                <div className="space-y-6">
-                  {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+              <SectionViewTracker 
+                key={section.id} 
+                resumeId={resumeId || ""} 
+                sectionName={`custom_${section.title.toLowerCase().replace(/\s+/g, '_')}`}
+                disableTracking={disableTracking}
+              >
+                <section className="mb-16">
+                  <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>
+                    {section.title}
+                  </h2>
+                  <div className="space-y-6">
+                    {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
                     <div
                       key={idx}
                       className={`${themeClasses.cardBg} p-6 rounded-lg border ${themeClasses.cardBorder}`}
@@ -553,24 +485,21 @@ export function ModernAIFocusedTemplate({
                   )}
                 </div>
               </section>
+              </SectionViewTracker>
             ))}
           </>
         )}
 
         {/* Contact Section */}
-        <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
-          <section className="mb-16" data-section="contact">
-            <h2
-              className={`text-2xl font-bold mb-6 text-center ${themeClasses.text}`}
-            >
-              Let&apos;s Connect
-            </h2>
-            <div className="text-center">
-              <p className={`${themeClasses.accent} mb-8 max-w-2xl mx-auto`}>
-                I&apos;m always open to discussing new opportunities, collaborations,
-                or just having a chat about technology and innovation.
-              </p>
-              {portfolioData.personalInfo.email && (
+        {portfolioData.personalInfo.email && (
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="contact">
+              <h2
+                className={`text-2xl font-bold mb-6 text-center ${themeClasses.text}`}
+              >
+                Contact
+              </h2>
+              <div className="text-center">
                 <TrackableLink
                   href={`mailto:${portfolioData.personalInfo.email}`}
                   resumeId={resumeId || ""}
@@ -580,23 +509,23 @@ export function ModernAIFocusedTemplate({
                 >
                   <Button
                     variant="default"
-                    className="rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+                    className={`rounded-full ${themeClasses.buttonBg} ${themeClasses.buttonHover} text-white transition-all duration-200`}
                   >
                     Get In Touch
                   </Button>
                 </TrackableLink>
-              )}
-            </div>
-          </section>
-        </SectionViewTracker>
+              </div>
+            </section>
+          </SectionViewTracker>
+        )}
 
         {/* Footer */}
         <footer
           className={`text-center py-8 border-t ${themeClasses.sectionBorder}`}
         >
-          <p className={`${themeClasses.accent} text-sm`}>
+          <p className={`${themeClasses.mutedText} text-sm`}>
             © {new Date().getFullYear()} {portfolioData.personalInfo.firstName}{" "}
-            {portfolioData.personalInfo.lastName}. All rights reserved.
+            {portfolioData.personalInfo.lastName}
           </p>
         </footer>
       </div>

@@ -14,6 +14,8 @@ import {
 import {
   transformToCombinedSeries,
   transformToStackedCountries,
+  transformToSectionDuration,
+  type SectionDurationData,
 } from "@/lib/analytics/dataTransformers";
 
 export interface AnalyticsCalculations {
@@ -22,6 +24,8 @@ export interface AnalyticsCalculations {
   totalInteractions: number;
   avgViewDuration: number;
   avgEngagementRate: number;
+  totalReturningViews: number;
+  returningViewsPercentage: number;
 
   // Growth Metrics
   viewsGrowthRate: number;
@@ -47,6 +51,7 @@ export interface AnalyticsCalculations {
   // Chart Data
   combinedSeries: ReturnType<typeof transformToCombinedSeries>;
   stackedCountries: ReturnType<typeof transformToStackedCountries>;
+  sectionDurations: SectionDurationData[];
 
   // Derived Counts
   uniqueCountries: number;
@@ -65,6 +70,8 @@ export function useAnalyticsCalculations(
         totalInteractions: 0,
         avgViewDuration: 0,
         avgEngagementRate: 0,
+        totalReturningViews: 0,
+        returningViewsPercentage: 0,
         viewsGrowthRate: 0,
         interactionsGrowthRate: 0,
         durationGrowthRate: 0,
@@ -80,6 +87,7 @@ export function useAnalyticsCalculations(
         stdDeviation: 0,
         combinedSeries: [],
         stackedCountries: [],
+        sectionDurations: [],
         uniqueCountries: 0,
         uniqueReferrers: 0,
       };
@@ -87,20 +95,49 @@ export function useAnalyticsCalculations(
 
     // Basic counts
     const totalViews = analyticsData.views.length;
-    const totalInteractions = analyticsData.interactions.length;
+    // Exclude section_view_duration from interaction counts (it's only for duration chart)
+    const totalInteractions = analyticsData.interactions.filter(
+      i => i.interaction_type !== 'section_view_duration'
+    ).length;
 
     // Average view duration (using view_duration property from View type)
+    // Only count views that have duration data
+    const viewsWithDuration = analyticsData.views.filter(v => v.view_duration && v.view_duration > 0);
     const avgViewDuration =
-      totalViews > 0
-        ? analyticsData.views.reduce(
+      viewsWithDuration.length > 0
+        ? viewsWithDuration.reduce(
             (sum, v) => sum + (v.view_duration || 0),
             0
-          ) / totalViews
+          ) / viewsWithDuration.length
         : 0;
 
-    // Average engagement rate (interactions per view)
-    const avgEngagementRate =
-      totalViews > 0 ? totalInteractions / totalViews : 0;
+    // Improved engagement rate calculation
+    // More reliable method: Calculate what percentage of views resulted in interactions
+    // This accounts for the fact that some users may interact multiple times
+    
+    // Method 1: Count unique days with interactions (conservative estimate)
+    const uniqueInteractionDays = new Set(
+      analyticsData.interactions
+        .filter(i => i.interaction_type !== 'section_view_duration')
+        .map(i => i.clicked_at.split('T')[0]) // Group by date
+    ).size;
+    
+    const uniqueViewDays = new Set(
+      analyticsData.views.map(v => v.viewed_at.split('T')[0])
+    ).size;
+    
+    // Method 2: Simple ratio but more meaningful interpretation
+    // If totalInteractions > totalViews, it means high engagement (users interact multiple times)
+    const simpleRatio = totalViews > 0 ? totalInteractions / totalViews : 0;
+    
+    // Use a hybrid approach: 
+    // - If engagement is low (< 1), use simple ratio
+    // - If engagement is high (>= 1), calculate based on active days
+    const avgEngagementRate = simpleRatio >= 1.0 
+      ? (uniqueInteractionDays > 0 && uniqueViewDays > 0 
+          ? Math.min((uniqueInteractionDays / uniqueViewDays) + (simpleRatio - 1) * 0.1, 2.0)
+          : simpleRatio)
+      : simpleRatio;
 
     // Chart data transformations (need these for growth/trend calculations)
     const combinedSeries = transformToCombinedSeries(analyticsData, timeframe);
@@ -108,6 +145,16 @@ export function useAnalyticsCalculations(
       analyticsData,
       timeframe
     );
+    const sectionDurations = transformToSectionDuration(analyticsData);
+
+    // Returning views calculation
+    const totalReturningViews = combinedSeries.reduce(
+      (sum, item) => sum + (item.returningViews || 0), 
+      0
+    );
+    const returningViewsPercentage = totalViews > 0 
+      ? Math.round((totalReturningViews / totalViews) * 100) 
+      : 0;
 
     // Growth metrics (using transformed time series data)
     const viewsGrowthRate = calculateGrowthRate(combinedSeries, "views");
@@ -160,6 +207,8 @@ export function useAnalyticsCalculations(
       totalInteractions,
       avgViewDuration,
       avgEngagementRate,
+      totalReturningViews,
+      returningViewsPercentage,
       viewsGrowthRate,
       interactionsGrowthRate,
       durationGrowthRate,
@@ -175,6 +224,7 @@ export function useAnalyticsCalculations(
       stdDeviation,
       combinedSeries,
       stackedCountries,
+      sectionDurations,
       uniqueCountries,
       uniqueReferrers,
     };

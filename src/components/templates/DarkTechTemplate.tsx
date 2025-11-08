@@ -11,16 +11,15 @@ import {
   Twitter,
   Code,
   BookOpen,
-  ChevronRight,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateToDisplay } from "@/utils/date-utils";
 import { formatGradeDisplay, formatDegreeDisplay } from "@/utils/grade-utils";
 import { TrackableLink, SectionViewTracker } from "@/components/analytics";
+import { getStandardThemeClasses } from "@/lib/template-theme-config";
 
 interface DarkTechTemplateProps extends PortfolioTemplateProps {
   theme?: string;
@@ -32,92 +31,17 @@ export function DarkTechTemplate({
   theme = "black",
   resumeId,
   preview = false,
+  disableTracking: disableTrackingProp,
 }: DarkTechTemplateProps) {
   const [showAllProjects, setShowAllProjects] = useState(false);
-  const disableTracking = preview || !resumeId;
+  // Use prop if provided, otherwise fallback to preview mode check
+  const disableTracking = disableTrackingProp ?? (preview || !resumeId);
   
   // Use provided data only; do not fallback to mock defaults
   const portfolioData: PortfolioData = data;
 
-  // Theme configuration
-  const getThemeClasses = () => {
-    switch (theme) {
-      case "dark-gray":
-        return {
-          bg: "bg-gray-900",
-          text: "text-white",
-          accent: "text-blue-400",
-          border: "border-gray-600",
-          cardBg: "bg-gray-800",
-          cardBorder: "border-gray-600",
-          sectionBorder: "border-gray-600",
-          buttonHover: "hover:bg-blue-600",
-          badgeHover: "hover:bg-blue-600",
-        };
-      case "navy-blue":
-        return {
-          bg: "bg-slate-900",
-          text: "text-white",
-          accent: "text-cyan-400",
-          border: "border-blue-500",
-          cardBg: "bg-blue-900",
-          cardBorder: "border-blue-500",
-          sectionBorder: "border-blue-500",
-          buttonHover: "hover:bg-cyan-600",
-          badgeHover: "hover:bg-cyan-600",
-        };
-      case "professional":
-        return {
-          bg: "bg-slate-800",
-          text: "text-white",
-          accent: "text-emerald-400",
-          border: "border-slate-600",
-          cardBg: "bg-slate-700",
-          cardBorder: "border-slate-600",
-          sectionBorder: "border-slate-600",
-          buttonHover: "hover:bg-emerald-600",
-          badgeHover: "hover:bg-emerald-600",
-        };
-      case "black":
-        return {
-          bg: "bg-black",
-          text: "text-white",
-          accent: "text-gray-300",
-          border: "border-gray-700",
-          cardBg: "bg-gray-900",
-          cardBorder: "border-gray-700",
-          sectionBorder: "border-gray-700",
-          buttonHover: "hover:bg-gray-800",
-          badgeHover: "hover:bg-gray-800",
-        };
-      case "white":
-        return {
-          bg: "bg-white",
-          text: "text-gray-900",
-          accent: "text-blue-700",
-          border: "border-gray-400",
-          cardBg: "bg-gray-100",
-          cardBorder: "border-gray-400",
-          sectionBorder: "border-gray-400",
-          buttonHover: "hover:bg-blue-700",
-          badgeHover: "hover:bg-blue-700",
-        };
-      default: // dark tech default
-        return {
-          bg: "bg-black",
-          text: "text-white",
-          accent: "text-gray-300",
-          border: "border-gray-700",
-          cardBg: "bg-gray-900",
-          cardBorder: "border-gray-700",
-          sectionBorder: "border-gray-700",
-          buttonHover: "hover:bg-gray-800",
-          badgeHover: "hover:bg-gray-800",
-        };
-    }
-  };
-
-  const themeClasses = getThemeClasses();
+  // Theme configuration - using standardized theme classes
+  const themeClasses = getStandardThemeClasses(theme);
 
   return (
     <div className={`template-sandbox ${preview ? 'preview-sandbox' : ''} theme-${theme}`}>
@@ -205,24 +129,11 @@ export function DarkTechTemplate({
             <p className={`text-lg md:text-xl ${themeClasses.accent} mb-6`}>
               {portfolioData.personalInfo.title}
             </p>
-            <div className={`${themeClasses.accent} mb-8`}>
-              <p>{portfolioData.personalInfo.about}</p>
-              <p className="mt-4">
-                I&apos;m actively working on{" "}
-                <span className="text-green-500">open-source projects</span>.
-              </p>
-            </div>
-
-            <div
-              className={`flex flex-wrap items-center text-sm ${themeClasses.accent} gap-6 mt-8`}
-            >
-              <p className="flex items-center">
-                <span className="inline-flex justify-center items-center w-6 h-6 rounded-full bg-blue-900/30 mr-2">
-                  <Code className="w-3 h-3" />
-                </span>
-                Let&apos;s collaborate ❤️
-              </p>
-            </div>
+            {portfolioData.personalInfo.about && (
+              <div className={`${themeClasses.mutedText} mb-8`}>
+                <p>{portfolioData.personalInfo.about}</p>
+              </div>
+            )}
           </div>
 
           {portfolioData.personalInfo.photo && (
@@ -249,19 +160,7 @@ export function DarkTechTemplate({
               {portfolioData.skills.map((skill) => (
                 <Badge
                   key={skill}
-                  className={`px-4 py-2 rounded-md border transition-colors ${
-                    theme === "white"
-                      ? "text-gray-600"
-                      : `${themeClasses.text}`
-                  } ${themeClasses.border}`}
-                  style={{
-                    ...(theme === "white" && {
-                      background: "rgba(255, 255, 255, 0.3)",
-                      backdropFilter: "blur(4px)",
-                      border: "1px solid rgba(0, 0, 0, 0.06)",
-                      boxShadow: "0 1px 4px rgba(0, 0, 0, 0.05)",
-                    })
-                  }}
+                  className={`px-4 py-2 rounded-md border transition-all duration-200 ${themeClasses.badgeBg} ${themeClasses.badgeText} ${themeClasses.badgeBorder} ${themeClasses.badgeHover}`}
                 >
                   {skill}
                 </Badge>
@@ -287,18 +186,18 @@ export function DarkTechTemplate({
                       </div>
                     </div>
                     <div>
-                      <h3 className={`font-bold text-lg ${themeClasses.text} hover:text-blue-400 transition-colors`}>
+                      <h3 className={`font-bold text-lg ${themeClasses.text} ${themeClasses.buttonHover} transition-colors duration-200`}>
                         {exp.position}
                       </h3>
-                      <p className="text-gray-300 mb-1">
+                      <p className={`${themeClasses.mutedText} mb-1`}>
                         {exp.company}{exp.location && <span className="text-sm font-normal">, {exp.location}</span>}
                       </p>
-                      <p className="text-sm text-gray-500 mb-2">
+                      <p className={`text-sm ${themeClasses.mutedText} mb-2`}>
                         {formatDateToDisplay(exp.startDate)} -{" "}
                         {exp.isPresent ? "Present" : formatDateToDisplay(exp.endDate || '')}
                       </p>
                       {exp.description && (
-                        <p className="text-gray-400 text-sm leading-relaxed">
+                        <p className={`${themeClasses.mutedText} text-sm leading-relaxed`}>
                           {exp.description}
                         </p>
                       )}
@@ -320,25 +219,13 @@ export function DarkTechTemplate({
                 {(showAllProjects ? portfolioData.projects : portfolioData.projects.slice(0, 3)).map((project) => (
                   <div
                     key={project.id}
-                    className={`group relative ${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-lg overflow-hidden transition-all ${
-                      theme === "white" 
-                        ? "hover:border-blue-200 shadow-sm hover:shadow-md" 
-                        : "hover:border-blue-500/50"
-                    }`}
-                    style={{
-                      ...(theme === "white" && {
-                        background: "rgba(255, 255, 255, 0.25)",
-                        backdropFilter: "blur(6px)",
-                        border: "1px solid rgba(0, 0, 0, 0.08)",
-                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
-                      })
-                    }}
+                    className={`group relative ${themeClasses.cardBg} border ${themeClasses.cardBorder} rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md`}
                   >
                     <div className="p-5">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className={`font-bold text-xl ${themeClasses.text}`}>{project.name}</h3>
                       </div>
-                      <p className="text-gray-400 text-sm mb-4">
+                      <p className={`${themeClasses.mutedText} text-sm mb-4`}>
                         {project.description}
                       </p>
 
@@ -346,18 +233,7 @@ export function DarkTechTemplate({
                         {project.techStack.map((tech) => (
                           <Badge
                             key={tech}
-                            className={`text-xs transition-colors ${
-                              theme === "white"
-                                ? "text-gray-600 border-gray-100"
-                                : "bg-gray-800 text-gray-300 border-gray-700"
-                            }`}
-                            style={{
-                              ...(theme === "white" && {
-                                background: "rgba(255, 255, 255, 0.4)",
-                                backdropFilter: "blur(4px)",
-                                border: "1px solid rgba(0, 0, 0, 0.06)",
-                              })
-                            }}
+                            className={`text-xs transition-all duration-200 ${themeClasses.badgeBg} ${themeClasses.badgeText} ${themeClasses.badgeBorder}`}
                           >
                             {tech}
                           </Badge>
@@ -416,7 +292,7 @@ export function DarkTechTemplate({
                 <div className="flex justify-center mt-8">
                   <Button
                     variant="outline"
-                    className="border-gray-700 hover:bg-gray-800 bg-transparent"
+                    className={`${themeClasses.border} ${themeClasses.buttonHover} ${themeClasses.text} transition-all duration-200`}
                     onClick={() => setShowAllProjects(!showAllProjects)}
                   >
                     {showAllProjects ? (
@@ -444,25 +320,14 @@ export function DarkTechTemplate({
                 {portfolioData.certifications.map((cert) => (
                   <div
                     key={cert.id}
-                    className={`p-5 rounded-lg border transition-all ${
-                      theme === "white"
-                        ? "border-gray-200 hover:border-blue-200"
-                        : "bg-gray-900/50 border-gray-800 hover:border-blue-500/50"
-                    }`}
-                    style={{
-                      ...(theme === "white" && {
-                        background: "rgba(255, 255, 255, 0.2)",
-                        backdropFilter: "blur(5px)",
-                        boxShadow: "0 1px 6px rgba(0, 0, 0, 0.04)",
-                      })
-                    }}
+                    className={`p-5 rounded-lg border transition-all duration-200 ${themeClasses.cardBg} ${themeClasses.cardBorder} hover:shadow-md`}
                   >
                     <h3 className={`font-bold text-lg mb-1 ${themeClasses.text}`}>{cert.title}</h3>
-                    <p className={`text-sm mb-2 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                    <p className={`text-sm mb-2 ${themeClasses.mutedText}`}>
                       {cert.issuer}
                     </p>
                     {cert.date && (
-                      <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                      <p className={`text-sm ${themeClasses.mutedText}`}>
                         {formatDateToDisplay(cert.date)}
                       </p>
                     )}
@@ -475,7 +340,7 @@ export function DarkTechTemplate({
                         target="_blank"
                         rel="noopener noreferrer"
                         disableTracking={disableTracking}
-                        className="text-xs text-blue-400 hover:text-blue-300 transition-colors inline-block mt-2"
+                        className={`text-xs ${themeClasses.accent} ${themeClasses.buttonHover} transition-colors duration-200 inline-block mt-2`}
                       >
                         View Certificate
                       </TrackableLink>
@@ -497,32 +362,12 @@ export function DarkTechTemplate({
                 {portfolioData.languages.map((lang) => (
                   <div
                     key={lang.id}
-                    className={`p-4 rounded-lg border ${
-                      theme === "white"
-                        ? "border-gray-200"
-                        : "bg-gray-900/50 border-gray-800"
-                    }`}
-                    style={{
-                      ...(theme === "white" && {
-                        background: "rgba(255, 255, 255, 0.2)",
-                        backdropFilter: "blur(5px)",
-                      })
-                    }}
+                    className={`p-4 rounded-lg border ${themeClasses.cardBg} ${themeClasses.cardBorder}`}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold">{lang.name}</span>
+                      <span className={`font-semibold ${themeClasses.text}`}>{lang.name}</span>
                       <Badge
-                        className={`${
-                          theme === "white"
-                            ? "text-gray-600 border-gray-200"
-                            : "bg-gray-800 text-gray-300 border-gray-700"
-                        }`}
-                        style={{
-                          ...(theme === "white" && {
-                            background: "rgba(255, 255, 255, 0.4)",
-                            backdropFilter: "blur(4px)",
-                          })
-                        }}
+                        className={`${themeClasses.badgeBg} ${themeClasses.badgeText} ${themeClasses.badgeBorder}`}
                       >
                         {lang.proficiency}
                       </Badge>
@@ -538,53 +383,49 @@ export function DarkTechTemplate({
         {portfolioData.customSections && portfolioData.customSections.length > 0 && (
           <>
             {portfolioData.customSections.map((section) => (
-              <section key={section.id} className="mb-24">
-                <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>{section.title}</h2>
-                <div className="space-y-6">
-                  {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
+              <SectionViewTracker 
+                key={section.id} 
+                resumeId={resumeId || ""} 
+                sectionName={`custom_${section.title.toLowerCase().replace(/\s+/g, '_')}`}
+                disableTracking={disableTracking}
+              >
+                <section className="mb-24">
+                  <h2 className={`text-2xl font-bold mb-8 ${themeClasses.text}`}>{section.title}</h2>
+                  <div className="space-y-6">
+                    {section.items && section.items.length > 0 ? section.items.map((item, idx) => (
                     <div
                       key={idx}
-                      className={`p-5 rounded-lg border ${
-                        theme === "white"
-                          ? "border-gray-200"
-                          : "bg-gray-900/50 border-gray-800"
-                      }`}
-                      style={{
-                        ...(theme === "white" && {
-                          background: "rgba(255, 255, 255, 0.2)",
-                          backdropFilter: "blur(5px)",
-                        })
-                      }}
+                      className={`p-5 rounded-lg border ${themeClasses.cardBg} ${themeClasses.cardBorder}`}
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex-1">
                           <h3 className={`font-bold text-lg ${themeClasses.text}`}>{item.title}</h3>
                           {item.subtitle && (
-                            <p className={`text-sm ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                            <p className={`text-sm ${themeClasses.mutedText}`}>
                               {item.subtitle}
                             </p>
                           )}
                         </div>
                         <div className="text-right ml-4">
                           {item.date && (
-                            <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                            <p className={`text-sm ${themeClasses.mutedText}`}>
                               {formatDateToDisplay(item.date)}
                             </p>
                           )}
                           {item.location && (
-                            <p className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                            <p className={`text-sm ${themeClasses.mutedText}`}>
                               {item.location}
                             </p>
                           )}
                         </div>
                       </div>
                       {item.description && (
-                        <p className={`mb-3 ${theme === "white" ? "text-gray-700" : "text-gray-300"}`}>
+                        <p className={`mb-3 ${themeClasses.text}`}>
                           {item.description}
                         </p>
                       )}
                       {item.details && item.details.length > 0 && (
-                        <ul className={`list-disc list-inside space-y-1 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                        <ul className={`list-disc list-inside space-y-1 ${themeClasses.mutedText}`}>
                           {item.details.map((detail, detailIdx) => (
                             <li key={detailIdx}>{detail}</li>
                           ))}
@@ -592,12 +433,13 @@ export function DarkTechTemplate({
                       )}
                     </div>
                   )) : (
-                    <p className={theme === "white" ? "text-gray-600" : "text-gray-400"}>
+                    <p className={themeClasses.mutedText}>
                       No items in this section
                     </p>
                   )}
                 </div>
               </section>
+              </SectionViewTracker>
             ))}
           </>
         )}
@@ -616,33 +458,15 @@ export function DarkTechTemplate({
                     </div>
                   </div>
                   <div>
-                    <h3 className={`font-bold text-lg ${themeClasses.text} hover:text-blue-400 transition-colors flex items-center`}>
+                    <h3 className={`font-bold text-lg ${themeClasses.text} ${themeClasses.buttonHover} transition-colors duration-200 flex items-center`}>
                       {edu.institution}{edu.location && <span className="text-base font-normal">, {edu.location}</span>}
-                      {edu.institution.includes("Trident") && (
-                        <Badge 
-                          className={`ml-2 ${
-                            theme === "white" 
-                              ? "text-gray-600" 
-                              : "bg-gray-800 text-gray-300"
-                          }`}
-                          style={{
-                            ...(theme === "white" && {
-                              background: "rgba(255, 255, 255, 0.3)",
-                              backdropFilter: "blur(4px)",
-                              border: "1px solid rgba(0, 0, 0, 0.06)",
-                            })
-                          }}
-                        >
-                          <ChevronRight className="w-3 h-3 mr-1" />
-                        </Badge>
-                      )}
                     </h3>
-                    <p className="text-gray-300 mb-1">{formatDegreeDisplay(edu.degree, edu.field)}</p>
-                    <p className="text-sm text-gray-500 mb-1">
+                    <p className={`${themeClasses.mutedText} mb-1`}>{formatDegreeDisplay(edu.degree, edu.field)}</p>
+                    <p className={`text-sm ${themeClasses.mutedText} mb-1`}>
                       {formatDateToDisplay(edu.startYear)} - {formatDateToDisplay(edu.endYear)}
                     </p>
                     {edu.cgpa && (
-                      <p className="text-sm text-gray-400 font-medium">
+                      <p className={`text-sm ${themeClasses.mutedText} font-medium`}>
                         {formatGradeDisplay(edu.cgpa)}
                       </p>
                     )}
@@ -662,25 +486,13 @@ export function DarkTechTemplate({
               {portfolioData.blogs.map((blog) => (
                 <div
                   key={blog.id}
-                  className={`p-5 rounded-lg transition-all ${
-                    theme === "white"
-                      ? "border hover:border-blue-200"
-                      : "bg-gray-900/50 border border-gray-800 hover:border-blue-500/50"
-                  }`}
-                  style={{
-                    ...(theme === "white" && {
-                      background: "rgba(255, 255, 255, 0.2)",
-                      backdropFilter: "blur(5px)",
-                      border: "1px solid rgba(0, 0, 0, 0.06)",
-                      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.04)",
-                    })
-                  }}
+                  className={`p-5 rounded-lg transition-all duration-200 ${themeClasses.cardBg} ${themeClasses.cardBorder} border hover:shadow-md`}
                 >
-                  <h3 className="font-bold text-lg mb-2">{blog.title}</h3>
-                  <p className={`mb-4 ${theme === "white" ? "text-gray-600" : "text-gray-400"}`}>
+                  <h3 className={`font-bold text-lg mb-2 ${themeClasses.text}`}>{blog.title}</h3>
+                  <p className={`mb-4 ${themeClasses.mutedText}`}>
                     {blog.summary}
                   </p>
-                  <div className={`text-sm ${theme === "white" ? "text-gray-500" : "text-gray-500"}`}>
+                  <div className={`text-sm ${themeClasses.mutedText}`}>
                     {new Date(blog.publishDate).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",
@@ -690,85 +502,61 @@ export function DarkTechTemplate({
                 </div>
               ))}
             </div>
-
-            <div className="flex justify-center mt-8">
-              <Button
-                variant="outline"
-                className="border-gray-700 hover:bg-gray-800 bg-transparent"
-              >
-                Read More Blogs
-              </Button>
-            </div>
           </section>
         )}
 
         {/* Contact Section */}
-        <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
-          <section className="mb-16" data-section="contact">
-            <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>Contact</h2>
-            <p className="text-gray-300 mb-6">
-              Always open to discussing new projects, creative ideas, or
-              opportunities to be part of your visions. Feel free to reach out!
-            </p>
+        {portfolioData.personalInfo.email && (
+          <SectionViewTracker resumeId={resumeId || ""} sectionName="contact" disableTracking={disableTracking}>
+            <section className="mb-16" data-section="contact">
+              <h2 className={`text-2xl font-bold mb-6 ${themeClasses.text}`}>Contact</h2>
 
-            {portfolioData.personalInfo.email && (
-              <TrackableLink
-                href={`mailto:${portfolioData.personalInfo.email}`}
-                resumeId={resumeId || ""}
-                interactionType="email_click"
-                sectionName="contact"
-                disableTracking={disableTracking}
-                className="inline-block"
-              >
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Connect via Email
-                </Button>
-              </TrackableLink>
-            )}
-
-            {portfolioData.personalInfo.social.twitter && (
-              <TrackableLink
-                href={portfolioData.personalInfo.social.twitter}
-                resumeId={resumeId || ""}
-                interactionType="social_link_click"
-                sectionName="contact"
-                target="_blank"
-                rel="noopener noreferrer"
-                disableTracking={disableTracking}
-                className="ml-4 inline-block"
-              >
-                <Button
-                  variant="outline"
-                  className="border-gray-700 hover:bg-gray-800 bg-transparent"
+              <div className="flex flex-wrap gap-4">
+                <TrackableLink
+                  href={`mailto:${portfolioData.personalInfo.email}`}
+                  resumeId={resumeId || ""}
+                  interactionType="email_click"
+                  sectionName="contact"
+                  disableTracking={disableTracking}
+                  className="inline-block"
                 >
-                  <Twitter className="w-4 h-4 mr-2" />
-                  Connect on X
-                </Button>
-              </TrackableLink>
-            )}
-          </section>
-        </SectionViewTracker>
+                  <Button className={`${themeClasses.buttonBg} ${themeClasses.buttonHover} text-white transition-all duration-200`}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Connect via Email
+                  </Button>
+                </TrackableLink>
+
+                {portfolioData.personalInfo.social.twitter && (
+                  <TrackableLink
+                    href={portfolioData.personalInfo.social.twitter}
+                    resumeId={resumeId || ""}
+                    interactionType="social_link_click"
+                    sectionName="contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    disableTracking={disableTracking}
+                    className="inline-block"
+                  >
+                    <Button
+                      variant="outline"
+                      className={`${themeClasses.border} ${themeClasses.buttonHover} ${themeClasses.text} transition-all duration-200`}
+                    >
+                      <Twitter className="w-4 h-4 mr-2" />
+                      Connect on X
+                    </Button>
+                  </TrackableLink>
+                )}
+              </div>
+            </section>
+          </SectionViewTracker>
+        )}
 
         {/* Footer */}
-        <footer className="text-center text-gray-500 text-sm border-t border-gray-800 pt-8">
-          <div className="mb-4">
-            <p>
-              &copy; 2025 {portfolioData.personalInfo.firstName}{" "}
-              {portfolioData.personalInfo.lastName}. All rights reserved.
-            </p>
-            <p>
-              Open source under MIT License and available on{" "}
-              <Link href="#" className="text-blue-400 hover:underline">
-                GitHub
-              </Link>
-            </p>
-          </div>
-
-          <div className="flex justify-center space-x-6 text-gray-600">
-            <Link href="#">Sitemap</Link>
-            <Link href="#">RSS</Link>
-          </div>
+        <footer className={`text-center ${themeClasses.mutedText} text-sm border-t ${themeClasses.sectionBorder} pt-8`}>
+          <p>
+            © {new Date().getFullYear()} {portfolioData.personalInfo.firstName}{" "}
+            {portfolioData.personalInfo.lastName}
+          </p>
         </footer>
       </div>
     </div>

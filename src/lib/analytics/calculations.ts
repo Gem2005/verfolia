@@ -5,6 +5,9 @@ export interface TimeSeriesDataPoint {
   views: number;
   interactions: number;
   avgDuration: number;
+  uniqueSessions: number;
+  returningViews: number;
+  returningPercentage: number;
 }
 
 export const calculateGrowthRate = (
