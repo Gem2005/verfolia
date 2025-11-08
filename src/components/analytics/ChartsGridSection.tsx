@@ -41,13 +41,11 @@ export function ChartsGridSection({ calculations }: ChartsGridSectionProps) {
         />
       </div>
 
-      {calculations.sectionDurations && calculations.sectionDurations.length > 0 && (
-        <div className="w-full">
-          <SectionDurationChart
-            data={calculations.sectionDurations}
-          />
-        </div>
-      )}
+      <div className="w-full">
+        <SectionDurationChart
+          data={calculations.sectionDurations || []}
+        />
+      </div>
 
       {calculations.stackedCountries.length > 0 && (
         <div className="w-full">
