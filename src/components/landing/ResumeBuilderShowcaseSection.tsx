@@ -11,6 +11,42 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
+import { DarkTechTemplate } from "@/components/templates/DarkTechTemplate";
+import { getPortfolioData } from "@/components/PortfolioDataProvider";
+import type { ResumeData } from "@/types/ResumeData";
+
+// Empty resume data - will be filled with sample data by getPortfolioData
+const emptyResumeData: ResumeData = {
+  user_id: "",
+  title: "",
+  template_id: 1,
+  theme_id: 1,
+  is_public: false,
+  slug: "",
+  view_count: 0,
+  personalInfo: {
+    firstName: "",
+    lastName: "",
+    title: "",
+    email: "",
+    phone: "",
+    location: "",
+    linkedinUrl: "",
+    githubUrl: "",
+    summary: "",
+    photo: "",
+  },
+  experience: [],
+  education: [],
+  skills: [],
+  projects: [],
+  certifications: [],
+  languages: [],
+  customSections: [],
+};
+
+// Get sample portfolio data using the provider
+const sampleData = getPortfolioData(emptyResumeData, true);
 
 export const ResumeBuilderShowcaseSection = () => {
   const { ref, isVisible } = useScrollAnimation(0.1);
@@ -70,43 +106,30 @@ export const ResumeBuilderShowcaseSection = () => {
 
           <div className="order-2 lg:order-2 animate-slide-in-right">
             <div className="relative group">
-              {/* Main Card */}
-              <div className="glass-card-strong p-5 sm:p-6 md:p-8 lg:p-10 rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-primary/20 group-hover:border-primary/40 transition-all duration-500 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.3)]">
-                <div className="aspect-[4/5] bg-gradient-to-br from-primary/10 via-purple-500/10 to-blue-500/10 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden p-8">
-                  {/* Animated Background Pattern */}
-                  <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-                  
-                  {/* Mock Resume Lines */}
-                  <div className="w-full space-y-4 mb-8 relative z-10">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full bg-primary/20 animate-pulse" />
-                      <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-primary/30 rounded-full w-3/4 animate-pulse" style={{ animationDelay: '100ms' }} />
-                        <div className="h-2 bg-primary/20 rounded-full w-1/2 animate-pulse" style={{ animationDelay: '200ms' }} />
-                      </div>
+              {/* Main Card - Preview Container Style */}
+              <div className="glass-card-strong rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-primary/20 group-hover:border-primary/40 transition-all duration-500 group-hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] overflow-hidden">
+                {/* Browser Header */}
+                <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-br from-[#ECF0F1]/30 to-white/30 dark:from-[#2C3E50]/30 dark:to-[#34495E]/30 border-b-2 border-primary/10">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#E74C3C] shadow-sm"></div>
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#F39C12] shadow-sm"></div>
+                      <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#27AE60] shadow-sm"></div>
                     </div>
-                    <div className="space-y-2 mt-6">
-                      <div className="h-2 bg-primary/30 rounded-full w-full animate-pulse" style={{ animationDelay: '300ms' }} />
-                      <div className="h-2 bg-primary/25 rounded-full w-5/6 animate-pulse" style={{ animationDelay: '400ms' }} />
-                      <div className="h-2 bg-primary/20 rounded-full w-4/6 animate-pulse" style={{ animationDelay: '500ms' }} />
-                    </div>
-                    <div className="space-y-2 mt-6">
-                      <div className="h-3 bg-primary/30 rounded-full w-2/5 animate-pulse" style={{ animationDelay: '600ms' }} />
-                      <div className="h-2 bg-primary/20 rounded-full w-full animate-pulse" style={{ animationDelay: '700ms' }} />
-                      <div className="h-2 bg-primary/20 rounded-full w-3/4 animate-pulse" style={{ animationDelay: '800ms' }} />
-                    </div>
+                    <h3 className="font-bold text-xs sm:text-sm text-[#2C3E50] dark:text-[#ECF0F1] ml-1 sm:ml-2">
+                      Resume Preview
+                    </h3>
                   </div>
-                  
-                  <div className="text-center relative z-10">
-                    <div className="mb-4 relative">
-                      <FileText className="w-16 h-16 text-primary mx-auto drop-shadow-lg" />
-                      <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full" />
-                    </div>
-                    <p className="text-muted-foreground font-medium text-sm">Interactive Resume Preview</p>
-                    <div className="mt-3 flex justify-center gap-2">
-                      {[...Array(3)].map((_, i) => (
-                        <div key={i} className="w-2 h-2 bg-primary/50 rounded-full animate-pulse" style={{ animationDelay: `${i * 200}ms` }} />
-                      ))}
+                </div>
+                
+                {/* Preview Content */}
+                <div className="bg-gradient-to-br from-primary/10 via-purple-500/10 to-blue-500/10 p-5 sm:p-6 md:p-8 lg:p-10">
+                  <div className="aspect-[4/5] bg-white dark:bg-[#0a0a0a] rounded-xl border border-primary/10 overflow-hidden relative shadow-inner">
+                    {/* Render actual template with scale */}
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="w-full h-full" style={{ transform: 'scale(0.35)', transformOrigin: 'top left', width: '285%', height: '285%' }}>
+                        <DarkTechTemplate data={sampleData} theme="black" preview={true} disableTracking={true} />
+                      </div>
                     </div>
                   </div>
                 </div>
