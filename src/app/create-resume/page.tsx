@@ -433,7 +433,7 @@ export default function CreateResumePage() {
     title: resumeTitle,
     template_id: 1,
     theme_id: 1,
-    is_public: false,
+    is_public: true,
     slug: "",
     view_count: 0,
     personalInfo: {
@@ -1048,7 +1048,7 @@ export default function CreateResumePage() {
                   title: parsed.title || 'My Resume',
                   template_id: parsed.selectedTemplate || 'clean-mono',
                   theme_id: parsed.selectedTheme || 'black',
-                  is_public: false,
+                  is_public: true,
                   personal_info: parsed.personalInfo,
                   experience: parsed.experience,
                   education: parsed.education,
