@@ -111,11 +111,11 @@ export const validateSkill = (skill: string): boolean => {
 
 export const validateProficiency = (proficiency: string): boolean => {
   const validLevels = [
-    "Beginner",
-    "Intermediate",
-    "Advanced",
-    "Fluent",
-    "Native",
+    "beginner",
+    "intermediate",
+    "proficient",
+    "fluent",
+    "native",
   ];
-  return validLevels.includes(proficiency);
+  return validLevels.includes(proficiency.toLowerCase());
 };
